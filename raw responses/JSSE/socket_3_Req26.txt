@@ -1,0 +1,52 @@
+Here's a basic example of how to create an SSLSocket in Java using the Java Secure Socket Extension (JSSE) API:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    
+    private static final String SERVER_IP = "server_ip";
+    private static final int SERVER_PORT = 7777;
+
+    public static void main(String[] args) {
+        try {
+            // Get SSLSocketFactory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create SSLSocket
+            SSLSocket socket = (SSLSocket) factory.createSocket(SERVER_IP, SERVER_PORT);
+
+            // Initialize the socket
+            socket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Send a request to the server
+            String request = "Hello Server";
+            out.println(request);
+            out.flush();
+
+            // Read response from the server
+            String response = in.readLine();
+            System.out.println("Server response: " + response);
+
+            // Close the IO resources
+            out.close();
+            in.close();
+
+            // Close the socket
+            socket.close();
+
+        } catch (IOException e) {
+            System.err.println("I/O error in SSL connection: "+ e);
+        }
+    }
+}
+```
+
+This program creates an SSLSocket, sends a string to a server, and receives a response. 
+
+Note: Replace `SERVER_IP` and `SERVER_PORT` with your server's IP and port number. This is a very basic implementation, in a real-world scenario, you'd want to handle exceptions and errors more thoroughly. Also, this program trusts any SSL certificate which is not recommended for production. For a production-level code, proper certificate handling/mechanism should be applied.

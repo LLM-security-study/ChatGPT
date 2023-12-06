@@ -1,0 +1,41 @@
+Sure, here's the Java code that uses the Advanced Encryption Standard (AES) in Cipher Block Chaining (CBC) mode to decrypt data. 
+
+This code provides a basic structure. You may need a more advanced configuration in your case (like a stream cipher, key manager, or checked exceptions, etc) 
+
+Do not forget to adjust keyBytes and ivBytes to your actual key and Initialization Vector (IV).
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String encryptedData = "Encrypted Data Here"; // Replace with your encrypted data
+        String key = "key here"; // Replace with your key
+        String initVector = "initialization vector here"; // Replace with your initialization vector
+        
+        byte[] keyBytes = key.getBytes("UTF-8");
+        byte[] ivBytes = initVector.getBytes("UTF-8");
+        byte[] encryptedBytes = Base64.getDecoder().decode(encryptedData);
+
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "AES");
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(ivBytes);
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivParameterSpec);
+
+        byte[] original = cipher.doFinal(encryptedBytes);
+
+        System.out.println(new String(original));
+    }
+}
+```
+In this code the key and initialization vector are both expected to be strings, and the encrypted data is expected to be a Base64-encoded string. These assumptions may not match your case.
+
+Please replace 'key here', 'initialization vector here' and 'Encrypted Data Here' with your actual AES key, IV and encrypted data.
+
+Also for Java 7 or older version, you might need BouncyCastle provider or similar to support AES/CBC/PKCS5Padding cipher algorithm. Make sure you have necessary permission and right dependencies before continue.
+
+Please ensure the confidentiality of the key and initialization vector.

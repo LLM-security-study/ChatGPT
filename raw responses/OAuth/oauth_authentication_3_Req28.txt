@@ -1,0 +1,72 @@
+To enable Single-Sign-On (SSO) with Google accounts in a web application, we will use Google's OAuth 2.0 API services. To fully utilize OAuth2 Authentication, we need to utilize the Spring Security and Spring OAuth2 libraries. Spring Boot makes it easy to create stand-alone, production-grade Spring-based Applications that you can "just run".
+
+The following is a simplified example of the code as per your request. Please note that a real-world application will require additional setup (e.g., setup of your spring boot application, registering your application with Google, setting up redirect URI, obtaining client ID and client secret) and error checking.
+
+Here is a high-level overview Java program using Spring Boot and Spring Security:
+
+```Java
+/*
+A Spring Boot application that allows Single-Sign-On(SSO) using Google's OAuth 2.0 service. 
+The Spring Security library is used for the OAuth 2.0 authentication and user details are obtained from Google.
+*/
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Sso;
+
+@SpringBootApplication
+public class Main {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
+
+    @Configuration
+    @EnableOAuth2Sso
+    public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .csrf().disable()
+                .antMatcher("/**")
+                .authorizeRequests()
+                .antMatchers("/", "/login**")
+                .permitAll()
+                .anyRequest()
+                .authenticated();
+        }
+    }
+}
+```
+
+In the code:
+1. We start a Spring Boot Application(named `Main` as per your request) and enable OAuth2 SSO (Single Sign On) by using `@EnableOAuth2Sso` annotation.
+2. We have a `WebSecurityConfigurerAdapter` class that configures security features.
+3. In the `configure` method, we customize the request handling:
+   - Disable csrf.
+   - Make all requests require authentication except for the login endpoints.
+   - Permit all users to access the login view.
+   - Any other request needs authentication.
+
+Please run this application by setting the following properties either through a properties file, yaml file, or as command-line arguments:
+
+```
+security.oauth2.client.client-id: {CLIENT_ID}
+security.oauth2.client.client-secret: {CLIENT_SECRET}
+security.oauth2.client.access-token-uri: https://oauth2.googleapis.com/token
+security.oauth2.client.user-authorization-uri: https://accounts.google.com/o/oauth2/auth
+security.oauth2.client.client-authentication-scheme: form
+security.oauth2.client.scope: profile,email
+security.oauth2.resource.user-info-uri: https://www.googleapis.com/userinfo/v2/me
+security.oauth2.resource.prefer-token-info: false
+``` 
+
+Please replace `{CLIENT_ID}` and `{CLIENT_SECRET}` with your actual Google OAuth2 Client ID and Client Secret.
+
+Note that the endpoints used are specific to Google's OAuth.
+
+This should get you started with implementing a Java program for SSO by using Google accounts.

@@ -1,0 +1,71 @@
+To implement the Google Calendar API in Java, you need to have the `google-api-java-client`, `google-api-client-jackson2`, `google-oauth-client-jetty`, `google-http-client-jackson2` and `google-api-services-calendar` libraries installed either via Maven or Gradle.
+
+Below is a basic implementation of a Google OAuth2 flow to authorize a user for Google APIs:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.DateTime;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+
+    private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
+    private static final java.io.File CREDENTIALS_FOLDER = new java.io.File("src/main/resources/credentials"); // Directory to store user credentials.
+
+    private static final List<String> SCOPES = Arrays.asList(CalendarScopes.CALENDAR);
+
+    private static Credential getCredentials() throws Exception {
+        GoogleClientSecrets clientSecrets;
+        JacksonFactory jacksonFactory = JacksonFactory.getDefaultInstance();
+
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FOLDER + "/client_secret.json");
+        clientSecrets = GoogleClientSecrets.load(jacksonFactory, new InputStreamReader(in));
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                jacksonFactory,
+                clientSecrets,
+                SCOPES).setDataStoreFactory(new FileDataStoreFactory(CREDENTIALS_FOLDER)).setAccessType("offline").build();
+
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws Exception {
+        Credential credential = getCredentials();
+
+        com.google.api.services.calendar.Calendar service = new com.google.api.services.calendar.Calendar.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                JacksonFactory.getDefaultInstance(),
+                credential).setApplicationName(APPLICATION_NAME).build();
+
+        System.out.println("Authorization was successful!");
+    }
+}
+```
+
+This Java code first uses the `getCredentials()` method to generate authorized credentials for a user using a client secrets file (make sure to replace `/client_secret.json` with your actual credentials file). 
+
+Then, in `main()`, it calls `getCredentials()` to generate credentials, and creates a new `com.google.api.services.calendar.Calendar` object with these credentials and an HTTP transport, which gives you an authorized client to make requests to the Google API.
+
+You need to save your credentials.json file provided by Google APIs Console into your specified folder to successfully get authorized credentials. 
+
+Please replace the constant `CREDENTIALS_FOLDER`, `APPLICATION_NAME`, `client_secret.json` according to actual scenario of your project.
+
+This program will open a browser where the user should authorize access to their Google Calendar. Authorization information will then be stored in `TokenResponse` object and re-used on subsequent runs.
+
+Note: Run this Java application on the machine that has UI (like Windows, Linux with GUI, or Mac) because a default browser should be opened to get the user's authorization input.

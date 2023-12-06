@@ -1,0 +1,70 @@
+Creating an Android application with fingerprint authentication is a complex process. For clarity purpose, we'll focus on creating a FingerprintHandler class that extends FingerprintManager.AuthenticationCallback. This class is used to start and stop fingerprint listener.
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.util.Log;
+import android.widget.Toast;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private AppCompatActivity activity;
+
+    public FingerprintHandler(AppCompatActivity activity) {
+        this.activity = activity;
+    }
+
+    public void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+        CancellationSignal cancellationSignal = new CancellationSignal();
+        if (ContextCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        manager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+    }
+    
+    @Override
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(activity, "Authentication error\n" + errString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(activity, "Authentication help\n" + helpString, Toast.LENGTH_LONG).show();
+    }
+    
+    @Override
+    public void onAuthenticationFailed() {
+        Toast.makeText(activity, "Authentication failed", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        Toast.makeText(activity, "Success!", Toast.LENGTH_LONG).show();
+    }
+}
+```
+
+In your main activity class, you can create an instance of the FingerprintHandler class and start the fingerprint authentication.
+
+```java
+public class MainActivity extends AppCompatActivity {
+    // Other code...
+ 
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        FingerprintHandler fingerprintHandler = new FingerprintHandler(this);
+        fingerprintHandler.startAuth(fingerprintManager, null);
+    }
+}
+```
+
+This code starts the fingerprint authentication when the MainActivity is loaded. It will produce a 'Success' toast when the fingerprint is authenticated successfully, and show the appropriate error message when fingerprint authentication fails.
+
+Remember your phone needs to have at least Android Marshmallow 6.0 or later and needs to be compatible with fingerprint authentication.

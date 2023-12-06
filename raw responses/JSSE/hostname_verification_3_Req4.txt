@@ -1,0 +1,36 @@
+You typically use the Java Secure Socket Extension (JSSE) API in the `javax.net.ssl` package for SSL/TLS communications. Here is a simple Java code snippet that verifies the server's hostname in an SSL/TLS communication:
+
+```java
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+        SSLSocket socket = null;
+        try {
+            socket = (SSLSocket) factory.createSocket("www.example.com", 443);
+    
+            SSLSession session = socket.getSession();
+            String hostname = session.getPeerHost();
+            System.out.println("Connected to: " + hostname);
+    
+            if (!"www.example.com".equals(hostname)) {
+                System.out.println("Host name verification failed!");
+                System.exit(1);
+            }
+    
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+}
+```
+
+In above main function, the SSLSocketFactory object is used to create an SSLSocket connected to a specified remote host and port. The hostname is extracted from the SSLSession via the `getPeerHost()` method and compared against the expected hostname. If the hostnames do not match, the program exits with an error.
+
+Do note that this is a basic example and in a real-world scenario, additional error checking and hostname verification methods would typically be required. Depending on the Java version, we might also need to write custom `HostnameVerifier` to check certificate's Common Name (CN) or Subject Alternative Name (SAN) against the hostname. 
+
+Make sure to modify `"www.example.com"` to match the server's actual hostname.

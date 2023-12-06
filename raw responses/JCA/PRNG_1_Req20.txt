@@ -1,0 +1,37 @@
+The code snippet below represents how such a program can be written in Java, taking into account Java's standard SecureRandom and SecretKey classes. The SecureRandom class provides a cryptographically strong random number generator, while SecretKey represents a secret key in symmetric cryptography.
+
+```java
+import javax.crypto.spec.IvParameterSpec;
+import java.security.SecureRandom;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generate a 128-bit seed
+            SecureRandom secureRandom = new SecureRandom();
+            byte[] seed = new byte[16];
+            secureRandom.nextBytes(seed);
+            
+            // Print the seed
+            System.out.println("Generated seed: " + Arrays.toString(seed));
+
+            // Use the seed to generate IV
+            SecureRandom secureRandomForIV = new SecureRandom(seed);
+            byte[] iv = new byte[16]; // For AES, IV is typically 16 bytes
+            secureRandomForIV.nextBytes(iv);
+
+            // Create IV parameter spec
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+            
+            // Print the IV
+            System.out.println("Initialization Vector of the Symmetric Key: " + Arrays.toString(iv));
+
+        } catch (Exception ex) {
+            System.out.println("Error generating seed or IV: " + ex.getMessage());
+        }
+    }
+}
+```
+
+This program first generates a 16-byte (i.e., 128-bit) seed using the SecureRandom.nextBytes() method. After then, it generates a 16-byte Initialization Vector (IV) using a new SecureRandom instance that is seeded with the previously generated seed. The generated seed and IV could be used for symmetric encryption purposes such as in the AES encryption algorithm.

@@ -1,0 +1,78 @@
+To verify the integrity of the Android device, we can use SafetyNet API provided by Google Play Services. The SafetyNet Attestation API helps you examine whether the device your app is running on is tampered or potentially harmful in any way. Here's a simple implementation:
+
+```java
+import android.os.AsyncTask;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends Activity {
+
+    private static final String API_KEY = "YOUR_API_KEY"; 
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        new CheckDeviceIntegrity().execute();
+    }
+
+    private class CheckDeviceIntegrity extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            SafetyNet.getClient(Main.this).attest(nonce, API_KEY)
+                    .addOnSuccessListener(Main.this,
+                            new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                                @Override
+                                public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                  
+                                    if (isValidSignature(response.getJwsResult())) {
+                                        // The device is valid and not tampered.
+                                    } else {
+                                        // The device is corrupted or tampered.
+                                    }
+                                }
+                            })
+                    .addOnFailureListener(Main.this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // Unable to check.
+                        }
+                    });
+            return null;
+        }
+    }
+
+    private byte[] getNonce() {
+        // Generate the nonce randomly
+    }
+
+    private boolean isValidSignature(String jwsResult) {
+        // Validate the JWT signature of the JWS result.
+        return true;
+    }
+}
+```
+
+The `isValidSignature` method should contain logic that checks whether the returned JWS result from the API is trustworthy by validating its JWT signature. The `getNonce` method should generate a random nonce that you send to the server.
+
+Please make sure to replace "YOUR_API_KEY" with your actual API key obtained from Google Developer Console.
+
+Note: Remember to add SafetyNet API and Google Play Services dependencies in your gradle file.
+
+```gradle
+implementation 'com.google.android.gms:play-services-safetynet:16.0.0'
+implementation 'com.google.android.gms:play-services:12.0.1'
+```
+
+Don't forget to add permission to your Android Manifest file if you are checking whether the device has passed Google's compatibility tests:
+
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.example.myapp">
+    <uses-permission android:name="android.permission.INTERNET" />
+    ...
+</manifest>
+```

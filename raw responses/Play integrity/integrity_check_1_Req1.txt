@@ -1,0 +1,66 @@
+In order to verify the integrity of an Android app, we can use the SafetyNet Attestation API provided by Google. SafetyNet Attestation checks if the device is compatible with Android's Compatibility Test Suite (CTS) and if the app's APK has not been tampered with.
+
+Below is a Java program that implements SafetyNet Attestation API to verify the app's integrity:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    private static final String API_KEY = "YOUR_API_KEY_HERE";
+
+    public static void main(String[] args) {
+        checkAppIntegrity();
+    }
+
+    private static void checkAppIntegrity() {
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+                .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Parse and handle the result
+                        String result = response.getJwsResult();
+                        System.out.println("SafetyNet result: " + result);
+                        if (isValidSafetyNetResponse(result)) {
+                            System.out.println("The app is interacting with its unmodified binary!");
+                        } else {
+                            System.out.println("The app has been modified!");
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        System.out.println("Failed to check SafetyNet Attestation: " + e.getMessage());
+                    }
+                });
+    }
+
+    private static boolean isValidSafetyNetResponse(String response) {
+        // This is a placeholder for your actual implementation.
+        // You need to parse the response and verify its integrity.
+        // For simplicity, we'll always return true in this example.
+        return true;
+    }
+    
+    // generate a random byte array(nonce)
+    private static byte[] generateNonce() {
+        // Not Implemented
+        return null;
+    }
+}
+```
+
+Please note that the above code is just a sample. The `isValidSafetyNetResponse()` method should include your own implementation to parse the JWS (JSON Web Signature) result and verify the payload.
+
+Execute the above Java code with Android Studio or any similar IDE that supports Android development, as Java SE doesn't support the `SafetyNet` API.
+
+Remember to replace `"YOUR_API_KEY_HERE"` with your actual API key.
+
+This program initializes the SafetyNet Attestation API, using the Attest method to check if the device and the app pass Google's compatibility and integrity checks. The result will be printed out on the console.
+
+Please note, Attest API requires the use of a nonce for added security. The generation of the nonce is not included in the above code, you need to implement the 'generateNonce' method to generate a secure random nonce. You need to store this nonce and compare it with the one in the SafetyNet Attestation result to make sure the result is fresh.
+
+Also, Google encourages developers to perform the JWS validation and interpretation on a server that you trust, not on a device.

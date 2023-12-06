@@ -1,0 +1,56 @@
+In order to effectively determine whether an Android app is interacting with its unmodified binary, the Google Play App Integrity API must be used. This API enables you to determine whether your app is interacting with the version of its binary that Google Play recognizes, which allows you to mitigate risks related to app tampering and counterfeit apps in distribution channels outside of Google Play.
+
+Please note that Google Play App Integrity API needs your app to first create an instance of the `SafetyNetClient`, call `listHarmfulApps()`, and then check the response for any installed harmful apps. In the API response, you can look into `apkPackageName`, `apkSha256`, and `apkCertificateDigestSha256` fields to check the integrity of the APK.
+
+Here's an example of how you could set this up in Java:
+
+```Java
+import androidx.annotation.NonNull;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+
+    public static void main(String[] args) {
+        final SafetyNetClient client = SafetyNet.getClient(Main.this);
+
+        client.listHarmfulApps()
+            .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.HarmfulAppsResponse>() {
+                   @Override
+                   public void onSuccess(SafetyNetApi.HarmfulAppsResponse response) {
+                        if (response.getHarmfulAppsList().isEmpty()) {
+                           System.out.println("No known potentially harmful apps are installed.");
+                        } else {
+                           System.out.println("Potentially harmful apps are installed!");
+                           // Here you could extract apkPackageName and compare it with known good hash values 
+                           // for your app. You can use apkSha256 or apkCertificateDigestSha256 fields to 
+                           // check the integrity. If they do not match with expected value, it is likely that 
+                           // app binary has been modified.
+                        }
+                   }
+               })
+               .addOnFailureListener(new OnFailureListener() {
+                   @Override
+                   public void onFailure(@NonNull Exception e) {
+                      if (e instanceof ApiException) {
+                          ApiException apiException = (ApiException) e;
+                          System.out.println("Error: " + apiException.getStatusCode());
+                      } else {
+                          System.out.println("Unknown error: " + e.getMessage());
+                      }
+                   }
+               });
+    }
+}
+```
+
+**Note:** 
+1. This is a console-based program. Android apps do not have a main method as an entry point, the entry point is the `Launcher Activity`. The `main` method is used to represent the logic, in a real scenario you should put this logic inside an Activity or Service.
+2. In addition, remember to ask for `android.permission.INTERNET` permission in your AndroidManifest.xml file, as the SafetyNet Attestation API relies on an internet connection to communicate with Google's servers.
+3. This code assumes that project has Google Play Services available and configured.
+4. The running of this code would require it to be executed in an Android environment as it contains Android-specific code.
+5. Include the SafetyNet library in your project (In build.gradle (app) file under the `dependencies` section add `implementation 'com.google.android.gms:play-services-safetynet:17.0.2'`)

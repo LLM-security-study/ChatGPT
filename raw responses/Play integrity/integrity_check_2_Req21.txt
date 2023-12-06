@@ -1,0 +1,47 @@
+In order to verify the integrity of an Android app, we can use Google's SafetyNet Attestation API. This API helps to determine whether the app is running on a tampered device by evaluating the compatibility check suite (CTS).
+
+Here's a simple Java program for this purpose:
+
+Please make sure to replace "apiKeyHere" with your actual API key. 
+
+```java
+import java.io.IOException;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonObjectParser;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            HttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            HttpRequestFactory requestFactory = httpTransport.createRequestFactory(
+            (HttpRequest request) -> {
+                request.setParser(new JsonObjectParser(new JacksonFactory()));
+            });
+
+            GenericUrl url = new GenericUrl(String.format(
+                    "https://www.googleapis.com/androidcheck/v1/attestations/check?key=%s",
+                    "apiKeyHere" // Replace with your API key
+            ));
+
+            JsonObject requestBody = new JsonObject();
+            requestBody.put("signedAttestation", "<jws-signature>"); // replace <jws-signature> with your signed attestation
+            HttpRequest request = requestFactory.buildPostRequest(url, new JsonHttpContent(new JacksonFactory(), requestBody));
+            String rawResponse = request.execute().parseAsString();
+            System.out.println(rawResponse);
+
+        } catch (IOException | GeneralSecurityException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+Make sure to replace `<jws-signature>` with the JWS (JSON Web Signature) signature obtained from the API.
+
+This simple Java program sends an HTTP request to the SafetyNet Attestation API which decodes the JWS object passed in the request body and returns the integrity status of the running app.
+
+Please note, in order to validate an Android app, you should first get a signed attestation statement from the attestation API and pass it to your own server. This simple program should be run on your server to validate the attestation statement. For a more secure setup, you would also use the server's stored apk checksum at the time of release and compare it to the checksum in the attestation result. This way, even if the apk was tampered with after being checked by the attestation API, we could still detect it.

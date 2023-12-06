@@ -1,0 +1,27 @@
+Here is a basic example of a Java program that generates a seed for a pseudorandom number generator and produces a random integer.
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+        
+        // generate seed and set it to the secureRandom object
+        byte bytes[] = new byte[20];
+        secureRandom.nextBytes(bytes);
+        
+        // reseed the secureRandom object
+        secureRandom.setSeed(bytes);
+        
+        // generate random integer
+        int randomInt = secureRandom.nextInt();
+        
+        System.out.println("Generated Random Integer: " + randomInt);
+    }
+}
+```
+This example uses SecureRandom, which provides a cryptographically strong random number generator. It first generates a seed using `nextBytes` method, reseeds the secureRandom object by the generated seed(`setSeed` method), and then produces a random integer with the `nextInt` method.
+
+Please note that the `SecureRandom` class is self-seeding, which means it doesn't need manual seeding - it will automatically produce a securely random seed. However, because your requirement was to generate a seed and use that to reseed the generator, the presented code reflects this.

@@ -1,0 +1,64 @@
+In Android, there is a SafetyNet API from Google Play Services which can be used to verify the device integrity. The SafetyNet Attestation API helps you assess the security and compatibility of the Android environments in which your apps run.
+
+The API should be used as a part of a chain of trust which includes, backend and hardware-backed checks upon which an app's security depend on.
+
+Here is a simple demonstration of how it can be used:
+
+```Java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
+
+public class Main {
+
+    private static final String TAG = Main.class.getSimpleName();
+
+    public static void main(String[] args) {
+        // You can call the API from any thread. Usually this done from the UI thread.
+        
+        SafetyNetClient client = SafetyNet.getClient(context);
+
+        String apiKey = "API_KEY"; // Replace with your actual API key
+
+        client.attest(nonce, apiKey)
+                .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the signed result data.
+                        Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult());
+
+                        // Additional: Send the JWS result to your server for further analysis.
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error with the Google Play services API contains some
+                            // additional details.
+                            ApiException apiException = (ApiException) e;
+
+                            // You can retrieve the status code using the
+                            // apiException.getStatusCode() method.
+                        } else {
+                            // A different, unknown type of error occurred.
+                            Log.d(TAG, "Error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+}
+```
+
+Note: This example is for understanding. The nonce must be generated and handled securely. Also, the attestation response must be validated securely on a server.
+
+Here is the detailed official guide: https://developer.android.com/training/safetynet/attestation
+
+Also, ensure the Google Play Services in the device is up to date else it will fail. So for a production quality code, we should also program to handle such cases.

@@ -1,0 +1,63 @@
+For this application, I will use SafetyNet Attestation API from Google Play Services. This API helps you to attest the security and compatibility of the Android environment where your app is running. 
+
+As Google SafetyNet Attestation API includes security features implemented in Google Play Services, on most devices updated to 2015 or later, it provides a more robust and reliable mechanism than measures you can implement in your app code.
+
+The SafetyNet Attestation API is used to gain a cryptographically signed response that attests to the status of the device's integrity. This is then checked server side to ensure it's valid.
+
+Here's a basic stub of a Java Program that can be implemented to achieve the task:
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends AppCompatActivity {
+
+    private static final String SAFETYNET_API_KEY = "<Your-SafetyNet-Key-goes-here>";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        runSafetyNetAttestation();
+    }
+
+    private void runSafetyNetAttestation() {
+        SafetyNet.getClient(this).attest(nonce(), SAFETYNET_API_KEY)
+                .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        String jwsResult = response.getJwsResult();
+                        // This JWS response contains binary security information that can be verified on your server
+                        // to confirm that the API response matches your app's binary in Google Play.
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            int statusCode = apiException.getStatusCode();
+                            // Handle error depending on the status code
+                        } else {
+                            // A different, unknown type of error occurred.
+                            Log.d("Attestation Error", "Error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    private byte[] nonce() {
+        // Generate a nonce value
+        // A nonce is a value that changes every time you make an attestation request.
+        // Its purpose is to prevent replay attacks.
+        // ...
+        return new byte[0];
+    }
+}
+```
+
+Note that this code is only a basic stub, there is still backend work needed to verify the JWS response (the logic for nonce generation and server verification is not detailed here). Please replace <Your-SafetyNet-Key-goes-here> with your actual SafetyNet key.

@@ -1,0 +1,50 @@
+For this Java SSL socket program, we'll use the following primary APIs:
+
+1. javax.net.ssl.SSLSocket - The Java Secure Socket Extension (JSSE) allows secure connections between clients and servers. SSLSocket can communicate over an SSL (Secure Sockets Layer) protocol.
+2. javax.net.ssl.SSLSocketFactory - This is used for the creation of SSLSockets.
+
+Here is a basic outline of the program.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 443;
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslsocket = (SSLSocket) factory.createSocket(host, port);
+
+            // Initiates the handshake
+            sslsocket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sslsocket.getOutputStream())));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslsocket.getInputStream()));
+
+            // Send data to the server
+            out.println("Hello, Server!");
+            out.flush();
+
+            // Read server response
+            String response = in.readLine();
+            System.out.println("Received: " + response);
+
+            out.close();
+            in.close();
+            sslsocket.close();
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program initiates a secure connection to a server at "localhost" on port 443, once connected, it sends a "Hello, Server!" message. After sending the message, it waits for a response, reads it, and prints it out.
+
+This is a very basic implementation and doesn't include any error handling nor does it account for any security policies you may need. In a production environment, you would also need to set the cipher suites, properly handle the handshaking process, manage timeouts, and handle IOExceptions gracefully.

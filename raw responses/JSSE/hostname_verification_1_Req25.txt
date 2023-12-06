@@ -1,0 +1,39 @@
+To implement hostname verification for an SSL/TLS communication in Java, we could use the standard API `javax.net.ssl.HttpsURLConnection`.
+
+An important part of this process is the `HostnameVerifier`. This interface is used to implement hostname verification in sceneries where you are not assured of the host you are communicating with.
+
+The following Java program exemplifies how to open a secure connection to a server and implements basic hostname verification.
+
+In this case, the main class `Main` is the entry point to the system:
+
+```java
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://some-secure-url.com"); 
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier(new CustomHostnameVerifier()); 
+            conn.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static class CustomHostnameVerifier implements HostnameVerifier {
+        public boolean verify(String hostname, SSLSession session) {
+            // Implement your own hostname verification logic here.
+            // The following is a very simple (and insecure) example. In a 
+            // real-world application, you would definitely want more robust 
+            // verification.
+            return hostname.equals("some-secure-url.com"); 
+        }
+    }
+}
+```
+
+,**IMPORTANT**: The hostname verification in the `CustomHostnameVerifier` provided here is just illustrative and is not recommended to be used in a production environment because it will only accept that particular host. Instead, you would want to do a more extensive check, such as checking if the certificate's subject or subject alternative name matches the expected hostname.

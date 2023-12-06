@@ -1,0 +1,28 @@
+Here's the base Java program that computes MAC (Message Authentication Code).
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String secretKey = "your-secret-key"; // replace with your secret key
+        String message = "Hello, World!"; // replace with your message
+        
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        sha256Hmac.init(secretKeySpec);
+
+        String hash = Base64.getEncoder().encodeToString(sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8)));
+        System.out.println("MAC: " + hash);
+    }
+}
+```
+
+This program uses HmacSHA256 to calculate MAC of a message. The `secretKey` is used as the key for this HMAC process, and `message` is the data that need to be verified in integrity. The MAC is then calculated as a SHA-256 HMAC, represented in Base64 encoded String.
+
+Please note that you need to replace "your-secret-key" and "Hello, World!" with real values.
+
+This is a simple HMAC demonstration. In production applications, you often need to manage secret keys more carefully to prevent data breaches.

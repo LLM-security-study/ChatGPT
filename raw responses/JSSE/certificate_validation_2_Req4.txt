@@ -1,0 +1,59 @@
+Please note that the code below doesn't include exception handling for simplicity:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+
+        String https_url = "https://www.google.com/";
+        URL url;
+        try {
+
+            url = new URL(https_url);
+            HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+
+            conn.setSSLSocketFactory((SSLSocketFactory)SSLSocketFactory.getDefault());
+
+            print_https_cert(conn);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void print_https_cert(HttpsURLConnection con){
+        if(con!=null){
+            try {
+                System.out.println("Response Code : " + con.getResponseCode());
+                System.out.println("Cipher Suite : " + con.getCipherSuite());
+
+                Certificate[] certs = con.getServerCertificates();
+                for(Certificate cert : certs){
+                    System.out.println("Cert Type : " + cert.getType());
+                    System.out.println("Cert Hash Code : " + cert.hashCode());
+                    System.out.println("Cert Public Key Algorithm : " + cert.getPublicKey().getAlgorithm());
+                    System.out.println("Cert Public Key Format : " + cert.getPublicKey().getFormat());
+                }
+            } catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+This program creates a secure connection to https://www.google.com. It then outputs details about the TLS certificate being used. You can replace the URL with the one you want to validate. The function `print_https_cert()` checks and prints the server's certificate details if available.
+
+Main Java APIs used:
+- `javax.net.ssl.HttpsURLConnection` : Creates a secure URL connection.
+- `javax.net.ssl.SSLSocketFactory`: Provides methods for creating secure socket factories.
+- `java.security.cert.Certificate`: API for handling digital certificates.
+
+Please note that SSL has been deprecated and considered insecure. It has been replaced by TLS, so it's better to use TLS for secure connections.
+
+Also, this program only logs certificate details. For full-fledged SSL/TLS connection validation like hostname verification, expiration checks, and many others, you need more sophisticated libraries like Apache’s HttpClient, OkHttp, and others.

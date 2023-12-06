@@ -1,0 +1,33 @@
+Sure. Here is a simple program which uses the HMAC-SHA256 algorithm to perform a Message Authentication Code (MAC).
+
+Please make sure to replace "secretKey" and "message" with your own secret key and the message you want to authenticate.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        String secretKey = "MySecretKey";
+        String message = "This is a message that needs to be authenticated.";
+
+        // Generate the HMAC-SHA256 MAC for the message
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
+        mac.init(secretKeySpec);
+        byte[] macBytes = mac.doFinal(message.getBytes());
+
+        // Convert to base64 for easier viewing
+        String macBase64 = Base64.getEncoder().encodeToString(macBytes);
+
+        System.out.println("MAC: " + macBase64);
+    }
+}
+```
+
+This program uses Java's javax.crypto.Mac to generate a MAC. First, it creates an instance of the MAC generator using `Mac.getInstance("HmacSHA256")`. Then, it initializes the generator with a SecretKeySpec that consists of your secret key. After the generator is ready, we call `mac.doFinal()` to perform the MAC computation. The results is a byte-array MAC which is then encoded to a base64 string for easier viewing.
+
+Remember to catch you should catch the relevant exceptions for key generation. This example program just allows the main method to throw a general Exception for simplicity.

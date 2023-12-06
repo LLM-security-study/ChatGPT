@@ -1,0 +1,40 @@
+Okay, Here's a basic example of how to decrypt data using AES algorithm in CBC mode. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String ALGORITHM = "AES/CBC/PKCS5PADDING";
+    private static final String SECRET_KEY = "your16characters";
+
+    public static void main(String[] args) throws Exception {
+
+        String encryptedData = "abcdefghijkl"; // assuming this is your encrypted data
+
+        String decryptedData = decrypt(encryptedData, SECRET_KEY);
+
+        System.out.println("Decrypted data: " + decryptedData);
+    }
+
+    public static String decrypt(String cipherText, String secret) throws Exception {
+        IvParameterSpec ivspec = new IvParameterSpec(secret.getBytes());
+        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "AES");
+
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivspec);
+        byte[] decodedCipherText = Base64.getDecoder().decode(cipherText.getBytes(StandardCharsets.UTF_8));
+        byte[] decryptedBytes = cipher.doFinal(decodedCipherText);
+
+        return new String(decryptedBytes);
+    }
+}
+```
+
+(Note: This is a basic example and should not be used for actual encryption. Key management and storage in production environments is more complex and the secret key should not be hardcoded as in this example. Always use secure methods to generate secret keys and don't share keys in places where they can be easily accessed. Make sure to replace the SECRET_KEY and encryptedData with real data as well.) 
+
+Also, if you intend this code to run on Java 9 or later, you need to upgrade your Java Cryptography Extension (JCE) jurisdiction files to unlimited strength. This is because the default version of these files included in the JDK limits the encryption strength, which you would need if you want to encrypt/decrypt more than 128 bits (16 bytes) of data.

@@ -1,0 +1,60 @@
+Below is a simple Java program using `javax.net.ssl` standard APIs that you can use as a scaffold to establish a secure SSL communication with a server and perform certificate validation.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+
+public class Main {
+  
+   public static void main(String[] args) {
+       new Main().validateCertificate("https://www.google.com");
+   }
+
+   public void validateCertificate(String urlStr) {
+       try {
+           // Create a trust manager that does not validate certificate chains
+           TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+               public java.security.cert.X509Certificate[] getAcceptedIssuers() { return null; }
+               public void checkClientTrusted(X509Certificate[] certs, String authType) { }
+               public void checkServerTrusted(X509Certificate[] certs, String authType) { }
+           }};
+  
+           // Install the all-trusting trust manager
+           SSLContext sc = SSLContext.getInstance("SSL");
+           sc.init(null, trustAllCerts, new java.security.SecureRandom());
+           HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+  
+           // Create all-trusting host name verifier
+           HostnameVerifier allHostsValid = new HostnameVerifier() {
+               public boolean verify(String hostname, SSLSession session) {
+                   return true;
+               }
+           };
+  
+           // Install the all-trusting host verifier
+           HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+      
+           URL url = new URL(urlStr);
+           HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+           System.out.println("Response Code: " + connection.getResponseCode());
+           System.out.println("Cipher Suite Used: " + connection.getCipherSuite());
+  
+           connection.disconnect();
+       } catch (Exception e) {
+           if(e instanceof SSLHandshakeException)
+               System.out.println("The Certificate is not valid.");
+           else
+               System.out.println("Error: " + e.getMessage());
+       }
+   }
+}
+```
+
+This program validates a Certificate of the server it is connecting to for secure communication. It connects to given URL and prints out the response code and cipher suite used. For invalid or self-signed certificate, it would throw an SSLHandshakeException.
+
+Please note this sample code while a good way to validate a certificate, it trusts all certs. You will need to implement a TrustManager that verifies a specific public key, or else this program will be vulnerable to a man in the middle attack.

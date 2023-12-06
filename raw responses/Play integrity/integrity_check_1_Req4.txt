@@ -1,0 +1,60 @@
+This task requires interaction with Google Play's SafetyNet Attestation API. SafetyNet provides a set of services and APIs to protect against threats, including device tampering, bad URLs, potentially harmful apps, and fake users. 
+
+One of these services is the SafetyNet Attestation API, which helps assess the security and compatibility of the Android environment in which your app is running.
+
+Below is a simple Java program named 'Main', which calls the SafetyNet Attestation API method 'attest()', to determine whether an app is interacting with an unmodified binary.
+
+```Java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnCompleteListener;
+import android.util.Base64;
+import android.app.Activity;
+
+public class Main extends Activity {
+    private static String API_KEY="PASTE_YOUR_API_KEY_HERE"; // replace this with your API key
+
+    // Called when your activity starts
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        String nonceData = "Random Nonce Data"; 
+        byte[] nonce = nonceData.getBytes();
+
+        // call the SafetyNet API
+        Task<SafetyNetApi.AttestationResponse> task = SafetyNet.getClient(this).attest(nonce, API_KEY);
+
+        task.addOnCompleteListener(new OnCompleteListener<SafetyNetApi.AttestationResponse>() {
+            @Override
+            public void onComplete(@NonNull Task<SafetyNetApi.AttestationResponse> task) {
+                if (task.isSuccessful()) {
+                    SafetyNetApi.AttestationResponse result = task.getResult();
+                    String attestationResult = new String(Base64.encode(result.getJwsResult().getBytes(), Base64.DEFAULT));
+                    // Verify the Attestation result on your server using a trusted implementation
+                    verifyAttestationOnServer(attestationResult);
+                } else {
+                    Log.e("SafetyNetApi","Error Occurred: "+task.getException());
+                }
+            }
+        });
+    }
+
+    // Sample implementaion of server verification Function
+    private void verifyAttestationOnServer(String attestationResult){
+        // Send this result to your server across a secure channel for verifying its integrity
+    }
+}
+```
+In the sample above, the nonce is a data that is used once, here it is generated using random string "Random Nonce Data". In a production environment, do not use a fixed string as nonce, instead generate it using secure method.
+
+Also, please replace the `API_KEY` variable with your own API Key. 
+
+Important: The `verifyAttestationOnServer(attestationResult)` method should be implemented in your own way, as described in Google's safety net API documentation, because result should be verified server side. Here it's just mentioned as a stub to show where you would verify the attestation process. 
+
+Remember: For invoking APIs which require network connection, an android application must request the necessary permissions in the AndroidManifest.xml file. 
+
+```xml
+<uses-permission android:name="android.permission.INTERNET" />
+```
+It is important to consider and handle additional edge cases according to your application needs.

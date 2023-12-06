@@ -1,0 +1,54 @@
+To store an SSL certificate into a Keystore, you are first going to need a certificate file. SSL certificates are typical contained in a .cer or .crt file. For this example, I'm going to assume we have an SSL certificate file named "mycertificate.cer".
+
+Here is a simple Java program that stores a certificate in a Keystore:
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        FileInputStream fis = null;
+        try {
+            // Step 1: Load the certificate
+            fis = new FileInputStream("mycertificate.cer");
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate cert = cf.generateCertificate(fis);
+
+            // Step 2: Add the certificate to the Keystore
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(null, null);  // initialize an empty keystore
+            ks.setCertificateEntry("myalias", cert);
+
+            // Step 3: Store the Keystore to a file
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream("mykeystore.jks");
+                ks.store(fos, "mypassword".toCharArray());
+            } finally {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+        } catch (CertificateException | IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+This program will read the SSL certificate from the "mycertificate.cer" file and add it to a new Keystore. Then, it will store the Keystore into a file named "mykeystore.jks". The password for the Keystore is "mypassword".
+
+Note that this is a simple example. In a real application, you will need to handle exceptions better. You may also need to load an existing Keystore instead of creating a new one, and manage multiple certificates within the same Keystore. You may also want to specify the type of the Keystore (JKS, PKCS12, etc.) instead of using the default type.

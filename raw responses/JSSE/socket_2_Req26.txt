@@ -1,0 +1,46 @@
+Sure, here is a basic Java program establishing a connection with a remote server using an SSL socket. The main class is named as "Main" and Java SSL Socket API is used for implementation.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String remoteHost = "RemoteHostName";   // Replace with your remote host / server
+        int port = 443; // Use your remote server port number. Here 443 is used as an example
+        
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(remoteHost, port);
+            
+            // For writing to the socket
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            
+            // For reading from the socket
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            
+            // Send a message to the server
+            out.println("Hello Server");
+            out.flush();
+            
+            // Read the server response 
+            String line = in.readLine();
+            System.out.println("Server Response: " + line);
+            
+            // Close input, output streams and the socket
+            out.close();
+            in.close();
+            sslSocket.close();
+            
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Before running the above program, make sure to replace "RemoteHostName" and port number with your actaul values. Also, this program simply sends the message "Hello Server" to the remote server and waits for a response. Make sure your server is configured to accept these kind of requests.
+
+Also, please be sure you trust the remote server since this program will accept any SSL certificate presented by the server and will verify it against the known Certificate Authorities (CAs). If there is a need to customize the SSL handshake process, you would have to use a more sophisticated SSLContext configuration and setup.
+

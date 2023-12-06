@@ -1,0 +1,61 @@
+Sure, here is a simple Java implementation that uses the HmacSHA256 algorithm to create a Message Authentication Code (MAC). 
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the message:");
+        String message = scanner.nextLine();
+
+        // Secret key - in a real-world application, it should be properly generated and stored
+        String secret_key = "THISISASECRETKEY";
+
+        String mac = generateMac(message, secret_key);
+        System.out.println("Generated MAC: " + mac);
+
+    }
+
+    public static String generateMac(String msg, String secret) {
+        String hash = "";
+        try {
+            // Get an algorithm instance
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            
+            // Create secret key
+            SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            
+            // Initialize the Mac instance with the secret key
+            sha256_HMAC.init(secret_key);
+            
+            // Compute the hmac on input data bytes
+            byte[] mac_data = sha256_HMAC.doFinal(msg.getBytes(StandardCharsets.UTF_8));
+            
+            // Convert byte array to hex string
+            hash = byteArrayToHexString(mac_data);
+            
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+        return hash;
+    }
+    
+    public static String byteArrayToHexString(byte[] a) {
+        StringBuilder sb = new StringBuilder(a.length * 2);
+        for(byte b: a) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+}
+```
+
+This program first receives a message as user input for which you want to create a MAC. It uses a predefined secret key to generate the MAC. Please notice that this secret key must be shared between the sender and the receiver of the message and it must remain secret. It's just a string in this example, but in a real scenario, it would typically be a more complex key generated from a secure random number generator. The MAC is generated via the `HmacSHA256` cryptographic algorithm, then printed to the console.
+
+Please note, it is a basic example to demonstrate the principle, it may need to be adapted based on your specific requirements. In a real-world application, you would need to handle the secret key with much more care, and also consider including appropriate error handling.

@@ -1,0 +1,53 @@
+Here's a simple Java program that uses SSL Sockets for secure communication with a server using Java’s Secure Socket Extension (JSSE) API:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+
+   public static void main(String[] args) {
+      System.setProperty("javax.net.ssl.trustStore","mySrvKeystore");
+      System.setProperty("javax.net.ssl.trustStorePassword","123456");
+
+      try {
+
+         SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+         SSLSocket sslSocket = (SSLSocket) sslsocketfactory.createSocket("localhost", 9999);
+
+         PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+         BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+         out.println("Hello Server!");
+         System.out.println("Server replied:" + in.readLine());
+
+         out.close();
+         in.close();
+         sslSocket.close();
+            
+      } catch (Exception e) {
+         e.printStackTrace();
+      }
+   }
+}
+```
+
+In this code snippet:
+
+- System properties are set for keystore file and password.
+- The SSLSocketFactory instance is created using the getDefault() method.
+- SSLSocket is created using the SSLSocketFactory instance's createSocket() method that attempts to connect to the specified server at the specified port.
+- The PrintWriter takes the SSLSocket's OutputStream, for sending data to the server.
+- The BufferedReader takes the SSLSocket's InputStream, for receiving data from the server.
+
+This client assumes it is talking to a server running on localhost at port 9999. 
+
+It sends the server the message "Hello Server!" and then reads one line of text from the server's reply. 
+
+Aside from the fact that it uses SSL and requires keystore with trusted certificate, this is an entirely ordinary client program. 
+
+Before running this code, you'll need to create a SSL certificate, convert it into a format Java understands, and then import it into a keystore. Program will use 'mySrvKeystore' keystore with '123456' password.
+
+At the end, don't forget to add Exception handling for IOException or other potential exceptions in above code. Also, replace "localhost" and "9999" with the name and port of the actual server you are trying to connect to.
+
+Remember that the actual server also needs to be configured with SSL to accept SSL Sockets.

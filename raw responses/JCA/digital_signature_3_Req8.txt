@@ -1,0 +1,67 @@
+Okay, here's an example of a simple Java program that signs a given message. For this, I will use the "SHA256withDSA" algorithm for the digital signature.
+
+```java
+import java.security.*;
+import java.util.*;
+
+class Main {
+    public static void main(String args[]) {
+        try {
+            // Generate a key pair 
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            SecureRandom randomNumber = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(1024, randomNumber);
+            KeyPair pair = keyGen.generateKeyPair();
+            PrivateKey privateKey = pair.getPrivate();
+            PublicKey publicKey = pair.getPublic();
+
+            // Create a Signature object and initialize it with the private key
+            Signature dsa = Signature.getInstance("SHA256withDSA", "SUN"); 
+            dsa.initSign(privateKey);
+
+            // Prepare the message
+            String message = "This is the message to be signed";
+            byte[] messageBytes = message.getBytes();
+              
+            // Feed the data to the Signature object
+            dsa.update(messageBytes);
+
+            // Now that all the data to be signed has been read in, generate a signature for it
+            byte[] signature = dsa.sign();
+
+            // Print the signature
+            System.out.println("Signature: " + Base64.getEncoder().encodeToString(signature));
+
+            // Verify the signature
+            dsa.initVerify(publicKey);
+            dsa.update(messageBytes);
+            boolean verifies = dsa.verify(signature);
+            System.out.println("Signature verifies: " + verifies);
+        } catch (Exception e) {
+            System.err.println("Caught exception " + e.toString());
+        }
+    }
+}
+```
+Here's what's happening in the code:
+
+1. A KeyPairGenerator is created for the DSA (Digital Signature Algorithm). 
+
+2. A SecureRandom instance is also created.
+
+3. A KeyPair is generated and the Signature instance is initialized with the PrivateKey for signing purposes.
+
+4. The message to be signed is converted into bytes and updated into the Signature object.
+
+5. The `sign()` method of the Signature object is used to generate the signature for the data.
+
+6. Finally, the signature is verified using the PublicKey.
+
+Please note: 
+1. This program does not check if a security provider for DSA and SecureRandom ("SUN" in this case) is available. You may add this check to make the code robust.
+
+2. The program uses DSA, but you can use other algorithms like RSA or ECDSA provided by the Java security provider. 
+
+3. The signed message (signature) is not saved in a file or sent over a network. If you need that, please enhance the code. 
+
+4. This program is just a simple demonstration and may not fulfill real world safety and security requirements.

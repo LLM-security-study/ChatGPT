@@ -1,0 +1,85 @@
+For this task, we should use the SafetyNet API provided by Android for device integrity verification purposes. Unfortunately, SafetyNet is a proprietary API, and Google doesn't allow direct publishing of client libraries. It means you can't use it in your applications without obtaining an authorisation token. But, for the sake of better understanding, below is a sample implementation of how you can use it.
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+    private static final String SAFETYNET_API_KEY = "Your_API_Key"; // Replace with your actual SafetyNet API Key
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button btnCheckSafetyNet = findViewById(R.id.btnCheckSafetyNet);
+        final TextView txtSafetyNetStatus = findViewById(R.id.txtSafetyNetStatus);
+
+        btnCheckSafetyNet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SafetyNetClient client = SafetyNet.getClient(Main.this);
+
+                client.attest("nonce".getBytes(), SAFETYNET_API_KEY)
+                        .addOnSuccessListener(Main.this,
+                                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                                    @Override
+                                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                        // Indicates communication with the service was successful.
+                                        // Use response.getJwsResult() to get the result data.
+                                        txtSafetyNetStatus.setText("Device passed SafetyNet checks.");
+                                        Log.d(TAG, "SafetyNet check succeeded.");
+                                    }
+                                })
+                        .addOnFailureListener(Main.this, new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                // An error occurred while communicating with the service.
+                                if (e instanceof ApiException) {
+                                    // The SafetyNet Attest API has specific error codes: you can handle each.
+                                    ApiException apiException = (ApiException) e;
+                                    txtSafetyNetStatus.setText("SafetyNet check failed.");
+                                    Log.d(TAG, "Error: " +
+                                            CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) +
+                                            ": " + apiException.getStatusMessage());
+                                } else {
+                                    // A different, unknown type of error occurred.
+                                    Log.d(TAG, "Unknown type of error: " + e.getMessage());
+                                }
+                            }
+                        });
+            }
+        });
+    }
+}
+```
+
+To use this example, replace "Your_API_Key" with your actual SafetyNet API Key. This program also assumes you have a Button named "btnCheckSafetyNet" and a TextView named "txtSafetyNetStatus" in your layout.
+
+Please note you need to add the dependency in your app level build.gradle file:
+
+```java
+implementation 'com.google.android.gms:play-services-safetynet:17.0.0'
+```
+
+And also ensure you have the Google Play Services installed in the device/emulator where you test this code. 
+
+The nonce you pass to the 'attest' function should be generated uniquely each time you request to attest the device - it's a security measure to prevent replay attacks. But for simplicity, we're using a static "nonce" string here. 
+
+This is a basic example and actual implementation might be a bit more complex based on what you would like to achieve with the SafetyNet check.

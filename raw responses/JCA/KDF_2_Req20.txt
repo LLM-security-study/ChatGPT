@@ -1,0 +1,44 @@
+Sure, here is the Java program for generating a SecretKey using a user-provided password. Its implementation rests upon the Java standard APIs.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.SecretKey;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        Scanner input = new Scanner(System.in);
+
+        System.out.println("Enter your password:");
+        String password = input.nextLine();
+
+        char[] passwordCharArray = password.toCharArray();
+
+        try {
+           byte[] salt = new byte[16];
+
+           KeySpec spec = new PBEKeySpec(passwordCharArray, salt, 65536, 128);
+           SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+           byte[] hash = factory.generateSecret(spec).getEncoded();
+           
+           SecretKey secretKey = new javax.crypto.spec.SecretKeySpec(hash, "AES");
+           
+           System.out.println("Secret Key: " + Arrays.toString(secretKey.getEncoded()));
+
+        } catch (Exception e) {
+            System.out.println("Exception Error: " + e.getMessage());
+        }
+
+    }
+}
+```
+This program, when run, will prompt for your password, convert it into a character array, and then use that array in combination with a predefined salt, 65536 iterations, and a 128-bit key length to generate a SecretKey with PBKDF2WithHmacSHA1. Remember that the salt should ideally be random and saved for later use when creating the key again.
+
+Finally, the SecretKey's byte array is printed in the console. 
+
+However, this code is for testing purpose. For actual applications the secret key should not be printed and must be handled with appropriate security measures to prevent sensitive data breach.

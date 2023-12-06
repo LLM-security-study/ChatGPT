@@ -1,0 +1,47 @@
+In order to sign a message in Java, usually we would use Java Cryptography Architecture(JCA) coupled with a type of signature algorithm like "SHA1withDSA", "SHA1withRSA", "SHA256withRSA", etc. Here is a basic example of signing a message using SHA256withRSA algorithm:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args){
+        try {
+            // Generate key pair
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(2048);
+            KeyPair kp = kpg.generateKeyPair();
+            PublicKey pub = kp.getPublic();
+            PrivateKey priv = kp.getPrivate();
+            
+            // Message to sign
+            String message = "This is a secret message";
+            byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+            
+            // Signing
+            Signature sign = Signature.getInstance("SHA256withRSA");
+            sign.initSign(priv);
+            sign.update(bytes);
+            byte[] signatureBytes = sign.sign();
+            String signature = Base64.getEncoder().encodeToString(signatureBytes);
+            
+            // Printing the Signature
+            System.out.println("Signature: " + signature);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In the above sample code:
+1. First, a RSA key pair is generated using `KeyPairGenerator` for signing and verifying the signature.
+2. Then, converts the message into byte array.
+3. After that, a `Signature` object is created with the specific signing algorithm("SHA256withRSA").
+4. This `Signature` object is initialized for signing with the private key of the generated key pair. 
+5. Then, the bytes of the original message are supplied to the `Signature` object.
+6. `sign()` method is called to generate the actual signature.
+7. Finally, the signature (byte array) is encoded into a string using Base64 encoding and is printed.
+
+Please note this just a basic example and actual usage might need additional considerations like safe handling or storing the keys, choosing the right signature algorithm, etc. Also, the verification of the signature is not included in this code. 
+Please consider these points when you are integrating or expanding the code based on your requirement.

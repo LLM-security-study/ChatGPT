@@ -1,0 +1,44 @@
+Sure, here is the basic implementation of such a program in Java:
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a secure random number generator
+            SecureRandom secureRandom = new SecureRandom();
+
+            // Get 128 random bytes
+            byte[] randomBytes = new byte[16];
+            secureRandom.nextBytes(randomBytes);
+
+            // Create seed from random bytes
+            long seed = 0;
+            for (int i = 0; i < 8; i++) {
+                seed |= ((long) randomBytes[i] & 0xffL) << (8 * i);
+            }
+
+            // Initialize a new random object with the seed
+            SecureRandom prng = new SecureRandom();
+            prng.setSeed(seed);
+
+            // Generate IV for encryption
+            byte[] iv = new byte[16];
+            prng.nextBytes(iv);
+
+            // Create IvParameterSpec object from the generated IV
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+            System.out.println("Generated IV: " + new String(iv, "UTF-8"));
+        } catch (Exception e) {
+            System.out.println("Error generating IV: " + e.getMessage());
+        }
+    }
+}
+```
+
+Please note that the program above is a representation satisfying your requirement but in real encryption scenarios, you should not cast the IV to a string as it is done in the line `new String(iv, "UTF-8")` as it may leak secure data. The line is there so that you may see the result.
+
+Also note that this code preferably generates a 128 bit (16 byte) IV because it’s the most compatible size for AES type encryption.

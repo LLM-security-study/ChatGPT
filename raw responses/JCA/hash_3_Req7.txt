@@ -1,0 +1,42 @@
+Sure. Here is a simple Java program that uses the standard `MessageDigest` API:
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static String hash(String password) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            // Add password bytes to digest
+            md.update(password.getBytes());
+
+            // Get the hash's bytes
+            byte[] bytes = md.digest();
+
+            // This bytes[] has bytes in decimal format;
+            // Convert it to hexadecimal format
+            StringBuilder sb = new StringBuilder();
+            for(int i=0; i< bytes.length ;i++){
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+
+            //Get complete hashed password in hex format
+            return sb.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String passwordToHash = "password";
+        String generatedPassword = hash(passwordToHash);
+        System.out.println(generatedPassword);
+    }
+}
+```
+
+When you run the program, it will print out the hashed value of the string "password". Note that the hash function being used is SHA-256, you can easily change it to any other supported hash function.

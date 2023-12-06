@@ -1,0 +1,81 @@
+Below is a simplified program demonstrating how the Java Cryptography API can be used to generate a digital signature and verify it.
+
+```java
+import javax.crypto.Cipher;
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Generate a KeyPair (public and private keys)
+            KeyPair keyPair = generateKeyPair();
+            
+            // The original data
+            String originalData = "Hello, World!";
+
+            // Generate digital signature
+            byte[] digitalSignature = signData(originalData.getBytes(), keyPair.getPrivate());
+
+            // Verify the digital signature
+            boolean isVerified = verifySignature(originalData.getBytes(), digitalSignature, keyPair.getPublic());
+
+            if (isVerified) {
+                System.out.println("Digital Signature Verified.");
+            } else {
+                System.out.println("Cannot Verify Digital Signature.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        // Instance of key pair generator
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+
+        // Initialize with a key size
+        kpg.initialize(2048);
+        return kpg.genKeyPair();
+    }
+
+    public static byte[] signData(byte[] data, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // Get instance of signature
+        Signature rsa = Signature.getInstance("SHA256withRSA");
+
+        // Initialize the signature with the private key
+        rsa.initSign(privateKey);
+
+        // Update the data to be signed
+        rsa.update(data);
+
+        // Sign the data and return it
+        return rsa.sign();
+    }
+
+    public static boolean verifySignature(byte[] originalData, byte[] signature, PublicKey publicKey)
+            throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        // Get instance of signature
+        Signature rsa = Signature.getInstance("SHA256withRSA");
+
+        // Initialize the signature with the public key
+        rsa.initVerify(publicKey);
+
+        // Provide the original message to the Signature object
+        rsa.update(originalData);
+
+        // Verify the signature and return the result
+        return rsa.verify(signature);
+    }
+
+}
+```
+
+This basic program will generate an RSA KeyPair (public and private key).         
+It then uses the SHA-256 algorithm with RSA to sign the data and verifies the signature as well.
+
+Note: 
+1. RSA is a common asymmetric encryption algorithm, but there are others.
+2. And also, use of real cryptographic systems should be handled with care, with consideration given to the choice of algorithms, key sizes and sources of randomness. For real-world applications, consider using a tested and proven cryptography library.

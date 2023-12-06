@@ -1,0 +1,60 @@
+Here is a simple example of a password-based key derivation function implemented in Java. This program uses the `SecretKeyFactory` class and the `PBEKeySpec` class from standard Java Cryptography APIs. 
+
+The program provides methods to derive a key from a given password and convert the key to hexadecimal. 
+
+The `SecretKeyFactory` generates `SecretKey` instances which can be used to securely store passwords for key derivation. `PBEKeySpec` provides a (possibly password-encoded) key specification.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+
+    private static final String salt = "salty";
+
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        char[] password = { 'p', 'a', 's', 's', 'w', 'o', 'r', 'd' };
+        
+        byte[] derivedKey = deriveKey(password);
+
+        System.out.println("Key: " + toHex(derivedKey));
+        
+        Arrays.fill(password, '0');
+    }
+    
+    private static byte[] deriveKey(char[] password)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        KeySpec spec = new PBEKeySpec(password, salt.getBytes(), 65536, 128);
+    
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        
+        return f.generateSecret(spec).getEncoded();
+    }
+
+    private static String toHex(byte[] bytes) {
+ 
+        StringBuilder result = new StringBuilder();
+        
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        
+        return result.toString();
+    }
+}
+```
+
+There are a few things to note here:
+
+* Please use many iterations of the key derivation function (65,536 in the example above). It makes key derivation hard and slow for attackers.
+* Use a longer key bit size if it is supported.
+* A unique and non-guessable salt value adds more security.
+* Be aware that the salt value used during key derivation is needed in order to check a password, or derive the key again.
+* Arrays.fill(password, '0'); can be used to scrub the password from memory.
+* The hex output can be used as database password hash to verify passwords without needing to store the actual password.

@@ -1,0 +1,46 @@
+Sure, here is a simple program that creates an SSL Socket to connect to a remote server. It uses the standard SSL Socket API in Java. Note, it is a basic usage and does not contain components such as trust managers, key managers, etc. which normally a fully-fledged SSL communicator would have.
+
+This is a basic application and this example does not include verifying the certificate of the server, which should be handled properly in a production scenario.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    
+    public static void main(String[] args) throws IOException {
+
+        // Specify the Host
+        String host = "yourhost.com";
+        // Specify the Port 
+        int port = 443;
+
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+     
+        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+        out.println("GET / HTTP/1.0");
+        out.println();
+        out.flush();
+
+        if (out.checkError())
+            System.out.println("SSLSocketClient:  java.io.PrintWriter error");
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+        String inputLine;
+        while ((inputLine = in.readLine()) != null)
+            System.out.println(inputLine);
+
+        in.close();
+        out.close();
+        socket.close();
+
+    }
+}
+```
+
+Modify the host and port to the server you want to connect. This program will connect on SSL to the specified server and port and send a simple "GET / HTTP/1.0" request. It will then print the server's response.
+
+In a real implementation, you would also need to add error checking, exception handling, certificate verification and more to make it robust and safe.  This is just a simple example!

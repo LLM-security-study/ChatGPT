@@ -1,0 +1,78 @@
+To implement Google's SSO with your Java Web application, you'll make use of Google's OAuth 2.0, which allows users to log in with their Google account. OAuth 2.0 Client ID and Client Secret can be obtained via Google Developer Console.
+
+The following code outlines a simple Java servlet, which handles Google's OAuth2 authentication. Here we use the `google-oauth-java-client`, `google-http-java-client`, and `google-api-java-client` libraries, which are part of the Google APIs Client Library for Java.
+
+Please add the following dependencies in your maven project's pom.xml:
+
+```xml
+<dependency>
+  <groupId>com.google.api-client</groupId>
+  <artifactId>google-api-client</artifactId>
+  <version>1.25.0</version>
+</dependency>
+
+<dependency>
+  <groupId>com.google.oauth-client</groupId>
+  <artifactId>google-oauth-client-jetty</artifactId>
+  <version>1.23.0</version>
+</dependency>
+```
+
+Now, implement the code in a servlet:
+
+```java
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
+
+public class Main extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        // Client ID and Client Secret from Google Developer Console
+        String client_id = "xyz";
+        String client_secret = "abc";
+
+        // Redirect URI
+        String redirectUri = "http://localhost:8080/redirect_endpoint";
+
+        // Define the necessary OAuth scopes
+        List<String> scopes = Arrays.asList("https://www.googleapis.com/auth/userinfo.profile");
+
+        GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+        web.setClientId(client_id);
+        web.setClientSecret(client_secret);
+
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets().setWeb(web);
+
+        // Configure the Google Authorization Code Flow
+        AuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                clientSecrets,
+                scopes)
+                .setAccessType("online")
+                .setApprovalPrompt("auto").build();
+
+        // Generate the URL to which we will redirect the user
+        String url = flow.newAuthorizationUrl().setRedirectUri(redirectUri).build();
+
+        response.setStatus(HttpServletResponse.SC_MOVED_TEMPORARILY);
+        response.setHeader("Location", url);
+    }
+}
+```
+The `doGet()` method of this servlet initiates the OAuth process. It generates a URL that directs the user to a Google page where they authenticate and authorize your application. Google then sends a token back to your application (using the specified redirect URI).
+
+Please replace the "xyz" and "abc" by actual client_id and client_secret. 
+
+Please note, you have to implement another servlet for the `redirect_uri` endpoint to handle the callback from Google and further validate and use the token received.

@@ -1,0 +1,46 @@
+To verify the integrity of an Android app, we can use Google SafetyNet API. This API checks device and app integrity. In particular, SafetyNet Attestation API can help an API or a backend server know that it’s interacting with a legitimate instance of an app. 
+
+Here's a simple Java program utilizing SafetyNet API. This program is oversimplified and would require access to the Google API key, a server-side component to verify the JWT response and proper exception handling plus error checks for a production use:
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    private static final String API_KEY = "AIza..."; // your Google API Key
+
+    public static void main(String[] args) {
+        verifyAppIntegrity();
+    }
+
+    public static void verifyAppIntegrity() {
+        SafetyNet.getClient(context).attest(null, API_KEY)
+            .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                @Override
+                public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                    // Indicates communication was successful.
+                    // Use response.getJwsResult() to get the Result in JWT (JSON Web Token) format.
+                    // You have to verify this result on your server !
+                    String jwsResult = response.getJwsResult();
+                    System.out.println("Attestation was successful! Token: " + jwsResult);
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the SafetyNet API.
+                    System.err.println("Attestation failed! Error: " + e.getMessage());
+                }
+            });
+    }
+}
+```
+  
+As you can see in the code, you need to verify the received JWT result (jwsResult) on your backend server. Google provides a guide on how to verify the SafetyNet Attestation API response on their developer documentation.
+
+Note that you would need to fill in your context (ie. you application context) in the getClient method. In a real Android application, this context can be referred as `this` from an `Activity`. 
+
+Please be aware that this is just a simple example code and is not ready for production use.

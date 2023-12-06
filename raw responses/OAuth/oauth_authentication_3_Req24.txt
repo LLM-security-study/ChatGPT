@@ -1,0 +1,72 @@
+Developing a Google Single Sign-On (SSO) functionality for a web application requires working on the server-side (Java backend) and the client-side (HTML, JavaScript). Here, I will provide Java (server-side) code and elements of client-side code for demonstration. 
+
+The required external libraries for the Java backend are:
+- Google OAuth Client Library for Java
+- Google HTTP Client Library for Java
+- Google HTTP Client Jackson2 for Java
+- Jackson Core
+- Jackson Databind
+
+Before you begin, please add them to your classpath from https://developers.google.com/api-client-library.
+
+Now, let's start with writing the required Java code:
+
+```java
+/*
+Program to Implement Google SSO for a web application
+*/
+
+package com.myapp.auth;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+    
+    static final String CLIENT_ID = "Your Google Client ID here";
+    
+    public static void main(String[] args) {
+        String idTokenString = "Token received from the client";
+        
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(
+            new NetHttpTransport(), JacksonFactory.getDefaultInstance())
+            .setAudience(Collections.singletonList(CLIENT_ID))
+            .build();
+
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+
+                // Print user identifier 
+                String userId = payload.getSubject();
+                System.out.println("User ID: " + userId);
+
+                // Get profile information from payload
+                String email = payload.getEmail();
+                boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+                String name = (String) payload.get("name");
+
+                // Use or store profile information
+                // ...
+
+            } else {
+                System.out.println("Invalid ID token.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+Please replace "Your Google Client ID here" with the actual client ID provided by Google. 
+
+For the client side, you need to set up Google's authentication button, then retrieve the token upon successful login, and send the token to the server for verification and actions.
+
+Please refer to Google's official documentation for setting up Google Sign-In JS: https://developers.google.com/identity/sign-in/web/sign-in.

@@ -1,0 +1,46 @@
+Here is a simple program in Java to perform a message integrity check using a Message Authentication Code (MAC) function.
+
+```java
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+ 
+public class Main {
+
+    private static final String HMAC_SHA256 = "HmacSHA256";
+
+    private static byte[] createHmac(String key, String message) throws Exception {
+        byte[] bytesKey = key.getBytes();
+        final SecretKeySpec secretKey = new SecretKeySpec(bytesKey, HMAC_SHA256);
+        Mac mac = Mac.getInstance(HMAC_SHA256);
+        mac.init(secretKey);
+        return mac.doFinal(message.getBytes());
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+    public static void main(String[] args) {
+        try {
+            String secretKey = "mySecretKey";
+            String message = "Hello, world!";
+
+            System.out.println("Original Message: " + message);
+            String hmac = bytesToHex(createHmac(secretKey, message));
+            System.out.println("HMAC: " + hmac);
+        } 
+        catch (Exception e) {
+            System.out.println("Error generating HMAC: " + e.getMessage());
+        }
+    }
+}
+```
+In this program, `createHmac` function is used to create HMAC SHA256. The `bytesToHex` function is used to convert the HMAC bytes to a hexadecimal string for display. The `main` function creates a secret key and a message, and then generates and displays the HMAC of the message using the secret key. Ensure to replace `"mySecretKey"` and `"Hello, world!"` with your real key and message.
+
+Please note, this is a very basic implementation and it doesn't include secure cryptographic random key generation or secure storage for the key which is essential in real use cases. In practice, the HMAC should be kept secret, and the message and HMAC should be transferred securely.

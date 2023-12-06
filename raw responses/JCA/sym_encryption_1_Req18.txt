@@ -1,0 +1,62 @@
+Here is a very simple implementation in Java using symmetric key (AES) for string encryption and decryption.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    private static SecretKeySpec secretKey;
+    private static final String secret = "ssdkF$HUy2A#D%kd";
+
+    static {
+        secretKey = new SecretKeySpec(secret.getBytes(), "AES");
+    }
+    
+    public static String encrypt(String strToEncrypt) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+        } catch (Exception e) {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static String decrypt(String strToDecrypt) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } catch (Exception e) {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        final String originalString = "Hello, World!";
+
+        System.out.println("Original string: " + originalString);
+
+        String encryptedString = Main.encrypt(originalString);
+
+        System.out.println("Encrypted string: " + encryptedString);
+
+        String decryptedString = Main.decrypt(encryptedString);
+
+        System.out.println("Decrypted string: " + decryptedString);
+    }
+}
+```
+
+Please note:
+1. Secret key "ssdkF$HUy2A#D%kd" is a 16-character secret key prefixed using 'AES' algorithm.
+2. The "encrypt" and "decrypt" functions perform the actual encryption and decryption using AES/ECB/PKCS5Padding.
+3. In main function, I'm encrypting and then decrypting the string "Hello, World!", so you can see the process in action.
+4. Error handling is done using try-catch blocks. 
+
+Remember that encryption and decryption methodologies like this should not be used for storing passwords or other sensitive information, as they can be decrypted. Passwords should be hashed using cryptographic hash functions, which are one-way and therefore can't be reversed.

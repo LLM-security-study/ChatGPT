@@ -1,0 +1,62 @@
+In this program, we will use `java.security` package classes and methods.
+
+We will make use of `KeyPairGenerator` and `Signature` classes.
+
+`KeyPairGenerator` is used to generate a pair of public and private keys.
+
+`Signature` class provides the functionality of a digital signature algorithm.
+
+Here's an example program that accomplishes this functionality:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+
+public class Main {
+
+    private static final String ALGORITHM = "SHA256withRSA";
+    private static final String MESSAGE = "This message is to be signed and verified";
+
+    public static void main(String[] args) throws Exception {
+
+        // Generate KeyPair
+        KeyPair keyPair = getKeyPair();
+
+        // Sign the message
+        byte[] signedMessage = signMessage(MESSAGE, keyPair.getPrivate());
+
+        // Verify the message
+        boolean isVerified = verifySignature(MESSAGE, signedMessage, keyPair.getPublic());
+
+        System.out.println("Message is Verified : " + isVerified);
+    }
+
+    private static KeyPair getKeyPair() throws Exception {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    private static byte[] signMessage(String message, PrivateKey privateKey) throws Exception {
+        Signature privateSignature = Signature.getInstance(ALGORITHM);
+        privateSignature.initSign(privateKey);
+        privateSignature.update(message.getBytes());
+
+        return privateSignature.sign();
+    }
+
+    private static boolean verifySignature(String message, byte[] signed, PublicKey publicKey) throws Exception {
+        Signature publicSignature = Signature.getInstance(ALGORITHM);
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(message.getBytes());
+
+        return publicSignature.verify(signed);
+    }
+}
+```
+The program first creates a `KeyPair` which has the public and private key pair. It then calls the `signMessage()` function to sign the given "message" using the `PrivateKey`. This function returns the signed message bytes. 
+
+Then it calls the `verifySignature()` function to verify the signed message bytes using the original 'message' and the `PublicKey`. If the verification is successful then it returns `true` otherwise `false`.

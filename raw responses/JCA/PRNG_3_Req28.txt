@@ -1,0 +1,26 @@
+Sure, here is a simple Java program to generate a random integer for cryptographic uses. It uses the SecureRandom class from the java.security package which provides a cryptographically strong random number generator (RNG).
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom secureRand = new SecureRandom();
+
+        // Create a seed
+        byte[] seed = new byte[20];
+        secureRand.nextBytes(seed);
+
+        // Re-seed the random number generator
+        secureRand.setSeed(seed);
+
+        // Generate a random int
+        int randomInt = secureRand.nextInt();
+        System.out.println("Random Integer: " + randomInt);
+    }
+}
+```
+
+This program works by using SecureRandom to initially generate a seed (representing the internal state of the pseudo random number generator). It then re-seeds the generator with the seed that was previously generated. After re-seeding the generator, a random integer is produced.
+
+Please note that, use of SecureRandom is recommended for cryptographic applications over other types of random number generators because it generates more truly random numbers that are difficult to predict.

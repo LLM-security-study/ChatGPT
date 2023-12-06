@@ -1,0 +1,93 @@
+Firstly, it is necessary to add fingerprint permission to AndroidManifest.xml: 
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```
+
+After that, create a FingerprintHandler class to handle the fingerprint authentication. This class will extend FingerprintManager.AuthenticationCallback class. 
+
+```java
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private CancellationSignal cancellationSignal;
+    private MainActivity mainActivity;
+
+    public FingerprintHandler(MainActivity mainActivity) {
+        this.mainActivity = mainActivity;
+    }
+
+    public void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+        cancellationSignal = new CancellationSignal();
+        manager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+    }
+
+    @Override
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(mainActivity, "Authentication Error\n" + errString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        Toast.makeText(mainActivity, "Authentication Failed.", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(mainActivity, "Authentication Help\n" + helpString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        Toast.makeText(mainActivity, "Success!", Toast.LENGTH_LONG).show();
+    }
+}
+```
+
+Now, we will integrate this in the "Main" class. The FingerprintManager API has been deprecated in API 28, and they suggest to use the BiometricPrompt API. However, for simplicity, I'll stick to using the FingerprintManager API for now.
+
+```java
+import android.Manifest;
+import android.hardware.fingerprint.FingerprintManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Checking fingerprint support
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+        if (!fingerprintManager.isHardwareDetected()) {
+            Toast.makeText(this, "Fingerprint authentication not supported", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!fingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "Register at least one fingerprint in Settings", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        FingerprintHandler handler = new FingerprintHandler(this);
+        handler.startAuth(fingerprintManager, null);
+    }
+
+}
+```
+
+In this code, the method getSystemService(FINGERPRINT_SERVICE) is used to get an instance to the fingerprint manager. This instance checks hardware supported, permission granted, and checks if the user has enrolled their fingers. If everything is fine, we let the user proceed to check their finger.

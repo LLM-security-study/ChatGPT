@@ -1,0 +1,35 @@
+The standard API we can use in Java to implement certificate validation in SSL/TLS is JSSE (Java Secure Socket Extension) present in javax.net.ssl package.
+
+Here's a sample basic program for certificate validation:
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String urlStr = "https://www.google.com"; // replace with your URL
+            URL url = new URL(urlStr);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
+
+            // Obtaining server certificates
+            Certificate[] certs = conn.getServerCertificates();
+            System.out.println("Total certificates: " + certs.length);
+            for(Certificate cert : certs) {
+                System.out.println(cert.toString());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program simply connects to a server using HttpsURLConnection which by default uses SSL/TLS for secure connection if scheme is 'https', then it retrieves all the certificates presented by the server, prints them. Note that in this case, the check for certificate validation or trust has been handled implicitly. 
+
+You can extend certificate validation by implementing `X509TrustManager` interface and customizing it according to your requirements. It has methods like `checkClientTrusted`, `checkServerTrusted`, `getAcceptedIssuers` which can be used to explicitly define how to trust certificates. 
+
+Remember that it's crucial to properly manage and check the certificates in production applications as bad certificate management could lead to Vulnerable SSL/TLS configurations.

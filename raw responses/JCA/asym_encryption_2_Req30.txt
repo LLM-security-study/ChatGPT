@@ -1,0 +1,57 @@
+Sure, here's a simple implementation of RSA algorithm which is a popular asymmetric cryptography algorithm. 
+
+```java
+import javax.crypto.Cipher;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = buildKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Let's create a test message
+        String message = "Hello, this is a test message!";
+
+        // Encrypt the message
+        byte[] encryptedMessage = encrypt(privateKey, message);
+        System.out.println("Encrypted message: " + new String(encryptedMessage));
+
+        // Decrypt the message
+        byte[] secretMessage = decrypt(publicKey, encryptedMessage);
+        System.out.println("Decrypted message: " + new String(secretMessage));
+    }
+
+    public static KeyPair buildKeyPair() throws NoSuchAlgorithmException, NoSuchProviderException {
+        int keySize = 2048;
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(keySize);
+        return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+
+        return cipher.doFinal(message.getBytes());
+    }
+
+    public static byte[] decrypt(PublicKey publicKey, byte [] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+This Java program will generate a pair of private and public keys using RSA. It will encrypt a message using the private key and then decrypt it using the public key to showcase how RSA works.
+
+Disclaimer:
+- The actual use of keys in RSA is reversed, the public key is used for encryption and the private key for decryption. Here, encryption with a private key is shown more like a digital signing process.
+- Please note that you have to handle exceptions appropriately in production-level code.

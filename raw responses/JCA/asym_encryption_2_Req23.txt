@@ -1,0 +1,53 @@
+Sure, here is a simple program that uses the RSA asymmetric cryptography algorithm in Java.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        KeyPair keyPair = generateKeyPair();
+        PublicKey pubkey = keyPair.getPublic();
+        PrivateKey privkey = keyPair.getPrivate();
+
+        String msg = "Hello, world!";
+
+        byte[] encrypted = encrypt(pubkey, msg);
+        String decrypted = decrypt(privkey, encrypted);
+
+        System.out.println("Original Message: " + msg);
+        System.out.println("Decrypted Message: " + decrypted);
+    }
+
+    public static KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048);
+        KeyPair keyPair = generator.generateKeyPair();
+        return keyPair;
+    }
+
+    public static byte[] encrypt(PublicKey key, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+
+        return cipher.doFinal(message.getBytes());
+    }
+
+    public static String decrypt(PrivateKey key, byte[] encryptedMessage) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+
+        byte[] bytes = cipher.doFinal(encryptedMessage);
+
+        return new String(bytes);
+    }
+}
+```
+This program first generates a public-private key pair. Then it encrypts a string message using the public key. After that, it decrypts the encrypted message using the private key.
+
+IMPORTANT: In a real-world application, you should never expose your private key. Keep it secure and confidential. Also, this is a very basic implementation to show how RSA works in Java. You might need to add error handling and other important features when using it in a real application.

@@ -1,0 +1,26 @@
+Here is a simple Java program that uses SecureRandom to generate a seed for initialising the internal state, and then use it to generate a random integer. Java's SecureRandom class provides a cryptographically strong random number generator.
+
+```Java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a new instance of SecureRandom
+        SecureRandom random = new SecureRandom();
+
+        // Generate a new seed and set it.
+        byte[] seed = new byte[20]; // Arbitrary size for seed
+        random.nextBytes(seed); // Randomly fills the bytes
+        random.setSeed(seed);
+
+        // Generate a random integer
+        int randomInt = random.nextInt();
+
+        // Print out the random integer.
+        System.out.println("Your generated random integer is: " + randomInt);
+    }
+}
+```
+This code first creates a byte array of size 20, then populates it with random values and uses it to seed the random number generator. After that, it generates a random integer and prints it to the console.
+
+Note: Given that this uses a cryptographically strong random number generator, the seed is not predictable and cannot be feasibly regenerated. Therefore, it is suitable for use in cryptographic applications.

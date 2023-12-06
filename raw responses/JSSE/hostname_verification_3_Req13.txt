@@ -1,0 +1,39 @@
+Sure, For implementing SSL/TLS hostname verification, we will use "HttpsURLConnection" in Java. Here is the code:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "https://www.example.com";
+        try {
+            URL url = new URL(hostname);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier((hostname1, session) -> true);
+            conn.connect();
+
+            if (conn.getHostnameVerifier().verify(hostname, conn.getSSLSession())) {
+                System.out.println("Server Hostname is verified");
+            } else {
+                System.out.println("Server Hostname is not verified");
+            }
+
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this program, we are creating a HttpsUrlConnection to the specified hostname. We are setting a HostnameVerifier that always returns true (accepts all hostnames). After connecting, we check if the hostname is verified.
+
+But above code is not recommended in Production system it can make your application vulnerable to man-in-the-middle attack. 
+
+NOTE: The hostname you are trying to connect to and the hostname of the server's certificate should match for the connection to be secure, which is why in production systems, we don't set our own verifier and rather let the default verifier do the check. The default verifier checks this matching as per HTTPS's standards. 
+
+Remember, if you're playing with real SSL communication, never forget to close your streams and connection, and handle exceptions properly.
+

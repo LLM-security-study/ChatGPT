@@ -1,0 +1,70 @@
+Sure, here's a simple implementation of how you can add an SSL certificate to a keystore file in Java using the KeyStore class from the standard java.security package.
+
+Consider you have downloaded the SSL certificate and put it in a file named "certificate.crt".
+
+Firstly, you need to import the necessary packages:
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+```
+
+Then, you create your `Main` class:
+
+```java
+public class Main {
+    public static final String KEYSTORE_FILE = "keystore.jks"; // Path to your keystore file
+    public static final String KEYSTORE_PASSWORD = "password123"; // Keystore password
+    public static final String CERTIFICATE_FILE = "certificate.crt"; // Path to the certificate file
+    public static final String CERTIFICATE_ALIAS = "my certificate"; // Alias of the added certificate
+
+    public static void main(String[] args) {
+        try {
+            // Load keystore
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+
+            // If the keystore file exists, load it. If not, create a new keystore
+            FileInputStream keyStoreFis = null;
+            try {
+                keyStoreFis = new FileInputStream(KEYSTORE_FILE);
+                keyStore.load(keyStoreFis, KEYSTORE_PASSWORD.toCharArray());
+            } finally {
+                if (keyStoreFis != null) {
+                    keyStoreFis.close();
+                }
+            }
+    
+            // Load certificate
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            InputStream certIn = new FileInputStream(CERTIFICATE_FILE);
+            Certificate certificate = cf.generateCertificate(certIn);
+            certIn.close();
+    
+            // Add the certificate
+            keyStore.setCertificateEntry(CERTIFICATE_ALIAS, certificate);
+    
+            // Save the keystore
+            try (FileOutputStream fos = new FileOutputStream(KEYSTORE_FILE)) {
+                keyStore.store(fos, KEYSTORE_PASSWORD.toCharArray());
+            }
+    
+            System.out.println("Certificate added to keystore successfully");
+        } catch (Exception e) {
+            System.out.println("Failed to add the certificate to keystore");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program reads an X.509 certificate from a file (CERTIFICATE_FILE) and adds it to a keystore file (KEYSTORE_FILE). If the keystore file does not exist, it will be created.
+
+Please replace the `KEYSTORE_FILE`, `KEYSTORE_PASSWORD`, `CERTIFICATE_FILE` and `CERTIFICATE_ALIAS` with your own values.
+
+Make sure you have the necessary permissions to read and write to the specified files.
+
+Note: This is a simple example and might not cover all possible edge-cases for a production level application. It is important to carefully handle and secure sensitive data like the keystore file and password. Also, remember to handle exceptions properly to prevent any unexpected crashes or security leaks.

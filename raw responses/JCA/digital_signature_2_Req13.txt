@@ -1,0 +1,44 @@
+Here's a basic implementation of data signing in Java. Please replace `privateKeyContent` and `publicKeyContent` with the actual private and public keys in the given placeholders. 
+
+```Java
+import java.security.*;
+import java.util.Base64;
+
+public class Main{
+    public static void main(String[] args) throws Exception{
+
+        String privateKeyContent = "<PLACE THE PRIVATE KEY CONTENT HERE>";
+        String publicKeyContent = "<PLACE THE PUBLIC KEY CONTENT HERE>";
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+
+        byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyContent);
+        PKCS8EncodedKeySpec pkcs8EncodedKeySpec = new PKCS8EncodedKeySpec(privateKeyBytes);
+        PrivateKey privateKey = keyFactory.generatePrivate(pkcs8EncodedKeySpec);
+
+        // Data to be signed
+        String data = "Hello, World!";
+        signature.initSign(privateKey);
+        signature.update(data.getBytes());
+        byte[] digitalSignature = signature.sign();
+
+        // Verification of the signature
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyContent);
+        X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKeyBytes);
+        PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
+
+        signature.initVerify(publicKey);
+        signature.update(data.getBytes());
+
+        boolean isVerified = signature.verify(digitalSignature);
+
+        System.out.println("Is the signature verified?: "+isVerified);
+
+    }
+}
+```
+
+This program signs the message string using the private key and then verifies it using the public key at the receiver's end. Please remember to replace the placeholders with the actual keys (encoded in Base64). 
+
+From Java 8 and onwards, you have to be careful with the PrivateKey and PublicKey strings, Java 8 doesn't like headers and footers you usually get with PEM files, so if you are testing with a real private/public key make sure you strip out the `-----BEGIN PRIVATE KEY-----` and `-----END PRIVATE KEY-----` headers and footers.

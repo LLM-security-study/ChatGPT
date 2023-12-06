@@ -1,0 +1,44 @@
+Here is a basic example of how you might use the Java Security API to sign a message and then verify the signature. In this example, the `signMessage` function is used to generate the signature of a given message, and the `verifyMessage` function is used to verify a given message's signature.
+
+Record that this example will use RSA as the signature algorithm and it assumes that keys are already available.
+
+```java
+import java.security.*;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // Generate a key pair
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");  
+    keyGen.initialize(1024);
+    KeyPair keyPair = keyGen.generateKeyPair();
+    
+    String message = "Hello, World!";
+    
+    // Sign the message
+    byte[] signatureBytes = signMessage(message, keyPair.getPrivate());
+    
+    // Verify the message
+    boolean isVerified = verifyMessage(message, keyPair.getPublic(), signatureBytes);
+    System.out.println("Signature verified: " + isVerified);
+  }
+  
+  public static byte[] signMessage(String message, PrivateKey privateKey) throws Exception {
+    Signature signature = Signature.getInstance("SHA256withRSA");
+    signature.initSign(privateKey);
+    byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+    signature.update(bytes);
+    return signature.sign();
+  }
+  
+  public static boolean verifyMessage(String message, PublicKey publicKey, byte[] signatureBytes) throws Exception {
+    Signature signature = Signature.getInstance("SHA256withRSA");
+    signature.initVerify(publicKey);
+    byte[] bytes = message.getBytes(StandardCharsets.UTF_8);
+    signature.update(bytes);
+    return signature.verify(signatureBytes);
+  }
+}
+```
+
+This code first generates a public and private key pair using RSA. It then takes a `message` string, signs it with the private key, and then verifies the resulting signature with the public key. If the `verifyMessage` function returns true, that means that the signature is valid and confirms that the message came from the possessor of the private key and has not been tampered with.

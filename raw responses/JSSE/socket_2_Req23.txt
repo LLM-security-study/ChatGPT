@@ -1,0 +1,50 @@
+Below is the code for establishing an SSL socket to communicate with a remote server in Java.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    private static final String SERVER_HOST = "Your-Server-Address";
+    private static final int SERVER_PORT = 9000; // Replace with the SSL Port of your server
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(SERVER_HOST, SERVER_PORT);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            //Passing the information to the server
+            out.println("Hello Server!");
+
+            //Receiving server response
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println("Server response: " + inputLine);
+            }
+
+            //Closing the streams and the socket
+            out.close();
+            in.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            System.out.println("Failed to create SSL socket : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this code:
+- SSLSocketFactory is a factory for SSLSockets. This class is obtained via the `getDefault()` method, which returns a default implementation of the SSLSocketFactory.
+- The `createSocket(String host, int port)` method of the SSLSocketFactory class is used to create a socket and connect it to the specified remote host and port.
+- The communication with the server is done through streams obtained from the `getInputStream()` and `getOutputStream()` methods of the created SSLSocket.
+
+Remember to replace `Your-Server-Address` and `SERVER_PORT` with the actual server address and port you want to establish SSL communication with.
+
+Please note that SSL certification needs to be taken care so that the communication is secure, and also this example assumes that server will accept connection and also server will send some response for the message sent by client.

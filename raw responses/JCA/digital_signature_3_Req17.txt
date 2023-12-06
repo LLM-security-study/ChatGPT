@@ -1,0 +1,39 @@
+Sure, here's a basic implementation of a Java class that signs a message using a private key in a very simplified version. Note that proper handling of cryptographic materials in a production environment would be a lot more complex with additional considerations for secure key management, error handling, etc.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    private static String message = "Hello, World!";
+
+    public static void main(String[] args) {
+        try {
+            // Generate a key pair
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(1024, random);
+            KeyPair pair = keyGen.generateKeyPair();
+            PrivateKey privateKey = pair.getPrivate();
+
+            // Sign the message
+            Signature signature = Signature.getInstance("SHA1withDSA", "SUN"); 
+            signature.initSign(privateKey);
+            signature.update(message.getBytes("UTF8"));
+            byte[] signedMessage = signature.sign();
+
+            // Convert the signed message into Base64 for readability
+            String base64SignedMessage = Base64.getEncoder().encodeToString(signedMessage);
+
+            // Print the signed message
+            System.out.println("Signed message: " + base64SignedMessage);
+        } catch (Exception e) {
+            System.err.println("Caught exception " + e.toString());
+        }
+    }
+}
+```
+
+This program first generates a private-public key pair. It then uses the private key to sign a predefined message ('Hello, World!'). The signed message is then printed in Base64 format. This program uses the DSA algorithm for signing and SHA-1 for random number generation as provided by the SUN provider.
+
+Remember that Java's security features require certain system libraries and will not run if those are not installed. As well, the SUN provider may not be available in all Java distributions and on all systems.

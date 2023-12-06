@@ -1,0 +1,45 @@
+Here's a simple implementation for generating a seed for PRNG and then using that to generate salt for password hashing in Java:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Generate a seed
+        byte[] seed = new byte[8];
+        secureRandom.nextBytes(seed);
+        secureRandom.setSeed(seed);
+
+        // Generate a salt
+        byte[] salt = new byte[16];
+        secureRandom.nextBytes(salt);
+
+        // Convert salt bytes into a string with Base64
+        String saltString = Base64.getEncoder().encodeToString(salt);
+
+        System.out.println("Seed for PRNG: " + Base64.getEncoder().encodeToString(seed));
+        System.out.println("Generated Salt: " + saltString);
+    }
+
+}
+```
+
+This program is quite simple: 
+
+- It first creates a `SecureRandom` instance (which is a cryptographically strong PRNG), 
+
+- generates a seed of 8 bytes, 
+
+- sets the seed for the `SecureRandom` instance, 
+
+- generates a salt of 16 bytes,
+
+- and finally converts the salt bytes into a string format using Base64 encoding.
+
+Base64 encoding is used here to represent the binary data in an ASCII string format. This is because binary data, such as a cryptographic salt, can contain any possible byte, which may not be printable or may not match with file or network transport requirements. 
+
+Please note that this seed is not saved anywhere. It is only used for the purpose of this example. In a real-world scenario, it would be best to let `SecureRandom` automatic seeding happen (which is done if no `setSeed` method is called), where it gathers entropy from OS (Operating System) and does not require manual seed generation. It also mitigates the risk of someone getting the same 'random' numbers by knowing the seed.

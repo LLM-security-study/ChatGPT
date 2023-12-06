@@ -1,0 +1,38 @@
+Sure, below is a simple Java program, which uses javax.crypto package for deriving cryptographic keys from a User's password using the PBKDF2WithHmacSHA1 algorithm. 
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your password: ");
+
+        // It's recommended to use SecureRandom in a real application
+        byte[] salt = new byte[16]; 
+        Arrays.fill(salt, (byte) 0x00); 
+
+        KeySpec spec = new PBEKeySpec(scanner.nextLine().toCharArray(), salt, 65536, 128); 
+        SecretKeyFactory factory = null;
+
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            byte[] hash = factory.generateSecret(spec).getEncoded(); 
+            System.out.println("Derived Key: " + DatatypeConverter.printHexBinary(hash)); 
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program takes a user password as an input and generates the derived cryptographic key in hexadecimal format. Salt is hardcoded in this sample code, but in real-time applications, it's recommended to use a unique (not publicly known) salt value for each user.
+
+Remember to handle the exception part properly in real-time applications, and ensure the security measures while you are dealing with passwords on application development.

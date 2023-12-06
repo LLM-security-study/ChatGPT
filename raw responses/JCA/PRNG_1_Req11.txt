@@ -1,0 +1,33 @@
+Sure, below is a basic Java program that generates a seed for initializing a pseudorandom number generator (PRNG), and then uses this PRNG to generate an Initialization Vector (IV) for encryption using Java's standard APIs: 
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+
+    private static final int IV_SIZE = 16;  // 16 bytes = 128 bits (AES block size)
+
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Generate a seed for PRNG
+        byte[] seed = new byte[64];  // 64 bytes = 512 bits
+        secureRandom.nextBytes(seed);
+
+        // Now, use this seed to create a new instance of SecureRandom
+        SecureRandom prng = new SecureRandom(seed);
+
+        // Generate an Initialization Vector (IV) using this PRNG
+        byte[] iv = new byte[IV_SIZE];
+        prng.nextBytes(iv);
+
+        // Use the iv for creating IvParameterSpec object which can be used for encryption
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        // The ivSpec can now be used for performing AES encryption
+    }
+}
+```
+
+Please make sure to handle any potential `Exception` according to your needs. In this example, an IV of 128 bits (16 bytes) is used because that's the block size of AES encryption. You can adjust the size according to the block size of your encryption algorithm. Similarly, a 512-bit seed is randomly generated for the PRNG. You can adjust the seed size as per your requirement too.

@@ -1,0 +1,35 @@
+Sure, here is a simple Java program that generates a seed for pseudorandom number and generates a salt for password hashing.
+
+Please see code below:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] values = new byte[20];
+        secureRandom.nextBytes(values);
+
+        // Generate seed for PRNG
+        long seed = secureRandom.generateSeed(8).hashCode();
+        System.out.println("Seed for PRNG: " + seed);
+        
+        // Use the seed to generate salt for password hashing
+        SecureRandom prng = new SecureRandom();
+        prng.setSeed(seed);
+        byte[] salt = new byte[16];
+        prng.nextBytes(salt);
+        String saltString = Base64.getEncoder().encodeToString(salt);
+        System.out.println("Generated salt for password hashing: " + saltString);
+    }
+}
+```
+This program creates an instance of Java's SecureRandom class, which offers a cryptographically strong random number generator.
+
+First, it generates a random sequence of bytes, which it then uses to create a long seed for the pseudo-random number generator (PRNG).
+
+Next, it uses this seed to initialize a new SecureRandom instance and generates a 16 byte salt. This salt can then be used for password hashing.
+
+Finally, it converts the salt to a string (using BASE64 encoding for readability) and outputs it.

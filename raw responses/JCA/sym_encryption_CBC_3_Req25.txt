@@ -1,0 +1,47 @@
+Below is a basic implementation of a Java program utilizing AES and CBC mode:
+
+Please remember to replace `"ReplaceWithYourSecretKey"` and `"YourIvParameter"` with correct data.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String encryptedString = "EncryptedData";
+        String key = "ReplaceWithYourSecretKey";
+        String initVector = "YourIvParameter";
+
+        System.out.println(decrypt(key, initVector, encryptedString));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+Ensure the secret key length is 16 characters (128 bits) for AES encryption.
+
+This simple Java program will decrypt the encrypted data using the AES algorithm in CBC mode. 
+
+ALWAYS remember to store your keys safely and securely, which means - NEVER expose them on code. It's extremely crucial to manage them properly, for example storing in a secure hardware device, encrypted and accessed via secure methods. 
+
+It's also important to know that different systems may require different key sizes and the choice usually depends on the balance between needed security and performance.

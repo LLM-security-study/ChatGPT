@@ -1,0 +1,46 @@
+Alright. In this case, I am going to use Java's Secure Socket Extension (JSSE), included in the standard Java platform.
+
+JSSE provides a framework and an implementation for a Java version of the SSL and TLS protocols. 
+
+Here is the skeleton code:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+  public static void main(String[] args) {
+    String serverName = "example.com"; // Insert your server name here
+    int port = 1234; // Insert your port number here
+
+    System.setProperty("javax.net.ssl.trustStore", "myTrustStore.jts");
+    
+    try {
+      SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+      SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket(serverName, port);
+
+      InputStream inputstream = sslsocket.getInputStream();
+      InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
+      BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
+
+      String rawInput = null;
+      while ((rawInput = bufferedreader.readLine()) != null) {
+        System.out.println(rawInput);
+      }
+    } catch (Exception exception) {
+      exception.printStackTrace();
+    }
+  }
+}
+```
+This program first picks up the settings for SSL from the system properties set with the `System.setProperty()` method. Then it gets the default `SSLSocketFactory`, and uses it to create an `SSLSocket` to connect to the specified server and port.
+
+After connecting, it opens the input stream, buffering it so that it's possible to read lines from it. This can further be used for processing before printing to the console.
+
+**Note**:
+1. Replace `"myTrustStore.jts"` with the path to your truststore file. You should include the actual serverName and port number.
+2. Full path might be needed for the .jts file depending upon where it's stored.
+3. This program does not close its network connections. You should modify it to properly close connections when you're done with them.
+4. Error handling is kept to a minimum for the clarity of the program, robust code would have more complex error handling.
+
+Keep in mind SSL connections should be used in combination with correct endpoint identity verification, correct certificate validation, and possibly appropriate encryption to ensure the security of the data.

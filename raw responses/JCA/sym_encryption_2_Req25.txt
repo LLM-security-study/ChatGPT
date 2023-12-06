@@ -1,0 +1,41 @@
+Here's a simple Java program using AES (Advanced Encryption Standard) for symmetric encryption.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        
+        // Generate a key first
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128); // key size: 128, 192 or 256 bits
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        String plainText = "Hello, World!";
+
+        // For encryption
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] cipherText = cipher.doFinal(plainText.getBytes());
+        System.out.println("Encrypted Text: " + Base64.getEncoder().encodeToString(cipherText));
+
+        // For decryption
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedText = cipher.doFinal(cipherText);
+        System.out.println("Decrypted Text: " + new String(decryptedText));
+    }
+}
+```
+In this program, it generates a secret key for AES (Advanced Encryption Standard) using Java's `KeyGenerator` class. This key is then used to encrypt and decrypt data. 
+
+I've used the `Cipher` class from Java Cryptography Extension (JCE) to handle encryption and decryption. When you want to encrypt data, you initialize the cipher to `Cipher.ENCRYPT_MODE`. On the contrary, when you want to decrypt data, you initialize the cipher to `Cipher.DECRYPT_MODE`. Note that the same secret key generated must be used in both cases. 
+
+The `Base64.getEncoder().encodeToString(cipherText)` is used to change the byte array (`cipherText`) to a string. This is because the encrypted data is a byte array and might not convert to a readable string properly. This base 64 string can be transmitted safely without worrying about character encoding issues. 
+
+Beware that AES encryption demands the unrestricted policy files for JCE, if you're using a JDK version older than JDK 8 Update 161. This is due to the key size, which can go up to 256 bits, considered strong encryption. 
+
+The encrypted data is then decrypted back to its original form using the same secret key, demonstrating the symmetric nature of AES encryption.

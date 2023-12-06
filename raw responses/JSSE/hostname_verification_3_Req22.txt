@@ -1,0 +1,40 @@
+Sure, here's a sample program that attempts to connect to an HTTPS (SSL/TLS) server and verifies the hostname. The main API will be javax.net.ssl for this. 
+
+```java
+import java.io.InputStream;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().testHttps("https://yourhostname.com");
+    }
+
+    private void testHttps(String aUrl) {
+        try {
+            URL url = new URL(aUrl);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier((String hostname, SSLSession session) -> {
+                try {
+                    Certificate[] certs = session.getPeerCertificates();
+                    if (certs.length > 0 && certs[0] instanceof X509Certificate) {
+                        X509Certificate cert = (X509Certificate) certs[0];
+                        String dn = cert.getSubjectX500Principal().getName();
+                        String cn = null;
+                        for (String part : dn.split(",")) {
+                            if (part.startsWith("CN=")) {
+                                cn = part.substring(3);
+                                break;
+                            }
+                        }
+                        return hostname.equals(cn);
+                    } else {
+                        return false;
+                    }
+                } catch (SSLPeerUnverifiedException e) {
+                    return false;
+

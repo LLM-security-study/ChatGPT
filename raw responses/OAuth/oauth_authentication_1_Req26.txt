@@ -1,0 +1,98 @@
+Sure, here's how you might write your Java code using Google's OAuth 2.0 APIs to integrate Google Single-Sign-On for user authentication into your web application. This demo version only describes how you can achieve that.
+
+Here we are going to use google-oauth-java-client which is a Java library to use Google OAuth for Java.
+
+First, add the Google OAuth client library to your project using `maven`. Add the below code to your `pom.xml`
+
+```xml
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client</artifactId>
+    <version>1.31.5</version>
+    <scope>compile</scope>
+</dependency>
+<dependency>
+    <groupId>com.google.http-client</groupId>
+    <artifactId>google-http-client-jackson2</artifactId>
+    <version>1.39.2</version>
+    <scope>compile</scope>
+</dependency>
+```
+
+Then create a file named `GoogleClientSecretsDetails.java`
+
+```java
+public class GoogleClientSecretsDetails {
+
+    private String clientId;
+    private String clientSecret;
+    private String redirectUri;
+
+    // Use constructor to create a new instance
+    public GoogleClientSecretsDetails(String clientId, String clientSecret, String redirectUri) {
+        this.clientId = clientId;
+        this.clientSecret = clientSecret;
+        this.redirectUri = redirectUri;
+    }
+
+    // Create get and set methods for attributes
+    public String getClientId() { return clientId; }
+
+    public String getClientSecret() { return clientSecret; }
+
+    public String getRedirectUri() { return redirectUri; }
+}
+```
+GoogleClientSecretsDetails.java will contain your Client Id, Client Secret, and Redirect Uri. 
+
+Next, create a Main.java file and write the codes for Google's OAuth 2.0 APIs.
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        GoogleClientSecretsDetails googleClientSecretsDetails = new GoogleClientSecretsDetails("client_id", "client_secret", "redirect_uri");
+
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
+
+        GoogleClientSecrets.Details web = new GoogleClientSecrets.Details()
+            .setClientId(googleClientSecretsDetails.getClientId())
+            .setClientSecret(googleClientSecretsDetails.getClientSecret())
+            .setRedirectUris(Collections.singletonList(googleClientSecretsDetails.getRedirectUri()));
+
+        clientSecrets.setWeb(web);
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(), clientSecrets,
+                Collections.singleton("https://www.googleapis.com/auth/userinfo.profile"))
+                .setAccessType("offline").build();
+
+        // Step_1 : Authorize the user. Open in your web browser
+        String url = flow.newAuthorizationUrl().setRedirectUri(googleClientSecretsDetails.getRedirectUri()).build();
+        System.out.println("Please open the following address in your browser");
+        System.out.println("  " + url);
+
+        // Ask_Code : Display authorization code from redirect page
+        System.out.println("Enter authorization code:");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String code = br.readLine();
+
+        // Step_2 : Exchange, Exchange authorization code for access and refresh tokens
+        Credential credential = flow.newTokenRequest(code).setRedirectUri(googleClientSecretsDetails.getRedirectUri()).execute();
+
+        System.out.println("Access token: " + credential.getAccessToken());
+        }
+}
+```
+
+Please make sure to replace "client_id", "client_secret", and "redirect_uri" with your correct details obtained after registering your application with Google API. This code does not include exception handling and should not be used as it is in production. 
+
+Remember, this is just for demonstration purposes. You would need to fit this into your web application infrastructure. Also, if you are using a framework like Spring, you might want to use Spring's OAuth2 client instead.

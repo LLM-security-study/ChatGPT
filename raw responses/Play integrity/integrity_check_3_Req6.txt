@@ -1,0 +1,43 @@
+Identifying the integrity of an Android device may require several checks such as:
+
+- Checking for the presence of root
+- Checking for the presence of certain APKs
+
+This can be accomplished through the use of the SafetyNet Attestation API, which provides an integrity check mechanism for Android devices.
+
+Now let's proceed to code:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        SafetyNet.getClient(this).attest("SAMPLE_NONCE".getBytes(), "YOUR_API_KEY")
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Use response.getJwsResult() to get result of integrity check
+                                String jwsResult = response.getJwsResult();
+                                System.out.println("Integrity check result: " + jwsResult);
+                                
+                                //TODO: Add your code to parse the jwsResult and make decision based on that
+                            }
+                        });
+    }
+}
+```
+
+Please note:
+
+- The above code snippet makes a call to the SafetyNet Attestation API. The call includes a nonce that must be generated using a secure random number generator. Here, "SAMPLE_NONCE" is just a placeholder.
+
+- "YOUR_API_KEY" must be replaced with your actual API key.
+
+- The `AttestationResponse` object's `getJwsResult()` method returns a JWS (JSON Web Signature) string that contains a cryptographic signature that you can use to validate the response.
+
+- After attestation, a JWS (JSON Web Signature) message is returned from the API. This message should be sent securely to a backend server where its signature can be verified.

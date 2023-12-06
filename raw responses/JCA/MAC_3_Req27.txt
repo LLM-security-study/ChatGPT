@@ -1,0 +1,36 @@
+Here is a simple implementation of a Java program which calculates the Message Authentication Code (MAC) using the standard Java API:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String key = "secretkey";
+        String message = "Hello, World!";
+
+        try {
+            // create a key object from a given key string
+            SecretKeySpec secretKeySpec = new SecretKeySpec(
+                    key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+
+            // get an instance of Mac object
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKeySpec);
+
+            // calculate mac
+            byte[] macBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // print mac
+            System.out.println(Arrays.toString(macBytes));
+
+        } catch (Exception e) {
+            System.out.println("Error while calculating MAC: " + e.getMessage());
+        }
+    }
+}
+```
+In this simple example, HmacSHA256 is used for calculating the MAC. The program takes a hard-coded message and key, calculates the MAC and then prints the result as a byte array.

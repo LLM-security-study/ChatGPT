@@ -1,0 +1,50 @@
+Here's a simple Java program that implements Password Based Key Derivation (PBKDF2). This program will get the encoded hash for the given password.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String password = "password123";
+        String salt = "salt123";
+        int iterations = 1000;
+        int keyLength = 128;
+
+        char[] passwordChars = password.toCharArray();
+        byte[] saltBytes = salt.getBytes();
+
+        byte[] hashedBytes = hashPassword(passwordChars, saltBytes, iterations, keyLength);
+        String hashedPassword = String.format("%x", new BigInteger(hashedBytes));
+
+        System.out.println(hashedPassword);
+    }
+
+    private static byte[] hashPassword(final char[] password, final byte[] salt, final int iterations, final int keyLength) {
+
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, keyLength);
+            KeySpec keySpec = new PBEKeySpec(password, salt, iterations, keyLength);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            byte[] secretKey = factory.generateSecret(keySpec).getEncoded();
+            return secretKey;
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException("Error while hashing a password: " + e.getMessage(), e);
+        }
+    }
+}
+```
+
+Remember to replace `'password123'` and `'salt123'` with the actual password and salt. The salt should be securely generated and stored with the password hash so it can be used for password verification.
+
+`NoSuchAlgorithmException` is thrown when the particular cryptographic algorithm requested is not available in the environment.
+`InvalidKeySpecException` is thrown when KeySpec is invalid.
+
+This program prints the hashed password, and we can save it and use it for authentication next time the user logs in.

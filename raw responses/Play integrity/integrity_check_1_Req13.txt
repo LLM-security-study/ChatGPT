@@ -1,0 +1,43 @@
+The primary function of your request would require the use of SafetyNet Attestation API from Android. The SafetyNet Attestation API is a privacy-friendly service that provides a cryptographic proof of the security state of a device at the time of the API call.
+
+Here's some sample code to detect whether or not an app's APK was installed from Google Play. In this example, the default installer package name for Google Play (com.android.vending) is being checked:
+
+```java
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Bundle;
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+
+public class Main extends Activity {
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            setContentView(R.layout.activity_main);
+
+            try {
+                PackageManager packageManager = this.getPackageManager();
+                String installerPackageName = packageManager.getInstallerPackageName(getPackageName());
+
+                if("com.android.vending".equals(installerPackageName)){
+                    Log.d("APP_INSTALLER_CHECK","App installed via Google Play");
+                }
+                else {
+                    Log.d("APP_INSTALLER_CHECK","App was not installed via Google Play");
+                }
+            }
+            catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+}
+```
+Note: This code won't verify the binary hasn't been modified after the installation. To achieve this, you may have to perform a checksum test on your application's APK. If the checksum value does not match with the original APK (checksum of original APK stored somewhere secure), then it means the APK was modified after installation.
+
+Also, in a real-world scenario, you would need to make sure the Google Play installer's package name (com.android.vending) hasn't been spoofed. This part is not covered in the sample code due to the complexity and unique situations involved.
+
+Lastly, do not treat this source code as production-ready or absolute solution. Consider consulting with a cybersecurity expert for a more secure implementation or alleviating potential security risks associated with making such inquiries.

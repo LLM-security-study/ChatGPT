@@ -1,0 +1,29 @@
+Sure, below is a skeleton of how a generator for a pseudorandom number might look like in Java.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    
+    private static final int IV_SIZE = 16; // 128-bit IV for AES
+
+    public static void main(String[] args) {
+        // Create a secure random number generator
+        SecureRandom sr = new SecureRandom();
+
+        // Get 16 random bytes
+        byte[] iv = new byte[IV_SIZE];
+        sr.nextBytes(iv);
+
+        // Convert byte array to a Base64 string
+        String ivBase64 = Base64.getEncoder().encodeToString(iv);
+
+        System.out.println("Random IV generated: " + ivBase64);
+    }
+}
+```
+
+The program generates an initialization vector (IV) using Java's `SecureRandom` class, which is a pseudorandom number generator suitable for generating random bytes. IV_SIZE is defined as 16, meaning the program generates a 128-bit IV (as used in AES encryption).
+
+After generating the bytes, the program converts the byte array into a Base64 string with `Base64.getEncoder().encodeToString(iv)`. The resulting Base64 string is then printed to the console with `System.out.println`.

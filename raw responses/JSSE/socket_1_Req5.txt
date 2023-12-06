@@ -1,0 +1,50 @@
+Okay, let's create a very basic implementation of SSL Socket communication in Java.
+
+This program simply creates an SSL Socket, connects it to an SSL Server on "localhost" and port 1234. This is a basic example, please modify it according to your needs.
+
+Before we proceed, we need to understand that Java's Secure Socket Extension (JSSE) API is used to implement SSL Socket. JSSE provides a framework and an implementation for a Java version of SSL and TLS protocols and includes functionality for data encryption, server authentication, message integrity, and optional client authentication.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            //get SSL Socket Factory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            //create SSLSocket using the factory
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket("localhost", 1234);
+
+            //initialize input stream
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            //initialize output stream
+            PrintWriter out = new PrintWriter(new BufferedWriter(
+                    new OutputStreamWriter(sslSocket.getOutputStream())));
+
+            //send a message to the server
+            out.println("Hello Server!");
+            out.flush();
+
+            // print server response
+            String str = in.readLine();
+            System.out.println("Server response: " + str);
+
+            // close the streams and the socket
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Please remember that for SSL to work, both ends of the communication path must have a shared level of SSL or TLS protocol. For real-world application, we should also handle SSLHandshakeException and provide additional security mechanisms.
+
+Since SSL Certificates are involved, you may need to import them in your JRE's keystore. Be mindful of these steps as missing them out may result in exceptions during execution or while establishing a connection.

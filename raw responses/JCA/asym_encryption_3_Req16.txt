@@ -1,0 +1,50 @@
+Sure, below is a simple Java code for performing RSA asymmetric encryption and decryption:
+
+```java
+import javax.crypto.Cipher;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Base64;
+
+public class Main {
+    public static void main (String[] args) throws Exception {
+        // Generate Public and Private keys
+        KeyPair keyPair = buildKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Encrypt the message
+        String message = "Hello World!";
+        byte[] encrypted = encrypt(publicKey, message);
+        System.out.println(new String(Base64.getEncoder().encode(encrypted)));
+
+        // Decrypt the message
+        byte[] secret = decrypt(privateKey, encrypted);
+        System.out.println(new String(secret)); // This line will print out "Hello World!"
+    }
+
+    public static KeyPair buildKeyPair() throws Exception {
+       final int keySize = 2048;
+       KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+       keyPairGenerator.initialize(keySize);      
+       return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PublicKey publicKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);  
+
+        return cipher.doFinal(message.getBytes());  
+    }
+
+    public static byte[] decrypt(PrivateKey privateKey, byte [] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+This program generates a KeyPair (public key and private key), then applies RSA encryption to a message using the public key and decrypts the encrypted text using the private key. "Hello World!" is used as the example message. After running, the encrypted message and the decrypted message (which should match the original message) will be printed out.

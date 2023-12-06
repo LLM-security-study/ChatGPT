@@ -1,0 +1,76 @@
+You can use the FingerprintManager API in Android for fingerprint authentication. However, it's important to note that using FingerprintManager is not secure for app's key material and it is recommended to use the BiometricPrompt with CryptoObject for secure authentication.
+
+Here's a simple example of how you can use FingerprintManager for fingerprint authentication:
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            // Ask user for fingerprint authentication permission.
+            requestPermissions(new String[]{Manifest.permission.USE_FINGERPRINT}, 1); // handle permission in "onRequestPermissionsResult" method
+        } else {
+            initFingerprintAuthentication();
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void initFingerprintAuthentication() {
+        if (!fingerprintManager.isHardwareDetected()) {
+            // Device doesn't support fingerprint authentication
+            return;
+        }
+
+        if (!fingerprintManager.hasEnrolledFingerprints()) {
+            // User hasn't enrolled any fingerprints to authenticate with
+            return;
+        }
+
+        FingerprintManager.AuthenticationCallback authenticationCallback = new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                // There was an irrecoverable error and the operation was aborted.
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                // The operation was unable to start due to some recoverable error.
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                // Authentication was successful
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                // The operation failed because the fingerprint that was provided is not valid.
+            }
+        };
+
+        fingerprintManager.authenticate(null /* crypto object */, null /* cancellation signal */, 0 /* flags */, authenticationCallback, null /* handler */);
+    }
+}
+```
+
+This program will initialize the FingerprintManager and start fingerprint authentication upon granting the permission by the user. It does not handle the permission request response so you may want to add your own implementation for handling the response.
+
+Please note, this solution uses deprecated methods and classes from API 23+, and this approach is not recommended for production usage. Newer apps should use the BiometricPrompt API (API 28+). If target SDK version is under 23, FingerprintManagerCompat from AndroidX should be used instead.

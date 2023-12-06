@@ -1,0 +1,44 @@
+The main library we are going to use to verify the integrity of an Android app is Google's SafetyNet API. 
+
+SafetyNet provides a set of services and APIs that help protect your app against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users.
+
+The safetyNet attestation API is used to determine whether or not the device running your app might be a Potentially Harmful Device(PHD).
+
+Below is a sample Java program which verifies the integrity of an Android app.
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import android.util.Log;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        String nonceData = "Safety Net Sample: " + System.currentTimeMillis();
+        byte[] nonce = nonceData.getBytes();
+
+        Task<SafetyNetApi.AttestationResponse> attestTask = SafetyNet.getClient(this).attest(nonce, API_KEY);
+
+        attestTask.addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+            @Override
+            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                // Indicates communication with the service was successful.
+                // Use response.getJwsResult() to get the result data.
+                Log.d("My App", "SafetyNet result: "+ response.getJwsResult());
+            }
+
+            public void onFailure(Exception e) {
+                // An error occurred while communicating with the service.
+                Log.d("My App", "Error occurred "+ e.getMessage());
+            }
+        });
+    }
+}
+```
+
+This program will attest(default method of SafetyNet API) the current environment of the device and returns a JSON Web Signature (JWS) response which can be used to verify the integrity of the app. Please replace "API_KEY" with your actual API key. 
+
+Please note, this code is to be run in a mobile device(Android Environment) and not on a PC with Java main class.

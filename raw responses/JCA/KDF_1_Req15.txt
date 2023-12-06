@@ -1,0 +1,40 @@
+Sure, here are the basics of how you might develop this program using Java's standard Security and Cryptography libraries. We will use a Password-Based Key Derivation Function (PBKDF2) for deriving the cryptographic keys. 
+
+```Java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter Password: ");
+        char[] password = scan.nextLine().toCharArray();
+
+        /* 
+          * Note: Always use SecureRandom instead of just Random
+          * SecureRandom is safe for use in cryptography.
+        */
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];  
+        random.nextBytes(salt);
+
+        // Iterations and key length can be adjusted based on security requirement.
+        int iterations = 10000;  
+        int keyLength = 256;  // Our cryptographic key will be of length 256 bits
+
+        PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, keyLength);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+        byte[] hash = skf.generateSecret(spec).getEncoded();
+
+        System.out.println("Derived Key : " + Arrays.toString(hash));    
+    }
+}
+```
+Note that the derived key is displayed as an array of bytes. You can modify the output format based on your requirements.
+
+The secure way of deriving cryptographic keys requires the usage of a salt. A salt is randomly generated and used in the core of the password hashing process to prevent dictionary attacks and pre-computed rainbow-table attacks.
+
+*Remember: Always store the Salt alongside with the Derived Key. The Salt is needed to check passwords against the Derived Key. But do NOT treat the Salt as secret.*

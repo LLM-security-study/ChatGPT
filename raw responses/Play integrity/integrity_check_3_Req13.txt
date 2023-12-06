@@ -1,0 +1,64 @@
+The Android SafetyNet Attestation API would be a good fit to verify the integrity of an Android device. This API helps to determine whether the device is valid and not compromised in any way.
+
+Here is a simplified example of how to use SafetyNet Attestation API to check the integrity of the device using Java.
+
+```java
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.Tasks;
+
+public class Main extends AppCompatActivity {
+
+    static final String TAG = "IntegrityCheck";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        new SafetyNetCheck().execute();
+    }
+
+    private class SafetyNetCheck extends AsyncTask<String, Void, Void> {
+
+        @Override
+        protected Void doInBackground(String... params) {
+            
+            try {
+                SafetyNetApi.AttestationResponse result = Tasks.await(
+                    SafetyNet.getClient(getApplicationContext()).attest("nonce".getBytes(), "Your_API_Key_Here")
+                );
+
+                boolean isValidSignature = verifySafetyNetResponse(result.getJwsResult());
+
+                if(isValidSignature) {
+                    Log.d(TAG, "SafetyNet Test Success");
+                } else {
+                    Log.d(TAG, "Invalid Device");
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to perform SafetyNet Check", e);
+            }
+
+            return null;
+        }
+
+        private boolean verifySafetyNetResponse(String jwsResult) {
+            // Add your own logic to verify the integrity of the response from SafetyNet API
+            // It might involve server-side validation to ensure the response was not tampered with
+            return true;
+        }
+        
+    }
+}
+```
+
+Please replace 'nonce' and 'Your_API_Key_Here' with your real nonce and API key. Also note, the function `verifySafetyNetResponse` needs its own logic to verify the JWS response. Implement server-side validation to ensure that the response was not tampered with. Especially, do pay attention to the 'ctsProfileMatch' field in the decoded JWS payload. It indicates whether the device passed the compatibility test suite (CTS).
+
+Remember, checking device integrity can involve more considerations like bootloader status, operating system integrity, etc based on app requirements.

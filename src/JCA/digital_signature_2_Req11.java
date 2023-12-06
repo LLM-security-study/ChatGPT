@@ -1,0 +1,56 @@
+import java.security.*;
+
+public class digital_signature_2_Req11 {
+
+    static final String data = "Very important data";
+
+    public static void main(String[] args) {
+
+        // Generate a key pair
+        KeyPair keyPair = generateKeyPair();
+
+        // Get the private and public key
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Sign the data
+        byte[] signature = signData(privateKey);
+
+        // Verify the data
+        boolean verified = verifySignature(publicKey, signature);
+        System.out.println("Verification: " + (verified ? "Successful" : "Failed"));
+    }
+
+    private static KeyPair generateKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(1024, random);
+            return keyGen.generateKeyPair();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e) {
+            throw new RuntimeException("Failed to generate a key pair", e);
+        }
+    }
+
+    private static byte[] signData(PrivateKey privateKey) {
+        try {
+            Signature dsa = Signature.getInstance("SHA256withDSA");
+            dsa.initSign(privateKey);
+            dsa.update(data.getBytes());
+            return dsa.sign();
+        } catch (Exception e) {
+            throw new RuntimeException("Could not sign data", e);
+        }
+    }
+
+    private static boolean verifySignature(PublicKey publicKey, byte[] signature) {
+        try {
+            Signature sign = Signature.getInstance("SHA256withDSA");
+            sign.initVerify(publicKey);
+            sign.update(data.getBytes());
+            return sign.verify(signature);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not verify signature", e);
+        }
+    }
+}

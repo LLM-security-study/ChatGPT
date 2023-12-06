@@ -1,0 +1,33 @@
+Sure, Here is a basic implementation of a Java program using MessageDigest that prints a SHA-256 signed hash of a message.
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+
+    public static String signMessage(String message) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(message.getBytes(StandardCharsets.UTF_8));
+            return DatatypeConverter.printHexBinary(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        String signedMessage = signMessage(message);
+        System.out.println("Original Message: " + message);
+        System.out.println("Signed Message: " + signedMessage);
+    }
+}
+```
+This program includes a method called signMessage which takes a string message and converts it into a hash.
+
+In the main method, provide the message you would like to convert into a SHA-256 hash. The resulting hash is then printed out in the console.
+
+Please note that cryptographic signing usually implies using a private key to sign data while hashing (like in this example) does not involve any key. To truly sign a message, you should use a cryptographic algorithm like RSA, DSA or ECDSA along with a private key, which is beyond the scope of this simple example.

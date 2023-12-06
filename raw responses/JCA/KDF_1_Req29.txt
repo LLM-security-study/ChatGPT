@@ -1,0 +1,52 @@
+Sure, here is a simple example of a program that uses the PBKDF2WithHmacSHA1 algorithm to derive cryptographic keys from a user's password:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        byte[] salt = new byte[16]; // Use a random salt in real scenario
+        // You can use SecureRandom to generate salt
+        // SecureRandom.getInstanceStrong().nextBytes(salt);
+
+        int iterationCount = 65536;
+        int keyLength = 256;
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+
+        SecretKeyFactory factory = null;
+        byte[] hash = null;
+
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        try {
+            assert factory != null;
+            hash = factory.generateSecret(spec).getEncoded();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Your hashed password is: " + Base64.getEncoder().encodeToString(hash));
+    }
+}
+```
+
+This program uses the PBKDF2WithHmacSHA1 key derivation function, which applies a pseudorandom function (HMACSHA1) to the input password, along with a salt, and "stretching" it to produce a derived key.
+
+Note 1: Always use a random salt for each user's password. The salt can be stored in plaintext alongside the hash in the database.
+
+Note 2: In a real world scenario, never directly expose cryptographic sensitive details like this directly to an user. This program is for illustrative educational purposes only. Always follow best practices for secure cryptography usage.

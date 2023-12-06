@@ -1,0 +1,45 @@
+In Java, we use javax.net.ssl.HttpsURLConnection and javax.net.ssl.SSLParameters for handling SSL/TLS connections and their parameters such as hostname verification.
+
+Below is an example of a Java program that demonstrates hostname verification in an SSL/TLS connection:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLParameters;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+          String urlString = "https://www.google.com"; // please replace this with the URL that you need to connect
+          
+          URL url = new URL(urlString);
+          HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+          conn.setHostnameVerifier((hostname, session) -> hostname.equals(session.getPeerHost()));
+
+          SSLParameters sslParams = new SSLParameters();
+          sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+          
+          if (conn.getResponseCode() == 200) {
+              BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+              String input;
+              while((input = br.readLine()) != null){
+                System.out.println(input);
+              }
+              br.close();
+          }
+          conn.disconnect();
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
+    }
+}
+```
+
+In this program, I am establishing a connection to a specific HTTPS URL. I have set a custom hostname verifier using the `setHostnameVerifier` method of `HttpsURLConnection` which verifies that the hostname in the URL is the same as in the SSL session.
+
+Finally, I print the output if the response code from the server is 200 i.e., OK. If there is a hostname verification failure, an exception will be thrown.
+
+Please replace "https://www.google.com" with the actual URL of the server that you need to connect.

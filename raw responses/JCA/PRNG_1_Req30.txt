@@ -1,0 +1,41 @@
+Here is a Java program to generate a seed for initializing a PRNG and then using this PRNG to generate an Initialization Vector (IV) for encryption.
+
+```java
+import java.security.*;
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        // Random number generation
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] values = new byte[20];
+        secureRandom.nextBytes(values);
+        
+        // Seed generation
+        byte[] seed = secureRandom.generateSeed(8);
+        System.out.println("Generated Seed: " + Arrays.toString(seed));
+
+        // PRNG Initialization
+        SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+        prng.setSeed(seed);
+
+        // IV generation
+        byte[] iv = new byte[16];
+        prng.nextBytes(iv);
+
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        System.out.println("Generated IV: " + Arrays.toString(ivSpec.getIV()));
+    }
+}
+```
+In this code,
+* `SecureRandom` is used for generating cryptographically strong random numbers.
+* 20-byte random byte array is generated using `SecureRandom.nextBytes()`.
+* 8-byte seed is generated with `SecureRandom.generateSeed(8)`.
+* PRNG is initialized with the seed using `SecureRandom.getInstance("SHA1PRNG")`.
+* 16-byte IV is generated with `prng.nextBytes(iv)`.
+* `ivSpec` is setup as an `IvParameterSpec` object for encryption.
+
+The `"SHA1PRNG"` algorithm assures the user about the fairness of the shake and that the outcome is just a function of probability.

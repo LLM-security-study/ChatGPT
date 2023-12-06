@@ -1,0 +1,72 @@
+Sure, here is a simple Java program that applies the RSA (Rivest-Shamir-Adleman) Asymmetric encryption algorithm to a given text message. This program will include the following process: key pair generation, encryption, and decryption.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+import javax.crypto.Cipher;
+
+public class Main {
+    private static final String ALGORITHM = "RSA";
+
+    public static byte[] encrypt(String text, PublicKey key) {
+        byte[] cipherText = null;
+        
+        try {
+            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            cipherText = cipher.doFinal(text.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        return cipherText;
+    }
+
+    public static String decrypt(byte[] text, PrivateKey key) {
+        byte[] decryptedText = null;
+        
+        try {
+            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            decryptedText = cipher.doFinal(text);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return new String(decryptedText);
+    }
+
+    public static void main(String args[]) {
+        try {
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
+            keyGen.initialize(1024);
+
+            final KeyPair key = keyGen.generateKeyPair();
+
+            String text = "This is a test message.";
+
+            byte[] cipherText = encrypt(text, key.getPublic());
+
+            String decryptedText = decrypt(cipherText, key.getPrivate());
+
+            System.out.println("Original  : " + text);
+            System.out.println("Encrypted : " +new String(cipherText,"UTF8"));
+            System.out.println("Decrypted : " + decryptedText);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This is a command-line program. When run, it first generates a pair of public and private keys. Then uses the public key to encrypt a simple text message, and finally, uses the private key to decrypt it back to the original text. 
+
+It prints out the original, encrypted and decrypted messages.
+
+It is important to note, however, that in a real-world application, the encryption key (in this case the public key) would be kept safe and only given out to those authorized, and the decryption key (here, the private key) would be kept secret and securely protected by the owning party.
+
+Also, proper error and exception management should be implemented.

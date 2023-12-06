@@ -1,0 +1,40 @@
+Sure! Here is a simple Java program that accepts a string message as an input and generates a Message Authentication Code (MAC) using the HMACSHA256 algorithm. The secret key utilized in the MAC generation process is created within the program for simplicity.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+    private static final String secret = "verysecretkey"; // Your secret key
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your message:");
+        String message = scanner.nextLine();
+
+        try {
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            sha256Hmac.init(secretKey);
+
+            byte[] hashedBytes = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            String hash = Base64.getEncoder().encodeToString(hashedBytes);
+            
+            System.out.println("The MAC is: " + hash);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+You can input your message in the console after running this program, and the MAC will be printed out.
+
+Please replace "verysecretkey" with your actual secret key. This is the key used to create a MAC for an input message. It must be kept secret and safe to ensure the integrity and the authenticity of the message. If someone else gets this key, they could generate a valid MAC for a tampered message.
+
+Refer to Java's Mac and SecretKeySpec official docs for more information. Ensure the import statements align with the paths in your development environment.

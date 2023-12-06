@@ -1,0 +1,40 @@
+Certainly, here is a Java program that does AES decryption in CBC mode:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static final String ALGORITHM = "AES/CBC/PKCS5PADDING";
+    private static final String ENCRYPTION_KEY = "0123456789abcdef"; // Change this with the correct Encryption Key
+    private static final String INITIALIZATION_VECTOR = "abcdef0123456789"; // Change this with the correct Initialization Vector.
+    public static void main(String [] args) {
+        String encryptedText = "Yleh6E7N63LoYuAfp0FEiXntceDeybIiuPoK4R8NaDU="; // Here you can replace it with the text you want to encrypt
+        System.out.println("Encrypted Text: " + encryptedText);
+        String decryptedText = decrypt(encryptedText, ENCRYPTION_KEY, INITIALIZATION_VECTOR);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+    public static String decrypt(String encryptedText, String encryptionKey, String initializationVector) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initializationVector.getBytes("UTF-8"));
+            SecretKey skeySpec = new SecretKeySpec(encryptionKey.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+This program uses the AES algorithm in CBC mode with PKCS5 Padding. It uses the static `ENCRYPTION_KEY` and `INITIALIZATION_VECTOR` to decrypt the `encryptedText`. The `decrypt` method contains the core logic which initializes an `IvParameterSpec` and `SecretKeySpec` with the provided IV and key, then uses them to initialize a `Cipher` instance for decryption. The `doFinal` method decrypts the `encryptedText`, and then the method returns the decrypted result as a String.

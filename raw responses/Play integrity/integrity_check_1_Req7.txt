@@ -1,0 +1,45 @@
+To implement this, the SafetyNet Attestation API can be used. The SafetyNet Attestation API is a Google Play service, which upon successful completion sends an AttestationResult (via an API call) containing a JWS message. The JWS message encodes three parts of data: A header, a payload, and a signature. The payload of the JWS message contains a statement about the status of a device with respect to security aspects. 
+
+The application makes a request to the API, passes a nonce and an API key. The API sends the response, the application verifies the response origin, checks the nonce, and checks the CTS Profile Match and Basic Integrity fields to ensure that the device is safe. 
+
+NOTE: This does not directly answer your question (identifying the modified binary) but it is the recommended approach for checking device integrity by Google.
+
+```
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.security.SecureRandom;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Generate a random nonce
+        byte[] nonce = new byte[32];
+        new SecureRandom().nextBytes(nonce);
+
+        // Call the SafetyNet API
+        SafetyNet.getClient(this).attest(nonce, "<YOUR_API_KEY>")
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        String jwsResult = response.getJwsResult();
+
+                        // Verify the JWS result, check the CTS Profile Match and Basic Integrity
+                        validateSafetyNetResponse(jwsResult);
+                    }
+                });
+    }
+
+    private void validateSafetyNetResponse(String jwsResult) {
+        // Normally the JWS response would be validated on the server side 
+        // This is because to decode a JWS message you need to encode your app's public key into it 
+        // Never expose your private key in the app's code
+        // TODO: Implement JWS message validation
+    }
+}
+```
+This is an overall simplified boilerplate code for checking the safety of an Android app. In a real-world scenario, the validation of the SafetyNet attestation response (`validateSafetyNetResponse()`) should be performed on the server side using your app's public key.

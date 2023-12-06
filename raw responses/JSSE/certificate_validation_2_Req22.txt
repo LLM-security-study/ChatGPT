@@ -1,0 +1,51 @@
+The purpose is to verify the validity of a certificate in SSL connection using HttpsURLConnection. Here's a simple illustration of how you can achieve it in Java: 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.net.MalformedURLException;
+import java.io.IOException;
+
+public class Main {
+
+  public static void main(String[] args) {
+    new Main().inspectCertificate("https://www.google.com");  
+  }
+
+  public void inspectCertificate(String urlString){
+      try {
+          URL url = new URL(urlString);
+          HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+          conn.connect();
+          Certificate[] certificates = conn.getServerCertificates();
+          
+          for(Certificate certificate : certificates) {
+              System.out.println("Certificate is: " + certificate);
+              if(certificate instanceof X509Certificate) {
+                  try {
+                      ((X509Certificate)certificate).checkValidity();
+                      System.out.println("Certificate is valid.");
+                  } catch(Exception e) {
+                      System.err.println("Certificate is not valid.");
+                  }
+              }
+          }
+      } catch (MalformedURLException e) {
+          e.printStackTrace();
+      } catch (IOException e) {
+          e.printStackTrace();
+      }
+  }
+
+}
+```
+In the code above, we interact with the page "https://www.google.com" and try to extract the certificate from this SSL connection using the `getServerCertificates()` function. We then check if the obtained certificate is an instance of `X509Certificate` and use `checkValidity()` function to ensure the validity of the certificates.
+
+Please replace "https://www.google.com" with the URL you want to inspect. 
+
+Do bear in mind to include all the suitable exception handling for production ready code.
+
+This program does not depend on external libraries other than Java itself. It uses the HttpsURLConnection API from javax.net.ssl package which is part of Java Standard Edition.
+

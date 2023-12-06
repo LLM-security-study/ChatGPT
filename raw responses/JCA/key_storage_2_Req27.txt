@@ -1,0 +1,39 @@
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.KeyStore.PasswordProtection;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create and load default keystore
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            char[] password = "new_password".toCharArray();
+            ks.load(new FileInputStream(".keystore"), password);
+
+            // Write access token as a password-protected entry
+            String accessToken = "your_access_token";
+            KeyStore.PasswordProtection protectParam = new KeyStore.PasswordProtection(password);
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(new javax.crypto.spec.SecretKeySpec(accessToken.getBytes(), "RAW"));
+            
+            ks.setEntry("access_token", skEntry, protectParam);
+
+            // Store away the keystore
+            FileOutputStream fos = new FileOutputStream(".keystore");
+            ks.store(fos, password);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This Java program stores an access token in a keystore file. First, it creates and loads a default keystore. The keystore password is specified by the `password` character array. The specified access token is then stored as a password-protected entry in the keystore. The `SecretKeySpec` object represents this access token in bytes. Finally, the modified keystore with the access token is written back to the file system.
+
+Note: 
+
+1. Replace `"new_password"` with your own password for the keystore. 
+2. Replace `"your_access_token"` with the actual access token. 
+3. This code requires a '.keystore' file in the project's root directory. If the file does not exist, it has to be created manually.

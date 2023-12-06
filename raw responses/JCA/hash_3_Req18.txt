@@ -1,0 +1,42 @@
+Here is a simple sample program that creates a message digest for some input text using the SHA-256 algorithm.
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String text = "Hello, World!";
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            // Add password bytes to digest
+            md.update(text.getBytes());
+
+            // Get the hash's bytes
+            byte[] bytes = md.digest();
+
+            // This will convert the bytes to hex
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes.length; i++) {
+                sb.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            
+            System.out.println("Hashed Text: " + sb.toString());
+
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("Exception thrown for incorrect algorithm: " + e);
+        }
+    }
+}
+```
+
+Your program will:
+
+1. Convert the input text into bytes.
+2. Use the `MessageDigest` class to generate a hash using the SHA-256 algorithm.
+3. Convert the hash's bytes back into a hexadecimal string.
+4. Print the hexadecimal string.
+
+This program hashes the string "Hello, World!", but by modifying the `text` variable you can hash any string you want. If the algorithm is not found, it will throw a `NoSuchAlgorithmException`.

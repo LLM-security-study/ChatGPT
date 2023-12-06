@@ -1,0 +1,57 @@
+Sure, Here is a simple Java program that uses AES in CBC mode to decrypt data.
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main
+{
+    public static void main(String[] args)
+    {
+        try
+        {
+            // Initialize the key and iv
+            String key = "0123456789012345";
+            String initVector = "abcdefghijklmnop";
+
+            // Encrypted data 
+            String encryptedData = "Your encrypted data";
+
+            System.out.println("Decrypted data: " + decrypt(key, initVector, encryptedData));
+        } catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+    }
+
+    public static String decrypt(String key, String initVector, String encryptedData) 
+    {
+        try 
+        {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec sKeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, sKeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+
+            return new String(original);
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+This simple program initializes key and initialization vector (IV) using 16 byte secret key. A Cipher instance is created and initialized in DECRYPT_MODE using the key and IV. In this program, you use PKCS5 padding scheme to fill each block of data. The encrypted data is base64-decoded and then doFinal method is used to perform the decryption; the result is converted back to string.
+
+Please replace the key and the initialization vector (IV) with your actual secret Key and IV. Please also replace the encrypted text with the actual encrypted data.
+
+This is a simple example, carefully consider key management, secure generation of keys and usage of padding while decrypting in production level codes. This code does not handle those security recommendations for the sake of simplicity.

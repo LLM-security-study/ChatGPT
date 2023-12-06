@@ -1,0 +1,50 @@
+Sure, here is a simple Java program that uses Java SSLSocketFactory to perform SSL/TLS communication and verfies the server hostname. Please note that this is just a basic implementation.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main
+{
+    public static void main(String[] args) throws IOException {
+        String hostname = "example.com"; // replace this with your server's hostname
+
+        // create a SSLSocketFactory
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        // create a SSLSocket using the factory
+        SSLSocket socket = (SSLSocket) factory.createSocket(hostname, 443);
+
+        // send HTTP request
+        PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+        out.println("GET / HTTP/1.0");
+        out.println();
+        out.flush();
+
+        // read response
+        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        String line;
+        while ((line = in.readLine()) != null) {
+            System.out.println(line);
+        }
+
+        in.close();
+        out.close();
+        socket.close();
+
+        // verify hostname
+        String verifiedHostname = socket.getInetAddress().getHostName();
+        if (!hostname.equals(verifiedHostname)) {
+            System.out.println("Hostname verification failed. Expected " + hostname + "But got" + verifiedHostname);
+        } else {
+            System.out.println("Hostname verified: " + verifiedHostname);
+        }
+    }
+}
+```
+
+This program first establishes a SSL/TLS connection to the server using Java SSLSocketFactory. After the connection is established, it sends a HTTP request to the server, and reads the response.
+
+The hostname verification is done by comparing the hostname used to create the SSLSocket and the hostname returned by the socket's InetAddress. 
+
+Note: This is a basic hostname verification and it doesn't consider many potential security issues like Man-in-the-Middle attacks. For production code, consider using Java's built-in HTTPSURLConnection class or third-party libraries such as Apache HttpClient which provide robust hostname verification.

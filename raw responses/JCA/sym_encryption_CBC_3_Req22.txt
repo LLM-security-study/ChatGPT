@@ -1,0 +1,47 @@
+Sure, following is a Java program using AES in CBC mode to decrypt data.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try
+        {
+            // Your secret key, stored securely
+            String secret = "mySuperSecretKey"; 
+
+            // CipherText written in base64
+            String encryptedText = "scDfJZT+89K2xABELYjP/Q==";
+
+            // Initialization Vector, needed for CBC mode
+            byte[] iv = new byte[16];
+
+            // Using AES encryption with CBC mode and PKCS5 padding
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "AES");
+
+            // Decryption starts
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, new IvParameterSpec(iv));
+            byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+
+            System.out.println("Decrypted text: " + new String(decrypted));
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }  
+    }
+}
+```
+This simple program uses the AES algorithm in CBC mode to decrypt a hardcoded encrypted text. Usually, the key and initialization vector (IV) are not hardcoded into the program like this, you'll need to handle key management more carefully in a real-world project. Make sure "mySuperSecretKey" is a 16-character long key because AES requires a key of 16 bytes. 
+
+Please make sure to replace the variable `encryptedText` with the text you want to decrypt. 
+
+This program assumes the encrypted text is a Base64-encoded string. If your encrypted data is in another format, you may need to modify the line where it decodes the Base64 string.
+
+Also, exception handling over here is basic with `e.printStackTrace()`, in a full-fledged application, you would want to have a proper exception handling mechanism.

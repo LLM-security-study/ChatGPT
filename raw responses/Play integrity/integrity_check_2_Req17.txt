@@ -1,0 +1,42 @@
+For this task, the main library we are going to use is called 'PackageManager', a class for retrieving various kinds of information related to the application packages that are currently installed on the device. We can use the method 'getPackageInfo' of this class to access necessary information about the checksum of an android app which is the PackageInfo.signatures. Then, Message Digest Algorithm such as SHA-1 or SHA-256 can be used to compute the checksum.
+
+Here is a simple program in Java showing how this could be implemented:
+
+```java
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Base64;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    private static final String PACKAGE_NAME_OF_APPLICATION = "PUT_TARGET_APP_PACKAGE_NAME_HERE";
+
+    public static void main(String[] args) {
+        try {
+            verifyAppIntegrity();
+        } catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException e) {
+            System.out.println("Exception Occurred: " + e.toString());
+        }
+    }
+
+    public static void verifyAppIntegrity() throws PackageManager.NameNotFoundException, NoSuchAlgorithmException {
+        //Get installed package info
+        PackageManager pm = getPackageManager();
+        PackageInfo packageInfo = pm.getPackageInfo(PACKAGE_NAME_OF_APPLICATION, PackageManager.GET_SIGNATURES);
+    
+        MessageDigest md = MessageDigest.getInstance("SHA");
+        for (Signature signature : packageInfo.signatures) {
+            md.update(signature.toByteArray());
+            String signatureBase64 = new String(Base64.encode(md.digest(), Base64.DEFAULT));
+            System.out.println("Signature: " + signatureBase64);
+        }
+    }
+}
+```
+In 'PACKAGE_NAME_OF_APPLICATION', please insert the package name of the Android app to be verified.
+
+Note: As you haven't mentioned anything on the comparison part of checking the integrity, I've just printed the checksum signature of the app which is to be compared with the known correct checksum signature of the Android App. If these two signatures match, it indicates the integrity of the android app. It also assumes that this code runs within the Android environment.
+
+Please be aware that running the 'getPackageInfo' requires the 'GET_SIGNATURES' permission. If you are implementing this in an App, please ensure there in Manifest.xml file, the permission is included.

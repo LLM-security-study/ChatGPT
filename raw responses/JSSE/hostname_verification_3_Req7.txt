@@ -1,0 +1,29 @@
+As per your requirements, to authenticate the server hostname, we will rely on the HttpsURLConnection from the javax.net.ssl package. Below is a Java program that does this:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://server.com"); //Replace with the server's URL
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier((hostname, session) -> hostname.equals(session.getPeerHost()));
+            conn.connect();
+            System.out.println("Server's hostname verified successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("Failure in verifying server's hostname.");
+        }
+    }
+}
+```
+This program works as follows:
+
+1. It opens a connection to a server using HttpsURLConnection, which was created using the target server's URL.
+2. It sets a hostname verifier that verifies if the hostname equals the session's peer host. If it does, the hostname is legitimate. If it doesn't, the connection will be aborted.
+3. If the hostnames match, it prints "Server's hostname verified successfully." If an IOException occurs during this process (like if the server doesn't exist), it catches the exception and prints "Failure in verifying server's hostname."
+
+Please replace "https://server.com" with the actual URL of Server. It's important to note that server hostname verification could fail for several reasons, such as an expired certificate, a self-issued certificate, or a certificate issued by an unknown certificate authority.

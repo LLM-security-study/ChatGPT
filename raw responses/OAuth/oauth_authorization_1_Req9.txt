@@ -1,0 +1,93 @@
+You can use the Google Authorization Library to implement this. Please add the necessary dependencies to your project.
+
+Here's a simple Java program for the Google drive authorization with comments for self-explanation.
+
+```java
+// Import the necessary libraries
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.drive.DriveScopes;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class Main {
+    // Define the required scopes
+    private static final java.util.Collection<String> SCOPES = DriveScopes.all();
+
+    public static void main(String args[]) throws Exception {
+        // Load client secrets
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+            JacksonFactory.getDefaultInstance(), 
+            new InputStreamReader(Main.class.getResourceAsStream("/client_secrets.json"))
+        );
+
+        // This allows the API to call back into your application for code exchange.
+        String redirectUri = "Add your redirect URI here";
+        
+        // Build the authorization flow
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            GoogleNetHttpTransport.newTrustedTransport(),
+            JacksonFactory.getDefaultInstance(), 
+            clientSecrets, 
+            SCOPES)
+            .setAccessType("offline")
+            .setApprovalPrompt("force")
+            .build();
+            
+        // Generate the URL to which we will direct users.
+        String url = flow.newAuthorizationUrl()
+            .setRedirectUri(redirectUri)
+            .build();
+        
+        System.out.println("Please open the following URL in a web browser then type the authorization code:\n" + url);
+
+        // Wait for the authorization code.
+        System.out.println("Enter authorization code:");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String code = br.readLine();
+        
+        // Exchange the auth code for access token
+        GoogleTokenResponse response = flow.exchangeCodeForToken(code);
+        
+        // Create a credential object using the credential factory and setup the HTTP transport
+        GoogleCredential credential = new GoogleCredential.Builder()
+            .setTransport(httpTransport)
+            .setJsonFactory(JSON_FACTORY)
+            .setClientSecrets(clientSecrets)
+            .build()
+            .setFromTokenResponse(response);
+            
+        // Now you can use 'credential' to access Google APIs
+        System.out.println("Access token: " + credential.getAccessToken());
+    }
+}
+```
+
+Replace "Add your redirect URI here" with actual redirect URI. This assumes you have 'client_secrets.json' file in your resource folder of the project that has your Google API client id and client secret. It waits for the user to enter the authorization code obtained from the provided URL. Once the auth code is provided, it exchanges it with the access token. The access token can then be used to invoke Google APIs.
+
+Please note:
+1. 'client_secrets.json' - the file containing the Client ID and Client Secret that is downloaded from the Google API Console.
+
+2. To run the program, you need to have Google Authorization Libraries. If you are using maven, add the Google Authorization library to your pom.xml.
+
+```xml
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client</artifactId>
+    <version>1.31.5</version>
+</dependency>
+<dependency>
+    <groupId>com.google.apis</groupId>
+    <artifactId>google-api-services-drive</artifactId>
+    <version>v3-rev173-1.25.0</version>
+</dependency>
+```
+
+This will include the necessary Google API, Google OAuth client and json libraries in your project.
+
+IMPORTANT: Remember to implement all security best practices when dealing with API tokens and credentials.

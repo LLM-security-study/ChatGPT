@@ -1,0 +1,55 @@
+The Android API provides the SafetyNet Attestation API that can be used to assess the integrity of the device your app is running on. Here is how you can use it:
+
+```java
+import android.os.AsyncTask;
+import android.util.Log;
+import androidx.annotation.NonNull;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+
+    private static final String TAG = Main.class.getSimpleName();
+    private static final String API_KEY = "YOUR_API_KEY"; 
+
+    public class VerifyDeviceIntegrityTask extends AsyncTask<String, Integer, SafetyNetApi.AttestationResponse> {
+
+        @Override
+        protected SafetyNetApi.AttestationResponse doInBackground(String... params) {
+            SafetyNet.getClient(Main.this).attest(nonce, API_KEY)
+                .addOnSuccessListener(Main.this,
+                    new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                        @Override
+                        public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                            // Indicates communication with the service was successful.
+                            // Use response.getJwsResult() to get the result data.
+                        }
+                    })
+                .addOnFailureListener(Main.this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG, "Error occurred during attestation", e);
+                    }
+                });
+        }
+    }
+
+    public static void startVerification() {
+        VerifyDeviceIntegrityTask task = new VerifyDeviceIntegrityTask();
+        task.execute();
+    }
+
+    public static void main(String[] args) {
+        startVerification();
+    }
+}
+```
+Please note that in the above code `nonce` is a generated UUID which should be unique for each invocation, it is not included in the above code. API key also needs to be replaced with your real key. This task only initiailses a request and handles success and failure. The actual attestation response is a JWS (JSON Web Signature) string which you need to send to your server over HTTPS for verification, because parsing and verifying JWS locally on the device is not secure. 
+
+So the satisfied context will depend upon cecking result of this signature on your trusted server. The server then can use Google's online verification services to verify that attestation response. 
+
+This answer does not include that server implementation. 
+
+Also, this solution uses Main as the main class, but in typical Android development architecture this would typically be handled in an activity or service, and this is an asynchronous task which you should be aware of when designing UI/UX around this flow.

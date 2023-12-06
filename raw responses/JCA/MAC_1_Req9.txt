@@ -1,0 +1,48 @@
+Certainly, I'll guide you through creating a simple program that generates a hashed MAC (Message Authentication Code) from an input string, using HMAC-SHA256 encryption.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String secretKey = "anySecretKey";
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter a message: ");
+        String message = sc.nextLine();
+
+        try {
+            String mac = generateMAC(secretKey, message);
+            System.out.println("The generated MAC is: " + mac);
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.toString());
+        }
+    }
+
+    private static String generateMAC(String secretKey, String message) throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(
+                secretKey.getBytes(StandardCharsets.UTF_8),
+                "HmacSHA256"
+        );
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(keySpec);
+        byte[] rawMac = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        byte[] hexFormat = new String(Base64.getEncoder().encode(rawMac)).getBytes(StandardCharsets.UTF_8);
+
+        return new String(hexFormat);
+    }
+}
+```
+In the above Java program, the `generateMAC` function takes a secret key and a message as arguments. It initializes a `Mac` instance with the secret key; it then computes the Mac for the message. The computed Mac is then converted into a hexadecimal format, which will be returned as a string.
+
+Please replace `"anySecretKey"` with your actual secret key. It is initial as a constant at the top of the Main class.
+
+Additionally, always make sure to control the use of your secret key with great care.
+
+Keep in mind that this program runs in the console and expects you to input a text (which is the message to be authenticated) in the console. After you input the text, you can press enter, and the Mac will show up in the console.

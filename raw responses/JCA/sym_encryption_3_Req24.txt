@@ -1,0 +1,46 @@
+Sure, here's a basic program using the AES Encryption algorithm.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // The input string
+            String inputData = "some secret message";
+
+            // The Secret Key
+            // AES key length is 128,192,256 bits, here we are using 128 bits
+            byte[] aesKeyData = "sampleKey1234567".getBytes("UTF8");
+
+            SecretKeySpec aesKey = new SecretKeySpec(aesKeyData, "AES");
+
+            // Use AES algorithm with ECB mode and PKCS5 padding
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+
+            // encryption
+            cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+            byte[] encryptedData = cipher.doFinal(inputData.getBytes("UTF8"));
+            System.out.println("Encrypted: " + Base64.getEncoder().encodeToString(encryptedData));
+
+            // decryption
+            cipher.init(Cipher.DECRYPT_MODE, aesKey);
+            byte[] decryptedData = cipher.doFinal(encryptedData);
+            System.out.println("Decrypted: " + new String(decryptedData, "UTF8"));
+        } 
+        catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This Java program uses AES (Advanced Encryption Standard) encryption algorithm for encryption and decryption of given input data. The SecretKeySpec class specifies a secret key in a provider-independent fashion.
+
+Make sure to replace "sampleKey1234567" with your secret password string. And you should replace "some secret message" with the data you want to work with.
+
+Important note: For the full-fledged and professional applications, please avoid using AES/ECB/PKCS5Padding as it can have potential security risks. Consider using AES/CBC/PKCS5Padding with an appropriate initial vector for better security. Also, avoid using hard-coded, plain-text keys directly. In general, you should securely generate and store keys using a method appropriate for your application. 
+
+Remember, cryptography and security is a very complex field, so always perform thorough testing and get reviews from security experts before using such code in production.

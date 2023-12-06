@@ -1,0 +1,43 @@
+Here's a simple Java program that applies digital signature to a given message:
+
+It's important to note that a keystore is usually needed for production ready systems. Here we'll generate Keys on the fly. If you want to use keystore to manage keys, you'll need to generate it separately first.
+
+```java
+import java.security.*;
+import java.util.Arrays;
+import sun.misc.*;
+
+// Import the Java standard APIs for implementation
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // The original data
+        String data = "This is a message";
+
+        // Generate public and private keys using RSA
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
+        KeyPair keypair = keyGen.genKeyPair();
+        PrivateKey privateKey = keypair.getPrivate();
+        PublicKey publicKey = keypair.getPublic();
+
+        // Get a signature object using the SHA-256 and RSA combo
+        // and sign the data with the private key
+        Signature instance = Signature.getInstance("SHA256withRSA");
+        instance.initSign(privateKey);
+        instance.update(data.getBytes());
+        byte[] signature = instance.sign();
+
+        System.out.println("Signature: " + new BASE64Encoder().encode(signature));
+
+        // Verify the signature with the public key
+        instance.initVerify(publicKey);
+        instance.update(data.getBytes());
+
+        System.out.println("Verification: " + instance.verify(signature));
+    }
+}
+```
+The program first generates a public-private keypair. Then it computes the digital signature of a given message using the private key. After this, it verifies the digital signature using the associated public key. 
+
+The output will be the successful verification of the signature using the public key.

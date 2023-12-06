@@ -1,0 +1,45 @@
+Sure, here's a basic program that creates an SSL Socket and enables a secure communication with a remote server. In this case, I'm using the SSLSocketFactory class that exists in javax.net.ssl package in Java API.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "localhost";
+        int port = 1234;
+
+        try {
+            // Obtain a SSLSocketFactory 
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Creates a SSLSocket and starts out as a client to a specified host and port
+            SSLSocket socket = (SSLSocket) factory.createSocket(hostname, port);
+
+            // Start handshaking
+            socket.startHandshake();
+
+            // Get the input and output streams
+            PrintWriter out = new PrintWriter(new BufferedWriter(
+                    new OutputStreamWriter(socket.getOutputStream())));
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+
+            // Do your stuff here...
+            // Don't forget to close in and out streams
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this program, we first establish the default SSLSocketFactory. Then, we create a socket connecting to a specified remote server on a specified port using `createSocket()`. Once the connection is open, we start an SSL handshake to secure the connection. Then we can retrieve an output stream from the socket to write data and an input stream to read data. 
+
+Remember you would need to have SSL certificate to establish this connection. This program does not handle that aspect, it's a just a basic structure to get you started.
+
+It's also important to note that you should modify the hostname and port number to suit your requirement. Currently the values "localhost" and "1234" are placeholders.
+
+For real world applications, you should also properly manage and close all resources, including sockets and streams. You will have to add exception handling suitable to your business needs.

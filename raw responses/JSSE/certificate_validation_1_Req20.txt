@@ -1,0 +1,58 @@
+You can use the standard JAVA API (`javax.net.ssl.*`) to implement certificate validation. One way to enable secure communication with a server is by using SSL (Secure Socket Layer). 
+
+Here's a sample Java program.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        TrustManager[] trustAllCerts = new TrustManager[] {
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+                public void checkClientTrusted(
+                    java.security.cert.X509Certificate[] certs, String authType) {
+                }
+                public void checkServerTrusted(
+                    java.security.cert.X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        URL url = new URL("https://yoururl.com");
+        HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        String inputLine;
+        while ((inputLine = in.readLine()) != null)
+            System.out.println(inputLine);
+        in.close();
+    }
+}
+```
+
+In this Java program:
+
+1. An array of `TrustManager` is created that will trust all certificates.
+2. An `SSLContext` object is created with these trust managers.
+3. Then the default `SSLSocketFactory` for all instances of `HttpsURLConnection` is set to use this context.
+4. After that a URL is opened and an `HttpsURLConnection` is obtained from this URL.
+5. The `InputStream` of this `HttpsURLConnection` is read and displayed to console.
+
+Note: 
+The above program accepts all server certificates even if they aren't trusted (due to TrustManager being implemented like that). It's recommended to add proper code to enhance the TrustManager to validate the server certificates in a production environment. This could be dangerous because it makes the application vulnerable to man-in-the-middle attacks.

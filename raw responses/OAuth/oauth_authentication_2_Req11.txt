@@ -1,0 +1,60 @@
+Sure, here's a basic implementation of an SSO service using Google accounts for user authentication in a Java web application. Please note that this program outlines the back-end functionality and does not cover front-end interactions.
+
+```java
+// This Java program establishes a Single-Sign-On (SSO) service
+// for a web application, using Google accounts for user
+// authentication.
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+    // Replace these with your application's client ID and client Secret
+    private static final String CLIENT_ID = "your-client-id";
+    private static final String CLIENT_SECRET = "your-client-secret";
+    
+    public static void main(String[] args) throws Exception {
+        // Assume this "idTokenString" comes from the client 
+        String idTokenString = "id-token-string-from-google";
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+                .setAudience(Collections.singletonList(CLIENT_ID))
+                .build();
+
+        // Verify the token
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+
+            // Get user's information
+            String userId = payload.getSubject();
+            String userEmail = payload.getEmail();
+            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+            String name = (String) payload.get("name");
+
+            if (!emailVerified) {
+                System.out.println("Email not verified.");
+            } else {
+                System.out.println("User Id: " + userId);
+                System.out.println("User Email: " + userEmail);
+                System.out.println("User Name: " + name);
+            }
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+    }
+}
+```
+
+This program takes Google user's ID token string as an input, verifies the token, and then extracts the user's ID, email, and name from the verified token. Note that in practice, you would likely get the ID token string from an HTTP request and respond accordingly, rather than just reading from the console. 
+
+Do note that you should replace "your-client-id" and "your-client-secret" with your actual client ID and client secret provided by Google.
+
+Make sure to include the necessary Google libraries to your classpath.
+
+Please be aware that this simple implementation does not cover common necessities in running web applications, such as handling HTTP requests (servlets could be used here). It needs to be integrated into your web server and called from the area in your code responsible for user authentication.

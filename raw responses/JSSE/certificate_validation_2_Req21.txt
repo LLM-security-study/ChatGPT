@@ -1,0 +1,59 @@
+In Java, you can make use of the Java's Secure Socket Extension(JSSE) APIs for SSL/TLS connections. JSSE has been integrated into the Java 2 platform as of version 1.4 and it provides a framework and an implementation for a Java version of the SSL and TLS protocols.
+
+Here's a relatively straightforward approach that you can use to validate a certificate in Java using the JSSE APIs:
+
+```java
+import javax.net.ssl.*;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException {
+        String urlString = "https://www.example.com"; 
+
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+
+                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) throws CertificateException {
+                    // Here you can verify the client certificates
+                }
+
+                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) throws CertificateException {
+                    // Here you can verify the server certificates
+                }
+            }
+        };
+
+        // Activate the new trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("SSL"); 
+            sc.init(null, trustAllCerts, new java.security.SecureRandom()); 
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+      
+        // Establish the connection to the URL
+        try {
+            URL url = new URL(urlString); 
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            
+            // This is where certificate validation would take place if activated
+            urlConnection.connect();
+            System.out.println("Connection is established and server is verified.");
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Be careful with this sample because it accepts all certificates regardless of who they're issued by. In a production environment, you'd want to verify the certificate against your own trust store.

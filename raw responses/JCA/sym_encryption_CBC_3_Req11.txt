@@ -1,0 +1,47 @@
+Sure, here is a basic implementation of AES decryption in CBC mode using Java's standard security libraries :
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String secretKey = "0123456789abcdef"; 
+        String initializationVector = "abcdef1234567890"; 
+        String encryptedData = "QmFzZTY0IGVuY29kZWQgc3RyaW5n"; 
+
+        try {
+            String decryptedData = decrypt(secretKey, initializationVector, encryptedData);
+            System.out.println("Decrypted data: " + decryptedData);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String decrypt(String secretKey, String initializationVector, String encryptedData) throws Exception {
+        IvParameterSpec iv = new IvParameterSpec(initializationVector.getBytes(StandardCharsets.UTF_8));
+        SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+        byte[] original = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+
+        return new String(original);
+    }
+}
+```
+This is relatively simple and easy to understand implementation of AES decryption in CBC mode.
+
+Please note that This code uses a static string as the secret key and initialization vector just for example purposes, keys and IV's should not be in plaintext in a production application. 
+
+The real secretKey, initializationVector, encryptedData would come from secure sources not hardcoded strings. 
+
+In a realistic scenario the secretKey and initializationVector need to be securely generated and securely stored/transported. You would also need proper exception handling added in. 
+
+Also, you should use the exact key size to match your AES algorithms, in the case of AES, it can be 128 bits (16 bytes), 192 bits (24 bytes) or 256 bits (32 bytes) long. Integer 128 equals 16 bytes when used with getBytes(). 
+
+Finally, please bear in mind that using AES requires complying with certain governmental regulations.

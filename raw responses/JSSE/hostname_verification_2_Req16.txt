@@ -1,0 +1,56 @@
+The HostnameVerifier interface in JSSE (Java Secure Socket Extension) from javax.net.ssl API should be the primary API used for hostname verification in an SSL/TLS connection. Below is a simple implementation for hostname verification. The program invokes the getDefaultHostnameVerifier() method from the javax.net.ssl.HttpsURLConnection API to obtain default hostname verifier, and compares it with the hostname from a URL.
+
+Please note, this is only an example and not a comprehensive program for all data input cases. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main 
+{
+    public static void main(String[] args) 
+    {
+        try 
+        {
+            String urlString = "https://example.com";
+            URL url = new URL(urlString);
+
+            HostnameVerifier defaultHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+            HostnameVerifier alternativeHostnameVerifier = new HostnameVerifier()
+            {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true; 
+                }
+            };
+
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setHostnameVerifier(new HostnameVerifier() 
+            {
+                @Override
+                public boolean verify(String hostname, SSLSession session) 
+                {
+                    if (defaultHostnameVerifier.verify(hostname, session)) {
+                        return true; 
+                    } else if (alternativeHostnameVerifier.verify(hostname, session)) {
+                        return true; 
+                    } else {
+                        return false; 
+                    }
+                }
+            });
+            
+            urlConnection.connect();
+        } 
+        catch (Exception e) 
+        {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program should attempt to establish an https connection to "https://example.com". If defaultHostnameVerifier approves the hostname or alternativeHostnameVerifier approves the hostname, the program considers the hostname as valid.
+
+In the real-world scenario, you might need to provide your own implementation of the `HostnameVerifier` interface instead of returning `true` blindly in `alternativeHostnameVerifier`. Blindly approving any hostname or any certificate exposes the user to man-in-the-middle attacks.

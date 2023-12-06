@@ -1,0 +1,29 @@
+Sure, here's a simple example of a Java program that generates a seed and uses it to produce a random integer for cryptographic applications: 
+
+Note: Here I'm using the SecureRandom class from the java.security package, which provides a cryptographically strong random number generator.
+
+```java
+import java.security.SecureRandom;
+import java.math.BigInteger;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] randomBytes = new byte[64];
+        secureRandom.nextBytes(randomBytes);
+
+        secureRandom.setSeed(randomBytes);
+
+        BigInteger bigInteger = new BigInteger(130, secureRandom);
+        System.out.println("Random BigInteger: " + bigInteger);
+    }
+}
+```
+
+In this program, we first create a `SecureRandom` instance which is automatically seeded by calling `nextBytes` method.
+
+Then we generate a new random seed using the `nextBytes` method, and set this as the new seed for our `SecureRandom` instance using the `setSeed` method.
+
+Finally, we generate a random BigInteger value between 0 and (2^130 - 1) using the `BigInteger(int numBits, Random rnd)` constructor, which creates a BigInteger that is probably prime (the probability of it being prime exceeds (1 - 1/2^100)).
+
+This program will print a random BigInteger value each time it's run.

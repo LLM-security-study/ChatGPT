@@ -1,0 +1,57 @@
+To verify the integrity of an Android device, Google's SafetyNet Attestation API can be used. It helps to determine whether a device running a client-side application has been tampered with in some way or if it's potentially harmful. 
+
+Here is a Java program example using SafetyNet Attestation API.
+
+```java
+import android.os.Bundle;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        SafetyNet.getClient(this).attest("nonce".getBytes(), "YOUR_API_KEY")
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult());
+                    }
+                })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the service.
+                    if (e instanceof ApiException) {
+                        ApiException apiException = (ApiException) e;
+                        Log.d(TAG, "Error: " +
+                                CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) + ": " +
+                                apiException.getStatusMessage());
+                    } else {
+                        Log.d(TAG, "Unknown type of error, Google Play services could be outdated or SafetyNet Attestation failed.");
+                    }
+                }
+            });
+
+    }
+}
+```
+In this program, replace "YOUR_API_KEY" with an actual key.
+
+Please note that using "nonce".getBytes() as nonce is just an example. Normally a different and unique nonce should be created and used for each request. This verifies that the returned response was created in response to your particular request and relates to the data sent in your request.

@@ -1,0 +1,57 @@
+You can use the MessageDigest class of the java.security package in Java to calculate the hash of a file. Here is a simple program that demonstrates how to generate a hash for a file:
+
+```
+import java.io.*;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Supply the filepath as a command line argument
+        String fileName = args[0];
+        String originalHash = args[1];  // Original hash for comparison
+        try {
+            String fileHash = calculateHash(fileName);
+            System.out.println(fileHash);
+
+            if(originalHash.equals(fileHash)) {
+                System.out.println("File is intact");
+            }else {
+                System.out.println("File has been modified");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String calculateHash(String file) throws IOException, NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        try (DigestInputStream dis = new DigestInputStream(new FileInputStream(file), md)) {
+            while (dis.read() != -1) ;
+            md = dis.getMessageDigest();
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (byte b : md.digest()) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+
+This Java program will calculate hash for provided file in SHA-256 algorithm. If you want to use another algorithm like MD5, just replace "SHA-256" with "MD5" in MessageDigest.getInstance() method.
+
+This program receives two command line arguments:
+
+args[0] : fileName - The file for which the hash has to be calculated.
+args[1] : originalHash - The original hash for comparison with the calculated hash of the file. 
+
+This program prints whether the file is intact or has been modified based on the calculated hash and the provided hash.
+
+To run it, you need to specify the file location and the original hash as arguments, like this:
+
+java Main /path/to/file.txt abc123hash
+

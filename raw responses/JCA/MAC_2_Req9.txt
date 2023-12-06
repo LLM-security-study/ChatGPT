@@ -1,0 +1,47 @@
+Here's a simple implementation of a Message Authentication Code (MAC) in Java:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String msg = "Hello, World!";
+        String keyString = "secretkey";
+        byte[] keyBytes = keyString.getBytes(StandardCharsets.UTF_8);
+
+        try {
+            // Initializing the MAC and the key spec
+            SecretKeySpec secretKeySpec = new SecretKeySpec(keyBytes, "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKeySpec);
+
+            // Perform the MAC
+            byte[] msgBytes = msg.getBytes(StandardCharsets.UTF_8);
+            byte[] resultBytes = mac.doFinal(msgBytes);
+
+            // Convert to hex for readability
+            StringBuilder sb = new StringBuilder(resultBytes.length * 2);
+            for(byte b: resultBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            System.out.println("MAC result: " + sb.toString());
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program generates a MAC for the message "Hello, World!" using the key "secretkey". The generated MAC is then displayed as a hexadecimal string.
+
+Make sure to replace "Hello, World!" and "secretkey" with your actual message and key.
+
+Please note that the secret key must be securely shared between parties and kept secret; anyone with the secret key can generate or verify a MAC. The above program does not include any key management or secure key sharing mechanisms; it's only a simple example of how to use the `Mac` class.
+
+Also, ensure that you have appropriate exception handling in place for a production implementation.
+
+NOTE: This is a simple and straightforward way of implementing a MAC function in java, It does not have any robust checks like key management or secure key sharing mechanisms. Use this code responsibly and be sure to add any robust checks if you plan to use it in a large scale application, and follow proper guidelines to ensure the security of your application.

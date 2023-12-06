@@ -1,0 +1,46 @@
+Sure, here is a simple example of a Java class for creating an SSL socket and connecting to a remote server. We're using the Java Secure Socket Extension (JSSE) API for this program. Ensure that you've properly set up the JSSE environment before running this. 
+
+```java 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 9999; // or port of your server
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(host, port);
+            
+            //Enabling SSL handshake debugging
+            System.setProperty("javax.net.debug", "ssl:handshake");
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            out.println("Hello Server");
+            out.println("QUIT");
+            out.flush();
+
+            // Reading response from the server
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            String msg;
+            while ((msg = in.readLine()) != null) {
+                System.out.println(msg);
+            }
+            
+            out.close();
+            in.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+As always, replace "localhost" and the port number 9999 with the address and port of your specific server. Additionally, you should handle exceptions accordingly to suit the specific needs of your application.
+
+Please note that this is a simple implementation of SSL socket programming in Java and does not include the process of setting up SSL/TLS certificates or enabling specific cipher suites.

@@ -1,0 +1,49 @@
+Below is a Java program that demonstrates a very basic use of digital signatures:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generation of key pair 
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(1024, random);
+            KeyPair pair = keyGen.generateKeyPair();
+            PrivateKey priv = pair.getPrivate();
+            PublicKey pub = pair.getPublic();
+
+            //Get a Signature object and initialize it with the private key
+            Signature dsa = Signature.getInstance("SHA1withDSA", "SUN");
+            dsa.initSign(priv);
+
+            // Supply the Signature object with data 
+            String data = "Data to be signed and verified";
+            byte[] dataBytes = data.getBytes();
+            dsa.update(dataBytes);
+
+            // Generate Signature
+            byte[] realSig = dsa.sign();
+
+            //Initialize the Signature object for verification and update it with the data to be verified
+            Signature sigToVerify = Signature.getInstance("SHA1withDSA", "SUN");
+            sigToVerify.initVerify(pub);
+            sigToVerify.update(dataBytes);
+
+            // Verify the signature
+            boolean verifies = sigToVerify.verify(realSig);
+            System.out.println("Verification: " + verifies);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Before you run the code, be sure to understand how digital signatures work. There's a possibility of encountering key management problems when dealing with production code. Also, this example uses DSA algorithm for the digital signature, different cases may require different cryptographic algorithm.
+
+Please note that understanding and appropriately using cryptographic APIs is very important for data security, so it's recommended to have a clear idea when dealing with actual production-level code.
+
+This code will print `Verification: true` if the signature verifies, otherwise print `Verification: false`.
+

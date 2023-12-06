@@ -1,0 +1,54 @@
+Okay, here's a simple example of a Java program for an asymmetric encryption and decryption system using RSA.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+
+   public static void main(String[] args) throws Exception {
+      // create the keys
+      KeyPair keyPair = buildKeyPair();
+      PublicKey publicKey = keyPair.getPublic();
+      PrivateKey privateKey = keyPair.getPrivate();
+
+      // the message to encrypt
+      String message = "Hello World!";
+      
+      // encrypt the message
+      byte [] encrypted = encrypt(privateKey, message);                     
+      System.out.println(new String(encrypted));  // <<encrypted message>>
+      
+      // decrypt the message
+      byte[] secret = decrypt(publicKey, encrypted);                                 
+      System.out.println(new String(secret));     // This will print: Hello World!
+   }
+
+   public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
+      final int keySize = 2048;
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+      keyPairGenerator.initialize(keySize);      
+      return keyPairGenerator.genKeyPair();
+   }
+
+   public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+      Cipher cipher = Cipher.getInstance("RSA");  
+      cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+      return cipher.doFinal(message.getBytes());  
+   }
+   
+   public static byte[] decrypt(PublicKey publicKey, byte [] encrypted) throws Exception {
+      Cipher cipher = Cipher.getInstance("RSA");  
+      cipher.init(Cipher.DECRYPT_MODE, publicKey);
+      
+      return cipher.doFinal(encrypted);
+   }
+}
+```
+
+Please note that this is a very basic example. Security wise it is not ideal for a number of reasons, including it is using the RSA algorithm for both encryption and decryption (which is unusual, RSA is normally used to either encrypt the symmetric encryption key or for signing), it is not using an initialization vector (IV), it is not authenticated, etc... For more secure encryption you should use something like AES for encryption and RSA for key exchange and signing, or even better use a library that provides higher level functionality. Also never use a key size less than 2048 bits for RSA in a real application. Lastly, Java has export/import restrictions on key sizes over 128 bits. Applications intended to be transferred internationally should consider this.

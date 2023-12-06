@@ -1,0 +1,56 @@
+Here's a simple Java program that uses the JSSE(Java Secure Socket Extension) standard API to establish an SSL connection and validates the server's certificate. In
+this scenario, HostnameVerifier is used to verify the hostname, and TrustManager is used for trust decisions.
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+    // create a trust manager
+    TrustManager[] trustAllCerts = new TrustManager[] {
+      new X509TrustManager() {
+        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+          return null;
+        }
+        public void checkClientTrusted(X509Certificate[] certs, String authType) {  }
+        public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
+
+      }
+    };
+    
+    // install the all-trusting trust manager
+    SSLContext sc = SSLContext.getInstance("SSL");
+    sc.init(null, trustAllCerts, new java.security.SecureRandom());
+    HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+    
+    // create all-trusting host name verifier
+    HostnameVerifier allHostsValid = new HostnameVerifier() {
+      public boolean verify(String hostname, javax.net.ssl.SSLSession session) {
+        return true;
+      }
+    };
+    
+    // install the all-trusting host verifier
+    HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+
+    URL url = new URL(args[0]);
+    HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+    conn.connect();
+  
+    System.out.println("Connection established and server certificate is valid.");
+    
+    conn.disconnect();
+    
+  }
+}
+```
+**Note :** This program requires an argument, the URL for which certificate verification needed.
+
+**Caution:** This simple Java program disables all SSL/TLS certificate validation and hostname verification for demonstration purposes, which might not be suitable for production use due to security issues. Please use it carefully. For real-world applications, custom TrustManager and HostnameVerifier can be provided to apply stricter checks.

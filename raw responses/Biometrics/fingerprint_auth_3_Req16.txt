@@ -1,0 +1,64 @@
+Creating a program implementing a fingerprint recognition within an Android app will require the use of BiometricPrompt API or FingerprintManager API, both available in Android. However, for this high-level code example, it's recommend to use `BiometricPrompt` because `FingerprintManager` is being deprecated.
+
+Here is a sample implementation using `BiometricPrompt`:
+
+```java
+import android.content.Context;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
+import android.os.CancellationSignal;
+import androidx.annotation.RequiresApi;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+public class Main {
+    private Context context;
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
+    @RequiresApi(api = Build.VERSION_CODES.P)  // BiometricPrompt requires API level 28 (Pie) or higher
+    public Main(Context context) {
+        this.context = context;
+        this.executor = Executors.newSingleThreadExecutor();
+        this.biometricPrompt = new BiometricPrompt.Builder(context)
+                .setTitle("Fingerprint Authentication")
+                .setSubtitle("Please place your finger on the fingerprint scanner.")
+                .setDescription("Your app is using Android biometric authentication.")
+                .setNegativeButton("Cancel", this.executor, (dialogInterface, i) -> {
+                    // User clicked the "Cancel" button
+                })
+                .build();
+
+        this.promptInfo = new BiometricPrompt.PromptInfo.Builder().build();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    public void authenticate() {
+        this.biometricPrompt.authenticate(this.promptInfo, new CancellationSignal(), this.executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                // Authentication error, notify the user. (E.g. errorCode = BiometricPrompt.ERROR_NO_BIOMETRICS, errString = "No biometrics enrolled.")
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                // Authentication is successful.
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                // Authentication failed, notify the user.
+            }
+        });
+    }
+}
+```
+Please note this is a high-level representation. You need to tailor the code according to your needs, Android version, handling permissions etc. Use this code within your wider context of app development. For lower Android versions you would use `FingerprintManager`. However, this is not elaborate because as previously stated, it's deprecated. 
+
+Before using fingerprint authentication, always ensure to check if the user has enrolled fingerprints in their device by `hasEnrolledFingerprints()`, permissions are granted so as not to have a crash or unexpected behavior. You also check the hardware availability by `isHardwareDetected ()` - these are necessary steps to check first when dealing with biometric.
+
+Please ensure to follow the Android documentation on Biometric Security to understand all the nuances of using Biometric APIs.

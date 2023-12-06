@@ -1,0 +1,47 @@
+Sure, you can use the Java Cryptography Extension (JCE) to create an AES encryption application in Java. Below is a simple code snippet that does this:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static final String key = "aesEncryptionKey";
+    private static final String initVector = "encryptionIntVec";
+
+    public static void main(String[] args) {
+        String encrypted = "encryptedString";  // A sample encrypted string for test
+        System.out.println(decrypt(key, initVector, encrypted));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+The above code uses AES in CBC mode with PKCS5 padding. It has a method to decrypt a Base64 encoded string. In the main method, we simply call this function with some keys and an initial vector. The decrypt method is converting key and IV into bytes and using these bytes we're creating SecretKey and IvParameterSpec.
+
+Please note that AES requires a key, and that key should be kept secret. Also, to use AES in CBC mode, we need an Initialization Vector (IV). The IV doesn't necessarily need to be secret, but it should be unique and unpredictable for best security practice.
+
+For simplicity, I've hardcoded the key and IV into the program, but in a real-use case, you should secure these appropriately, following best security practices. The key's length must be 16 bytes (or 128 bits). If a longer key is provided, it might be trimmed down or rejected, based on the implementation. 
+
+In this example, the decrypted string will be printed in the console. Replace "encryptedString" with your actual encrypted string to decrypt. The encryption and decryption are sensitive to the exact key and IV, so make sure you use the same key and IV that were used for encryption.
+
+Java 8 or above is required to run this code because the Base64 class is used.
+
+Please also be aware that many countries have restrictions on encryption technology, including AES. You should be sure that your use of AES encryption complies with all applicable laws and regulations.

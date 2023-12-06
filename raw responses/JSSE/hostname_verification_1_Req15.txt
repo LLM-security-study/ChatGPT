@@ -1,0 +1,36 @@
+In Java, secure communication such as SSL/TLS is managed by `javax.net.ssl` package. Here's a simple implementation of a program that establishes a SSL/TLS connection to a server and enables hostname verification.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        try {
+            URL url = new URL("https://example.com"); 
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            
+            // Enable hostname verification
+            conn.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
+            
+            InputStream in = conn.getInputStream();
+            // Read from `in` and process the data...
+            
+        } catch (IOException e) {
+            System.out.println("Exception occurred: " + e.getMessage());
+        }
+        
+    }
+}
+```
+
+This program makes an HTTPS connection to "https://example.com". If the hostname does not match with the server's SSL certificate, `getDefaultHostnameVerifier()` method will throw an `SSLHandshakeException`.
+
+Note: The actual use of this program requires proper exception handling, support for HTTPS protocols (SSL, TLS versions), and possibly integrating with a truststore/keystore for managing server's SSL certificates.

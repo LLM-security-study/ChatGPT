@@ -1,0 +1,76 @@
+To verify the integrity of an Android device, you can use the SafetyNet Attestation API. It is a Google Play services API that responds to an attestation request with a signed attestation of the device (i.e., SafetyNetResponse). Although the specific implementation of device integrity checks are not publicly documented by Google to protect against attempts to defeat such protections, generally, the API assesses the compatibility of device’s software and hardware environment with Google’s Android standards.
+
+It is important to note that the SafetyNet Attestation API is not a security product. Rather, it is focused on device attestation: making assertions about the state of a device. It does not protect the device against security threats and does not fix vulnerabilities or security problems.
+
+Here is a simplified example of how one can use the SafetyNet Attestation API:
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        // Acquire a reference to the system Location Manager
+        SafetyNetClient client = SafetyNet.getClient(this);
+
+        // Get the API Key from your configuration
+        String apiKey = "YOUR_API_KEY";
+
+        client.attest("nonce".getBytes(), apiKey)
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Use response.getJwsResult() to get the result data.
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error with the Google API contains some additional details.
+                            ApiException apiException = (ApiException) e;
+                            // You can retrieve the status code using the
+                            // apiException.getStatusCode() method.
+                        } else {
+                            // A different, unknown type of error occurred.
+                            // Log
+                        }
+                    }
+                });
+    }
+}
+```
+Note: Make sure to replace "YOUR_API_KEY" with your actual API key. The nonce should be at least 16 bytes in length and must be generated using a cryptographically-secure random number generator. 
+
+This is just a basic implementation and you may need to handle the response and perform additional security checks on your server.
+
+Also, remember to add the SafetyNet library to your build.gradle:
+
+```gradle
+implementation 'com.google.android.gms:play-services-safetynet:16.0.0'
+```
+And add the relevant permissions and meta-data to your AndroidManifest.xml:
+
+```xml
+<meta-data
+android:name="com.google.android.safetynet.API_KEY"
+android:value="YOUR_API_KEY"/>
+```
+
+Always consult the official Android and Google Play Services API documentation for complete, up-to-date information.

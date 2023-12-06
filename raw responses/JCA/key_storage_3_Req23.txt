@@ -1,0 +1,56 @@
+Here's a basic example of how you could import an SSL certificate into a Java KeyStore programatically using Java's standard APIs. The certificate and keystore file paths, as well as the keystore password, need to be known.
+
+Always be careful when handling SSL certificates and especially passwords. This just a sample code.
+
+```java
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        try {
+            // This is just an example. You should replace these values with your actual file paths and password.
+            String keystoreFilepath = "/path/to/your/keystore.jks";
+            String certificateFilepath = "/path/to/your/certificate.crt";
+            String keystorePassword = "yourpassword";
+
+            // Create a new certificate factory
+            CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
+
+            // Read the certificate
+            FileInputStream certFileInputStream = new FileInputStream(certificateFilepath);
+            Certificate cert = certFactory.generateCertificate(certFileInputStream);
+            certFileInputStream.close();
+
+            // Read the existing keystore
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            FileInputStream keystoreFileInputStream = new FileInputStream(keystoreFilepath);
+            keystore.load(keystoreFileInputStream, keystorePassword.toCharArray());
+            keystoreFileInputStream.close();
+
+            // Add the certificate into the keystore
+            keystore.setCertificateEntry("alias", cert);
+
+            // Save the new keystore contents
+            FileOutputStream keystoreFileOutputStream = new FileOutputStream(keystoreFilepath);
+            keystore.store(keystoreFileOutputStream, keystorePassword.toCharArray());
+            keystoreFileOutputStream.close();
+
+            System.out.println("Certificate has been successfully imported into the keystore.");
+        } catch(Exception e) {
+            System.out.println("Error occurred while importing the certificate: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+In the above example `alias` is the name by which the certificate will be referred. You should replace it as per your requirements.
+
+This will create a keystore file containing the certificate you provided. It assumes that the certificate is in X.509 format (standard for SSL certificates) and the keystore is of the default type (JKS).
+
+Please replace the example file paths and password with your actual values.

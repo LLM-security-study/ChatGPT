@@ -1,0 +1,81 @@
+Building a fingerprint authentication program for an existing Android app involves using the Android Biometric API, which was introduced in Android 9 (API level 28). 
+
+This will allow your app to use biometrics, including fingerprints. Here's an example on how to implement it:
+
+```java
+import androidx.annotation.NonNull;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import java.util.concurrent.Executor;
+
+public class MainActivity extends AppCompatActivity {
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(MainActivity.this, executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                showMessage("Authentication error: " + errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                showMessage("Authentication succeeded!");
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                showMessage("Authentication failed");
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Fingerprint Auth")
+                .setSubtitle("Please place your fingerprint for authentication")
+                .setNegativeButtonText("Use account password")
+                .build();
+
+        findViewById(R.id.authButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                biometricPrompt.authenticate(promptInfo);
+            }
+        });
+    }
+
+    private void showMessage(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
+}
+```
+In this example, a `BiometricPrompt` is created with a custom executor and an `AuthenticationCallback`. The executor is used to handle callback events either on the main thread or on a specific background thread.
+
+The `BiometricPrompt.PromptInfo` object sets the properties of the biometric prompt, such as the title and subtitle.
+
+When the authentication button is clicked, the biometric prompt is displayed to the user.
+
+Please note:
+Android uses permissions to protect user's privacy. If your app is to use fingerprint sensor, it would require the `USE_BIOMETRIC` permission which should be declared in your app's manifest file (`AndroidManifest.xml`).
+
+Here's how you add it:
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+```
+
+**NOTE: Fingerprint biometric feature may not be available on some Android devices and this needs to be gracefully handled.**
+

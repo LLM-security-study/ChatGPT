@@ -1,0 +1,49 @@
+Below is a simple Java program that will create a checksum of a file. You can use this to compare the calculated checksum with a provided one to see if the file has been modified.
+
+You'll need the java.security package for MessageDigest and NoSuchAlgorithmException, the java.util package for Arrays, and the java.nio.file package for Files and Paths:
+
+```java
+import java.nio.file.*;
+import java.security.*;
+
+public class Main{
+    public static void main(String[] args){
+        String filename = "<filename here>";
+        String originalHash = "<original hash here>";
+
+        try{
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] byteData = Files.readAllBytes(Paths.get(filename)); 
+
+            md.update(byteData);
+            byte[] digestedData = md.digest();
+
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < digestedData.length; i++) {
+                sb.append(Integer.toString((digestedData[i] & 0xff) + 0x100, 16).substring(1));
+            }
+
+            String calculatedHash = sb.toString();
+
+            if (originalHash.equals(calculatedHash)) {
+                System.out.println("File is fine, hashes match.");
+            } else {
+                System.out.println("File has been modified, hashes do not match!");
+            }
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("No such algorithm: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+In this code, replace "<filename here>" with the actual name of the file and "<original hash here>" with the original hash value of the file. Please notice I've used "MD5" as the hash function, where it could be replaced with "SHA-1", "SHA-256", or any other if required. The format of the hash value will also need to correspond to the hash function used. 
+
+This program uses MessageDigest to create an MD5 hash of the file, which it then converts into a String. It then compares this calculated hash with the original hash provided by you, printing a message accordingly whether or not they match. 
+
+Please ensure the file and the Java program are in the same directory or provide the full path to the file. 
+
+Also, be aware that hash collisions can occur - that is, different data can (though very, very rarely) produce the same hash. This program does not account for such occurrences.
+

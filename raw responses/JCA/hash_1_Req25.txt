@@ -1,0 +1,41 @@
+Sure, let's use the MessageDigest class provided in Java's security API. This class provides functionality for calculating the hash value. For this example, let's compute the SHA-256 hash of a string.
+
+Here's a simple Java program to do that:
+
+```java
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        String originalString = "Hello, World!";  // replace with your string input
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+
+        String hash = bytesToHex(encodedhash);
+        System.out.println(hash);
+    }
+
+    // This function takes in a byte array and returns a hexadecimal string.
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+This program first creates a `MessageDigest` instance for SHA-256. It then converts string input to bytes and computes the hash. The result (a byte array) is then converted to a hexadecimal string to make it human-readable.
+
+Running this code with "Hello, World!" string will give the hash value as output in your console.
+
+Remember: hash values are dependent on the string and hashing algorithm used. Even a small change in input string will result in a different hash. Also, different algorithms will produce different hash values. 
+
+In this code, if you want to calculate the hash value of another string, replace "Hello, World!" with your desired string.
+
+Please assure that you handled the `NoSuchAlgorithmException`. This exception is thrown when a particular cryptographic algorithm is requested but is not available in the environment. By default, Java provides platform independent support for SHA-256, but it does not hurt to have a catch or throws statement.

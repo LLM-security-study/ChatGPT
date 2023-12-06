@@ -1,0 +1,42 @@
+Below is a Java program meeting your request:
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.Arrays;
+import java.util.Base64;
+
+public class Main {
+    private static SecureRandom prng;
+
+    static {
+        try {
+            prng = SecureRandom.getInstance("SHA1PRNG");
+            byte[] seed = new byte[16];
+            prng.nextBytes(seed);
+            prng.setSeed(seed);
+        } catch (Exception e) {
+            throw new Error(e);
+        }
+    }
+
+    public static IvParameterSpec generateIV() {
+        byte[] ivBytes = new byte[16];
+        prng.nextBytes(ivBytes);
+        return new IvParameterSpec(ivBytes);
+    }
+
+    public static void main(String[] args) {
+        IvParameterSpec iv = generateIV();
+        byte[] ivBytes = iv.getIV();
+        System.out.println("Generated IV: " + Base64.getEncoder().encodeToString(ivBytes));
+    }
+}
+```
+This code first generates a random seed for initializing a pseudorandom number generator (PRNG). Then, it uses this PRNG to generate an IV (Initialization Vector) for encryption.
+
+We are using `SecureRandom.getInstance("SHA1PRNG")` to get a PRNG algorithm provided by Sun. Note that this method can throw a `NoSuchAlgorithmException` if the algorithm isn't available in your environment.
+
+Also, `IvParameterSpec` is a class specification for an initialization vector (IV) for encryption algos like AES, which require a 16-byte IV.
+
+The `main(String[] args)` method prints the generated IV in Base64 to the console.

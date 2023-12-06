@@ -1,0 +1,29 @@
+The following Java program will generate a seed for a pseudorandom number generator using SecureRandom, which is suitable for cryptographic use. It will then generate a random integer:
+
+```java
+import java.security.SecureRandom;
+import java.math.BigInteger;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a secure random number generator
+        SecureRandom secRandom = new SecureRandom();
+
+        // Get 128 random bits
+        byte[] seed = secRandom.generateSeed(128);
+
+        // Create another random number generator using the first 16 bytes
+        SecureRandom rand = new SecureRandom(seed);
+
+        // Generate a random BigInteger from [0, 2^16)
+        BigInteger randomInt = new BigInteger(16, rand);
+
+        // Print the random integer
+        System.out.println("Random integer: " + randomInt);
+    }
+}
+```
+
+The above program first creates an instance of SecureRandom, which is a class that provides a cryptographically strong random number generator. It then generates a seed of 128 random bits, and uses this seed to create a new SecureRandom instance. Finally, it generates a random BigInteger in the range [0, 2^16) using this second random number generator, and prints the random BigInteger. 
+
+Please bear in mind that this will produce a very large number. If you need numbers within a certain range, you may want to take modulo that upper limit on the generated number.

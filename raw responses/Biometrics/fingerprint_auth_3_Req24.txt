@@ -1,0 +1,75 @@
+Here's a simple Java program which leverages Android's FingerprintManager API. Pay attention that this code is just a simple representation of how it can be done and does not account for all contingencies which should be catered to in a proper implementation.
+
+You need to import androidx.core.hardware.fingerprint.FingerprintManagerCompat package to use fingerprint recognition feature. This is just a basic example which is developed using FingerprintManager. 
+
+For complete implementation, advanced features such as CryptoObject should be used.
+
+Here's a simple Java representation:
+
+```java
+import android.Manifest;
+import android.os.CancellationSignal;
+import androidx.core.app.ActivityCompat;
+import android.content.pm.PackageManager;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.content.Context;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManagerCompat fingerprintManager;
+    private CancellationSignal cancellationSignal;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        fingerprintManager = FingerprintManagerCompat.from(this);
+        
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        if (!fingerprintManager.isHardwareDetected()) {
+            Toast.makeText(this, "Fingerprint recognition is not supported by this device.", Toast.LENGTH_LONG).show();
+        } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "No fingerprint configured. Please register at least one fingerprint in your device's Settings.", Toast.LENGTH_LONG).show();
+        } else {
+            startListening(null);
+        }
+
+    }
+
+    private void startListening(FingerprintManagerCompat.CryptoObject cryptoObject) {
+        cancellationSignal = new CancellationSignal();
+        fingerprintManager.authenticate(cryptoObject, 0, cancellationSignal, new FingerprintManagerCompat.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                Toast.makeText(Main.this, "Authentication error: " + errString, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+                Toast.makeText(Main.this, "Authentication help: " + helpString, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+                Toast.makeText(Main.this, "Success!", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                Toast.makeText(Main.this, "Authentication failed.", Toast.LENGTH_LONG).show();
+            }
+        }, null);
+    }
+}
+```
+
+Please note that this code does not include thorough error handling, and does not implement CryptoObjects for signing in with a fingerprint, which you should definitely do in a real-world application.
+
+It's also worth noting that FingerprintManager is deprecated from API 28 and BiometricPrompt should be used for this functionality.

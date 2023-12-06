@@ -1,0 +1,40 @@
+Sure, here is a very basic version of a program that could accomplish this. Please make sure to properly handle exceptions in your production-level code, and to use secure coding best practices.
+
+```java
+import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+            byte[] seed = new byte[16];
+            secureRandom.nextBytes(seed); // generate a seed
+
+            secureRandom = new SecureRandom(seed); // reinitialize with seed
+            byte[] iv = new byte[16];
+            secureRandom.nextBytes(iv); // generate an IV
+
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+            // Now you can use the ivSpec for encryption
+            System.out.println("IV: " + byteArrayToHex(iv));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Convert byte array to hex string for readability
+    public static String byteArrayToHex(byte[] a) {
+       StringBuilder sb = new StringBuilder(a.length * 2);
+       for(byte b: a)
+          sb.append(String.format("%02x", b));
+       return sb.toString();
+    }
+}
+```
+
+This program initializes a SecureRandom instance using the SHA1PRNG algorithm, and then generates a seed by generating random bytes. It then re-initializes the SecureRandom instance with this seed, and generates an initialization vector (IV) by once again generating random bytes. This IV can then be used to initialize an `IvParameterSpec`, which can be used as the IV for a Cipher in the Java Cryptography Extension (JCE).
+
+Note that the SecureRandom class is designed to self-seed, so you usually don't need to create a seed like we're doing here unless you need repeatable randomness (which is often not desirable in cryptographic scenarios).

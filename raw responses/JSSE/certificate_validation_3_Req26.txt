@@ -1,0 +1,54 @@
+To implement certificate validation in SSL / TLS, we can use Java's Secure Socket Extension (JSSE) libraries which provide capabilities for secure communication. 
+
+Here's a simple structure for it:
+
+```java
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, KeyStoreException, IOException, CertificateException, UnrecoverableKeyException, KeyManagementException {
+        String keyStoreFile = "/path/to/keystore.jks";
+        char[] keyPassword = "password".toCharArray();
+
+        // Load the JKS file (using the standard SunX509 format)
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        FileInputStream keyInput = new FileInputStream(keyStoreFile);
+        keyStore.load(keyInput, keyPassword);
+        keyInput.close();
+
+        // Initialize a TrustManagerFactory with the trusted store
+        TrustManagerFactory trustFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        trustFactory.init(keyStore);
+
+        // Get the TrustManagers from the factory
+        TrustManager[] trustManagers = trustFactory.getTrustManagers();
+
+        // Initialize an SSLContext with the trust managers
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagers, null);
+
+        // Get the SSLSocketFactory from the SSLContext
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+        // Connect to the server's IP and PORT
+        SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("server_ip", 443); // Replace server_ip with your server's IP.
+
+        // Hand shaking section
+        try {
+            sslSocket.startHandshake();
+            System.out.println("TLS Handshake success");
+        } catch (IOException e) {
+            System.out.println("Handshake failed");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Follow the above structure and replace /path/to/keystore.jks with the path to your own keystore.jks file. Replace "password" with your password and "server_ip" with the correct server IP address. 
+
+This program initializes an SSLContext with trusted information. Handshaking is initiated for a secure socket which establishes that the endpoint server is authenticated. Also, please note, this code does not handle exceptions fully, it will be good to handle all exceptions properly in your final version.

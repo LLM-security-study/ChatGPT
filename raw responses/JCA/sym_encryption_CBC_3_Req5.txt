@@ -1,0 +1,46 @@
+Here is a basic Java program to decrypt an encrypted byte array with the AES algorithm in CBC mode. It is important to note that you will need a secret key and an Initialization Vector (IV) that are generated during the encryption phase to properly decrypt the encrypted data.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
+
+public class Main {
+  
+  // Replace this with your actual IV.
+  private static final String INITIALIZATION_VECTOR_STRING = "****************";
+  private static final byte[] INITIALIZATION_VECTOR = INITIALIZATION_VECTOR_STRING.getBytes();
+
+  // Replace this with your actual secret key.
+  private static final String SECRET_KEY_STRING = "****************";
+  private static final byte[] SECRET_KEY = SECRET_KEY_STRING.getBytes();
+
+  public static void main(String[] args) {
+        String encryptedData = "EncryptedDataHere";
+        String decryptedData = decryptAES(encryptedData.getBytes());
+        System.out.println("Decrypted data: " + decryptedData);
+  }
+
+  private static String decryptAES(byte[] encryptedData) {
+        try {
+              Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+              Key keySpec = new SecretKeySpec(SECRET_KEY, "AES");
+              IvParameterSpec ivSpec = new IvParameterSpec(INITIALIZATION_VECTOR);
+              cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+
+              byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+              return new String(decryptedData);
+        } catch (Exception e) {
+              System.out.println(e.getMessage());
+        }
+        return null;
+  }
+}
+```
+In the above program, replace `INITIALIZATION_VECTOR_STRING` and `SECRET_KEY_STRING` with your actual IV and secret key. The `decryptAES` method gets the Cipher instance of "AES/CBC/PKCS5Padding", initializes cipher to decrypt mode with the key and IV, and finally performs decryption. 
+
+Note: This code assumes that you're using a 16-byte initialization vector and a 16-byte secret key, both of which are used in the key and IV specifications. If you use a different size for your IV or secret key, you'll need to modify this code accordingly.
+
+Additionally, this sample doesn't include any error checking or exception handling. In production code, you would need to add this.

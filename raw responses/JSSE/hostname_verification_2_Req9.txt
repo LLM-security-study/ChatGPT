@@ -1,0 +1,38 @@
+Here is a simple implementation of how you might verify a hostname in an SSL/TLS connection in Java using the HttpsURLConnection API. HttpsURLConnection is used for making HTTPS requests and uses SSL/TLS under the covers to secure the connection.
+
+Please note that, this code will only work where hostname verification is required. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier((hostname, session) -> hostname.equals("www.example.com")); // Set your expected hostname here
+
+            conn.connect();
+
+            // If the hostname doesn't match the certificate hostname, it will throw an SSLPeerUnverifiedException
+            System.out.println("Connection established. The host is verified.");
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("SSLPeerUnverifiedException was thrown. The host is not verified.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            System.out.println("IOException thrown.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this case, `HttpsURLConnection` will automatically verify the server's certificate against the hostname and throws an SSLPeerUnverifiedException if they don't match. We also set our custom hostname verifier with `conn.setHostnameVerifier(..)` method to strictly allow connections only to "www.example.com". 
+
+It's worth noting that this is a very basic implementation and may need additional error handling and safety measures according to your use case.
+
+Remember, disabling or bypassing hostname verification leaves you open to Man in the Middle attacks, so should not be used in production code.
+
+You will need to add imports for the URL, HttpsURLConnection classes to compile this code.

@@ -1,0 +1,22 @@
+Sure, Here is a simple Java program that meets your requirement:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Creates a secure random number generator
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Get a random seed and set it
+        byte[] seed = secureRandom.generateSeed(8);
+        secureRandom.setSeed(seed);
+
+        // Generate a random number
+        int randomNumber = secureRandom.nextInt();
+        System.out.println("Random number generated: " + randomNumber);
+    }
+}
+```
+
+Please note that the `SecureRandom` class provides a cryptographically strong random number generator (RNG). We generate a seed separately and set it back to the `SecureRandom` object. However, it's not strictly necessary to do this, as `SecureRandom` will automatically generate a seed if you do not.

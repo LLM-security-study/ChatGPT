@@ -1,0 +1,58 @@
+Here is a simple Java program:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+import javax.crypto.Cipher;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = buildKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        String msg = "Hello, World!";
+        byte[] encryptedMsg = encrypt(publicKey, msg);
+        System.out.println("Encrypted Message: " + new String(encryptedMsg));
+
+        byte[] decryptedMsg = decrypt(privateKey, encryptedMsg);
+        System.out.println("Decrypted Message: " + new String(decryptedMsg));
+    }
+
+    public static KeyPair buildKeyPair() throws Exception {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PublicKey publicKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        return cipher.doFinal(message.getBytes());
+    }
+
+    public static byte[] decrypt(PrivateKey privateKey, byte[] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+
+The functions `encrypt` and `decrypt` are used to encrypt and decrypt messages using RSA algorithm with generated public and private keys respectively. The `buildKeyPair` function is used to generate a pair of public and private keys.
+
+For simplicity, this program uses the RSA algorithm for public key cryptography, other algorithms also can be used based on the requirement.
+
+Java Cryptography Extension (JCE) package is a set of Java APIs that provides cryptographic functionality. This includes support for creating, encrypting and decrypting messages with different algorithms.
+
+The `getInstance` methods of the `KeyPairGenerator` class and `Cipher` class are used to get instances of `KeyPairGenerator` and `Cipher` for the specified algorithms respectively.
+
+The `KeyPairGenerator` object is initialized with the key size and the `genKeyPair` method is called to generate a new pair of public and private keys.
+
+The `Cipher` object is initialized with the encryption mode and public key for the `encrypt` function or decryption mode and private key for the `decrypt` function. The `doFinal` method is called to perform the operation on the input data.

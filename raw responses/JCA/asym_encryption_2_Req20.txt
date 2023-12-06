@@ -1,0 +1,53 @@
+Here is a simple Java program using RSA which is an asymmetric cryptographic algorithm for encrypting and decrypting a message:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+import javax.crypto.Cipher;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        final String originalMessage = "This is a secret message";
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024, new SecureRandom());
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        String encryptedMessage = encrypt(originalMessage, keyPair.getPublic());
+        String decryptedMessage = decrypt(encryptedMessage, keyPair.getPrivate());
+        
+        System.out.println("Original Message: " + originalMessage);
+        System.out.println("Encrypted Message: " + encryptedMessage);
+        System.out.println("Decrypted Message: " + decryptedMessage);
+    }
+
+    private static String encrypt(String message, Key key) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+
+        byte[] cipherTextBytes = cipher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(cipherTextBytes);
+    }
+
+    private static String decrypt(String encryptedMessage, Key key) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedMessage));
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
+    }
+}
+```
+In the above program:
+- A 'KeyPairGenerator' object is used to generate a pair of private and public keys.
+- The original message is encrypted using the public key and the 'Cipher' class.
+- The encrypted message is then decrypted back to the original message using the private key and the 'Cipher' class. 
+- Base64 encoding and decoding is used for representing the bytes in a readable string format. 
+
+Please note that the strength of this encryption is considered to be relatively low due to small key size (1024 bits). Normally, a minimum of 2048 bits is recommended for RSA. Larger keys provide more security but are slower to use.

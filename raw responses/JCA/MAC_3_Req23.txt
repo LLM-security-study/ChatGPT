@@ -1,0 +1,54 @@
+A Message Authentication Code (MAC) is a short piece of information used to authenticate a message, it confirms that the message came from the stated sender (its authenticity) and has not been changed in transit.
+
+For this task, we'll use the HmacSHA256 - a type of keyed hash algorithm that is constructed from the SHA-256 hash function and used as an HMAC.
+
+Here's the Java code of the simple program that implements HMAC:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+class Main {
+    public static void main(String[] args) {
+        String secretKey = "MySecretKey";
+        String message = "Hello, World!";
+        
+        String mac = calculateHMAC(secretKey, message);
+        System.out.println("MAC: " + mac);
+    }
+
+    private static String calculateHMAC(String secret, String message){
+        String hash = "";
+       
+        try {
+            Mac hmacSHA256 = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            hmacSHA256.init(secretKeySpec);
+            byte[] bytes = hmacSHA256.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            hash = bytesToHex(bytes);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+        
+        return hash;
+    }
+    
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+
+        return hexString.toString();
+    }
+}
+```
+
+Note: This is a simple example and it's not recommended to hardcode a secret key directly in the source code for security reasons. Normally, it would be kept in a secure place, for example, in environment variables or in a secure vault.
+
+__Remember__ to always use the right security and encryption mechanism as per your project requirements and adhere to all standard best practices while handling sensitive data.

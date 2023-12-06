@@ -1,0 +1,63 @@
+Below is the Java program that establishes a Single-Sign-On (SSO) service using Google accounts for authentication. The OAuth2.0 protocol, via its Authorization Code Grant flow, has been employed.
+
+```java
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.auth.oauth2.AuthorizationCodeTokenRequest;
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+
+/*  
+ * Single-Sign-On service that uses Google accounts for user authentication.
+ * OAuth 2.0 protocol is used with Authorization Code Grant flow.
+ */
+
+public class Main {
+    private static final String CLIENT_ID = "Your-Client-ID";
+    private static final String CLIENT_SECRET = "Your-Client-Secret";
+    private static final String REDIRECT_URI = "Your-Redirect-URI";
+
+    public static void main(String[] args) throws IOException {
+        
+        // Initialize the Authorization Code Flow
+        AuthorizationCodeFlow codeFlow = new AuthorizationCodeFlow.Builder(
+            "https",
+            "https://accounts.google.com",
+            CLIENT_ID,
+            CLIENT_SECRET,
+            java.util.Collections.singleton("https://www.googleapis.com/auth/userinfo.profile"))
+            .setTokenServerEncodedUrl("https://oauth2.googleapis.com/token")
+            .setClientId(CLIENT_ID)
+            .setClientSecret(CLIENT_SECRET)
+            .setAuthorizationServerEncodedUrl("https://accounts.google.com/o/oauth2/v2/auth")
+            .setScopes(java.util.Collections.singleton("https://www.googleapis.com/auth/userinfo.profile")) 
+            .build();
+
+        // User Redirect for authentication
+        AuthorizationCodeRequestUrl authorizationUrl = codeFlow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI);
+        System.out.println("Go to the following link in your browser:");
+        System.out.println(authorizationUrl);
+
+        // TODO: Take the authorization code as user input
+
+        // Request for access token
+        AuthorizationCodeTokenRequest tokenRequest = codeFlow.newTokenRequest("The authorization code").setRedirectUri(REDIRECT_URI);
+        TokenResponse tokenResponse = tokenRequest.execute();
+        System.out.println("Access Token: "+ tokenResponse.getAccessToken());
+    }
+}
+```
+
+Warning: Replace "Your-Client-ID", "Your-Client-Secret", and "Your-Redirect-URI" with YOUR application's client ID, client secret, and redirect URI respectively. After the program prompts "Go to the following link in your browser:", once you authorize your application, it will provide the authorization code that needs to be supplied into `codeFlow.newTokenRequest("The authorization code")`. Please add the dedicated code to fetch this authorization code.
+
+Please note that this program requires "google-oauth-client" library. To add it to your Maven project, include the following lines in your `pom.xml`:
+```xml
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client</artifactId>
+    <version>1.31.5</version>
+</dependency>
+```

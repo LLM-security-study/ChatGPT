@@ -1,0 +1,54 @@
+Sure, here is a simple Java program manipulating Java's KeyStore to store a cryptographic key. 
+
+Please note that in order to run this program, necessary permissions and dependencies are required to avoid any unauthorized access warnings or errors.
+
+Here's the code:
+
+```java
+import javax.crypto.*;
+import java.security.*;
+import java.io.*;
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // Generate a key
+        KeyGenerator keyGen = KeyGenerator.getInstance("DES");
+        SecretKey secretKey = keyGen.generateKey();
+
+        // Create a keystore
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+
+        // Load the keystore
+        char[] password = "password".toCharArray();
+        File file = new File("keystore.jks");
+
+        if (file.exists()) {
+            // If the file exists, load the keystore from the file
+            FileInputStream fis = new FileInputStream(file);
+            keyStore.load(fis, password);
+            fis.close();
+        } else {
+            // If the file doesn't exist, load a blank keystore
+            keyStore.load(null, password);
+        }
+
+        // Add the key to the keystore
+        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(secretKey);
+        keyStore.setEntry("myKeyAlias", skEntry, new KeyStore.PasswordProtection(password));
+
+        // Save the keystore
+        FileOutputStream fos = new FileOutputStream("keystore.jks");
+        keyStore.store(fos, password);
+        fos.close();
+    }
+}
+```
+This program will create a secret DES key and store that key in a Java keystore file "keystore.jks". Ensure to replace "password" and "myKeyAlias" variables with the desired values.
+
+The keyStore loads the existing "keystore.jks" file if it's already present, else creates a new keystore. Consequently, the secret key is added to this keystore with an alias "myKeyAlias". Eventually, the keystore is written back to the "keystore.jks" file.
+
+The secret key, named secretKey in the source code, is generated with a standard DES algorithm. For real-world applications, note to use a stronger algorithm and store keys in a properly secured keystore.
+
+This program is designed as an example and should be improved to handle different scenarios and exceptions when used in an production environment.

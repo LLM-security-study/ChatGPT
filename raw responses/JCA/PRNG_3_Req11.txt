@@ -1,0 +1,25 @@
+```java
+import java.security.SecureRandom;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Create a SecureRandom instance
+        SecureRandom secRand = new SecureRandom();
+
+        // Generate a random seed
+        byte[] seed = new byte[16];
+        secRand.nextBytes(seed);
+
+        // Re-initialize the SecureRandom instance with the generated seed
+        secRand.setSeed(seed);
+
+        // Generate a random integer
+        int randInt = secRand.nextInt();
+
+        System.out.println("Random integer: " + randInt);
+    }
+}
+```
+In this program, SecureRandom is used as it is suitable for cryptographic applications. A random seed is generated and subsequently used to reinitialize the state of the SecureRandom instance. Next, the program generates a random integer and prints it to the console.

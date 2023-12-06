@@ -1,0 +1,149 @@
+Sure, here is a simple implementation of a Java program for user fingerprint authentication in an Android app. In this demonstration, the use of the FingerprintManager class is showcased which, when combined with a proper cryptographic key management scheme, can protect user fingerprints and enable their use for authentication.
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyPermanentlyInvalidatedException;
+import android.security.keystore.KeyProperties;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import android.widget.Toast;
+import java.security.KeyStore;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+@RequiresApi(api = Build.VERSION_CODES.M)
+public class Main {
+
+    private static final String KEY_NAME = "your_key_name";
+    private KeyStore keyStore;
+    private Cipher cipher;
+
+    public void startFingerprintAuthentication(FingerprintManager fingerprintManager) {
+
+        KeyGenerator keyGenerator;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != 
+        PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        if (!fingerprintManager.isHardwareDetected()) {
+            Toast.makeText(this, "Fingerprint hardware not detected", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!fingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "No fingerprint configured", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            keyGenerator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to get KeyGenerator instance", e);
+        }
+
+        try {
+            keyStore.load(null);
+            keyGenerator.init(new
+                    KeyGenParameterSpec.Builder(KEY_NAME,
+                    KeyProperties.PURPOSE_ENCRYPT |
+                            KeyProperties.PURPOSE_DECRYPT)
+                    .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                    .setUserAuthenticationRequired(true)
+                    .setEncryptionPaddings(
+                            KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                    .build());
+            keyGenerator.generateKey();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        if (initCipher(cipher, KEY_NAME)) {
+            FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+            FingerprintHandler helper = new FingerprintHandler(this);
+            helper.startAuth(fingerprintManager, cryptoObject);
+        }
+    }
+
+    public boolean initCipher(Cipher cipher, String keyName) {
+        try {
+            keyStore.load(null);
+            SecretKey key = (SecretKey) keyStore.getKey(keyName,
+                    null);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return true;
+        } catch (KeyPermanentlyInvalidatedException e) {
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to init Cipher", e);
+        }
+    }
+}
+```
+
+Here's the FingerprintHandler class:
+
+```java
+import android.Manifest;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+
+class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private CancellationSignal cancellationSignal;
+    private Main activity;
+
+    public FingerprintHandler(Main main) {
+        activity = main;
+    }
+
+    public void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+
+        cancellationSignal = new CancellationSignal();
+
+        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.USE_FINGERPRINT) !=
+                PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        manager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+    }
+
+    @Override
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(activity, "Authentication error: " + errString, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(activity, "Authentication help: " + helpString, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        Toast.makeText(activity, "Authentication failed", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        Toast.makeText(activity, "Success!", Toast.LENGTH_SHORT).show();
+    }
+}
+```
+This code initiates the fingerprint recognition process and handles the authentication results. Please note: the Android Fingerprint API only exists in Android 6.0 (Marshmallow) and later, so it can’t be used in earlier versions of Android.
+

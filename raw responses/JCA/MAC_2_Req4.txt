@@ -1,0 +1,45 @@
+Sure, Here is a very basic implementation for a message integrity check using HMAC-SHA256 MAC in java.
+
+```java
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Message and key
+            String message = "This is a test message";
+            String key = "secretEncryptionKey";
+
+            Mac hasher = Mac.getInstance("HmacSHA256");
+            SecretKeySpec keySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
+
+            hasher.init(keySpec);
+            byte[] hashedMessage = hasher.doFinal(message.getBytes());
+
+            String encodedHash = Base64.getEncoder().encodeToString(hashedMessage);
+
+            System.out.printf("MAC: %s%n", encodedHash);
+            
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            System.err.println("Error generating MAC: " + e.getMessage());
+        }
+    }
+}
+```
+
+This program does the following: 
+
+1. It defines a private key `secretEncryptionKey` and a sample message `This is a test message`.
+2. It initializes a `Mac` object with HMAC-SHA256.
+3. It creates a `SecretKeySpec` object from the private key.
+4. It initializes the MAC with the private key.
+5. It computes the MAC of the input message using the `doFinal` method which also completes the MAC operation.
+6. Lastly, it prints the generated MAC in base64-format.
+
+This is just a simple sample, and in a real-world application, the private key should be protected and not hardcoded into the application this way. Error handling also needs expanding for production-quality code.
+
+The output is the encoded MAC of the message.

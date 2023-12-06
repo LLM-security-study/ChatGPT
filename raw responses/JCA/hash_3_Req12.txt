@@ -1,0 +1,43 @@
+Here is a simple program to illustrate the use of MessageDigest for creating hashes in Java:
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        // Accept data from user
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter data to hash: ");
+        String dataToHash = sc.nextLine();
+
+        try {
+            // Create a MessageDigest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            // Add password to digest
+            md.update(dataToHash.getBytes());
+
+            // Generate the digest
+            byte[] digest = md.digest();
+
+            // Converting the byte array in to HexString format
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < digest.length; i++) {
+                sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            System.out.println("Hex format : " + sb.toString());
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        sc.close();
+    }
+}
+```
+This program accepts a string from the user, calculates the digest and outputs it in Hex format. Please note that MD5 is considered weak for many purposes, SHA-256 or SHA-3 should be used for most applications. Also in practical implementation, use some form of input sanitation to avoid security vulnerabilities.
+
+You can replace "MD5" with other hashing algorithms like "SHA-256","SHA-512", etc. as per your requirement.
+
+Please handle the exception in a way it is suitable for your application.

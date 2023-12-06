@@ -1,0 +1,109 @@
+For fingerprint authentication in Android, we will first need to be sure to include permission in the AndroidManifest.xml file in our application:
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+```
+
+Now, in your main class, we will need to use android fingerprint manager. The "FingerprintManager" class was deprecated in API level 28. From API 28 onwards, "BiometricPrompt" is used. However, for your request, Here's a simplified version of what the authentication part can look like:
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity implements FingerprintHandler.AuthenticationCallback {
+
+    private FingerprintHandler mFingerprintHandler;
+    private FingerprintManager mFingerprintManager;
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        mFingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        
+        checkFingerprintPermission();
+        
+        mFingerprintHandler = new FingerprintHandler(this);
+        
+        startFingerprintAuthentication();
+    }
+
+    private void checkFingerprintPermission() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!mFingerprintManager.isHardwareDetected()) {
+            Toast.makeText(this, "Your device doesn't support fingerprint authentication", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (!mFingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "No fingerprint enrolled on this device", Toast.LENGTH_LONG).show();
+            return;
+        }
+    }
+
+    private void startFingerprintAuthentication() {
+        mFingerprintHandler.startAuth(mFingerprintManager, new CancellationSignal());
+    }
+
+    @Override
+    public void onAuthenticationSuccess() {
+        Toast.makeText(this, "Authentication succeeded!", Toast.LENGTH_LONG).show();
+        // Start your authenticated activity here.
+    }
+
+    @Override
+    public void onAuthenticationFail() {
+        Toast.makeText(this, "Authentication failed", Toast.LENGTH_LONG).show();
+    }
+}
+```
+
+Then create a class "FingerprintHandler.java" which will handle the actual fingerprint authentication:
+
+```java
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private final AuthenticationCallback callback;
+
+    public FingerprintHandler(AuthenticationCallback callback) {
+        super();
+        this.callback = callback;
+    }
+
+    public void startAuth(FingerprintManager manager, CancellationSignal signal) {
+        manager.authenticate(null, signal, 0,this, null);
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        super.onAuthenticationFailed();
+        callback.onAuthenticationFail();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        super.onAuthenticationSucceeded(result);
+        callback.onAuthenticationSuccess();
+    }
+
+    public interface AuthenticationCallback {
+        void onAuthenticationSuccess();
+        void onAuthenticationFail();
+    }
+}
+```
+
+Please note this simplified version of a bio-metric authentication code has many possible improvements like handling various exceptions, different states of the fingerprint sensor, bio metric prompt dialog and more. Refactoring the code according to the requirements will be necessary.

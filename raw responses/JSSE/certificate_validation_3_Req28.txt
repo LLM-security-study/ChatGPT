@@ -1,0 +1,71 @@
+Here is a basic Java program that demonstrates how to create an SSL connection and validate the server's certificate using the SSLContext and SSLSocket APIs:
+
+Please replace the "host" and "port" based on your requirements.
+
+```java
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String host = "hostname";
+        int port = 443;
+
+        // Load the JDK's keystore
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        trustStore.load(new FileInputStream("/path/to/your/truststore"), "password".toCharArray());
+
+        // Create a trust manager that does not allow untrusted certificates
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(trustStore);
+        X509TrustManager defaultTrustManager = (X509TrustManager)tmf.getTrustManagers()[0];
+
+        // Setup SSLContext with our trustManager
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(null, new TrustManager[]{defaultTrustManager}, null);
+
+        // Create an SSLSocketFactory and SSLSocket
+        SSLSocketFactory factory = ctx.getSocketFactory();
+        SSLSocket sslSocket = (SSLSocket)factory.createSocket(host, port);
+
+        // Start handshake, server's certificate will be automatically validated
+        sslSocket.startHandshake();
+
+        // Close the connection
+        sslSocket.close();
+    }
+
+    private static class MyTrustManager implements X509TrustManager {
+        private final X509TrustManager defaultTrustManager;
+
+        MyTrustManager(X509TrustManager defaultTrustManager) {
+            this.defaultTrustManager = defaultTrustManager;
+        }
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            throw new CertificateException("Client certificates are not trusted");
+        }
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+            // Here you can implement your own logic to validate the server's certificate
+            defaultTrustManager.checkServerTrusted(chain, authType);
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return defaultTrustManager.getAcceptedIssuers();
+        }
+    }
+}
+```
+Before running this program, make sure you have valid truststore file and know the password. Without it, the program will throw an exception. Also, replace host and port with the actual server info you want to connect.
+
+This basic program doesn't check if the certificate is self-signed. A real-world program would need to handle more complex situations, like checking the revocation status of the certificate (with the Online Certificate Status Protocol - OCSP), checking if the certificate hasn't expired yet and that it's not yet valid (timestamps), etc. 
+
+In Java, you can handle all this with the `javax.net.ssl.X509TrustManager` and `java.security.cert.Certificate` APIs. Modify the MyTrustManager class as per your requirements.
+

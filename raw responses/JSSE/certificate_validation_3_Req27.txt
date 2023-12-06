@@ -1,0 +1,47 @@
+Sure, the following is a basic example of a Java program that validates an SSL/TLS certificate using the standard Java APIs. Here we will be using javax.net.ssl.HttpsURLConnection along with the Certificate factory to get SSL certificates.
+
+```java
+import javax.net.ssl.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+
+public class Main {
+  
+    public static void main(String[] args) throws MalformedURLException, IOException, NoSuchAlgorithmException, CertificateException {
+        String urlString = "https://www.google.com";
+        URL url = new URL(urlString);
+        
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.connect();
+    
+        Certificate[] certs = conn.getServerCertificates();
+        for (Certificate cert : certs) {
+            if(cert instanceof X509Certificate) {
+            	X509Certificate x509cert = (X509Certificate) cert;
+            	System.out.println(x509cert.getSubjectDN());
+            	System.out.println("Serial Number: " + x509cert.getSerialNumber());
+            	System.out.println("Valid Until: " + x509cert.getNotAfter());
+            }
+        }
+        
+        conn.disconnect();
+    }
+    
+}
+```
+This program opens a connection to `https://www.google.com` and retrieves the server's SSL certificates. If the certificate is an `X509Certificate`, it prints the subject's distinguished name, the certificate's serial number, and the date until the certificate is valid.
+
+Remember to include error handling code for production environments, the above code doesn't include the part where the validation actually happens, you may want to check for certificate trust, certificate date validity and some other important parameters according to the needs of your application.
+
+In addition to this program you will need to have installed the SSL certificate into the Java keystore of the JDK with which you are running this program.
+
+Important Note: Always ensure that your environment is secured because handling SSL/TLS certificates involves dealing with security sensitive information.

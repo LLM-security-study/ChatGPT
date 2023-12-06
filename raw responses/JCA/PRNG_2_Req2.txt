@@ -1,0 +1,25 @@
+Sure, here's the Java code that satisfies your requirements:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        // Initialized SecureRandom
+        SecureRandom secureRandom = new SecureRandom();
+        // Create byte array for salt
+        byte[] salt = new byte[16];
+        // Get a random salt
+        secureRandom.nextBytes(salt);
+        // Print salt
+        System.out.println("Salt: " + Base64.getEncoder().encodeToString(salt));
+    }
+}
+```
+
+This program utilizes the `SecureRandom` class, which provides a cryptographically strong random number generator. It generates a random salt of 16 bytes. The salt we generate will be different each time you run the program. 
+
+The salt is then encoded to a string using Base64 encoding so it can be printed and visualized conveniently. Please note that this salt can then be used in your password hashing scheme.
+
+Keep in mind that Android OS does not support SecureRandom well, so avoid using SecureRandom in Android applications.

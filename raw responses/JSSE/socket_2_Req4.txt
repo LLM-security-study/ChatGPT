@@ -1,0 +1,38 @@
+The setup described here assumes that you have the necessary SSL certificates already installed. If you don't, please ensure those are set up first.
+
+Here's a basic example of this in Java standard SE using JSSE (Java Secure Socket Extension):
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket)factory.createSocket("localhost", 9999); //"localhost" should be replaced by your server's address and 9999 by your server's port
+            sslSocket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello Server");
+            out.flush();
+
+            System.out.println("Message to server sent, reading server's response");
+            System.out.println("Server's response: " + in.readLine());
+
+            sslSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+For this program to work and connect to the server, the server also needs to be running and listening for SSL connections. Also, don't forget to replace "localhost" and 9999 with your actual server's address and port.
+
+Note: This is just a basic example of how to setup an SSL Socket with a server. In a real environment, you would need to handle exceptions more carefully, possibly employ a more secure handshaking protocol, and follow other security best practices.
+
+For setting up the SSL Server side, take a look at the `SSLServerSocket` and `SSLServerSocketFactory` classes in the JSSE. The server side setup is a bit more complex affair, usually requiring a configured keystore file for storing server's private keys and certificate chains.

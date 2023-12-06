@@ -1,0 +1,33 @@
+Sure. Here is a simple Java program that uses Java Cryptography Architecture (JCA) to generate a pair of keys and then sign a message using SHA256withRSA. Note this is a very basic example and for production use you should consult a security expert.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static final String MESSAGE = "This is a signed message";
+
+    public static void main(String[] args) {
+        try {
+            // Generate a RSA key pair
+           KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+           keyPairGenerator.initialize(2048);
+           KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+           // Sign the message
+           Signature signature = Signature.getInstance("SHA256withRSA");
+           signature.initSign(keyPair.getPrivate());
+           signature.update(MESSAGE.getBytes());
+           byte[] signedMessage = signature.sign();
+
+           // Convert it to Base64 format
+           String signedMessageBase64 = Base64.getEncoder().encodeToString(signedMessage);
+           System.out.println("Signed message in Base64 format: " + signedMessageBase64);
+        } catch (NoSuchAlgorithmException | InvalidKeyException | SignatureException e) {
+           e.printStackTrace();
+        }
+    }
+}
+```
+
+Before you execute this code, ensure your Java environment is set up correctly and has the relevant security libraries. This program generates a RSA key pair, signs a message using SHA256withRSA, and finally prints the Base64 representation of the signed message. This code should be used for educational purposes and may not be safe for production environments.

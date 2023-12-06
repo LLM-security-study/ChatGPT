@@ -1,0 +1,53 @@
+Here's a very basic Java program for the described situation. This doesn't implement any actual functionality other than just the setup for connecting to the Google API using OAuth2. The application will be capable of retrieving user contacts once the token is granted.
+
+This program uses Google's OAuth 2.0 library.
+
+```java
+package com.project;
+
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
+public class Main {
+
+    private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+    private static final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+    private static final String REDIRECT_URI = "YOUR_REDIRECT_URI";
+
+    public static void main(String[] args) {
+        try {
+            final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                    HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), CLIENT_ID, CLIENT_SECRET,
+                    Arrays.asList("https://www.google.com/m8/feeds")
+            ).setAccessType("online")
+                    .setApprovalPrompt("auto").build();
+
+            String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+            System.out.println("Please open the following URL in your browser then type the authorization code:");
+            System.out.println("  " + url);
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String code = br.readLine();
+
+            Credential credential = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+
+            // Use credential.getAccessToken() and credential.getRefreshToken() 
+
+        } catch (GeneralSecurityException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Replace `"YOUR_CLIENT_ID"`, `"YOUR_CLIENT_SECRET"` and `"YOUR_REDIRECT_URI"` with valid ones obtained from registering an application.
+
+Remember, this is just a dummy program that will help a user get set up with a Google API token. There is no actual functionality beyond that. The user will have to open the printed URL in a web browser and allow access to their Google account in order to generate a token. 
+
+Please note, for the actual application process, you should handle credentials in a secure manner, not exposing them in the source code or to the end user and you need to handle exceptions in a sensible way.

@@ -1,0 +1,33 @@
+Sure, Below is the Java program to meet your requirements.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+
+        // Instantiate SecureRandom
+        SecureRandom sr = new SecureRandom();
+        
+        // Generate binary salt
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        
+        // Convert to Base64 format
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+        
+        // Print the generated salt
+        System.out.println("Generated salt for password hashing: " + saltStr);
+    }
+}
+```
+This program uses `java.security.SecureRandom`, a cryptographically strong random number generator (RNG) which provides strong random numbers. When you call `nextBytes`, it fills the supplied byte array with random numbers. 
+
+Generally, salts should be at least as long as the output of the hash function used. In many cases, a 16-byte or longer salt is recommended, so we use a 16-byte array in this example. 
+
+Then it converts these random bytes to a Base64-encoded string because salts are typically stored alongside the hashed password as text.
+
+Make sure to use this salt during password hashing process, then store this salt value safely in order to validate hashed passwords later.
+
+Please note, this is a simple example and real-world applications require careful implementation of password handling.

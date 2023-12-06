@@ -1,0 +1,52 @@
+In Java, it is easier when using the 'javax.net.ssl' standard API for implementing an SSL/TLS communication. Below is an example of how it might be related to hostname verification too:
+
+We have used HttpsURLConnection as it is part of javax.net.ssl package and it supports HTTPS connections.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.URL;
+import java.io.IOException;
+
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        // Assume there's an https URL you aim to connect
+        String link = "https://example.com";
+        URL url = new URL(link);
+        
+        // Open a connection
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        
+        // Setup SSL socket factory
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+        // Create an SSL socket
+        SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(url.getHost(), 443);
+        
+        // Set SSL parameters
+        SSLParameters sslParameters = sslSocket.getSSLParameters();
+        sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+        sslSocket.setSSLParameters(sslParameters);
+        
+        // Start handshake
+        sslSocket.startHandshake();
+        
+        // Check if the server's hostname matches the server's certificate hostname
+        SSLSession sslSession = sslSocket.getSession();
+        if (!sslSession.getPeerHost().equalsIgnoreCase(url.getHost())) {
+            System.out.println("Warning: the server's hostname does not match with the hostname in the server's certificate.");
+        }
+        
+        // Close SSL socket
+        sslSocket.close();
+    }
+}
+
+```
+
+Note: The above code is an oversimplified demonstration. It won't work if a proxy is used or for complex cases like SNI. Please use it as reference and have a comprehensive and standard solution for a production-level application.
+And never forget to verify that the hostname matches the server's certificate hostname.

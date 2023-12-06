@@ -1,0 +1,96 @@
+In order to interact with Google services, you need Google's Java client libraries. You can install them using Maven or Gradle. For Maven, add this dependency in your pom.xml:
+
+```xml
+<dependency>
+  <groupId>com.google.api-client</groupId>
+  <artifactId>google-api-client</artifactId>
+  <version>1.23.0</version>
+</dependency>
+<dependency>
+  <groupId>com.google.oauth-client</groupId>
+  <artifactId>google-oauth-client-jetty</artifactId>
+  <version>1.23.0</version>
+</dependency>
+<dependency>
+  <groupId>com.google.apis</groupId>
+  <artifactId>google-api-services-calendar</artifactId>
+  <version>v3-rev305-1.23.0</version>
+</dependency>
+```
+Here is a simple Java program to authorize a user with OAuth2:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.model.*;
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google Calendar API Java Quickstart";
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/calendar-java-quickstart");
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+    private static final com.google.api.client.json.JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static com.google.api.client.http.HttpTransport HTTP_TRANSPORT;
+
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
+
+    static {
+        try {
+            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public static void main(String... args) throws Exception {
+        Credential credential = authorize();
+        // Do something with the authorized credentials
+    }
+
+    public static Credential authorize() throws Exception {
+        // Load client secrets.
+        Reader clientSecretReader = new InputStreamReader(Main.class.getResourceAsStream("/client_secret.json"));
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, clientSecretReader);
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+            .setDataStoreFactory(DATA_STORE_FACTORY)
+            .setAccessType("offline")
+            .build();
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        System.out.println("Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
+        return credential;
+    }
+}
+```
+
+Replace the "/client_secret.json" with the path to your client secrets in authorize(). The secrets should be stored in a JSON file which looks like this:
+
+```json
+{ "installed":
+  {
+    "client_id":"Insert your client ID",
+    "project_id":"Insert your project ID",
+    "auth_uri":"https://accounts.google.com/o/oauth2/auth",
+    "token_uri":"https://accounts.google.com/o/oauth2/token",
+    "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
+    "client_secret":"Insert your client secret",
+    "redirect_uris":["urn:ietf:wg:oauth:2.0:oob","http://localhost"]
+  }
+}
+```
+
+When you run the code for the first time, it will prompt a URL which you need to visit in order to authorize the application. Once the application is authorized, the access and refresh token will be stored in a file in DATA_STORE_DIR directory, which is ".credentials/calendar-java-quickstart". Then, it can use the stored tokens for future authorizations so that you do not need to manually authorize the application every time.

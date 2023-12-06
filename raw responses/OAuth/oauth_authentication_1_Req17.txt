@@ -1,0 +1,58 @@
+As a programming assistant, I should note that actually writing the Java server side code to process Google OAuth on a production server would certainly take a significant amount of time. Furthermore, where this input would be gathered and where the resultant output would be sent is quite complex and may involve personal or sensitive data protection matters. 
+
+However, I will give you an outline of what it will look like in very simplified form:
+
+```java
+// Import required libraries
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+
+// Class Description: This class is responsible for Google Single-Sign-On Authentication.
+public class Main {
+    
+    private static final String REDIRECT_URI = "Enter redirect URI here";
+    private static final String CLIENT_ID = "Enter client ID here";
+    private static final String CLIENT_SECRET = "Enter client secret here";
+    
+    public static void main(String[] args) throws IOException {
+        // Load client secrets
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+                JacksonFactory.getDefaultInstance(), new FileReader("path_to_client_secret.json")
+        );
+    
+        // Build flow 
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                clientSecrets,
+                Arrays.asList("https://www.googleapis.com/auth/userinfo.profile")
+        ).setAccessType("offline")
+                .setApprovalPrompt("auto").build();
+    
+        // Build authentication URL
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        System.out.println("Please open the following URL in your browser then type the authorization code:");
+        System.out.println("  " + url);
+    
+        // Enter authorization code here.
+        Credential credential = flow.newTokenRequest("Enter authorization code here")
+                .setRedirectUri(REDIRECT_URI).execute();
+    }
+}
+```
+
+In this simplified example, we’re creating an instance of `GoogleAuthorizationCodeFlow`, which is responsible for generating the URL we redirect users to in order to sign in. 
+
+Please replace `"path_to_client_secret.json"`, `REDIRECT_URI`, `CLIENT_ID` and `CLIENT_SECRET` with your actual values.
+
+It’s worth noting that this is a trivial execution and doesn't include error handling, data persistence, sessions etc. I assume that you will incorporate it into a full-fledged web application, where you would want to handle these elements in a more standard and safer way in production. I'd recommend using a well-maintained library like Spring Security OAuth or Apache Shiro in a production setting, which both provide comprehensive OAuth2 support.

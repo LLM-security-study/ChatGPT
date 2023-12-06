@@ -1,0 +1,37 @@
+Sure. Below is an example of a program in Java that can be used to implement a Symmetric cryptography algorithm. The program makes use of AES (Advanced Encryption Standard) algorithm to perform encryption and decryption.
+
+Here is your Java Code:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate secret key for AES algorithm
+        SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
+
+        // Get AES cipher
+        Cipher cipher = Cipher.getInstance("AES");
+
+        // Message to decrypt
+        String message = "Hello, World!";
+        System.out.println("Original message: " + message);
+
+        // Encrypt the message
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedMessage = cipher.doFinal(message.getBytes());
+        System.out.println("Encrypted message: " + Base64.getEncoder().encodeToString(encryptedMessage));
+
+        // Decrypt the message
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedMessage = cipher.doFinal(encryptedMessage);
+        System.out.println("Decrypted message: " + new String(decryptedMessage));
+    }
+}
+```
+This program first generates a secret key for AES, it encrypts a message, then decrypts it to show its original form.
+
+Please note that in a real-world application, you'd need to securely store keys and handle exceptions.

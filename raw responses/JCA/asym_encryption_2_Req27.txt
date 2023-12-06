@@ -1,0 +1,56 @@
+Here is a simple implementation of RSA, which is an asymmetric encryption algorithm.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+import javax.crypto.Cipher;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // generate public and private keys
+        KeyPair keyPair = buildKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // encrypt the message
+        byte[] encrypted = encrypt(privateKey, "This is a secret message");
+        System.out.println(new String(encrypted));  // <<encrypted message>>
+
+        // decrypt the message
+        byte[] secret = decrypt(publicKey, encrypted);                                 
+        System.out.println(new String(secret));     // This is a secret message
+    }
+
+    public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
+        final int keySize = 2048;
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(keySize);      
+        return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+        return cipher.doFinal(message.getBytes());  
+    }
+
+    public static byte[] decrypt(PublicKey publicKey, byte[] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+
+This program first generates a public/private key pair. Next, it encrypts a message with the private key, and then it decrypts it again with the public key.
+
+You can try this code with your IDE by running the main function. The 'encrypt' and 'decrypt' functions utilize the cipher to perform the encryption and decryption. RSA is selected in each function as the encryption algorithm to use. It then encrypts and decrypts a message. The encrypted message is printed as a string of gibberish, whereas the decrypted message is the original string.
+
+Remember: Always handle exceptions properly in production-level code. This example is simple for an illustrative purpose, so it throws exceptions unhandled.

@@ -1,0 +1,29 @@
+Sure, here is the simple implementation of a Java program using Message Authentication Code (MAC).
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // The secret key used for the MAC
+        String secretKey = "SomeSecretKey";
+
+        // The message to be MACed
+        String message = "Hello World";
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
+        mac.init(secretKeySpec);
+
+        byte[] macData = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        System.out.println("MAC: " + Base64.getEncoder().encodeToString(macData));
+    }
+}
+```
+
+This program initializes a MAC with the HmacSHA256 algorithm. A SecretKeySpec is used to provide the secret key to the MAC. The message to be MAC'ed is then passed to the doFinal method, which returns the MAC for the message. The result is then printed to the console. The MAC and the message are then sent to the recipient. 
+
+It's important to note that randomly generated keys are typically used for MACs, and they are kept secret between the sender and the recipient. For this simple program, I've just hard-coded a string as the key. In a real-world application, you would need to manage the key in a secure way.

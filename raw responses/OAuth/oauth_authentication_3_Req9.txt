@@ -1,0 +1,64 @@
+Your task requires using several Google APIs, like OAuth 2.0 and Google Sign-In, to effectively implement SSO with Google in a Java web application. We also need to take into account that actual code to accomplish this will be significantly more complex and would normally be split across many files in a full-scale project for maintainability and better code practice. However, for simplicity, below is a condensed version of how you may get started with the process:
+
+```java
+// Import necessary classes
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+
+/* 
+    Program to enable Single-Sign-On (SSO) using Google accounts for a web application.
+    This will implement the authentication functionality, excluding other tasks like designing the user interface.
+*/
+
+public class Main {
+    public static void main(String[] args) {
+
+        // Define client ID
+        String CLIENT_ID = "YOUR_CLIENT_ID_HERE";
+
+        // Define verifier with the above client ID
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+            .setAudience(Collections.singletonList(CLIENT_ID))
+            // You can also check the issuer claim to verify the token is issued by accounts.google.com or
+            // accounts.google.com
+            .build();
+
+        String idTokenString = "ID_TOKEN_STRING_HERE";  // replace with actual results from authenticating a user
+
+        // Check if the ID token is valid
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                Payload payload = idToken.getPayload();
+
+                // user is authenticated
+                String userId = payload.getSubject();
+                String email = payload.getEmail();
+                boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+
+                System.out.println("User ID: " + userId);
+                System.out.println("Email: " + email);
+                System.out.println("Email verified: " + emailVerified);
+
+                // TODO: Add code for handling successful logins
+
+            } else {
+                // The ID token isn't valid
+                System.out.println("ID token is NOT valid.");
+            }
+        } catch (Exception e) {
+            // Handle error
+            System.out.println("Failed to verify ID token.");
+        }
+    }
+}
+```
+
+Please ensure to replace `"YOUR_CLIENT_ID_HERE"` and `"ID_TOKEN_STRING_HERE"` with your actual Client ID and Token.
+
+Remember, the above code does not include the process of obtaining the ID token from Google. The actual token acquisition would be handled on the client-side (typically in a web interface with JavaScript), passed from the client to your server, and then handled with the above code.
+
+Also note that the above code is a very simplified starting point and isn't meant for production use. Before deploying a real-world application, be sure to include comprehensive error handling, user data management, and appropriate security protocols. 
+
+Finally, you need to include relevant Google Client library for Java in your project to make above classes and methods usable.

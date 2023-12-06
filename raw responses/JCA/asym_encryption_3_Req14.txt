@@ -1,0 +1,53 @@
+Here is a simple Java program that includes all the functionality needed for basic asymmetric encryption using the RSA algorithm:
+
+```java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // Create public and private keys
+    KeyPair keyPair = buildKeyPair();
+    PublicKey publicKey = keyPair.getPublic();
+    PrivateKey privateKey = keyPair.getPrivate();
+    
+    // Encrypt the message
+    String message = "This is a secret message";
+    byte[] encryptedMessage = encrypt(publicKey, message); 
+
+    // Decrypt the message
+    String decryptedMessage = decrypt(privateKey, encryptedMessage);                                   
+
+    System.out.println(decryptedMessage); 
+  }
+
+  public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
+    final int keySize = 2048;
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(keySize);      
+    return keyPairGenerator.genKeyPair();
+  }
+
+  public static byte[] encrypt(PublicKey publicKey, String message) throws Exception {      
+    Cipher cipher = Cipher.getInstance("RSA");  
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey);  
+      
+    return cipher.doFinal(message.getBytes());  
+  }
+
+  public static String decrypt(PrivateKey privateKey, byte[] encrypted) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");  
+    cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        
+    return new String(cipher.doFinal(encrypted));
+  }
+}
+```
+
+The "Main" class in this program does the following:
+
+- It generates a pair of Public and Private Keys (RSA is an example of asymmetric encryption, where two keys are involved. The public key is used for encryption and the private key is used for decryption).
+- It encrypts a message using the public key.
+- It decrypts the same message using the private key.
+
+Run this program, and it should print out the original message "This is a secret message", demonstrating that the encryption and then decryption was successful. Please note that your text message has been hardcoded in this example, you may want to modify the program to take input from the user or from a file as per your requirements.

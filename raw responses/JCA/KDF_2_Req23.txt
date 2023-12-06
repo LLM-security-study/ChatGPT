@@ -1,0 +1,36 @@
+Sure, here's a basic Java program that utilizes the Java Cryptography Extension's PBKDF2WithHmacSHA1 key derivation function to generate a SecretKey from a given password:
+
+```java
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // prompt user for password
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        // specify salt and iteration count for PBKDF2WithHmacSHA1
+        byte[] salt = new byte[16]; // use a constant salt for this example
+        int iterations = 10000; 
+
+        // generate secret key
+        PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterations, 128);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        SecretKey secretKey = factory.generateSecret(spec);
+
+        // print secret key as hexadecimal
+        byte[] secretKeyBytes = secretKey.getEncoded();
+        String hex = DatatypeConverter.printHexBinary(secretKeyBytes);
+        System.out.println("Secret Key: " + hex);
+    }
+}
+```
+
+This program takes a password as input, generates a `SecretKey` object for that password, then prints the key as a hexadecimal string.
+
+IMPORTANT: It uses a static salt in the example. It's crucial to use a secure, randomly generated salt in an actual implementation to avoid rainbow-table attacks. Securely store the salt and the iterations along with the hashed password for verification in a real system.

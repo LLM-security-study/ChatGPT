@@ -1,0 +1,53 @@
+Here's an example of a simplified Java code that utilizes HttpsURLConnection from the Java Network Security package javax.net. This program hits a secure endpoint and prints out whether it successfully communicated over SSL or failed due to a hostname verification error.
+
+```
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+        new Main().ping();
+    }
+
+    private void ping() {
+        String urlString = "https://example.com";
+        InputStream stream = null;
+
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setHostnameVerifier(new CustomHostnameVerifier());
+
+            stream = urlConnection.getInputStream();
+            System.out.println("Successfully connected to " + urlString + " over SSL/TLS.");
+        } catch (IOException e) {
+            System.out.println("Failed to verify hostname " + urlString + " over SSL/TLS.");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stream != null) {
+                    stream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    private static class CustomHostnameVerifier implements HostnameVerifier {
+        public boolean verify(String hostname, SSLSession session) {
+            // Here you could check the hostname against a list of allowed ones.
+            return true; // or false if the hostname does not match.
+        }
+    }
+}
+```
+
+This main function simply makes a URL connection over HTTPS and sets a custom hostname verifier. If the verify method of the HostnameVerifier returns true, the communication is successful. If it returns false, the communication is interrupted, and an exception is thrown. In the provided code, you should replace "example.com" with the URL you want to verify.
+ 
+In the CustomHostnameVerifier class, you provide your own logic to verify provided hostname. Right now, it just returns true, which approves all the hostnames. If you want to limit it to certain hostnames, you'll need to provide your custom code in the `verify` method.

@@ -1,0 +1,44 @@
+Sure, here's a simple sample program to illustrate storing some cryptographic key in a keystore using Java's KeyStore API. 
+
+Please replace `'password'` and `'mySecretKey'` with your own password and secret key.
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.security.Key;
+import java.security.KeyStore;
+
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    private static final String KEYSTORE_TYPE = "JCEKS"; // Type of the keystore
+    private static final String SECRET_KEY_ALGORITHM = "AES"; // Algorithm used to generate the key
+    private static final String KEY_ALIAS = "myKey"; // Alias for the key in keystore
+    private static final char[] KEYSTORE_PASSWORD = "password".toCharArray(); // Replace with your own
+    private static final char[] KEY_PASSWORD = "mySecretKey".toCharArray(); // Replace with your own
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException {
+        KeyStore ks = KeyStore.getInstance(KEYSTORE_TYPE);
+        ks.load(null, KEYSTORE_PASSWORD);
+
+        Key secretKey = new SecretKeySpec(new byte[16], SECRET_KEY_ALGORITHM);
+        KeyStore.ProtectionParameter protParam = new KeyStore.PasswordProtection(KEY_PASSWORD);
+
+        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry((javax.crypto.SecretKey) secretKey);
+        ks.setEntry(KEY_ALIAS, skEntry, protParam);
+
+        try (FileOutputStream fos = new FileOutputStream("keystore.ks")) {
+            ks.store(fos, KEYSTORE_PASSWORD);
+        }
+    }
+}
+```
+
+This program does the following:
+- Create a new instance of a `KeyStore` and loads it with a 'null' source and password.
+- Creates a new secret key by specifying the algorithm type and byte size.
+- Sets a secret key entry (entry representation of a secret key) with an alias and password into the `KeyStore` instance.
+- Stores the final `KeyStore` instance into a keystore file named 'keystore.ks'. 
+
+This `KeyStore` instance now can be saved to a disk or to any source needed. When required, you can load this `KeyStore` and get the keys by their aliases.

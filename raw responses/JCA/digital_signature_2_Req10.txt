@@ -1,0 +1,45 @@
+To accomplish the task, we will first generate a public and private key pair. Then, we will use the private key to sign data and the public key to verify the signature. Here's how you can create a Java program for it:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        
+        // Generate Public and Private Keys
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA", "SUN");
+        keyPairGen.initialize(1024);
+        KeyPair pair = keyPairGen.generateKeyPair();
+        PrivateKey privKey = pair.getPrivate(); // Private Key
+        PublicKey publKey = pair.getPublic(); // Public Key
+
+        // Data to Sign
+        byte[] data = "This is test data".getBytes(); 
+
+        // Sign the data
+        Signature dsa = Signature.getInstance("SHA1withDSA", "SUN");
+        dsa.initSign(privKey);
+        dsa.update(data);
+        byte[] signature = dsa.sign(); // Signature
+
+        // Signature Verification using public key
+        dsa.initVerify(publKey);
+        dsa.update(data);
+        boolean isVerified = dsa.verify(signature);
+        System.out.println("Is signature verified? " + isVerified);
+    }
+}
+```
+This Java program signs data using a private key and verifies the signature with the related public key. However, note that you need to have the SUN provider available in your Java distribution for this code to run, since the getInstance methods for Signature and KeyPairGenerator both specify "SUN" as the provider.
+
+The signature verification will return "true" if the data was not tampered with between the time signing and verification.
+
+This program uses the Digital Signature Algorithm (DSA), you could use others such as RSA or ECDSA but would need to specify them instead of DSA. Make sure the Java distribution supports them. If you don't specify the "SUN" provider, Java would use the highest-priority installed provider that can support the algorithm.
+
+Please understand cryptography before using it for serious applications as improper use of cryptography can lead to security vulnerabilities.

@@ -1,0 +1,72 @@
+Certainly! First, you need to include relevant Google libraries in your project. This includes "google-oauth-client" and "google-api-client". These libraries handle most of the OAuth protocol and Google SignIn services for you. Here's how you can add them using Maven:
+
+```xml
+<!-- Maven -->
+<dependencies>
+     <dependency>
+          <groupId>com.google.api-client</groupId>
+          <artifactId>google-api-client</artifactId>
+          <version>1.30.10</version>
+     </dependency>
+     <dependency>
+          <groupId>com.google.oauth-client</groupId>
+          <artifactId>google-oauth-client-jetty</artifactId>
+          <version>1.31.0</version>
+     </dependency>
+</dependencies>
+```
+
+Once the libraries are included, you could use them to facilitate the SSO functionality:
+
+```java
+// Importing the necessary classes
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+  private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+
+  public static void main(String[] args) {
+    // Receiving the ID token sent by the client
+    String idTokenString = "ID_TOKEN_RECEIVED_FROM_CLIENT";
+
+    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+        // Specify the CLIENT_ID of the app that accesses the backend:
+        .setAudience(Collections.singletonList(CLIENT_ID))
+        // Or, if multiple clients access the backend:
+        //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+        .build();
+
+    GoogleIdToken idToken = null;
+    try {
+        idToken = verifier.verify(idTokenString);
+    } catch (Exception e) {
+        // Invalid token
+        e.printStackTrace();
+    }
+
+    if (idToken != null) {
+      Payload payload = idToken.getPayload();
+      
+      // Print user identifier
+      String userId = payload.getSubject();
+      System.out.println("User ID: " + userId);
+
+    } else {
+      System.out.println("Invalid ID token.");
+    }
+  }
+}
+```
+Note: This is a simple example. It receives an ID token by HTTPS POST, verifies it, extracts the user's ID from the payload, and prints it to the console. In a real situation, you would instead integrate this code into the flow of your web application. Always ensure the security of your application when handling authentications. 
+
+Remember, You should replace "YOUR_CLIENT_ID" with the actual client ID obtained when you created your project in Google Cloud.
+
+Also in this example the token is hardcoded, in a real use case scenario, you would get this from an HTTPS request, maybe from a user logging in via your webpage.
+
+Ensure to handle the `idToken` correctly i.e, Check if the `idToken` is null and proceed accordingly. If it's null, it means that the ID token you are verifying is not a valid Google ID token.

@@ -1,0 +1,50 @@
+In order to accomplish this task, we'd need to use the Google Play App Integrity API which helps us verify whether an app is interacting with its unmodified binary that Google Play recognizes or not.
+
+In Java, we could create a simple method to request the attestation API, in order to verify the integrity of our app's binary.
+
+Here's a simple example:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+
+public class Main {
+
+    private static final String API_KEY = "YOUR_API_KEY";
+
+    public static void main(String[] args) {
+        verifyAppIntegrity();
+    }
+
+    public static void verifyAppIntegrity() {
+        SafetyNet.getClient(Main.this).attest(generateNonce(), API_KEY)
+                .addOnCompleteListener(new OnCompleteListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SafetyNetApi.AttestationResponse>  task) {
+                        if (task.isSuccessful()) {
+                            SafetyNetApi.AttestationResponse result = task.getResult();
+                            // Parse and validate the response's JWS (JSON Web Signature) in your server
+                            String jwsResult = result.getJwsResult();
+                        } else {
+                            // An error occurred.
+                            Exception e = task.getException();
+                        }
+                    }
+                });
+    }
+
+    // This method generates a nonce that could be used in the call to the attest() method.
+    private static byte[] generateNonce() {
+        byte[] nonce = new byte[16];
+        new SecureRandom().nextBytes(nonce);
+        return nonce;
+    }
+}
+```
+Please ensure you replace `YOUR_API_KEY` with actual api key.
+
+This Java code is a basic illustration of how one would use the SafetyNet Attestation API. In an actual use case, your app would send the `jwsResult` (JSON Web Signature) to your server, and your server would then verify its authenticity. Google provides guidance on how to verify the JWS response.
+
+It should be noted, this example does not cover how to put this into an Android app. Also, it hasn't been tested because it's not possible for me to simulate in a non-Android environment.

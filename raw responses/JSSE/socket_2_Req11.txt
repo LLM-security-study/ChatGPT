@@ -1,0 +1,45 @@
+Sure, I'll use the Java Secure Socket Extension (JSSE) APIs for implementation. Here's a base outline of the program:
+
+``` Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslsocket = (SSLSocket) factory.createSocket("Server IP address here", port number here);
+
+            // This stream can be used to send data to server
+            PrintWriter pw = new PrintWriter(new OutputStreamWriter(sslsocket.getOutputStream()));
+
+            // This stream can be used to get data from server
+            BufferedReader br = new BufferedReader(new InputStreamReader(sslsocket.getInputStream()));
+
+            // send data to server
+            pw.write("Data to send here");
+            pw.flush();
+
+            // receive data from server
+            String receivedData = br.readLine();
+
+            System.out.println("Received data from Server: " + receivedData);
+
+            // close IO and Socket
+            pw.close();
+            br.close();
+            sslsocket.close();
+        } 
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please make sure you replace "Server IP address here", "port number here" and "Data to send here" with actual values.
+
+Remember to configure the JDK/JRE on your machine to trust the server's certificate. You can do this by importing the server's certificate into your keystore.
+
+Software may have vulnerabilities that expose security risks. It's the best practice to use up-to-date software. It's also wise to catch `NoSuchAlgorithmException` and `KeyManagementException` for any exceptions that may occur while creating the `SSLSocket`. So please implement them as per your requirement.

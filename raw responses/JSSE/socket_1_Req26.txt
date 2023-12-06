@@ -1,0 +1,37 @@
+In this example, SSL communication is setup between client and server. Client sends a message to server and server sends an acknowledgement in response. Code below is the implementation of the client which connects to the port 443 on the server and then sends a message.
+
+Main.java
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
+
+            try (SSLSocket s = (SSLSocket)ssf.createSocket("your-server-name", 443)) {
+                PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+                out.println("Hello Server");
+
+                BufferedReader input = new BufferedReader(new InputStreamReader(s.getInputStream()));
+                System.out.println(input.readLine());
+            }
+        } catch (IOException e) {
+            System.out.println("Problem occurred while setting up SSL communication: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program communicates securely with a server using Secure Sockets Layer (SSL) or Transport Layer Security (TLS) protocols provided by the SSLSocket class in the javax.net.ssl package which is a part of Java's standard APIs. 
+
+Before running the program, replace "your-server-name" with your actual server name or IP address. Also, ensure that your server is up and running, and has SSL configured and is listening on port 443.
+
+This client program reads a line of text from the network and prints it to the console. If the communication is successful, you will see the server response printed on your console. 
+
+This is just the client side code, you also need to implement a server which is capable of handling SSL connections and should respond to the client's message. A wrong SSL setup causes connection failure.
+
+Before implementing the code, make sure you have checked and satisfied all the requirements mentioned above.

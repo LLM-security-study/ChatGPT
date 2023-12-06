@@ -1,0 +1,105 @@
+Here's how you can create a Java program that uses Google's API to fetch your Google Contacts with OAuth2.0. We will use Google's People API to access this data after obtaining the user's permission. Below is the general procedure:
+
+***Dependencies:***
+
+Add the Google Client Library to your build file.
+
+Gradle:
+```gradle
+compile 'com.google.api-client:google-api-client:1.23.0'
+compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
+compile 'com.google.apis:google-api-services-people:v1-rev160-1.25.0'
+```
+Maven:
+```xml
+<dependency>
+  <groupId>com.google.api-client</groupId>
+  <artifactId>google-api-client</artifactId>
+  <version>1.23.0</version>
+</dependency>
+<dependency>
+  <groupId>com.google.oauth-client</groupId>
+  <artifactId>google-oauth-client-jetty</artifactId>
+  <version>1.23.0</version>
+</dependency>
+<dependency>
+  <groupId>com.google.apis</groupId>
+  <artifactId>google-api-services-people</artifactId>
+  <version>v1-rev160-1.25.0</version>
+</dependency>
+```
+
+***Main.java***
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.people.v1.PeopleServiceScopes;
+import com.google.api.services.people.v1.PeopleService;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google Contact Authorization";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    /**
+     * Global instance of the scopes required by this quickstart. If modifying these
+     * scopes, delete your previously saved tokens/ folder.
+     */
+    private static final List<String> SCOPES = Collections.singletonList(PeopleServiceScopes.CONTACTS_READONLY);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    /**
+     * Creates an authorized Credential object.
+     * 
+     * @param HTTP_TRANSPORT The network HTTP Transport.
+     * @return An authorized Credential object.
+     * @throws IOException If the credentials.json file cannot be found.
+     */
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY,
+                clientSecrets, SCOPES)
+                        .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                        .setAccessType("offline").build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        PeopleService service = new PeopleService.Builder(HTTP_TRANSPORT, JSON_FACTORY,
+                getCredentials(HTTP_TRANSPORT)).setApplicationName(APPLICATION_NAME).build();
+
+        // Even though this is an auth example, we could perform operations with the service here.
+
+    }
+}
+```
+
+This Java program requests the user's permission and then retrieves an access token that can be used to interact with the Google People API.
+
+A 'credentials.json' file must be available on your system which is downloadable from Google's API console for your project.
+
+For more information on Google People API, you can look at their [official documentation](https://developers.google.com/people).

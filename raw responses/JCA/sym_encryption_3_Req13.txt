@@ -1,0 +1,37 @@
+Sure, here's a basic Java program that implements a symmetric cryptography algorithm (AES) for data decryption. Please replace with your own base64 encoded encrypted text and key.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String encryptedText = "Replace this with encrypted text";
+            String key = "Replace this with key_16_chars";
+
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            String decryptedText = new String(cipher.doFinal(Base64.getDecoder().decode(encryptedText)));
+            System.out.println("Decrypted text: " + decryptedText);
+
+        } catch (Exception e) {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+    }
+}
+```
+
+Please keep in mind that this is a just basic example. In practice, key management and exception handling should be implemented carefully for security and robustness.
+
+In this program:
+- We import the necessary classes for cryptography.
+- We create an instance of the Cipher class with the desired algorithm (AES), and mode (ECB).
+- We create a SecretKeySpec with the secret key and initialize the Cipher instance in DECRYPT_MODE with it.
+- We then use the Cipher instance to decrypt the text (which must be provided as a byte array). For this we used Base64 encoding to encode the byte array as a string, so we need to first decode it.
+- The result is then printed out. If an error occurred at any point, it will be caught and the error message will be printed.
+
+You can modify this program as necessary for your requirements.

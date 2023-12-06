@@ -1,0 +1,42 @@
+Sure, here is a very basic Java program that uses the concept of password-based key derivation using the `javax.crypto` library's `PBEKeySpec` and `SecretKeyFactory` functionality.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.util.*;
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your password: ");
+        String password = scanner.nextLine();
+
+        try {
+            // Create salt
+            byte[] salt = new byte[16];
+            SecureRandom sr = SecureRandom.getInstanceStrong();
+            sr.nextBytes(salt);
+
+            // Create SecretKey using PBEKeySpec
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256); 
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKey secretKey = skf.generateSecret(spec);
+            byte[] secretKeyBytes = secretKey.getEncoded(); 
+
+            // Print the Secret Key
+            System.out.println("Generated Secret Key from your password: " + Arrays.toString(secretKeyBytes));
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+           System.out.println("Error generating secret key: " + e.getMessage());
+        }
+    }
+}
+```
+
+In this program, we just ask the user to enter their password. After that we are creating a new salt using `SecureRandom`. Then, a `Spec` is created with the user's password, the salt, iteration count(65536) and key length(256). Feeding this spec to `SecretKeyFactory` generates the secret Key.
+
+To run the program, just type the password for which you want to generate the secret key on the console when prompted.
+
+But be aware this program only outputs to the console, and stores nothing, so the key would need to be captured on output or persistently stored before use. Also, please note that password-based keys are generally weaker than purely random keys, and you should be appropriately hashing and salting your passwords when stored in production systems.

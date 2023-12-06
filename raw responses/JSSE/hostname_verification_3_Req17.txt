@@ -1,0 +1,52 @@
+Here is the Java program using `javax.net.ssl.*` APIs to verify server hostname in SSL/TLS communication.
+
+```Java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        String urlString = "https://example.com"; // Replace the URL as needed
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setHostnameVerifier(Main::verifyHostName);
+            
+            urlConnection.connect();
+            
+            System.out.println("Successful connection to the server.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static boolean verifyHostName(String hostname, SSLSession session) {
+        try {
+            String peerHost = session.getPeerHost();
+            System.out.println("Peer Host: " + peerHost);
+            
+            if(!hostname.equals(peerHost)) {
+                System.err.println("Host name verification failed!");
+                return false;
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+            return false;
+        }
+        System.out.println("Host name verification succeeded!");
+        return true;
+    }
+}
+```
+
+This simple program opens an HTTPS connection to a specified URL and uses its own `HostnameVerifier`. The `verifyHostName` method extracts the hostname from the SSLSession and then compares it to the requested hostname. If they match, the method `verifyHostName` returns `true`, and the hostname verification succeeds. Otherwise, it returns `false`, and the verification fails.
+
+Please replace "https://example.com" with the actual URL that you want to verify. 
+
+**Important**: If the server is not set up correctly, or if something is wrong with the SSL/TLS setup, this program could reject connections that the built-in methods would accept, or vice versa. This code is for illustrative purposes on using Java APIs to verify server hostname. In a secure production environment, more rigorous verification would be required.
+
+Remember that you need to handle `IOException` as it's a checked exception in Java.

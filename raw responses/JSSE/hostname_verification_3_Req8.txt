@@ -1,0 +1,40 @@
+To develop a Java program that verifies the server hostname in an SSL/TLS communication, you can use Java Secure Socket Extension (JSSE) API. The Java JSSE API provides a framework and an implementation for a Java version of the SSL and TLS protocols.
+
+Here is the code snippet for the main program:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        String hostname = "www.google.com";
+        int port = 443;
+        String urlStr = "https://" + hostname + ":" + port;
+
+        URL url = new URL(urlStr);
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+        conn.setHostnameVerifier((hostname1, session) -> {
+            if (hostname1.equals("www.google.com")) {
+                return true;
+            }
+            return false;
+        });
+
+        // Do something with the connection
+        conn.connect();
+
+        System.out.println(conn.getResponseCode());
+        conn.disconnect();
+
+    }
+}
+```
+
+Note: According to your SSL/TLS communication requirements, you might need to modify the program, such as specifying different API calls. This program sets a custom `HostnameVerifier` that will only succeed if the server's hostname is "www.google.com". 
+
+I also didn't add any error handling in the case an exception is thrown. You should add it according to your needs.
+
+This is a very basic example to demonstrate how to verify a hostname in an SSL/TLS connection. In a real-world application, you'd probably want to use a more robust and secure method to verify the hostname.

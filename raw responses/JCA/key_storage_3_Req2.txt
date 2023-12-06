@@ -1,0 +1,41 @@
+Sure, here is a basic Java program that uses the `java.security.KeyStore` class to store a SSL certificate in a keystore file. Please replace the "yourFilePath", "yourAlias", "yourPassword", and "yourFilePathKeystore" with their corresponding real values.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+    // create a key store
+    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    keyStore.load(null, null);
+
+    // create a certificate factory
+    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+    // Load the SSL certificate
+    FileInputStream fis = new FileInputStream("yourFilePath");
+    Certificate cert = cf.generateCertificate(fis);
+    fis.close();
+
+    // store the certificate in the key store
+    keyStore.setCertificateEntry("yourAlias", cert);
+
+    // save the key store to a keystore file
+    FileOutputStream fos = new FileOutputStream("yourFilePathKeystore");
+    keyStore.store(fos, "yourPassword".toCharArray());
+    fos.close();
+  }
+
+}
+```
+
+Please don't forget to manage those exceptions in a more robust way for your production code. This code block doesn't handle them so that it can stay simple and focused on the main topic. 
+
+Moreover, handling certificates involves managing sensitive information. So you should best handle password and file paths securely following your company's security guidelines.
+
+Lastly, this code assumes that you are dealing with X.509 certificates; if you have a different certificate type, please adjust the CertificateFactory instance accordingly.

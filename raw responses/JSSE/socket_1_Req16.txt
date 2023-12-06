@@ -1,0 +1,41 @@
+Sure, for this requirement, we should use Java Secure Socket Extension (JSSE) that provides security for network socket programming. Below is a simple implementation of SSL Socket for establishing a secure connection with a server:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "localhost";    // replace with your target server hostname
+        int port = 9999;          // replace with your target server port
+
+        SSLSocketFactory ssf = (SSLSocketFactory)SSLSocketFactory.getDefault();
+
+        try {
+            SSLSocket socket = (SSLSocket)ssf.createSocket(hostname, port);
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Specify the requirement of client authentication
+            socket.setNeedClientAuth(true);
+       
+            out.println("Hello Server"); // send a message to the server
+            out.flush();
+
+            System.out.println("Received from server: " + in.readLine());  // read server's response
+
+            in.close();
+            out.close();
+            socket.close();
+        } catch (IOException ex) {
+            System.err.println("Error: " + ex.getMessage());
+        }
+    }
+}
+```
+
+Make sure that the server you are connecting to is set up to accept SSL connections and port is open for connection. This is a very basic implementation and doesn't handle all the exceptions that could be thrown. For use in a real-world application, this code would need to be significantly expanded and refined.
+
+Also ensure the client is set up with the appropriate SSL certificates. The server may also need to trust the certificate authority (CA) that has issued the client's SSL certificate.
+
+Change the hostname and port to match the actual server you want to connect. Please note the line "socket.setNeedClientAuth(true);" is used to enforce server side to do client authentication. If the server doesn't setup properly to do client authentication an error will occur. For actual use, first, confirm whether you need client authentication or not.

@@ -1,0 +1,49 @@
+Sure, here is a basic Java program using Java standard APIs such as `SSLSocket`, `SSLSession`, and `Certificate` for validating a certificate in an SSL/TLS connection. The main class is named "Main".
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.security.cert.Certificate;
+
+public class Main {
+
+   public static void main(String[] argv) {
+
+      try {
+         SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+         SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket("localhost", 9999);
+
+         // Start handshake
+         sslsocket.startHandshake();
+
+         // Get session after the connection is established
+         SSLSession sslSession = sslsocket.getSession();
+
+         // Print certification information
+         System.out.println("SSLSession :");
+         System.out.println("\tProtocol : " + sslSession.getProtocol());
+         System.out.println("\tCipher suite : " + sslSession.getCipherSuite());
+
+         // Get the certificates in use
+         Certificate[] serverCertificates = sslSession.getPeerCertificates();
+
+         for (Certificate certificate : serverCertificates) {
+            System.out.println("Certificates: ");
+            System.out.println("\t" + certificate.toString());
+         }
+      } catch (UnknownHostException e) {
+         e.printStackTrace();
+      } catch (IOException e) {
+         e.printStackTrace();
+      }
+   }
+}
+```
+
+Please note, the above code connects to the local host (`localhost`) on port 9999 and handles the certificate of the session. You will need to replace "localhost" and "9999" with actual host name and port number for the connection.
+
+Also, catching `UnknownHostException` and `IOException` may not be enough in real world scenario to properly handle SSL related issues. Additional error handling will be necessary for things like invalid certificate, expired certificate, etc.
+
+Ensure proper configuration of SSL/TLS and adequate error handling.

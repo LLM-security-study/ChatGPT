@@ -1,0 +1,37 @@
+Here's an example of Java program using Password-Based Encryption (PBEWithMD5AndDES) to generate a secret key from a password:
+
+```java
+import java.security.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException {
+
+        // Taking a password
+        String password = "my-secret-pass";
+
+        // Salt for password encryption, note that you should save salt for decryption
+        byte[] salt = new byte[8];
+        SecureRandom.getInstanceStrong().nextBytes(salt);
+
+        // Iteration count
+        int iterationCount = 1024;
+
+        // Creating key
+        KeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount);
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+        SecretKey secretKey = secretKeyFactory.generateSecret(keySpec);
+        
+        // Print details
+        System.out.println("Password: " + password);
+        System.out.println("Salt: " + new String(salt));
+        System.out.println("Iteration Count: " + iterationCount);
+        System.out.println("Secret Key: " + secretKey.toString());
+    }
+}
+```
+
+Above program will generate a secret key for a given password, salt and iteration count using PBEWithMD5AndDES algorithm. Note that if you want to decrypt data you must know the password, salt and iteration count.
+
+Make sure to securely store these components, especially the salt. You should use the same salt for decryption operation. The iteration count value of 1024 is commonly used, but you can increase it to improve security, at the cost of lower performance.

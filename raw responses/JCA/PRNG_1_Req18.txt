@@ -1,0 +1,38 @@
+Sure, here's a sample Java program to create a random seed for a pseudorandom number generator and generate an Initialization Vector using the secure Java standard APIs.
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a secure random number generator
+            SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
+
+            // Create seed for PRNG
+            long secureInitializer = secureRandom.nextLong();
+            secureRandom.setSeed(secureInitializer);
+
+            // Create Initialization Vector
+            byte[] iv = new byte[16];
+            secureRandom.nextBytes(iv);
+            IvParameterSpec initializationVector = new IvParameterSpec(iv);
+
+            // For testing print the IV
+            for (byte b : iv) {
+                System.out.print(b);
+            }
+            System.out.println();
+
+        } catch (NoSuchAlgorithmException exception) {
+            exception.printStackTrace();
+        }
+    }
+}
+```
+
+Running this main function will generate a random seed for the PRNG and then use the PRNG to generate an Initialization Vector of 16 bytes.
+
+Please note SHA1PRNG is a proprietary algorithm. If you are looking for alternatives to SHA1PRNG, the NIST recommends using the AES algorithm and SecureRandom.getInstanceStrong() for generating secure random instances.

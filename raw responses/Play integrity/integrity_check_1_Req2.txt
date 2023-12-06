@@ -1,0 +1,44 @@
+The mentioned requirement can not be accomplished using only Java or Android APIs due to the security and sandboxing measures configured inside Android. 
+
+Google Play Protect is primarily responsible for the security of the apps. However, you can implement SafetyNet API which provides a set of services and APIs that help protect your app against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users.
+
+Here is an example of how you can use the SafetyNet API for checking app integrity.
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+
+    private void checkAppIntegrity() {
+        String nonceData = "The data that you want to send to the server";
+
+        SafetyNet.getClient(this).attest(nonceData.getBytes(), "<Your API Key>")
+            .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                @Override
+                public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                    // Indicates communication with the service was successful.
+                    // Use response.getJwsResult() to get the result data.
+                }
+            })
+            .addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the service.
+                }
+            });
+    }
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.checkAppIntegrity();
+    }
+}
+```
+This code snippet sends a stored set of data (nonce) to Google Play's safety servers. The server then checks to make sure that the application is legitimate, not tampered with, and responds with a simple yes/no message.
+
+Please remember that the SafetyNet Attestation check does include a charge, and that using this in a real-world application should done with caution in mind due to the risk of false positives and negatives.
+
+Also note: The code has been simplified, and doesn't apply best practices for clarity. Some better practices might be to process the attestation response in a secure server, and not to depend solely on the result of such checks for providing access to your app or its resources.

@@ -1,0 +1,40 @@
+Sure, below is a basic Java program utilizing Java Secure Socket Extension (JSSE) API to establish an SSL socket with a remote server.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a SSLSocketFactory
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            
+            // Use the factory to create an SSLSocket
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", 8000);
+
+            // Create input & output streams
+            DataOutputStream outputStream = new DataOutputStream(sslSocket.getOutputStream());
+            DataInputStream inputStream = new DataInputStream(sslSocket.getInputStream());
+            
+            // Send to and receive data from the server
+            outputStream.writeUTF("Hello from the client!");
+            System.out.println(inputStream.readUTF());
+
+            // Close the socket
+            sslSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace the 'localhost' and '8000' in the createSocket() method with your server's IP address and port number respectively.
+
+This program requires the JSSE (Java Secure Socket Extension) which is included in the Java standard library from Java 1.4 onwards. If your Java version is older, you might need to add JSSE to the classpath. 
+And for secure communication, it requires SSL certificates which you can get from certificate authority.
+
+For full production code, you need to handle exceptions carefully and also manage SSL certificates, which is beyond this example.

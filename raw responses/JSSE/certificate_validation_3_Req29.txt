@@ -1,0 +1,54 @@
+As the Javadoc says, this is not a fully functional implementation of your request. It's a simple way to validate a certificate in Java, not using SSL/TLS. You definitely need more control and error handling, maybe you need to integrate it with KeyStore etc. But for the educational purpose, let's just make sure our connection with google.com is trusted by the default trust store.
+
+You need to use the javax.net.ssl package which provides classes for the secure socket package. This can be used to create SSL sockets.
+
+Here is a simple example:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.IOException;
+import java.net.URL;
+import java.security.*;
+import java.security.cert.CertificateException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        try {
+            // Create a trust manager factory
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+            // Initialize with the default key store
+            tmf.init((KeyStore) null);
+
+            // Create an SSL context
+            SSLContext context = SSLContext.getInstance("TLS");
+            
+            // Initialize the context with the trust manager factory
+            context.init(null, tmf.getTrustManagers(), null);
+
+            // Create a connection
+            URL url = new URL("https://www.google.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            
+            // Set the socket factory
+            conn.setSSLSocketFactory(context.getSocketFactory());
+
+            // Connect
+            conn.connect();
+
+            // If it reaches here, certificate is valid.
+            System.out.println("Certificate is valid.");
+
+        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program connects to "https://www.google.com" and checks if the certificate is valid or not. If it's not valid, an exception will be thrown and you should see it in your console. 
+
+WARNING: This is a very simple example, in a real scenario you should properly manage your exceptions.

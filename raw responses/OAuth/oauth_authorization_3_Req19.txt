@@ -1,0 +1,69 @@
+For handling Google Contacts API, it's a necessity to use OAuth2.0 system for authorizing the application to access the user's data. Java's Google OAuth library can be very helpful in achieving this task. Here is a sample Java code that only implements the OAuth2.0 authorization functionality:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.people.v1.PeopleScopes;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class Main {
+    private static final String CLIENT_SECRETS_RESOURCE = "client_secrets.json";
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".store/people_sample");
+    private static FileDataStoreFactory dataStoreFactory;
+    private static HttpTransport httpTransport;
+    private static final JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
+
+    public static void main(String[] args) {
+        try {
+            httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+            dataStoreFactory = new FileDataStoreFactory(DATA_STORE_DIR);
+
+             // Load client secrets.
+            GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(jsonFactory,
+                    new InputStreamReader(Main.class.getResourceAsStream(CLIENT_SECRETS_RESOURCE)));
+
+            // Set up authorization code flow.
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                    httpTransport, jsonFactory, clientSecrets,
+                    Arrays.asList(PeopleScopes.CONTACTS_READONLY)).setDataStoreFactory(
+                    dataStoreFactory).build();
+            Credential credential = authorize(flow);
+
+            // You can now use credential.getAccessToken() and credential.getRefreshToken() 
+            // to access the protected resources on the user's behalf.
+            
+            // Rest of your code 
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Credential authorize(GoogleAuthorizationCodeFlow flow) throws IOException {
+        // authorize and persist the user's credentials.
+        // Replace USER_IDENTIFIER_KEY with a unique key to identify the user,
+        // for example the user's ID or email address.
+        String userIdentifierKey = "USER_IDENTIFIER_KEY";
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver())
+                .authorize(userIdentifierKey);
+    }
+}
+```
+
+This code can be compiled using google-api-services-people and Google OAuth libraries. This code loads the client secrets from a .json file named "client_secrets.json" which you can get from Google Cloud Console. It then sets up an OAuth flow that requests access to the user's contacts read-only scope.
+
+Please ensure to replace "USER_IDENTIFIER_KEY" with the unique identifier for the user to whom you want to authorize like user's email ID, etc. 
+
+This code should be residing under the src directory of a maven or gradle based Java project and can be run by right-clicking on the file and running it as a Java Application if you are using an IDE. 
+
+Please keep in mind, in a real-life scenario, you may need to handle additional corner cases such as retry upon intermittent failures or the user's choice to revoke application access.

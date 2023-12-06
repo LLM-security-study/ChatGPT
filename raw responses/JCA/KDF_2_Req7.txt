@@ -1,0 +1,54 @@
+Here's a simple implementation using Java's SecretKeyFactory and PBKDF2WithHmacSHA256.
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String password = "MySecretPassworD123";
+        String salt = "somesalt"; //In a real-world application, a newly generated salt is recommended for each user
+        int iterationCount = 65536; 
+        int keyLength = 256;
+        
+        char[] passwordChars = password.toCharArray();
+        byte[] saltBytes = salt.getBytes();
+        
+        byte[] hashedBytes = hashPassword(passwordChars, saltBytes, iterationCount, keyLength);
+        String hashedPassword = DatatypeConverter.printHexBinary(hashedBytes);
+        
+        System.out.println(hashedPassword);
+    }
+
+    public static byte[] hashPassword( final char[] password, final byte[] salt, final int iterations, final int keyLength ) {
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance( "PBKDF2WithHmacSHA256" );
+            PBEKeySpec spec = new PBEKeySpec( password, salt, iterations, keyLength );
+            KeySpec keySpec = new PBEKeySpec(password, salt, iterations, keyLength);
+            return skf.generateSecret( keySpec).getEncoded();
+        }
+        catch( NoSuchAlgorithmException | InvalidKeySpecException e ) {
+            throw new RuntimeException( e );
+        }
+    }
+}
+```
+
+This program creates a secret key based on a user-provided password. It is using Password-Based Key Derivation Function 2 (PBKDF2) with Hmac SHA256-- a standard and quite secure method of password hashing. 
+
+Please note that you will need the following import for this to work: 
+
+```java
+import javax.xml.bind.DatatypeConverter;
+```
+
+The secret key "hashedPassword" is printed in hexadecimal format, if you want it in different form you can modify this part. Remember to replace the `"MySecretPassworD123"` placeholder with your actual password.
+
+Also, in real-world applications, you would use a unique salt for each user. It is important to save the salt and iteration count to be able to verify the password or derive the key later.
+
+Note that PBKDF2WithHmacSHA256 might not be available in older Java versions (older than Java 8u112). If you encounter an issue, you might need to use an older version like "PBKDF2WithHmacSHA1".

@@ -1,0 +1,64 @@
+Sure. Here's a simple representation of how it might be done using the Google's OAuth 2.0 library.
+
+```java
+// This Java program implements Single-Sign-On (SSO) using Google accounts for a web application. 
+// The primary focus is solely on implementing the authentication functionality, excluding other tasks like designing the user interface. 
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+public class Main {
+
+    private static final String CLIENT_SECRET_FILE = "path/to/your/client_secret.json";
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException {
+        GoogleClientSecrets clientSecrets = 
+            GoogleClientSecrets.load(
+                JacksonFactory.getDefaultInstance(), 
+                new FileReader(CLIENT_SECRET_FILE)
+            );
+
+        GoogleAuthorizationCodeFlow flow =
+            new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                clientSecrets,
+                Collections.singleton("https://www.googleapis.com/auth/userinfo.email"))
+            .setAccessType("offline")
+            .build();
+			
+        // Using the flow.authenticate() method an URL will be built to the user consent page. After authorization from user, 
+        // the Google Authorization Server sends the auth code to redirect URI
+
+        String url = flow.newAuthorizationUrl()
+            .setRedirectUri(clientSecrets.getDetails().getRedirectUris().get(0))
+            .build();
+
+        System.out.println("Please open the following URL in your browser then type the authorization code:");
+        System.out.println("  " + url);
+			
+        // To get the access token from authorization code, use flow.getTokenResponse() method.
+    }
+}
+```
+
+This is a simple representation of how Google SSO might be implemented. Please replace the `CLIENT_SECRET_FILE`, with the actual File path.
+
+This Java program demonstrates how to acquire the URL you'd give to the user to authenticate with Google, and lets you parse the authorization code. You have to implement a way of receiving the authorization code from the user once they've authenticated with Google.
+
+After the above steps, the program needs to exchange the authorization code for an access and a refresh token. It can be done using `TokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();`
+
+Remember, the result of this method call is a `TokenResponse` object, containing your application's access and refresh tokens. After obtaining these, your application can gain authorized access to Google APIs. 
+
+Please note that you need to have a HTTP server infrastructure to capture the redirected URI after user consent. This is needed because the `redirect_uri` that you provide in the `setRedirectUri method()` is the URL to which the user is redirect after giving consent and importantly this URI contains the authorization code. 
+
+Please use this as a reference and make necessary changes according to the requirement of your application.

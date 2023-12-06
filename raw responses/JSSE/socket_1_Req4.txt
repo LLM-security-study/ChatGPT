@@ -1,0 +1,52 @@
+Sure. Here's a basic demonstration of a Java program to implement an SSL socket. Please note that you would need a valid certificate file to make SSL connection. Also, you need to handle the exceptions accordingly for your case. 
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    private static final String HOST = "localhost";
+    private static final int PORT = 1234;
+
+    public static void main(String[] args) {
+        Main main = new Main();
+        main.createSSLSocket();
+    }
+
+    private void createSSLSocket() {
+        try {
+            // Obtain a SSLSocketFactory object
+            SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create an SSLSocket
+            SSLSocket socket = (SSLSocket) socketFactory.createSocket(HOST, PORT);
+
+            // Create input and output streams to the server
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Send request to the server, in your case, replace "request" with your real request
+            output.println("request");
+            output.flush();
+
+            // Get response from the server
+            String response = input.readLine();
+            System.out.println("Server response: " + response);
+
+            // Close connection
+            output.close();
+            input.close();
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace the "HOST" and "PORT" variables with actual server details where you wish to make SSL connection. Also, if you're working with a self-signed certificate, you may need to add logic to trust that certificate. 
+
+This program is using `javax.net.ssl.SSLSocket` and `javax.net.ssl.SSLSocketFactory` APIs from Java standard libraries.

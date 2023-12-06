@@ -1,0 +1,54 @@
+I'm happy to help. Here is a Java program using AES (Advanced Encryption Standard) algorithm in CBC (Cipher Block Chaining) mode for decryption:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String key = "AESKey1234567890"; 
+        String initVector = "InitializationVe"; 
+
+        String cipherText = "bOfSDw2eyj4M1YpNmeMw7g=="; 
+        System.out.println(decrypt(key, initVector, cipherText));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
+                | InvalidAlgorithmParameterException | IllegalBlockSizeException
+                | BadPaddingException | java.io.UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+In this code:
+- `key` is the secret AES key used for encryption and decryption.
+- `initVector` is a string used as Initialization Vector for CBC mode.
+- `cipherText` is the encrypted string which will be decrypted.
+- `decrypt()` function does actual decryption. It uses the AES key and Initialization Vector to initialize the decryption cipher in CBC mode with PKCS5 padding, decrypts the encrypted string and returns the original string.
+- Please replace the `key`, `initVector` and `cipherText` with the correct ones to test this AES decryption Java program.
+- Exceptions are properly handled or printed.
+
+Please remember that for all practical purposes, keys should be appropriately safeguarded, hardcoded keys aren't generally a good idea, and key management schemes should be used.

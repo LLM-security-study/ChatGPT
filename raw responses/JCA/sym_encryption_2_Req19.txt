@@ -1,0 +1,69 @@
+Here is a simple Java program implementing the AES symmetric algorithm. In this program, we will encrypt and then decrypt a string using AES in the Cipher Block Chaining (CBC) mode.
+
+```Java
+import java.security.Key;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.Base64;
+
+public class Main {
+
+    static String secretKey = "1234567812345678"; //AES key length should be 128 bit
+    static String initialVector = "1234567812345678"; //initial vector length should be 128 bit
+
+    public static void main(String[] args) throws Exception {
+        String plainText = "Hello World";
+        String encryptedText = encrypt(plainText);
+        String decryptedText = decrypt(encryptedText);
+
+        System.out.println("Original Text: " + plainText);
+        System.out.println("Encrypted Text: " + encryptedText);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+   public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initialVector.getBytes("UTF-8"));
+            Key skeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initialVector.getBytes("UTF-8"));
+            Key skeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+This program has a main class `Main`. In the main function, a plain text "Hello World" is encrypted and then decrypted using the AES symmetric cryptography algorithm.
+
+Please note: 
+
+1. AES requires a key of length 128, 192, or 256 bits. The same key used in encryption is also used in decryption as nature of symmetric cryptography.
+2. This is a simple program designed to illustrate basic AES usage. In a real-world application, you would never hard-code your key and initial vector and would likely need to handle exceptions more robustly. Also, the key and initial vector should be stored securely and not be easily accessible.
+3. Using a hard-coded key may leave your encryption susceptible to attacks if the source code is compromised. For a more secure method, keys should be randomly generated and stored securely.

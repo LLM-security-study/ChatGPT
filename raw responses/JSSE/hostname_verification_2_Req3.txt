@@ -1,0 +1,54 @@
+Sure, here we will use the java.net and javax.net.ssl standard APIs for implementation. Here's an example of how you might program hostname verification in Java:
+
+Main Class File:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+import java.io.IOException;
+
+public class Main {
+    public static void main(String[] args) {
+        String httpsURL = "https://www.example.com";
+        try {
+            URL url = new URL(httpsURL);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier(new MyHostnameVerifier());
+            conn.connect();
+            System.out.println("Successful Connection!");
+            conn.disconnect();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+HostnameVerifier Class File:
+
+```java
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+
+class MyHostnameVerifier implements HostnameVerifier {
+    @Override
+    public boolean verify(String hostname, SSLSession session) {
+        if (hostname.equals(session.getPeerHost())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+```
+
+In this code:
+
+- Main class opens a connection to a URL and sets a custom hostname verifier using setHostnameVerifier() method.
+
+- MyHostnameVerifier implements javax.net.ssl.HostnameVerifier and overrides verify() method to compare the requested hostname with the server's identification hostname.
+
+- If hostname verification is successful, this method will return true otherwise false.
+
+This is a simple version of hostname verification. In a real-world scenario, you often need more advanced hostname verification to enhance security like using public key pinning or checking against a list of trusted hostnames. Be careful while modifying the hostname verifier, because incorrect understanding may lead to security vulnerabilities. Ensure to test thoroughly before using it.

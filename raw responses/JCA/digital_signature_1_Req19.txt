@@ -1,0 +1,63 @@
+Here's a simple Java program with two functions; one for signing a message using the SHA256withRSA algorithm, and another for verifying the signed message. Both functions use the Java Security APIs.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    private static PublicKey publicKey;
+    private static PrivateKey privateKey;
+
+    // Load the Public Key and Private Key Once
+    static {
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            publicKey = keyPair.getPublic();
+            privateKey = keyPair.getPrivate();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String sign(String plainText) {
+        try {
+            Signature privateSignature = Signature.getInstance("SHA256withRSA");
+            privateSignature.initSign(privateKey);
+            privateSignature.update(plainText.getBytes());
+            byte[] signature = privateSignature.sign();
+
+            return Base64.getEncoder().encodeToString(signature);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static boolean verify(String plainText, String signature) {
+        try {
+            Signature publicSignature = Signature.getInstance("SHA256withRSA");
+            publicSignature.initVerify(publicKey);
+            publicSignature.update(plainText.getBytes());
+
+            return publicSignature.verify(Base64.getDecoder().decode(signature));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        String message = "This is a test message";
+        System.out.println("Original Message: " + message);
+
+        String signature = sign(message);
+        System.out.println("Generated Signature: " + signature);
+
+        boolean isCorrect = verify(message, signature);
+        System.out.println("Signature verified: " + isCorrect);
+    }
+}
+```
+
+This program generates a digital signature and then verifies the signature using RSA key pairs. The `sign` function signs a message and the `verify` function checks if the signature is valid. 
+
+In the main function, we've demonstrated its usage using a test message string. Keep in mind that this program uses RSA (a public-key encryption technology) where a pair of keys are used, one for signing (private key) and the other (public key) for verifying.

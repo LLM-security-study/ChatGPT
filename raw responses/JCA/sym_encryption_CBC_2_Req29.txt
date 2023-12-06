@@ -1,0 +1,46 @@
+Sure, here's a basic Java program that encrypts plaintext using the AES encryption algorithm in CBC mode. This program is named "Main". Note that "AES/CBC/PKCS5Padding" is being used as the transformation. This means that the AES algorithm is used, in CBC mode, and PKCS5Padding is used as the padding scheme. 
+
+```
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+  private static final String key = "aesEncryptionKey";
+  private static final String initVector = "encryptionIntVec";
+
+  public static String encrypt(String value) {
+    try {
+      IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+      SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+      cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+      byte[] encrypted = cipher.doFinal(value.getBytes());
+      return Base64.getEncoder().encodeToString(encrypted);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+    return null;
+  }
+
+  public static void main(String[] args) {
+    String originalString = "teststring";
+    
+    System.out.println("Original String to encrypt - " + originalString);
+    String encryptedString = encrypt(originalString);
+    System.out.println("Encrypted String - " + encryptedString);
+  }
+}
+```
+
+This program has a static string "teststring" to demonstrate the encryption. The string is encrypted to a new, AES-encrypted string with CBC mode. The encrypted string, in the `main` method, is then printed out. 
+
+Please be aware that the `encrypt` method returns `null` if any exception is caught, including issues with the encryption process.
+
+In a production environment, you might want to fetch the key and initialization vector from a secure source instead of hard-coding them.
+
+And remember, always to use secure coding practices when dealing with encryption and user data. For example, using a secure method to generate and store the initialization vector and key, using secure methods to handle sensitive data, etc.

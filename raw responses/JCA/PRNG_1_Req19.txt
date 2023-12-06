@@ -1,0 +1,37 @@
+Sure, here is a simple Java program, which generates a seed for initializing a PRNG and then it uses this PRNG to generate an IV for encryption:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generate a random seed for PRNG
+            SecureRandom rd = new SecureRandom();
+            byte[] seed = new byte[20];
+            rd.nextBytes(seed);
+            
+            // Initialize the PRNG with the seed
+            SecureRandom prng = new SecureRandom(seed);
+            
+            // Generate an IV for encryption
+            byte[] ivBytes = new byte[16]; // for AES, for example
+            prng.nextBytes(ivBytes);
+            IvParameterSpec iv = new IvParameterSpec(ivBytes);
+            
+            System.out.println("Generated seed (base64): " + Base64.getEncoder().encodeToString(seed));
+            System.out.println("Generated IV (base64): " + Base64.getEncoder().encodeToString(ivBytes));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Please note:
+
+1. This program generates a 20-byte seed for the PRNG just as an example. Change the size as per your required entropy.
+2. This program generates a 16-byte IV, suitable for many common encryption algorithms such as AES. If you are using another encryption method that needs a different IV size, please adjust the ivBytes array size.
+3. The SecureRandom is a good choice of class for generating the seed and the PRNG in real-world Java applications, as it generates cryptographically strong sequences.
+4. The generated seed and IV are printed in base64 format for visibility. In a real-world application, make sure not to expose sensitive data like these.

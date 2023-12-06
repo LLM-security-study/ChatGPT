@@ -1,0 +1,64 @@
+Sure, below is a simple implementation of a Java program that signs a given message using Java standard API.
+
+This program uses SHA256withRSA as the algorithm.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Message to be signed
+        String originalMessage = "This is a secret message";
+        System.out.println("Original Message: " + originalMessage);
+
+        // Generate public and private keys
+        KeyPair keyPair = generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Sign the message
+        String signature = sign(originalMessage, privateKey);
+        System.out.println("Generated Signature: " + signature);
+
+        // Verify the signature
+        boolean verified = verify(originalMessage, signature, publicKey);
+        System.out.println("Signature Verified: " + verified);
+    }
+
+    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
+    }
+
+    private static String sign(String originalMessage, PrivateKey privateKey) 
+        throws NoSuchAlgorithmException, InvalidKeyException, 
+        SignatureException {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(originalMessage.getBytes());
+        byte[] signatureBytes = signature.sign();
+        return Base64.getEncoder().encodeToString(signatureBytes);
+    }
+
+    private static boolean verify(String originalMessage, String signature,
+        PublicKey publicKey) 
+        throws NoSuchAlgorithmException, InvalidKeyException, 
+        SignatureException {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(originalMessage.getBytes());
+        byte[] signatureBytes = Base64.getDecoder().decode(signature);
+        return publicSignature.verify(signatureBytes);
+    }
+}
+```
+
+In the above program: 
+- First, we generate a public and private key pair using the RSA algorithm.
+- Then we sign the original message with the private key using the `sign` method. The `sign` method uses the SHA256withRSA signature algorithm, initializes it for signing with the private key, updates the message bytes, signs it, and then base64 encodes the signed message.
+- We then verify the signed message with the public key using the `verify` method. The `verify` method uses the base64 decoded signed message bytes and the original plain text message's byte code. It uses the SHA256withRSA signature algorithm, initializes it for verification with the public key, updates the original message's byte code, and then verifies the decoded signature bytes.
+- A correct signature is verified and returns `true`.
+
+Please make sure to handle all the necessary exceptions in production code for a robust signature creation and verification system.

@@ -1,0 +1,37 @@
+Here is a simple Java program that uses PBKDF2 (Password-Based Key Derivation Function 2) to derive cryptographic keys from a user's password.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+  public static void main(String[] args) {
+    Scanner in = new Scanner(System.in);
+    System.out.print("Please enter your password: ");
+    String password = in.nextLine();
+
+    byte[] salt = new byte[16]; // ideally this should be securely random and stored with the password.
+
+    SecretKeyFactory factory;
+    byte[] hash = null;
+    try {
+      factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+      KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
+      hash = factory.generateSecret(spec).getEncoded();
+    } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+      e.printStackTrace();
+    }
+
+    System.out.println("The derived key is: " + Base64.getEncoder().encodeToString(hash));
+  }
+}
+```
+Users can input their password using the console. The salt is static in this example, but in a real-world scenario, a random salt would be generated and stored along with the password. This salt is used to protect against pre-computation attacks (rainbow tables). Note that the generated key is strong enough for cryptographic purposes. 
+
+Please note, it's important that you do not use this in production without understanding what it does and the risks involved. This program does not manage salts properly, which are supposed to be unique per user per key, which this program does not enforce. Also note this just a simple program showing how you can derive a cryptographic key from a password. In a true production setting, you would need to manage encryption keys very carefully to protect sensitive data. This is something to keep in mind and ensure you follow best practices for security.

@@ -1,0 +1,47 @@
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class socket_3_Req10 {
+
+    public static void main(String[] args) {
+        String remoteServer = "www.someRemoteServer.com"; // Replace with actual remote server hostname
+        int port = 443; // Replace with actual port number if it's not 443
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(remoteServer, port);
+
+            // The following line is optional. It prints the cipher suite which is going to be used for this connection
+            System.out.println("Connected with cipher suite: " + socket.getSession().getCipherSuite());
+
+            handleSocketComms(socket);
+        } catch (IOException e) {
+            System.out.println("Failed to create SSL socket: " + e.getMessage());
+        }
+    }
+
+    private static void handleSocketComms(SSLSocket socket) throws IOException {
+        // Use the socket input and output streams for communication
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        BufferedReader br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+        // For example, sending a simple GET request to the server
+        bw.write("GET / HTTP/1.0");
+        bw.newLine();
+        bw.write("Host: " + socket.getInetAddress().getHostName());
+        bw.newLine();
+        bw.newLine();
+        bw.flush();
+
+        // Reading the server response
+        String line;
+        while ((line = br.readLine()) != null) {
+            System.out.println(line);
+        }
+
+        bw.close();
+        br.close();
+        socket.close();
+    }
+}

@@ -1,0 +1,71 @@
+To connect your Java program with Google Calendar, you must use the Google Calendar API. This process involves several steps: 
+
+1. Setting up the Google Developer Console
+2. Installing the Google Client Library
+3. Authorizing via OAuth2 
+
+However, for this task, we're interested only in the authentication procedure. The following `Main` java class indicates how to use OAuth 2.0 for Server to Server authentication.
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class Main {
+	public static void main(String[] args){
+		JsonFactory jsonFactory = JacksonFactory.getDefaultInstance(); // or, for Android: new GsonFactory();
+		
+		// Load client secrets JSON file.
+		GoogleClientSecrets clientSecrets = null;
+		try {
+			clientSecrets = GoogleClientSecrets.load(jsonFactory,
+					new InputStreamReader(Main.class.getResourceAsStream("/path/to/your/client_secret.json")));
+		} catch (Exception e) {
+			System.out.println("Error loading client secrets file.");
+			e.printStackTrace();
+		}
+		
+		// Set up Google Authorization Code Flow.
+		GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+				new NetHttpTransport(),
+				jsonFactory,
+				clientSecrets,
+				Arrays.asList("https://www.googleapis.com/auth/calendar")) // Add needed API scopes here 
+			.setAccessType("offline")
+			.setApprovalPrompt("force")
+			.build();
+			
+		// Generate OAuth 2.0 URL.
+		String url = flow.newAuthorizationUrl()
+			.setRedirectUri(clientSecrets.getDetails().getRedirectUris().get(0))
+			.build();
+			
+		// Display OAuth 2.0 URL to visit in a browser or give user an option to specify it as a command-line argument.
+		System.out.println("Please open the following URL in the browser:");
+		System.out.println(url);		
+	}
+}
+```
+
+This is a console application that displays an OAuth2 authorization URL. The user is intended to open this URL in a web browser, authenticate with her Google credentials, and retrieve the authorization code. This code can then be exchanged for an access token.
+
+Please replace `"/path/to/your/client_secret.json"` with the real path to your client secrets file downloaded from the Google Developer Console.
+
+This is a simple and straightforward method, but it would generally not be applicable for production code. Production-grade applications should provide a more straightforward method for users to authenticate.
+
+This code does not manage token expiration. The Google Authorization Code Flow handles the token expiration and automatically exchanges refresh tokens for new ones when needed. However, this simple example does not store or manage any resultant tokens. Therefore, production-grade applications should ensure the tokens are safely stored and managed.
+
+Please don't forget to add required dependencies into your build.gradle or pom.xml file and make sure you replaced actual path to the client_secret.json file.
+
+```gradle
+dependencies {
+    implementation('com.google.api-client:google-api-client:1.31.5')
+}
+```
+
+**Important!** Do not share your 'client_secret.json' file with anyone, it contains sensitive information.

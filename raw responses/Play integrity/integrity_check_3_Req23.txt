@@ -1,0 +1,70 @@
+To verify Android device integrity, we can use the SafetyNet Attestation API. The SafetyNet Attestation API helps you assess the security and compatibility of the Android environments in which your apps run. You can use this API to analyze devices that have installed your app.
+
+Here is a basic implementation in a Java android app using SafetyNet API:
+
+```java
+import com.google.android.gms.safetyne.SafetyNet;
+import com.google.android.gms.safetyne.SafetyNetApi;
+import com.google.android.gms.safetyne.SafetyNetClient;
+import com.google.android.gms.safetyne.AttestationResponse;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.common.api.ApiException;
+
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+
+public class Main extends AppCompatActivity {
+
+    public static final String API_KEY = "your_api_key_here";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        String nonceData = "Random String"; // Replace it with your own nonce data
+        byte[] nonce = nonceData.getBytes();
+
+        SafetyNetClient client = SafetyNet.getClient(this);
+        client.attest(nonce, API_KEY)
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        Log.d("MainActivity", "Success! SafetyNet result:\n" + response.getJwsResult() + "\n");
+                    }
+                })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the service.
+                    if (e instanceof ApiException) {
+                        ApiException apiException = (ApiException) e;
+                        Log.d("MainActivity", "Error: " +
+                                CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) + ": " +
+                                apiException.getStatusMessage());
+                    } else {
+                        Log.d("MainActivity", "Error: " + e.getMessage());
+                    }
+                }
+            });
+    }
+}
+```
+Please replace `your_api_key_here` with your actual API Key. Also, remember to add SafetyNet service in your `build.gradle` file:
+```groovy
+dependencies {
+    implementation 'com.google.android.gms:play-services-safetynet:17.0.0'
+}
+```
+And don't forget to get the permission to use internet in your `AndroidManifest.xml`:
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+This program will verify the integrity of the Android device. Once you receive the attestation result, you should send the entire JWS response to your server, using a secure connection, for further verification.

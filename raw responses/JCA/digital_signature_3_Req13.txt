@@ -1,0 +1,62 @@
+Below is a simple demonstration of the required program that signs a given message using Java standard APIs. In this program, we are using the SHA256withRSA signature algorithm. The given message is signed using a private key and the signature is verified using a public key.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        // The message to sign
+        String message = "This is a test message";
+
+        // Generate a key pair
+        KeyPair keyPair = generateKeyPair();
+
+        // Sign the message
+        String signature = signMessage(message, keyPair.getPrivate());
+
+        System.out.println("Message: " + message);
+        System.out.println("Signature: " + signature);
+        System.out.println("The signature is " + (verifySignature(message, signature, keyPair.getPublic()) ? "valid" : "not valid"));
+    }
+
+    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048, new SecureRandom());
+        KeyPair pair = generator.generateKeyPair();
+
+        return pair;
+    }
+
+    private static String signMessage(String message, PrivateKey privateKey) throws Exception {
+
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(message.getBytes(StandardCharsets.UTF_8));
+
+        byte[] signature = privateSignature.sign();
+
+        return Base64.getEncoder().encodeToString(signature);
+    }
+
+    private static boolean verifySignature(String message, String signature, PublicKey publicKey) throws Exception {
+
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(message.getBytes(StandardCharsets.UTF_8));
+
+        byte[] signatureBytes = Base64.getDecoder().decode(signature);
+
+        return publicSignature.verify(signatureBytes);
+    }
+}
+```
+
+In the above program, first, a pair of public and private keys are generated. The generated private key is used to sign the message while the public key is used to verify the signature. 
+
+Remember, storing private keys securely and ensuring they cannot be accessed by unauthorized users is essential when signing data.
+
+Have in mind that this code might be unworkable in environments where policies for restricting the usage of cryptographic algorithms are applied, like in Java Runtime Environment version 8.0_162 or later, or if security providers are not available or incorrectly configured in classpath. Always take into account these environmental factors.

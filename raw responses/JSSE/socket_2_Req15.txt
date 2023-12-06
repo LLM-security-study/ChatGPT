@@ -1,0 +1,44 @@
+Sure, here's a basic Java program that uses the SSLSocket API from the javax.net.ssl package to establish an SSL socket and communicate with a remote server. 
+
+You may need to change the remote server and port to match your environment. In this example, I will connect to google.com on port 443.
+
+Here's how it might look,
+
+```Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket("www.google.com", 443);
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.println("GET / HTTP/1.0");
+            out.println();
+            out.flush();
+
+            if (out.checkError())
+                System.out.println("SSLSocketClient:  java.io.PrintWriter error");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+            in.close();
+            out.close();
+            socket.close();
+
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+This is a very simple program, just for demonstration purposes. It creates an SSLSocket to google.com, sends a simple HTTP request, and prints out the response.
+
+Please modify it as per your business requirements.

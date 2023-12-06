@@ -1,0 +1,47 @@
+Sure, Here is a simple program using Java's KeyStore API.Note that this program will generate a symmetric key, and then it will store this key to the KeyStore:
+
+```java
+import java.security.KeyStore;
+import java.security.KeyPairGenerator;
+import java.security.KeyPair;
+import java.security.Key;
+import javax.crypto.KeyGenerator;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.KeyStore.SecretKeyEntry;
+import java.io.FileOutputStream;
+
+public class Main {
+  
+  public static void main(String[] args) {
+    try {
+      // Generate the key
+      KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+      keyGen.init(256);
+      Key key = keyGen.generateKey();
+      
+      // Create the keystore
+      KeyStore keyStore = KeyStore.getInstance("JCEKS");
+      keyStore.load(null, null);
+      
+      // Set the entry
+      KeyStore.SecretKeyEntry secretKeyEntry = new SecretKeyEntry(key);
+      KeyStore.ProtectionParameter entryPassword = 
+          new KeyStore.PasswordProtection("entry_password".toCharArray());
+      keyStore.setEntry("my_secret_key", secretKeyEntry, entryPassword);
+      
+      // Save the keystore to a file
+      FileOutputStream fos = new FileOutputStream("my_keystore.ks");
+      keyStore.store(fos, "keystore_password".toCharArray());
+
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+  }
+}
+```
+Please note, you must replace `"entry_password"` and `"keystore_password"` with your desired passwords.
+
+This is a sample code. You may need to consider exception handling and other factors based on your needs. Also, depending on your security requirements, you might need to secure the key generation, key storage, and all password usage according to your or your company's rules and guidelines. 
+
+For using the KeyStore you need to have the Unlimited Strength Jurisdiction Policy Files installed in your JVM, if not it will throw an exception when executing `keyGenerator.init()` function.

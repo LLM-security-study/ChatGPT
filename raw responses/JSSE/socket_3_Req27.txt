@@ -1,0 +1,57 @@
+The Secure Socket Extension (JSSE) API is required for creating SSL sockets and implementing secure communication. It comes in the standard Java API set.
+
+Here is a basic Java program to create an SSL socket:
+
+```java
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "localhost";
+        int port = 443;
+
+        try {
+            // Create SSLSocketFactory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create SSLSocket
+            SSLSocket socket = (SSLSocket) factory.createSocket(hostname, port);
+
+            // Enable all the suites
+            socket.setEnabledCipherSuites(socket.getSupportedCipherSuites());
+
+            System.out.println("\nSSL Socket connection established to " + hostname + " on port " + port);
+
+            // Create writer for the SSL socket
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+
+            // Create reader for the SSL socket
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Perform communication with server
+
+            // Close the SSL socket
+            socket.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Here's how it works:
+
+- We create an `SSLSocketFactory` via its `getDefault` method, which returns the default `SSLSocketFactory` set up with all the system properties.
+- With the `createSocket` method of `SSLSocketFactory`, we create an `SSLSocket`.
+- We enable all the cipher suites using the `setEnabledCipherSuites` method. 
+- To communicate with the server, we create a `PrintWriter` for writing to server, and a `BufferedReader` for reading server's responses.
+- At the end, we close the socket (communication) using the `close` method of SSLSocket.
+
+A specific hostname and port are used in this example. You need to replace them with your real values. Also, this is a simplified demonstration and doesn't contain exception handling logic for clarity.
+
+This program should be used in combination with a properly configured SSL environment. Depending on the actual environment, you may need to take extra steps to set up a truststore and keystore.

@@ -1,0 +1,45 @@
+Google Play provides a SafetyNet API to developers which allows developers to assess the "safety" of a device the app's running on. One of SafetyNet's services, the Attestation API, allows you to assess whether your app is communicating with a legitimate copy of your own app.
+
+The following pseudo-code presents a basic structure of a potential Android app in Java. For simplicity, I've not handled exceptions and thread handling, which is required for an actual production-level application.
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+  
+  private static final String API_KEY = "your-api-key";
+
+  public static void main(String[] args) {
+    checkAppIntegrity();
+  }
+  
+  private static void checkAppIntegrity() {
+    SafetyNet.getClient(this).attest(getNonce(), API_KEY)
+        .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+            @Override
+            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                // The SafetyNet Attestation API successfully certified the device to
+                // communicate with your server. Parse the `response.getJwsResult()` in your server
+                // to confirm details.
+                String jwsResult = response.getJwsResult();
+                // send `jwsResult` to your server for further verification.
+            }
+        }).addOnFailureListener(// handle error );
+  }
+
+  private byte[] getNonce() {
+    // create a byte array with secure non-repetitive data
+    // this is used to prevent replay attacks to the SafetyNet Attestation API.
+  }
+}
+```
+
+The SafetyNet Attestation API provides a signed response about the device's status. The signed statement includes information about the version of the app installed on the user's device. Server-side, you could verify this data to confirm that the binary version of your app that communicated with the server matches the version that you uploaded to the Google Play Store. 
+
+Please replace `"your-api-key"` with your actual API key. 
+
+A couple notes, this program must run in the context of an Android App with the Google Play Services. An actual Android app contains a lot more boilerplate and platform-specific code. Handling the threading correctly is important, as the `attest()` API could be time-consuming and potentially block the UI thread. 
+
+This is a high-level example, and more detailed, specific implementation would require more information about how the Android app is structured and the server's design. It is also important to keep in mind Google's quota and usage policy regarding SafetyNet API.

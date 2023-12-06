@@ -1,0 +1,52 @@
+Sure, here is a simple Java program to generate a SecretKey from a user's password. For this, we have used PBEKeySpec and SecretKeyFactory classes provided by Java. 
+
+```Java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter the password from which a secret key will be generated: ");
+        String password = scanner.nextLine();
+
+        System.out.println("Enter a salt value (recommended size is 8 bytes): ");
+        String salt = scanner.nextLine();
+
+        int keyLength = 256;
+        int iterationCount = 65536; 
+        
+        char[] passwordCharArray = password.toCharArray();
+        byte[] saltBytes = salt.getBytes();
+
+        SecretKey secretKey = generateSecretKey(passwordCharArray, saltBytes, iterationCount, keyLength);
+
+        System.out.println("Secret key has been generated");
+        System.out.println("Secret key : " + new String(secretKey.getEncoded()));
+    }
+
+    private static SecretKey generateSecretKey(char[] password, byte[] salt, int iterationCount, int keyLength) {
+
+        SecretKey secretKey = null;
+        try {
+            PBEKeySpec spec = new PBEKeySpec(password, salt, iterationCount, keyLength);
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            secretKey = skf.generateSecret(spec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        return secretKey;
+    }
+}
+```
+
+In this code, we are using PBKDF2WithHmacSHA1 algorithm (It is a standard algorithm which is widely used for key generation). The generated SecretKey will be 256 bit long and can be used to create 256-bit Encryption/Decryption keys.
+
+Pease note to use this in a production environment, you will need to store the Salt value. Salt is added to the encryption to prevent the use of rainbow tables in attempting to crack the encryption.
+
+Important: Never store passwords and salts in the code or plaintext. Always store them in a secure manner.

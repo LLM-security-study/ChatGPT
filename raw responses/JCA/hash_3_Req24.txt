@@ -1,0 +1,35 @@
+Sure, here is a basic example of using a hash function to create a message digest in Java. For this example, I'm using the SHA-256 hash function:
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    public static void main(String[] args) {
+        String originalString = "This is an example string.";
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8)); 
+            String hashedString = bytesToHex(encodedhash);
+            System.out.println(hashedString);
+        }
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+In this code, `MessageDigest` is a class provided by Java for generating message digests using specified algorithm. `getInstance` is a static factory method provided by this class which returns a `MessageDigest` object generating the specified hash function. `digest.digest` generates the hash of the provided input. Finally, the `bytesToHex` method is used to convert raw hash bytes to a readable HEX format.
+
+Please adjust the code and the original string as necessary for your specific needs. For instance, if you're reading from an input stream or require a different hash function.

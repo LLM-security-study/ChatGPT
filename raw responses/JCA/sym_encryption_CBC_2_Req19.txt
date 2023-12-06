@@ -1,0 +1,49 @@
+Sure, here is your requested Java program:
+
+First, let's add the necessary import statements:
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+```
+
+Then, define the class:
+```java
+public class Main {
+    private static final String key = "aesEncryptionKey";
+    private static final String initVector = "encryptionIntVec";
+
+    public static void main(String[] args) {
+        String originalString = "The data to be encrypted";
+        System.out.println("Original string: " + originalString);
+
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted string: " + encryptedString);
+    }
+```
+
+Next, define the encryption method:
+```java
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+This program will encrypt the defined `originalString` using AES encryption in CBC mode. The encrypted string is then outputted. This is all done within the standard Java APIs!
+
+IMPORTANT: This basic demo uses a hard-coded key and initialization vector, which is not secure practice for sensitive or actual encryption tasks. In a real-world situation, you should always generate a strong, unique key and initialization vector for each encryption task and never store them in plain text or hard-coded into the application.

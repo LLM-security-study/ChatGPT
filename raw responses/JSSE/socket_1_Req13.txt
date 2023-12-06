@@ -1,0 +1,38 @@
+Sure, here's a simple Java program that establishes SSL Sockets to enable secure communication with a server. This will use the javax.net.ssl package that comes with the JDK.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) throws IOException {
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket sslSocket = (SSLSocket) factory.createSocket("ServerIp", ServerPort); // replace "ServerIp" and ServerPort with your server info
+
+        PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sslSocket.getOutputStream())));
+        out.println("Hello Server"); // Sends "Hello Server" to the server
+        out.flush();
+
+        BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream())); // retrieving data from the server
+        System.out.println("Server response: " + in.readLine());
+
+        out.close();
+        in.close();
+        sslSocket.close();
+    }
+}
+```
+
+* This basic Java program creates an SSLSocket instance that connects your client to a specified server on a specified port.
+* Data sent through this socket is automatically encrypted.
+* I have included code to write a simple message ("Hello Server") to the server and read the response from the server.
+
+Before the above program can work, however, you need to set up SSL on the server and client side which is a bit more involving, and beyond the scope of this question.
+
+Few important points: 
+- Replace the "ServerIp" and ServerPort with your server's IP and Port information.
+- You need to load and provide necessary SSL certificates for the client and server to establish a handshake.
+- This is just a basic example without any error handling and proper closing of resources for simplicity.
+- Practical usage of SSL communication is quite an extensive topic involving a significant amount of setup and consideration, not fully covered by this basic example.

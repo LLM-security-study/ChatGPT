@@ -1,0 +1,69 @@
+Sure, here is a basic sample program of AES (Advanced Encryption Standard) CBC (Cipher Block Chaining) mode encryption and decryption in Java:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String AES_CBC_PADDING = "AES/CBC/PKCS5Padding";
+
+    private static IvParameterSpec generateIv() {
+        byte[] iv = new byte[128 / 8];
+        new SecureRandom().nextBytes(iv);
+        return new IvParameterSpec(iv);
+    }
+
+    private static SecretKey generateKey(int n) throws Exception {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(n);
+        return keyGenerator.generateKey();
+    }
+
+    public static String encrypt(String algorithm, String input, SecretKey key, IvParameterSpec iv) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+        byte[] cipherText = cipher.doFinal(input.getBytes());
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    public static String decrypt(String algorithm, String cipherText, SecretKey key, IvParameterSpec iv) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithm);
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+        byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+        return new String(plainText);
+    }
+
+    public static void main(String[] args) {
+        try {
+            String algorithm = AES_CBC_PADDING;
+            SecretKey key = generateKey(256);
+
+            IvParameterSpec iv = generateIv();
+            String originalString = "Text to be encrypted and decrypted";
+
+            String encryptedString = encrypt(algorithm, originalString, key, iv);
+            System.out.println("Encrypted Text: " + encryptedString);
+
+            String decryptedString = decrypt(algorithm, encryptedString, key, iv);
+            System.out.println("Decrypted Text: " + decryptedString);
+        } catch (Exception e) {
+            System.out.println("Error while encrypting/decrypting");
+        }
+    }
+}
+```
+Please note that Java limits key size for AES algorithm due to export control restrictions in some countries. If you want to use 256 bit keys, you need to download and install "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" into your Java Runtime Environment. 
+
+If the above is too complex, to simply use a 128 bit key (which is still secure for most purposes), you can replace 'generateKey(256)' in the main method with 'generateKey(128)'.
+
+This program uses AES in CBC mode with PKCS5Padding. It supports encryption and decryption of a string. During encryption, it generates a random IV and uses Base64 encoding for output. The same IV and key are used for decryption.
+It encodes the ciphertext as a string since binary data cannot be correctly converted to string directly. 
+
+Also, keep in mind to handle the Exception within the program. For simplicity, in the current example, the program prints out the message "Error while encrypting/decrypting" if any exception happens during the encryption or decryption processes. 
+
+Remember: the program uses randomly generated IV and Key, so if you rerun the same program, you may get different encrypted text, but decrypted text will remain the same.

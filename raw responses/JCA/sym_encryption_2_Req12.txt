@@ -1,0 +1,50 @@
+Sure. Here's a simple example of symmetric encryption using the Advanced Encryption Standard (AES) algorithm in Java via its standard APIs.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // Generate a secret key
+    KeyGenerator keygenerator = KeyGenerator.getInstance("AES");
+    SecretKey myDesKey = keygenerator.generateKey();
+
+    // Create a cipher object to encrypt and decrypt
+    Cipher desCipher;
+    desCipher = Cipher.getInstance("AES");
+
+    // Initialize the cipher for encryption with the key
+    desCipher.init(Cipher.ENCRYPT_MODE, myDesKey);
+
+    // Our message
+    byte[] text = "Hello, World!".getBytes();
+
+    // Encrypt the text
+    byte[] textEncrypted = desCipher.doFinal(text);
+
+    System.out.println("Text Encrypted: " + new String(textEncrypted));
+
+    // Initialize the same cipher for decryption
+    desCipher.init(Cipher.DECRYPT_MODE, myDesKey);
+
+    // Decrypt the text
+    byte[] textDecrypted = desCipher.doFinal(textEncrypted);
+
+    System.out.println("Text Decrypted : " + new String(textDecrypted));
+  }
+}
+```
+Here is how the program works:
+
+1. We generate an `AES` key using the `KeyGenerator` class. This secret key is the symmetric key that is used for encryption and decryption.
+
+2. We create a `Cipher` object using the `AES` transformation which specifies the algorithm to use.
+
+3. We initialize the `Cipher` object for encryption using the generated secret key.
+
+4. We encrypt the text "Hello, World!" using `doFinal()` method of the `Cipher` class.
+
+5. We initialize the same `Cipher` object for decryption and then decrypt the text, demonstrating that the original text can be retrieved from the encrypted text using the original secret key.

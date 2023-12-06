@@ -1,0 +1,35 @@
+Assuming that by "signing a message" you mean creating a digital signature, here's a simple Java program that can do that. It uses the SHA256withDSA digital signature algorithm built into JCA (Java Cryptography Architecture). In a real application, you might store the keys in a secure KeyStore rather than just generating them on the fly.
+
+Note that your environment must be set up properly with a suitable security provider (such as the one built into the JDK) for this code to work. 
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        // Generate the key pair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        keyGen.initialize(1024, random);
+        KeyPair pair = keyGen.generateKeyPair();
+
+        // Sign the message
+        Signature dsa = Signature.getInstance("SHA256withDSA", "SUN");
+        dsa.initSign(pair.getPrivate());
+        String message = "This is a testing message";
+        dsa.update(message.getBytes());
+        byte[] signature = dsa.sign();
+
+        // Convert the signature to a string
+        String signatureString = Base64.getEncoder().encodeToString(signature);
+        System.out.println("Signed message: " + signatureString);
+    }
+}
+```
+Please replace "This is a testing message" with the message you want to sign. This program only generates a signature string. If you want to verify the signature, you will keep the public key that was generated with `keyGen.generateKeyPair()`. 
+
+Please let me know if you require a version that also verifies the signature or if you need any another changes.
+

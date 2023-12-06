@@ -1,0 +1,59 @@
+To write a basic java program that signs a given message using Java's Signature API, you must create an RSA key pair to sign and verify the signature. For the purpose of this example, we'll generate a pair of keys at runtime, but in a real-world application, the private key should be kept in a secure location and the public key should be shared with those who want to verify the message signature. 
+
+Here's an example of a simple Java program that performs these tasks:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Our secret message
+        String secretMessage = "This is a private message.";
+
+        // Generate new key pair for signing and verification
+        KeyPair keyPair = generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Sign the secret message with the private key
+        byte[] signature = sign(privateKey, secretMessage);
+
+        // Assume here that the signature and the publicKey are sent over to a recipient.
+        // The recipient can then use the public key to verify the signature
+
+        // Verify the signature
+        boolean iCanTrustThisMessage = verify(publicKey, secretMessage, signature);
+
+        System.out.println("Can I trust this message? : " + iCanTrustThisMessage);
+    }
+
+    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    private static byte[] sign(PrivateKey privateKey, String message) throws Exception {
+        Signature sign = Signature.getInstance("SHA256withRSA");
+        sign.initSign(privateKey);
+        sign.update(message.getBytes(StandardCharsets.UTF_8));
+        return sign.sign();
+    }
+
+    private static boolean verify(PublicKey publicKey, String message, byte[] signature) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(message.getBytes(StandardCharsets.UTF_8));
+        return publicSignature.verify(signature);
+    }
+}
+```
+In the code above:
+
+- generateKeyPair() is used to generate a pair of keys.
+  
+- sign(privateKey, secretMessage), receives a PrivateKey and a message, and it returns the signature for the specified message.
+
+- verify(publicKey, secretMessage, signature), receives a PublicKey, a message, and a signature. It verifies whether the signature for the specified message is valid or not, and returns true if it's valid, and false otherwise. 
+
+Before running the program, ensure that your Java environment is properly installed and configured as the program uses standard Java libraries.

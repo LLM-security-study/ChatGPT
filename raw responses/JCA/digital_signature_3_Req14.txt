@@ -1,0 +1,29 @@
+Sure, here's an example of how you might create a program to digitally sign a message using Java. This example uses SHA256 with RSA for the signature algorithm.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String originalData = "The data to be signed.";
+
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey privateKey = pair.getPrivate();
+
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(originalData.getBytes("UTF8"));
+
+        byte[] signature = privateSignature.sign();
+
+        System.out.println("Signature: " + Base64.getEncoder().encodeToString(signature));
+    }
+}
+```
+
+In this program, it firstly generates a RSA key pair, which includes a private key and a public key. The private key is used to sign the original data. The method initSign of Signature class is used to initialize the Signature object with the private key for signing. Then, the original data is supplied to the Signature object by calling the method update. And finally, the method sign of Signature class is used to generate the digital signature of the provided data. 
+
+Lastly, the digital signature is transformed to a string using Base64 encoding and printed out to the console. Note this is a simple example and the original data and the private key are hardcoded for demonstration. Be aware to keep private keys safe in a real-world scenario.

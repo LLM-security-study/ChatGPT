@@ -1,0 +1,29 @@
+Sure, here is your Java Program to implement message digest using SHA-256 which is a hash function:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+
+    public static byte[] createSHA256(String message) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        return digest.digest(message.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        String message = "Your Message";
+        byte[] hash = createSHA256(message);
+        String hashPrintable = DatatypeConverter.printHexBinary(hash);
+        System.out.println(hashPrintable);
+    }
+}
+```
+
+To make this work, replace "Your Message" in the `main` function with the text you want to generate a SHA-256 hash for.
+
+The `createSHA256` function creates a SHA-256 `MessageDigest` and digests the bytes from the input string, returning the digested bytes. The `main` function then converts these bytes into a printable hex string.
+
+Remember this will only works on Java 8. For Java 9 and onwards replace `DatatypeConverter.printHexBinary(hash);` with `javax.xml.bind.DatatypeConverter.printHexBinary(hash);`.

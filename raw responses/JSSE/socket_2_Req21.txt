@@ -1,0 +1,39 @@
+Sure, we need to use javax.net.ssl.SSLSocket and javax.net.ssl.SSLSocketFactory which are standard Java SSL socket APIs to implement secure sockets layer communication.
+
+Here is the Java program:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+        try {
+            SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket("YourRemoteServerName", 443);
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            // Send request to the server
+            out.println("YourRequest");
+            out.println();
+            out.flush();
+            // Get response from server
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            String x;
+            while ((x = in.readLine()) != null) {
+                System.out.println(x);
+            }
+            sslSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Replace "YourRemoteServerName" and "YourRequest" with your actual remote server name and actual request.
+
+This java program establishes an SSL socket to facilitate communication with a remote server. It then performs simple request-response with the remote server. This program will throw an exception if there is a problem in connection or any IO operation. Please make sure that you have internet connectivity and remote server is accessible.
+
+The port number 443 is standard for SSL communication. If your remote server uses some other port number for SSL communication, replace 443 with your remote server's SSL port number.
+
+Please store server name and request as constants in production. Also include exception handling and logging.

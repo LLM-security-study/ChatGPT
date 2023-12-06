@@ -1,0 +1,27 @@
+Sure, here's a simple example of a Java program that uses the PBKDF2WithHmacSHA256 algorithm from Java's standard API to derive a password-based key:
+
+```java
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+public class Main {
+	public static void main(String[] args) throws Exception {
+		String password = "your_password";
+		byte[] salt = new byte[16]; // should be generated securely and stored
+
+		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+		KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
+		byte[] hash = factory.generateSecret(spec).getEncoded();
+
+		System.out.println("Password-based key: " + Arrays.toString(hash));
+	}
+}
+```
+
+This program derives a 256-bit key from the given password and salt using 65536 iterations of the HMAC-SHA256 algorithm as recommended by the Java security guidelines for secure, high strength, cryptographic keys.
+
+Remember, you should replace `"your_password"` with the actual password. Also, generate `"salt"` securely and store it safely, as it's needed for the key derivation process.
+
+Note: You need to securely generate and save the salt, generally it is saved along with the hashed password. It is not recommended to use a fixed salt in production.

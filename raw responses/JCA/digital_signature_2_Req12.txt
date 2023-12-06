@@ -1,0 +1,51 @@
+Here is a basic example of how you might create a digital signature in Java. Note: This is a simplified example for demonstration purposes.
+
+This program contains two parts:
+1. The Sender class, which signs the data with the private key.
+2. The Receiver class, which verifies the data with the public key.
+
+This is simplified for demonstration. In a real situation, these classes will likely be on different systems, and you'll need a secure method of exchanging keys.
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        final String message = "This is a secret message";
+
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(1024);
+        KeyPair myPair = kpg.generateKeyPair();
+
+        Sender mySender = new Sender();
+        byte[] digitalSignature = mySender.createDigitalSignature(message, myPair.getPrivate());
+
+        Receiver myReceiver = new Receiver();
+        boolean isVerified = myReceiver.verifyDigitalSignature(message, digitalSignature, myPair.getPublic());
+        System.out.println("The signature is verified : " + isVerified);
+    }
+}
+
+class Sender {
+    byte[] createDigitalSignature(String data, PrivateKey privateKey) throws Exception {
+        Signature rsa = Signature.getInstance("SHA256withRSA");
+        rsa.initSign(privateKey);
+        rsa.update(data.getBytes());
+        return rsa.sign();
+    }
+}
+
+class Receiver {
+    boolean verifyDigitalSignature(String data, byte[] digitalSignature, PublicKey publicKey) throws Exception {
+        Signature rsa = Signature.getInstance("SHA256withRSA");
+        rsa.initVerify(publicKey);
+        rsa.update(data.getBytes());
+        return rsa.verify(digitalSignature);
+    }
+}
+```
+
+This program will generate a digital signature for the message "This is a secret message". The sender generates the signature using a private key and then the receiver verifies this signature using the sender's public key. 
+
+Please beaware that in real situation, private key should be kept safely and public key should be shared securely. Make sure the keys are securely stored and transmitted in a secure production environment.
+

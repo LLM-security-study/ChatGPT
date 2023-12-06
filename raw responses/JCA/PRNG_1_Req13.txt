@@ -1,0 +1,34 @@
+Okay, you can use the SecureRandom class to create a cryptographically strong random number generator in your application. Then you can use this PRNG to generate an IV with the required byte length (typically, 16 bytes for AES encryption).
+
+Below is a simple program that does just this:
+
+```Java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create secure random seed
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] seed = new byte[16];
+        secureRandom.nextBytes(seed);
+
+        System.out.println("Seed: " + Base64.getEncoder().encodeToString(seed));
+
+        // Initialize the secure random with the generated seed
+        SecureRandom generator = new SecureRandom(seed);
+        
+        // Generate Initialization Vector (IV)
+        byte[] iv = new byte[16];  
+        generator.nextBytes(iv);
+
+        System.out.println("IV: " + Base64.getEncoder().encodeToString(iv));
+    }
+}
+```
+
+This Java program will first generate a seed for initializing a PRNG, and then use the initialized PRNG to generate the IV. The SecureRandom class provides a cryptographically strong random number generator.
+
+Since byte arrays are not human-friendly for display or storage, the program encodes the seed and IV into base64 format before printing them out.
+
+Finally, make sure you understand the security issues around managing, storing, and using encryption keys, IVs, and seeds.

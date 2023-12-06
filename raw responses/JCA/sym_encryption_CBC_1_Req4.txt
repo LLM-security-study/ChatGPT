@@ -1,0 +1,64 @@
+Here is the requested Java program utilizing AES (Advanced Encryption Standard) in CBC (Cipher Block Chaining) mode for Symmetric Encryption and Decryption.
+
+Please note that Java standard API supports AES/CBC/PKCS5Padding. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.Base64;
+
+public class Main {
+    private static final String secretKey = "aesEncryptionKey";
+    private static final String plainIV = "encryptionIntVec";
+    
+    public static void main(String[] args) throws Exception {
+        String plainText = "Hello, World!";
+
+        System.out.println("Encryption Process Started");
+        String encryptedText = encrypt(plainText);
+        System.out.println("Encrypted Text : " + encryptedText);
+
+        System.out.println("\nDecryption Process Started");
+        String decryptedText = decrypt(encryptedText);
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(plainIV.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(plainIV.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+The main class "Main" has two methods "encrypt" and "decrypt". The string to be encrypted and decrypted is set as "Hello, World!". Make sure to replace "aesEncryptionKey" and "encryptionIntVec" (Plain IV) with a secret key and a plain IV of your choice.
+
+Just a note - while using the CBC mode, it's important to use an initialization vector (iv_parameter) to ensure that encrypting the same text with the same key different times will result in different ciphertexts. In this example, we used a simple string, but for actual usage, use a random byte array, you can also consider using a secure random function.

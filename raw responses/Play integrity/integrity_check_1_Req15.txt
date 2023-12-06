@@ -1,0 +1,55 @@
+The Android API does not have a direct way to verify whether the current version of the app is the one published on the Play store. This can be achieved indirectly by using the Google Play Developer API where it provides reviews, versions, etc. 
+
+For this, the app could fetch the latest version number of the app on the Play Store by using the Google Play Developer API, and check it against the app’s current version number.
+
+On the implementation side, we also need to reconsider the security concern because the Google Play Developer API key, if exposed, could allow malicious users to manipulate your app’s store presence.
+
+Anyway, here is a basic implementation of the app version check in Java:
+
+```java
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class Main {
+	
+    public static void main(String[] args) {
+		new Thread(){
+			public void run() {
+				if(isAppVerified()){
+					System.out.println("The application is verified and matches the Google Play Store version.");
+				}else{
+					System.out.println("The application does NOT match the Google Play Store version and might have been tampered.");
+				}
+			}
+		}.start();
+	}
+
+	public static boolean isAppVerified(){
+		String appPackageName = "com.example.myApp"; // your app package name
+		int currentVersion = 1; 
+		try{
+			HttpURLConnection c = (HttpURLConnection)new URL("https://play.google.com/store/apps/details?id="+appPackageName).openConnection();
+			c.setRequestMethod("GET");
+			c.setUseCaches(false);
+			c.connect();
+			String s = c.getContentType();
+
+			if(s.contains("vnd.android.package-archive")){
+				String headerField = c.getHeaderField("X-DFE-SmallestScreenWidthDp");
+				int version = Integer.valueOf(headerField.substring(headerField.lastIndexOf("=")+1));
+				if(version == currentVersion){
+					return true;
+				}
+			}
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+		return false;
+	}
+}
+```
+
+It's important to note that this is a simulated interaction and does not reflect the actual functionality. Also, it does check the current version from Google Play Store, but not to see if the binary was tampered with.
+
+Always ensure the safekeeping and privacy of the Google Play Developer API keys to prevent unauthorized access and/or changes. Consider discussing this with a security expert or someone knowledgeable about the app's distribution phase. Better yet, consider implementing a robust server-side solution.

@@ -1,0 +1,40 @@
+Below is the java program that generates a secret key from the user's password using Java standard APIs. We're going to use PBKDF2WithHmacSHA1 algorithm provided by Java for generating the secret key.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import javax.xml.bind.DatatypeConverter;
+import java.util.Scanner; 
+
+public class Main {
+   
+    public static SecretKey generateSecretKey (char[] password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        int iterations = 10000;
+        PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, 128);
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] key = skf.generateSecret(spec).getEncoded();
+        return new SecretKeySpec(key, "AES");
+    }
+
+    public static void main(String args[]) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the password to generate Secret Key: ");
+        char[] password = scanner.nextLine().toCharArray();
+        
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[20];
+        sr.nextBytes(salt);
+        
+        SecretKey secretKey = generateSecretKey(password, salt);
+        System.out.println("Secret Key Generated: " + DatatypeConverter.printHexBinary(secretKey.getEncoded()));
+    }
+}
+```
+This program will ask for password input from the user via console, use it along with generated salt to generate a secret key using PBKDF2WithHmacSHA1 algorithm and then print the secret key in hexadecimal format. 
+
+Always remember, to safely store the password, salt and iteration count, so that the same secret key can be derived later. Also, Remember to clear the password (and not wait for VM to garbage collect it) as soon as you are done with it. 
+
+Also, Note that storing user's key/password is a sensitive task and should consider best security practices, including but not limited to encryption, secure transmission, secure storage, and disposal, among others.

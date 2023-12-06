@@ -1,0 +1,47 @@
+Sure, here's a basic implementation of your request using the Java standard APIs. 
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Scanner;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter password: ");
+
+        String password = input.nextLine();
+        generateKey(password);
+    }
+
+    public static void generateKey(String password) {
+        try {
+            byte[] salt = new byte[16];
+            new SecureRandom().nextBytes(salt);
+
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            md.update(salt);
+            byte[] hashedPassword = md.digest(password.getBytes(StandardCharsets.UTF_8));
+
+            SecretKeySpec key = new SecretKeySpec(hashedPassword, "AES");
+            
+            System.out.print("Generated secret key: ");
+            System.out.println(DatatypeConverter.printHexBinary(key.getEncoded()));
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program will generate an "AES" key from a user's password. Note that a salt is also used to ensure that the generated key changes even if the password is the same. 
+
+Typically you would store the salt along with the hashed password since you will need it again when comparing hashes. If you are doing this to implement password authentication, you may also consider using something like Argon2 or Bcrypt as they are memory-hard and better resist brute-force attacks. 
+
+Please let me know if you have any questions about the provided solution!

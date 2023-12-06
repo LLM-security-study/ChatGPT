@@ -1,0 +1,77 @@
+Sure, here is a basic implementation in Java to incorporate Google Single-Sign-On into a web application. This program uses "GoogleIdTokenVerifier" to verify ID tokens. 
+
+Google libraries required: google-api-client, google-oauth-client, google-http-client-gson, and google-http-client-jackson2. 
+
+Keep in mind, you will have to replace "YOUR_CLIENT_ID", "YOUR_REDIRECT_URI" and "YOUR_CLIENT_SECRET" with your API credentials.
+
+```java
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.auth.oauth2.TokenResponse;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+public class Main {
+    private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+    private static final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+    private static final String REDIRECT_URI = "YOUR_REDIRECT_URI";
+
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY,
+            new InputStreamReader(Main.class.getResourceAsStream("/client_secrets.json")));
+        
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            httpTransport, JSON_FACTORY, clientSecrets, Collections.singleton("https://www.googleapis.com/auth/userinfo.profile"))
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
+            .setAccessType("offline")
+            .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+        
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(httpTransport, JSON_FACTORY)
+            .setAudience(Collections.singletonList(CLIENT_ID))
+            .build();
+
+        TokenResponse tokenResponse = flow.newTokenRequest(credential.getRefreshToken()).setRedirectUri(REDIRECT_URI).execute();
+
+        String idTokenString = tokenResponse.getIdToken();
+
+        Payload payload = verifier.verify(idTokenString).getPayload();
+        
+        // Get profile information from payload
+        String userId = payload.getSubject();
+        String email = payload.getEmail();
+        boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+        String name = (String) payload.get("name");
+        String pictureUrl = (String) payload.get("picture");
+        String locale = (String) payload.get("locale");
+                
+    }
+}
+```
+
+This code also assumes there is a file called "client_secrets.json" in the classpath. Be sure to replace these with actual content. This file should contain the content you download when you create your OAuth2 credentials in the Google Cloud Console.
+
+Please make sure that you have handle exceptions and potential null values according to the requirements of your application. For production ready code you might need to elaborate on error handling and more detailed checks on the Payload.
+
+If you want to persist the user between sessions, then you should persist the access token to a database and retrieve it on subsequent sessions to verify the token’s signature. 
+
+Make sure to replace "tokens" in set DataStoreFactory of GoogleAuthorizationCodeFlow's builder to proper path where your app runs.

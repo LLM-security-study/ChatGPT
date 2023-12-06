@@ -1,0 +1,50 @@
+In Java, we can make use of JSSE (Java Secure Socket Extension) APIs for handling SSL/TLS related tasks including the hostname verification. Here's a simple way to implement this:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.InetAddress;
+import java.net.URL;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // Obtain the SSLSocketFactory object from SSLContext class
+            SSLContext context = SSLContext.getDefault();
+            SSLSocketFactory factory = context.getSocketFactory();
+            
+            // Create a socket
+            InetAddress host = InetAddress.getByName(url.getHost());
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, 443);
+
+            // Enable hostname verification
+            SSLParameters params = socket.getSSLParameters();
+            params.setEndpointIdentificationAlgorithm("HTTPS");
+            socket.setSSLParameters(params);
+
+            // Start the handshake and verify
+            socket.startHandshake();
+
+            System.out.println("Hostname verification successful");
+
+            // Close connections
+            socket.close();
+            connection.disconnect();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This program applies hostname verification for a given URL (www.example.com in this case). The hostname is verified as part of the SSL handshake, when the client checks the server's certificate and URL's hostname against its known list of trusted certificates.
+
+This code snippet uses the "HttpsURLConnection" and "SSLSocket" classes of the JSSE APIs to setup a connection and perform the SSL handshake, including hostname verification.

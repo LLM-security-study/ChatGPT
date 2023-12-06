@@ -1,0 +1,42 @@
+Below is a basic example of a Java program to store an SSL certificate in a keystore file. This is a simple implementation and does not cover several real-world scenarios like handling exceptions, but it should give you a good starting point. 
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.net.URL;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // URL for SSL Certificate
+            String certUrl = "https://your_cert_url";
+
+            // Setup SSL certificate
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate cert = cf.generateCertificate(new URL(certUrl).openStream());
+
+            // Load traditional Java keyStore
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(new FileInputStream("myKeyStore"), "myKeyStorePassword".toCharArray());
+
+            // Save the certificate into the keystore
+            ks.setCertificateEntry("myCertAlias", cert);
+
+            // Write the new keystore contents to a new file
+            ks.store(new FileOutputStream("myNewKeyStore"), "myNewKeyStorePassword".toCharArray());
+
+            System.out.println("Certificate is stored successfully!");
+        } catch (Exception e) {
+            // Implementing basic error handling for illustration
+            System.out.println("Failed to store the certificate: " + e.getMessage());
+        }
+    }
+}
+```
+
+Modify the certificate URL(https://your_cert_url), keystore details("myKeyStore", "myKeyStorePassword", "myNewKeyStore", "myNewKeyStorePassword") and certificate alias("myCertAlias") according to your requirements.
+
+Please be aware that the best practice in real-world programming is NOT to hard code sensitive data such as password, especially when it comes to certificate or cryptography materials. The password and other sensitive data should be controlled and managed properly, possibly with a configuration file, or with environment variables.

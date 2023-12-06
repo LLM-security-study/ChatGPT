@@ -1,0 +1,88 @@
+In Android, the biometric authentication service feature is a part of AndroidX Biometric Library. This Library is designed to allow biometric authentication in a backward-compatible way. Here's a simple way to perform fingerprint authentication in JAVA using this library.
+
+Please add the following dependencies to the build.gradle (app) file before starting with the JAVA code.
+
+```python
+  dependencies {
+        implementation 'androidx.biometric:biometric:1.1.0'
+  }
+```
+
+Please make sure to check if you have these permissions added in Manifest file
+
+```python
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+```
+
+Below is the code for a basic Android app illustrating the use of the AndroidX Biometric Library for fingerprint authentication.
+Please replace <YourActivity> with the name of your activity.
+
+```java
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+
+import android.os.Bundle;
+import android.widget.Toast;
+
+import java.util.concurrent.Executor;
+
+public class Main extends AppCompatActivity {
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(<YourActivity>, 
+            executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, 
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                notifyUser("Authentication error: " + errString);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                notifyUser("Authentication succeeded!");
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                notifyUser("Authentication failed");
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login for my app")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Use account password")
+                .build();
+
+        biometricPrompt.authenticate(promptInfo);
+    }
+
+    private void notifyUser(String message){
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+    }
+}
+
+```
+
+This will trigger Biometric Login on app start, with Fingerprint Authentication. Upon authentication you'll see a Toast message. This is just a basic implementation. Depending on your UI flow, you can manage when to trigger this and what action to take upon successful or failed authentication.
+
+Please replace `<YourActivity>` with the name of your activity.
+This is the basic usage of authentication on an Android device using biometrics (e.g. fingerprint sensor). The actual implementation might be more complex and need more error handling based on the real-world use case. The code could be expanded based on specific requirements. 
+
+Make sure you have the necessary permissions and your device supports Fingerprint Hardware for this.

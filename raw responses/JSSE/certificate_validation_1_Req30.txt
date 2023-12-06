@@ -1,0 +1,53 @@
+The 'javax.net.ssl' package from the standard Java library provides several APIs to handle SSL connections, including certificate validation.
+
+Here's a basic Java program using this API:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String httpsUrl = "https://www.example.com";
+        URL url;
+        try {
+            url = new URL(httpsUrl);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            conn.connect();
+
+            Certificate[] certs = conn.getServerCertificates();
+            System.out.println("Number of certificates: " + certs.length);
+            for(Certificate cert : certs){
+                System.out.println(cert.toString());
+                if(cert instanceof X509Certificate) {
+                    try {
+                        ((X509Certificate) cert).checkValidity();
+                        System.out.println("Certificate is valid");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } 
+                } else {
+                    System.err.println("Invalid Certificate entry");
+                }
+            }
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+The above program opens an SSL connection to the server. It first attempts to connect to the server, then tries to retrieve the server's certificates. Each certificate is then validated, it checks its type, if it's X509Certificate, it will check its validity.
+
+This program assumes you're using a URL with a fully qualified SSL host. For real-world applications, you'd very likely need to add additional error handling, user prompts, for dealing with unresponsive servers or failed connections. Don't forget to replace `'https://www.example.com'` by your actual url.

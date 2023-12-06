@@ -1,0 +1,71 @@
+Sure, here is a sample program for AES encryption in CBC mode using Java Cryptography Extension (JCE) standard APIs.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    // The Initialization Vector size for AES is 128 bits
+    private static final int IV_SIZE = 16;
+
+    public static void main(String[] args) {
+
+        try {
+            String secret = "My_Secret_Key_16"; // AES key (must be 16 bytes for AES-128)
+            String plaintext = "This is the text to be encrypted";
+
+            // Convert string secret key to SecretKeySpec
+            SecretKey key = new SecretKeySpec(secret.getBytes(), "AES");
+
+            // Generate a new random initialization vector
+            SecureRandom random = new SecureRandom();
+            byte[] iv = new byte[IV_SIZE];
+            random.nextBytes(iv);
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+            // Create a Cipher instance with AES in CBC mode with PKCS5 padding
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            // Initialize cipher
+            cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+
+            // Encrypt the plaintext
+            byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
+
+            // Concatenate IV and ciphertext and encode them in Base64
+            byte[] output = new byte[IV_SIZE + ciphertext.length];
+            System.arraycopy(iv, 0, output, 0, IV_SIZE);
+            System.arraycopy(ciphertext, 0, output, IV_SIZE, ciphertext.length);
+            String encodedOutput = Base64.getEncoder().encodeToString(output);
+
+            System.out.println("Encrypted text: " + encodedOutput);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Here is a brief explanation of how the encryption process works:
+
+First, the plaintext message is passed through the program, which generates a random Initialization Vector (IV). The IV is a block of bits that is used to initialize a block cipher's starting variables.
+
+Next, the program passes the plaintext message and the secret key through an encryption algorithm to create the ciphertext. 
+
+Then, the program concatenates (joins end-to-end) the IV and encrypted ciphertext, and this output is then encoded using Base64. 
+
+This software only demonstrates encryption, that is, it converts plaintext to ciphertext. In order to fully implement AES encryption and decryption in CBC mode, you would need another function to decrypt the ciphertext. 
+
+Also, please note that normally you would not want to hard-code a secret key as it's done in this example. Key generation and management is a complex process and is best left to a secure key management system.
+
+This code uses the AES (Advanced Encryption Standard) symmetric encryption algorithm with a key length of 128 bits in CBC (Cipher Block Chaining) mode. For other modes or key lengths, please adjust accordingly.
+
+This code also catches an exception, which would occur if something went wrong during the encryption process. In a real-world system, you would want to handle this exception more appropriately.
+
+Please, always remember that secure coding practices should be applied to store, process, and manage sensitive information properly.

@@ -1,0 +1,57 @@
+To verify the integrity of an Android device, we can use the `SafetyNet API` from Google. SafetyNet provides a set of services and APIs that help protect your app against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users.
+
+Below is a basic Java program that demonstrates how to use SafetyNet API in Android environment. Please note that this example assumes that you already have a valid API Key for using SafetyNet API.
+
+```java
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+
+public class Main {
+
+    // Replace with your valid API Key
+    private static final String API_KEY = "YOUR_API_KEY";
+    
+    public static void main(String[] args) {
+        requestSafetyNetCheck();
+    }
+
+    private static void requestSafetyNetCheck() {
+        SafetyNetClient client = SafetyNet.getClient(context);
+
+        client.attest(nonce, API_KEY)
+                .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        e.printStackTrace();
+                    }
+                });
+    }
+
+    // nonce is an arbitrary number that client adds to request which server can check in responses.
+    // It's for preventing client request replay and must be generate for each request.
+    // This function is an example of random 32-byte(256-bit) nonce generator.
+    private static byte[] generateOneTimeRequestNonce() {
+        byte[] nonce = new byte[32];
+        new SecureRandom().nextBytes(nonce);
+        return nonce;
+    }
+}
+```
+
+Please note that this code will work in an actual Android environment. It doesn't work in a Java desktop environment since the `SafetyNet API` and other elements are part of the Android operating system and aren't available in the latter.
+As you can see, we first get an instance of `SafetyNetClient`, and then we use `attest` method to send an attestation request to the SafetyNet server. The result will be returned in the `onSuccess` or `onFailure` methods.
+
+Please replace `YOUR_API_KEY` with your actual API Key, and `context` should be the application context.
+
+It's essential to know that the SafetyNet Attestation response does not provide a definitive statement about the safety of a device, it only provides a bit of evidence that you use when assessing the risk associated with a device.

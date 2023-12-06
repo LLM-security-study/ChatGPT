@@ -1,0 +1,41 @@
+Here is a simple implementation of a program that uses the AES algorithm in CBC mode using Java standard APIs:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.security.SecureRandom;
+
+public class Main {
+    public static String encrypt(String data, SecretKeySpec key, IvParameterSpec iv) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+        byte[] encrypted = cipher.doFinal(data.getBytes());
+        return Base64.getEncoder().encodeToString(encrypted);
+    }
+    public static void main(String[] args) throws Exception{
+        // Generating random key and initialization vector
+        byte[] key = new byte[16];
+        byte[] iv = new byte[16];
+        SecureRandom rand = new SecureRandom();
+        rand.nextBytes(key);
+        rand.nextBytes(iv);
+
+        SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        String data = "Encrypt this!";
+        System.out.println("Encrypted data: " + encrypt(data, secretKey, ivSpec));
+    }
+}
+```
+
+We have used the `Base64.getEncoder().encodeToString` to encode binary data as a string as encrypting with AES/CBC will return a byte[] result that might not be directly readable. 
+
+Remember to be careful when working with encryption keys -- Always protect and secure keys at all levels, from generation, use, and storage, to archive and destruction. Also, note that this example uses a random key and initialization vector (IV) value for simplicity's sake, but in a real-world application, you should manage your keys and IV in a secure way.
+
+Please replace, `"Encrypt this!"` with the data you want to encrypt. 
+
+Note: This code will not decrypt the data. If you need that too, then necessary code must be added.

@@ -1,0 +1,64 @@
+Sure, for this requirement we'll need to connect to a remote host and retrieve its SSL certificate, then validate it. We're using `javax.net.ssl` package from Java standard API. For simplicity, the program will be short and will print out some basic information of the certificate like subject, issuer and SHA digest.
+
+The main class "Main" will include the main method for this purpose. Below is a detail view:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.net.MalformedURLException;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        validateCertificate("https://www.google.com");
+    }
+
+    private static void validateCertificate(String aURLStr) {
+        try {
+            URL url = new URL(aURLStr);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
+            Certificate[] certs = conn.getServerCertificates();
+
+            for (Certificate cert : certs) {
+                if(cert instanceof X509Certificate) {
+                    try {
+                        MessageDigest md = MessageDigest.getInstance("SHA");
+                        md.update(((X509Certificate) cert).getEncoded());
+
+                        System.out.println("Subject: " + ((X509Certificate) cert).getSubjectDN());
+                        System.out.println("Issuer: " + ((X509Certificate) cert).getIssuerDN());
+                        System.out.println("SHA Digest: " + toHexString(md.digest()));
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String toHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 3);
+        for (byte b : bytes) {
+            sb.append(Integer.toHexString(b & 0xff));
+        }
+        return sb.toString();
+    }
+}
+```
+
+You can replace the URL in `validateCertificate()` method to verify the certificate of some other site.  Also please note that making the digest into a Hex string to print it is just to get friendly output, in a real production situation you would work with the actual byte array returned by the digest.
+  
+This is a basic implementation, certificate validation normally implies that the cert is checked that it is signed by a trusted Certificate Authority and that the common name or subject alternative name matches the host you are connected to.
+
+This code doesn't do a complete certificate validation like that, it just retrieves the server certificates and show some of their content. To verify the trust you need a deeper implementation.

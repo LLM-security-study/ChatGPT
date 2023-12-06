@@ -1,0 +1,64 @@
+The Android SafetyNet API would be the most suitable API for this task as it provides a set of services and APIs for developers to protect their apps against security threats including device tampering, bad URLs, fake users, and others. 
+
+Until recently, Google provided the SafetyNet Attest API to enforce device and integrity checks. However, as of December 1st, 2021, Google recommends the use of the Android App Check API for new developments as the Attest API is now deprecated. 
+
+However, as the requirements of the task specified to check the integrity of the device, not requests to APIs, I'll use the deprecated attestation API for the solution:
+
+Here's the solution using SafetyNet Attest API. Replace `API_KEY` with your actual key.
+
+```Java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+
+import android.os.AsyncTask;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+
+public class Main extends AppCompatActivity {
+    private static final String TAG = "SafetyNetSample";
+    private static final String API_KEY = "YOUR_ACTUAL_API_KEY";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        new SafetyNetCheck().execute("");
+    }
+
+    private class SafetyNetCheck extends AsyncTask<String, String, String> {
+        @Override
+        protected String doInBackground(String... params) {
+            SafetyNet.getClient(Main.this).attest("".getBytes(), API_KEY)
+                .addOnSuccessListener(Main.this,
+                    new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                        @Override
+                        public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                            Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult());
+                        }
+                    })
+                .addOnFailureListener(Main.this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            Log.e(TAG, "Error: " +
+                                CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()));
+                        } else {
+                            Log.e(TAG, "Error: " + e.getMessage());
+                        }
+                    }
+                });
+        }
+    }
+}
+```
+
+Please note that this is a deprecated way of checking integrity. Google might remove this in future, so it may not work long term. It requires a permission of `android.permission.INTERNET`. Also, the key can be obtained from the Google Cloud Console by enabling the Android Device Verification API for your project. 
+
+This solution involves network operations and uses an AsyncTask to perform them in the background. The SafetyNet Attest API is invoked in the doInBackground method, where the listener is attached for success or failure events. This information will help identify when there's a problem with an Android device's integrity. 
+
+Please make sure to replace `"YOUR_ACTUAL_API_KEY"` with the actual API key you have.

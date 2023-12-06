@@ -1,0 +1,42 @@
+Sure, here's a basic implementation of a Java program that uses the SSLSocket class to establish a secure connection with a remote server. I am using the Java Secure Socket Extension (JSSE) API for this, which is included in Java SE.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Specify the host and port here
+            String host = "localhost";
+            int port = 1234;
+
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+            
+            // Enable all the suites
+            String[] supported = socket.getSupportedCipherSuites();
+            socket.setEnabledCipherSuites(supported);
+
+            OutputStream outputStream = socket.getOutputStream();
+            PrintWriter out = new PrintWriter(outputStream, true);
+            
+            // A simple hello message to the server
+            out.println("Hello, server!");
+
+            // Closing the streams and the socket
+            out.close();
+            outputStream.close();
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println("Failed to establish SSL socket connection");
+            e.printStackTrace();
+        }
+    }
+}
+```
+Replace the string in ``String host`` with the address of your remote server and replace the integer in ``int port`` with the port you want to connect to.
+
+NOTE: When you do run this, Java will still give you a warning as it requires a valid truststore to make the SSL handshake. If you have a these details, use the JVM arguments `-Djavax.net.ssl.trustStore` and `-Djavax.net.ssl.trustStorePassword` to set it. If not you'll need to discuss with your system admin to get these details or setup a self signed certificate for testing purposes. Good luck!

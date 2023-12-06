@@ -1,0 +1,40 @@
+Sure, below is a basic example of creating an SSL Socket using Java standard APIs. Note that this is just a basic version and may need some modifications depending on the usage requirements or server specifics. Remember to handle exceptions properly in your production code:
+
+Here is the example Java code:
+
+```java
+import javax.net.ssl.*;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("YourRemoteHostName", YourRemotePort);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            // Send a request to the server 
+            out.println("Hello Server");
+            
+            // Reading server reply  
+            String response = in.readLine();
+            System.out.println("Server's response: " + response);
+
+            // Close the socket
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } 
+    }
+}
+```
+
+Replace `YourRemoteHostName` and `YourRemotePort` with your actual remote server's host name and port number Also note that if the remote server's SSL certificate is not trusted by the JVM, you may have to add the certificate to the JVM's trust store.
+
+This code will send a "Hello Server" message to the server and print out the response from the server.

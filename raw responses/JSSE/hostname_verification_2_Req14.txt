@@ -1,0 +1,54 @@
+Sure, here is a very basic example using Java standard APIs. In a real-world application, the certificate would be obtained from a secure and trusted source. 
+
+```java
+import javax.net.SocketFactory;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.Socket;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String hostname = "your_host_here"; // Set your hostname here
+
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+        try {
+            SSLSocket socket = (SSLSocket) factory.createSocket(hostname, 443); // 443 is the standard port for https
+
+            socket.startHandshake();
+
+            SSLSession session = socket.getSession();
+            java.security.cert.Certificate[] servercerts = session.getPeerCertificates();
+
+            for (int i = 0; i < servercerts.length; i++) {
+                System.out.println("Certificate " + (i+1) + ":");
+                System.out.println("\tPublic Key: " + servercerts[i].getPublicKey());
+                System.out.println("\tCertificate type: " + servercerts[i].getType());
+
+                System.out.println("Cert Principal : " + ((java.security.cert.X509Certificate) servercerts[i]).getSubjectDN());
+                System.out.println("Cert Issuer Principal : " + ((java.security.cert.X509Certificate) servercerts[i]).getIssuerDN());
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+HTMLElement design API is used here to create an SSLSocket, which represents an SSL (Secure Sockets Layer) or TLS (Transport Layer Security) connection to a server that is identified by a hostname and a TCP port number. 
+
+The `getDefault()` method is a factory method that returns the default SSLSocketFactory. 
+
+The `createSocket(String host, int port)` method creates an SSL socket and connects it to the specified remote host at the specified remote port. 
+
+The handshake is started with `startHandshake()`. 
+
+Then we get certificates from the session with `getPeerCertificates()`, which throws an SSLPeerUnverifiedException if the peer is not verified. 
+
+Please replace `"your_host_here"` with your actual host. And you have to catch `SSLPeerUnverifiedException` in a nested try-catch, handle it and then check if the host in your certificate matches the actual host. 
+
+It's also important to note that `HttpsURLConnection` can also be used to connect to a URL over https and get the certificate, but as you specified to use standard APIs and classes, the Socket based approach was chosen.

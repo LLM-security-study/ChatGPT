@@ -1,0 +1,65 @@
+Sure, here is an example of a Java code to implement the SSO using Google accounts for a web application using Google's OAuth 2.0.
+
+```java
+/*
+* This program implements Single Sign-On (SSO) using Google accounts for a web application.
+* The primary focus is on implementing the authentication functionality.
+* Application has been already registered with the service provider and necessary information 
+* (e.g., redirect URI, client ID, client secret) has been obtained.
+*/
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class Main extends HttpServlet {
+
+  private static GoogleAuthorizationCodeFlow flow;
+  private static final String CLIENT_SECRET_FILE = "/path/to/client_secret.json";
+  
+  static {
+      try {
+          GoogleClientSecrets secrets = GoogleClientSecrets.load(
+                  JacksonFactory.getDefaultInstance(), new FileReader(CLIENT_SECRET_FILE));
+          flow = new GoogleAuthorizationCodeFlow.Builder(
+                  new NetHttpTransport(), JacksonFactory.getDefaultInstance(), secrets, 
+                  Collections.singletonList("https://www.googleapis.com/auth/userinfo.profile"))
+                  .setAccessType("offline").setApprovalPrompt("force").build();
+      } catch (IOException e) {
+          throw new RuntimeException(e);
+      }
+  }
+
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+    throws IOException {
+    String code = request.getParameter("code");
+    if (code != null) {
+      Credential credential = flow.newTokenRequest(code).setRedirectUri("YOUR_REDIRECT_URI")
+        .execute();
+      request.getSession().setAttribute("google-credential", credential);
+      response.sendRedirect("YOUR_SUCCESS_LANDING_PAGE");
+      return;
+    }
+    
+    response.sendRedirect(flow.newAuthorizationUrl().setRedirectUri("YOUR_REDIRECT_URI")
+      .build());
+  }
+}
+```
+
+Please replace `"YOUR_REDIRECT_URI"` with the actual redirect URL you have been provided in the Google API console, this URL is typically the location where you want your users to be redirected after they have successfully logged in.
+
+Also replace `"YOUR_SUCCESS_LANDING_PAGE"` to the page where you want to redirect user after successful authentication.
+
+The `CLIENT_SECRET_FILE` variable denotes the path to your `client_secret.json` file which contains the client ID and client secret. You will need to download this from your Google API console after successfully registering your web application.
+
+Note: This is simple implementation of servlet which needs to be integrated with webserver such as Tomcat to work. Further improvements such as error handling, declining the permissions would be your next steps. 
+

@@ -1,0 +1,50 @@
+Sure, here's a simple Java program to generate a secret key for AES-256 encryption, then store it into a new keystore.
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.SecureRandom;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class Main {
+    public static final String KEYSTORE_FILE = "myKeystore.jceks";
+    public static final String KEYSTORE_PASSWORD = "secured_password";
+    public static final String KEY_ALIAS = "mySecretKey";
+    public static final String KEY_PASSWORD = "key_password";
+
+    public static void main(String[] args) throws Exception {
+        SecretKey secretKey = createSecretKey();
+        storeSecretKeyToKeystore(secretKey);
+    }
+    
+    public static SecretKey createSecretKey() throws Exception {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        SecureRandom secureRandom = new SecureRandom();
+        int keyBitSize = 256;
+        keyGenerator.init(keyBitSize, secureRandom);
+        SecretKey secretKey = keyGenerator.generateKey();
+        return secretKey;
+    }
+
+    public static void storeSecretKeyToKeystore(SecretKey secretKey) throws Exception {
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        keyStore.load(null, null);
+        KeyStore.ProtectionParameter protectionParam = 
+                new KeyStore.PasswordProtection(KEY_PASSWORD.toCharArray());
+        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(secretKey);
+        keyStore.setEntry(KEY_ALIAS, skEntry, protectionParam);
+        try (FileOutputStream fos = new FileOutputStream(KEYSTORE_FILE)) {
+            keyStore.store(fos, KEYSTORE_PASSWORD.toCharArray());
+        }
+    }
+}
+```
+
+This program uses AES-256 for key generation, and JCEKS as the keystore type. The generated keystore type is secure and recommended for storing symmetric keys.
+
+Remember to replace `myKeystore.jceks`, `secured_password`, `mySecretKey`, and `key_password` with actual values you want to use.
+
+Please note:
+- Required Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files if you get an error relates to key length.
+- This is a simple example and handles none of the exceptions that could realistically be thrown in a production environment. You should add appropriate exception handling.

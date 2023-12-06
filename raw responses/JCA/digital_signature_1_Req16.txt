@@ -1,0 +1,47 @@
+Sure. Here is a simple Java program for signing and verifying a message. It uses the `Signature` class from the `java.security` package.
+
+```java
+import java.security.*;
+
+public class Main {
+    static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
+    }
+
+    static byte[] sign(String plainText, PrivateKey privateKey) throws Exception {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(plainText.getBytes("UTF-8"));
+        byte[] signature = privateSignature.sign();
+        return signature;
+    }
+
+    static boolean verify(String plainText, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(plainText.getBytes("UTF-8"));
+        return publicSignature.verify(signature);
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = generateKeyPair();
+        String message = "The quick brown fox jumps over the lazy dog.";
+
+        //Sign the message
+        byte[] signature = sign(message, keyPair.getPrivate());
+        System.out.println("Signature: " + new String(signature));
+
+        //Verify the message
+        boolean isCorrect = verify(message, signature, keyPair.getPublic());
+        System.out.println("The message \"" + message + "\" is " + (isCorrect ? "correctly signed." : "not correctly signed."));
+    }
+}
+```
+This program first generates a public-private key pair, then signs a message using the private key. After that, it verifies the signed message using the public key. The `sign` method returns the signature while `verify` method checks whether the provided signature and message combination is valid using the provided public key and returns a boolean result. 
+
+Please replace "The quick brown fox jumps over the lazy dog." with your actual message.
+
+Note: "SHA256withRSA" is a common algorithm for signing.
+Make sure you handle well the exceptions thrown by the `sign` and `verify` methods in real code.

@@ -1,0 +1,56 @@
+Sure. Here's a simple Java program for password-based key derivation using PBKDF2WithHmacSHA1 algo provided by Java's standard API.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+
+public class Main {
+    public static void main(String []args){
+        String password = "YourPassword"; //store your password here
+        byte[] salt = new byte[16]; // Substitute this salt with real random salt
+        int iterationCount = 10000; 
+        int keyLength = 128; //key length
+
+        SecretKeyFactory factory;
+        byte[] hash = null;
+
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+            hash = factory.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            //Handle the exception
+            e.printStackTrace();
+        }
+
+        //print key 
+        System.out.println(bytesToHex(hash));
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+Notes:
+1. This hash is computing a key from a password. You should store this hash and salt. Superior alternative solutions are bcrypt or scrypt, but they are not available in the native Java distribution.
+
+2. The salt must be stored as well, but it does not need to be hidden. A usual operation is to compute the hash, then store salt + hash together.
+
+3. The 'iterationCount' and 'keyLength' can change depending upon the requirements of your particular application.
+
+Warning: Make sure to use a unique and long salt and never hard-code it in your program, as it is done in this code. Use a random number generator to generate it. 
+
+For higher security, you can consider more advanced solutions such as bcrypt, scrypt, Argon2 or a similar password hashing library.

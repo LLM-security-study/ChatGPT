@@ -1,0 +1,106 @@
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyPermanentlyInvalidatedException;
+import android.security.keystore.KeyProperties;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import android.widget.Toast;
+
+import java.security.KeyStore;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class fingerprint_auth_1_Req28 {
+    private CancellationSignal cancellationSignal;
+    private KeyStore keyStore;
+    private Cipher cipher;
+    private static final String KEY_NAME = "androidHive";
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void authenticate(FingerprintManager fingerprintManager, FingerprintManager.CryptoObject cryptoObject){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fingerprintManager.authenticate(cryptoObject, cancellationSignal, 0,
+            new FingerprintManager.AuthenticationCallback() {
+                @Override
+                public void onAuthenticationError(int errorCode, CharSequence errString) {
+                    update("Fingerprint Authentication error\n" + errString, false);
+                }
+            
+                @Override
+                public void onAuthenticationFailed() {
+                    update("Fingerprint Authentication failed", false);
+                }
+                
+                @Override
+                public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                    update("Fingerprint Authentication help\n" + helpString, false);
+                }
+
+                @Override
+                public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                    update("Fingerprint Authentication succeeded", true);
+                }
+            
+            }, null);
+    }
+
+    private void update(String s, boolean b) {
+        if (b == false) {
+            Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, s, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // Create the generateKey method that we’ll use to gain access to the Android keystore and generate the encryption key//
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void generateKey() {
+        try {
+            keyStore = KeyStore.getInstance("AndroidKeyStore");
+            //Initialize an empty KeyStore//
+            keyStore.load(null);
+            //Initialize the KeyGenerator//
+            KeyGenerator keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore")
+            keyGenerator.init(new 
+            //Configure this key so that the user has to confirm their identity with a fingerprint each time they want to use it//
+            KeyGenParameterSpec.Builder(KEY_NAME, KeyProperties.PURPOSE_ENCRYPT | KeyProperties.PURPOSE_DECRYPT)
+                                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                                .setUserAuthenticationRequired(true)
+                                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                                .build());
+            //Generate the key//
+            keyGenerator.generateKey();
+        } catch (...) {
+            throw new RuntimeException("Failed to generate key", e);
+        }
+    }
+
+    //Cipher object creation
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public boolean cipherInit() {
+        try {
+            //Obtain a cipher instance and configure it with the properties required for fingerprint authentication//
+            cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" + KeyProperties.BLOCK_MODE_CBC + "/" + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+        } catch (...) {
+            return false;
+        }
+        try {
+            keyStore.load(null);
+            SecretKey key = (SecretKey) keyStore.getKey(KEY_NAME, null);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            //Return true if the cipher has been initialized successfully//
+            return true;
+        } catch (...) {
+            //Return false if cipher initialization failed//				
+            return false;
+        }
+    }
+}

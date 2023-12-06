@@ -1,0 +1,62 @@
+To achieve this, we can use the Google Play App Signing API in junction with Android's PackageManager API. Google Play App Signing API provides signature verification while PackageManager API allows us to access app's signature.
+
+Please note this is a hypothetical example, you will need to integrate Google Play App Signing API, but Google does not currently expose such an API:
+
+```java
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Get package name of the app
+        String packageName = "com.example.myapp";
+
+        // Replace with your API Key
+        String API_KEY = "{YOUR_API_KEY}";
+
+        try {
+            // Get the signatures stored in the apk through PackageManager
+            Signature[] signatures = context.getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNATURES).signatures;
+    
+            // Encoded the first signature for comparison
+            String encodedSignature = Base64.encodeToString(signatures[0].toByteArray(), Base64.DEFAULT);
+            
+            // Suppose here we connect with the Google Play App Signing API
+            GooglePlayAppSigningAPI googlePlayAppSigningAPI = new GooglePlayAppSigningAPI(API_KEY);
+    
+            if (googlePlayAppSigningAPI.verifySignature(packageName, encodedSignature)) {
+                System.out.println("The binary is recognized by Google Play");
+            } else {
+                System.out.println("The binary is NOT recognized by Google Play");
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }  
+    }
+} 
+    
+class GooglePlayAppSigningAPI {
+    // Hypothetical API
+    private String API_KEY;
+
+    // Constructor
+    GooglePlayAppSigningAPI(String API_KEY) {
+        this.API_KEY = API_KEY;
+    }
+
+    // Method to verify signature hypothetically
+    boolean verifySignature(String packageName, String signature) {
+        // Logic to check against Google Play's records
+        // Currently non-functional until Google expose such an API
+        return false;
+    }
+}
+```
+
+In this hypothetical example, we create an instance of the GooglePlayAppSigningAPI with our API key, and then call verifySignature(), passing the package name of our app and its base64 encoded signature.
+
+Please remember that Google does not currently expose an API for Play App Signing. You could potentially maintain an internal ledger of your app’s signatures in order to check against, or could look at running server side integrity checks. Be aware that both of these solutions require a level of upkeep and maintenance, and may not be as foolproof.
+
+Do consult the Android documentation and Google Play policy guides for best practices on maintaining your app’s integrity.

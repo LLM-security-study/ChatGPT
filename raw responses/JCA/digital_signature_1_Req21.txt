@@ -1,0 +1,51 @@
+You can use Java Security APIs (Java Cryptography Extension, JCE) to sign and verify a message digitally. The following is a simple implementation of this:
+
+```java
+import java.nio.charset.Charset;
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate the KeyPair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024, new SecureRandom());
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey privateKey = pair.getPrivate();
+        PublicKey publicKey = pair.getPublic();
+
+        // Sign the message
+        String message = "This is a secret message!";
+        byte[] signatureBytes = sign(message, privateKey);
+        
+        // verify the signature
+        boolean verified = verify(message, signatureBytes, publicKey);
+        System.out.println("Signature Verified: " + verified);
+    }
+
+    public static byte[] sign(String message, PrivateKey privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(message.getBytes(Charset.defaultCharset()));
+       
+        return signature.sign();
+    }
+
+    public static boolean verify(String message, byte[] signatureBytes, PublicKey publicKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initVerify(publicKey);
+        signature.update(message.getBytes(Charset.defaultCharset()));
+       
+        return signature.verify(signatureBytes);
+    }
+}
+```
+
+This Java program does the following:
+
+1. Generates a RSA key pair (privateKey and publicKey).
+2. Signs the message with the private key.
+3. Verifies the signature of the message using the public key.
+
+Please note that you would need Java 8 or later to run this program. And also ensure that your Java environment has "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy" installed. If not, you will need to download and install it from Oracle's website. 
+
+This simple program only handles String messages and does not manage key distribution nor does it handle any encryption-related exceptions/errors. For actual usage, consider using a more robust and secure method of key management and error-handling.

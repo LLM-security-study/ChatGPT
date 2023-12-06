@@ -1,0 +1,42 @@
+Okay, here's a basic Java program that does what you wanted. 
+
+```java
+import javax.crypto.Cipher;
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate key pair
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        String originalString = "Hello, world!";
+
+        // Encryption
+        byte[] cipherText = encrypt(originalString, keyPair.getPublic());
+        System.out.println("Encrypted Text: " + new String(cipherText));
+
+        // Decryption
+        String decryptedText = decrypt(cipherText, keyPair.getPrivate());
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+    public static byte[] encrypt(String original, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(original.getBytes());
+    }
+
+    public static String decrypt(byte[] encrypted, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedBytes = cipher.doFinal(encrypted);
+        return new String(decryptedBytes);
+    }
+}
+```
+
+In this example, I'm generating a simple key pair, then encrypting and decrypting a string using those keys. Please note that for real-world cryptography, you would want to handle encryption exceptions and key management tasks more robustly. Also, note that the output of encrypted string is gibberish text and not a hexadecimal or Base64 string, you may want to encode it properly before displaying or storing. 
+
+Lastly, please insure that you have the necessary Java Cryptography Extension (JCE) unlimited strength jurisdiction policy files installed if you are getting any key size error.

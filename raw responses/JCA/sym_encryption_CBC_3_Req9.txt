@@ -1,0 +1,54 @@
+You would need to download the javax.crypto library to execute the following program.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String key = "aesEncryptionKey";
+        String initVector = "encryptionIntVec";
+        String encryptedData = "{Your encrypted data here}";
+
+        System.out.println(decrypt(key, initVector, encryptedData));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec sKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, sKeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+In the code above, replace `{Your encrypted data here}` with the data you want to decrypt.
+
+This program uses the `Cipher` class in the `javax.crypto` package to decrypt data.
+
+- The `decrypt` function accepts a key, an initialization vector, and the encrypted text as input parameters.
+
+- It first initializes a `IvParameterSpec` object and a `SecretKeySpec` object by using the provided initialization vector and key.
+
+- The `Cipher.getInstance("AES/CBC/PKCS5PADDING")` method is then used to create a Cipher object that uses the AES algorithm in CBC mode with PKCS5 padding.
+
+- The cipher is initialized in decrypt mode by using the `cipher.init` method.
+
+- The encrypted data is decrypted by calling `cipher.doFinal`.
+
+- The decrypted byte array is then converted to a string and returned. 
+
+Remember you need to have the same Key and Initial Vector (IV) that was used for Encryption, in order to correctly decrypt the Encrypted String. Without them, the output will be incorrect.

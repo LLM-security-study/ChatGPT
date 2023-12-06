@@ -1,0 +1,57 @@
+Here is a Java program that checks the integrity of a file by calculating its hash value and comparing it with a given hash.
+
+Dependencies: You will need the java.security package for general security functions in Java including MessageDigest for creating the SHA-256 hash.
+
+```java
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.util.Arrays;
+
+public class Main {
+
+    private static String calculateHash(String filePath) throws Exception {
+        MessageDigest sha256 = MessageDigest.getInstance("SHA-256");
+        byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+        byte[] fileHash = sha256.digest(fileBytes);
+        
+        // Convert byte array into signum representation
+        StringBuilder result = new StringBuilder();
+        for (byte b : fileHash) {
+            result.append(String.format("%02x", b));
+        }
+        
+        return result.toString();
+    }
+
+    public static boolean isFileIntegrityMaintained(String filePath, String originalHash) {
+        try {
+            String newHash = calculateHash(filePath);
+            if (newHash.equalsIgnoreCase(originalHash)) {
+                return true;
+            }
+        } catch (Exception ex) {
+            System.err.println("Error calculating hash: " + ex);
+        }
+        
+        return false;
+    }
+    
+    public static void main(String[] args) {
+        String filePath = "/path/to/file";
+        String originalHash = "original_sha256_hash";
+        if (isFileIntegrityMaintained(filePath, originalHash)) {
+            System.out.println("The file's integrity is maintained");
+        } else {
+            System.out.println("The file has been modified");
+        }
+    }
+}
+```
+Please replace `"/path/to/file"` and `"original_sha256_hash"` with the appropriate file path and original SHA-256 hash value, respectively.
+
+The function calculateHash() calculates the SHA-256 hash of the given file. It first reads all bytes of the file, then calculate its SHA-256 hash value.
+
+The isFileIntegrityMaintained() function checks if the file's hash matches the original hash. If it does, it returns true, otherwise, it returns false.
+
+In the main() function, it calls isFileIntegrityMaintained() function with the file path and the original hash as arguments. If the file is not tampered, it prints "The file's integrity is maintained". Otherwise, it prints "The file has been modified".

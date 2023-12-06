@@ -1,0 +1,39 @@
+In Java, you can use the AES (Advanced Encryption Standard) algorithm for symmetric encryption and decryption. In this program, we will use AES with ECB (Electronic Code Book) mode and PKCS5 padding scheme.
+
+This is an example of a simple Java program to implement AES decryption:
+
+```java
+import java.security.Key;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Define the original secret key
+            byte[] key = "ThisIsASecretKey".getBytes("UTF-8");
+            Key aesKey = new SecretKeySpec(key, "AES");
+
+            // Create an AES Cipher instance
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+
+            // Sample encrypted text for decryption
+            String encryptedText = "ABcdeFghIlmnopQRstuvWXyz12345678==";
+            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedText);
+
+            // Decrypt the text
+            cipher.init(Cipher.DECRYPT_MODE, aesKey);
+            String decrypted = new String(cipher.doFinal(encryptedBytes));
+            System.out.println("Decrypted text: " + decrypted);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Please note that in a real-life application, you would typically not use a hardcoded key, and definitely not ECB mode for encryption due to its insecure nature, this is merely for demonstrative purposes.
+
+AES is not the only symmetric cryptography algorithm that Java supports. Others include DES (Data Encryption Standard), Blowfish, RC4, etc. You can replace "AES" with the name of the algorithm you want to use.
+
+Also, Remember that "ThisIsASecretKey" is a sample secret key and "ABcdeFghIlmnopQRstuvWXyz12345678==" is a sample encrypted text that you might want to replace with actual values for functioning.

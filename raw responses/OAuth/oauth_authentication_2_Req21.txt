@@ -1,0 +1,54 @@
+Unfortunately, Google sign-in can't be shown in pure Java. It requires a web user interface, typically JavaScript for browser-based applications, to trigger the Google OAuth workflow. However, I'll demonstrate how to use Java to handle the callback and exchange the one-time authorization code for a token.
+
+However, It's much easier and quicker to use Google's SDK to get the access token and refresh token using Java by Google Authorization Code Flow, and the library handles all the process to refresh the token for you. The library used is Google OAuth Client Library for Java.
+
+Here is the code snippet. Be sure to replace `REDIRECT_URI`, `CLIENT_ID`, `CLIENT_SECRET` with your actual application's values.
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets.Details;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    Details web = new Details();
+    web.setClientId("YOUR_CLIENT_ID");
+    web.setClientSecret("YOUR_CLIENT_SECRET");
+    GoogleClientSecrets clientSecrets = new GoogleClientSecrets().setWeb(web);
+    GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            new NetHttpTransport(), JacksonFactory.getDefaultInstance(), clientSecrets,
+            Arrays.asList("https://www.googleapis.com/auth/userinfo.profile"))
+            .setAccessType("online")
+            .setApprovalPrompt("auto").build();
+    Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    System.out.println("Tokens: " + credential.getAccessToken() + ' ' + credential.getRefreshToken());
+  }
+}
+```
+
+This is a simple Google SSO service. The `https://www.googleapis.com/auth/userinfo.profile` OAuth scope used here allows for retrieval of user profile information with the access token.
+
+Remember to add these in your `pom.xml` file if you are using Maven:
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client-jetty</artifactId>
+    <version>1.31.5</version>
+  </dependency>
+  <dependency>
+    <groupId>com.google.http-client</groupId>
+    <artifactId>google-http-client-jackson2</artifactId>
+    <version>1.39.2</version>
+  </dependency>
+</dependencies>
+```
+Upon running this program, a browser will be opened and you'll be asked to sign in to Google then approve the application. The tokens will then be printed to the console.
+
+Remember to handle the tokens securely in a real application, and never expose your client secret.

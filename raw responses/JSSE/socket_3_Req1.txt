@@ -1,0 +1,42 @@
+Sure, here's a simple Java example program for creating an SSL Socket for a secure communication. In this example, we use "javax.net.ssl" library for implementation. 
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket("localhost", 443);
+
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.println("HELLO SERVER");
+            output.println();
+            output.flush();
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String response = input.readLine();
+
+            System.out.println("Server response: " + response);
+
+            socket.close();
+        } 
+        catch (IOException e) {
+            System.out.println("An error occured");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+* This program creates SSL Socket using SSLSocketFactory
+* The socket is trying to connect to "localhost" on port 443.
+* If you want to run it on a different server or port, replace "localhost" and port number to your server's address and port.
+* It sends "HELLO SERVER" message to the server
+* It listens for a single response from the server and prints it out.
+* Finally closes the socket.
+
+Please note: 
+This is basic example of creating SSL Socket in Java. This doesn't include SSL handshake process and doesn't handle security things such as certificate validation, authentication, etc. You may need to add those necessary securities based on your requirements.

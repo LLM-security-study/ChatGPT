@@ -1,0 +1,41 @@
+Here is a basic example of a Java program that performs hostname verification as part of SSL/TLS communication. In this program, we use the HttpsURLConnection class which is part of the javax.net.ssl package.
+
+Please note that this program presents a simple use case and does not handle exceptions, adjust SSL parameters, or control the overall SSL session.
+
+Also, please note that in this case, we are trusting all SSL certificates (even self signed ones) which can create a security vulnerability. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        try {
+            URL url = new URL("https://your-ssl-enabled-url.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            
+            // Activate the hostname verification
+            conn.setHostnameVerifier(new HostnameVerifier(){
+                public boolean verify(String hostname, SSLSession session){
+                    HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+                    return hv.verify("your-ssl-enabled-url.com", session);
+                }
+            });
+
+            conn.connect();
+            // Perform SSL operations...
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Replace "https://your-ssl-enabled-url.com" with the actual URL you wish to establish an SSL/TLS connection.
+
+Please ensure to understand the restrictions and requirements of your environment before using this code as it is, or refer to Java's SSLSocket and SSLServerSocket APIs to develop a more tailored solution.

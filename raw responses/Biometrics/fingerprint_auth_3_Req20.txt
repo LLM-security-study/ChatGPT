@@ -1,0 +1,53 @@
+Sure, here is the basic structure for implementing fingerprint recognition in your android app. 
+
+In this program, we will be using the `FingerprintManager` (deprecated since API 28) and `FingerprintManagerCompat` which is a compatibility library provided in AndroidX Biometric. Note to use `BiometricPrompt` and `BiometricManager` classes (from AndroidX Biometric Library), as they're the one recommended to use as of now.
+
+Due to the limited space, I would just provide you the basic guidelines. 
+
+Import necessary packages first:
+
+```java
+package com.myapplication;
+
+import android.hardware.fingerprint.FingerprintManager;
+import android.content.Context;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
+```
+Create main class named "Main":
+
+```java
+class Main {
+    
+    private Context mContext;
+
+    private FingerprintManagerCompat fingerprintManagerCompat;
+
+    public Main(Context mContext) {
+        this.mContext = mContext;
+        fingerprintManagerCompat = FingerprintManagerCompat.from(mContext);
+    }
+
+    public boolean checkFingerprintSupport() {
+        if (!fingerprintManagerCompat.isHardwareDetected()) {
+            return false;
+        } else if (!fingerprintManagerCompat.hasEnrolledFingerprints()) {
+            return false;
+        }
+        return true;
+    }
+}
+```
+
+Method `checkFingerprintSupport()` checks if the device supports fingerprint scanning and if at least one fingerprint is enrolled. 
+
+Next, call this `checkFingerprintSupport()` from `onCreate` or wherever necessary.
+
+Remember, this could be just a starter/example. To further enhance it:
+
+- Make sure to handle permissions correctly, i.e., user permission to use biometric.
+- Don't forget about catching potential `SecurityException` when calling FingerprintManager methods.
+- Since authentication methods can differ between devices (PIN, pattern, password, fingerprint etc.), it's recommended that you use the BiometricPrompt API. The API provides a standardized dialog/prompt interface for all devices, so if a device doesn't have a fingerprint sensor, it seamlessly switches to another authentication method.
+
+Please check the Android documentation for more details:
+[FingerprintManager](https://developer.android.com/reference/android/hardware/fingerprint/FingerprintManager)
+[BiometricPrompt](https://developer.android.com/reference/androidx/biometric/BiometricPrompt)

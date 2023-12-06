@@ -1,0 +1,57 @@
+To perform the described task, we'll need to use Google Play's SafetyNet Attestation API. This API makes it possible to assess the Android environment in which your app is running. It provides a suite of services and APIs that help protect your app against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users.
+
+Following is an example implementation code for the SafetyNet Attestation API in Android:
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    private static final String API_KEY = "your-api-key";
+
+    public static void main(String[] args) {
+        byte[] nonce = generateNonce();  // Generate a nonce here
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                    }
+                })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the service.
+                    if (e instanceof ApiException) {
+                        // An error with the Google Play Services API contains some additional details.
+                        ApiException apiException = (ApiException) e;
+
+                        // You can retrieve the status code using the
+                        // apiException.getStatusCode() method.
+                    } else {
+                        // A different, unknown type of error occurred.
+                        Log.d("SafetyNet", "Error: " + e.getMessage());
+                    }
+                }
+            });
+    }
+
+    private byte[] generateNonce() {
+        // Please replace this by securely generating the nonce
+        return "nonce".getBytes();
+    }
+}
+```
+Note: This code is a generalized version. To compile and run this in real-life, it needs to be running in the context of an Android app.
+You need to replace "your-api-key" with your actual API key obtained from the Google API Console. The `generateNonce()` method should ideally generate a cryptographically strong nonce. We are using a simple string for illustrative purposes only. 
+
+The method `safetyNet.getClient().attest(nonce, API_KEY)` is what sends a request to the SafetyNet Attestation API. The result of the API is a JSON Web Signature (JWS), which is passed to the `onSuccess` method as part of the AttestationResponse object.
+Use JWS to examine whether the binary version of the app is genuine or not as per the SafetyNet Google Play recognition. Parse the JWS response using a JWS and JSON library to access the "apkCertificateDigestSha256" and "apkDigestSha256" fields and compare these with your known good values. "apkCertificateDigestSha256" contains the hash of the signing certificate of the APK, "apkDigestSha256" contains the bit-for-bit hash value of the APK file. 
+
+Please also follow SafetyNet Attestation API guideline for secure way of JWS response verification: https://developer.android.com/training/safetynet/attestation#verify-compat-check
+Also, be aware that response from any API needs additional processing to retrieve needed information, this code will just retrieve a JWS response. The entire process will need to be implemented inside an Android Application using Android SDK.

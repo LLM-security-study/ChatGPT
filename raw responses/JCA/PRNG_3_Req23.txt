@@ -1,0 +1,37 @@
+Here's a simple Java program that generates a securely generated seed using the SecureRandom class from Java's standard API. 
+
+The SecureRandom class provides a cryptographically strong random number generator (RNG). 
+
+```Java
+// Import required classes
+import java.security.SecureRandom;
+
+// Define main class
+public class Main {
+    // Define main method
+    public static void main(String[] args) {
+        // Create SecureRandom instance
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Generate seed
+        byte[] seed = new byte[8];
+        secureRandom.nextBytes(seed);
+
+        // Initialize SecureRandom with the generated seed
+        secureRandom.setSeed(seed);
+        
+        // Generate a random integer
+        int randomInt = secureRandom.nextInt();
+
+        // Print random integer
+        System.out.println("Generated random integer is: " + randomInt);
+    }
+}
+```
+
+The call to SecureRandom's nextBytes method generates a seed. This seed is then used to initialize SecureRandom using the setSeed method.
+
+After initialization, the nextInt method of the SecureRandom instance is called to generate a random integer. We finally print the random integer on the console.
+
+However, please note that usually the SecureRandom instance should not be explicitly seeded like this, as creating a new SecureRandom instance automatically seeds it securely (for example with system time and system statistics). Explicit seeding could potentially decrease the randomness (and thus security) if not done properly.
+

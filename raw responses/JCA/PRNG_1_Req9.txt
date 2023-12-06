@@ -1,0 +1,32 @@
+Sure, here's a simple Java program that does what you requested using Java's SecureRandom class to generate the seed and the initialization vector.
+
+```java
+// necessary imports
+import java.security.SecureRandom;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        // create a SecureRandom instance
+        SecureRandom sr = new SecureRandom();
+
+        // Generate a seed for the PRNG
+        byte[] seed = new byte[16]; // change the size as needed 
+        sr.nextBytes(seed);
+
+        System.out.println("Generated PRNG Seed: " + DatatypeConverter.printHexBinary(seed));
+        
+        // Now, use this PRNG to generate an Initialization Vector for encryption.
+        byte[] iv = new byte[16]; // our IV size, change as needed
+        sr.nextBytes(iv);
+        
+        System.out.println("Generated IV: " + DatatypeConverter.printHexBinary(iv));
+    }
+}
+```
+
+Please note that in real-world applications, it's recommended to use at least 128-bit (16-byte) seeds for more security, but you can choose your needed seed and IV size in the above program. This program prints the seed and IV in hexadecimal for easier visualization. Be sure that when used in a cryptographic context, the binary data, not their hex string representations, should be used. 
+
+Work through any security-critical programs with a security expert or use vetted libraries and methods as much as possible. It’s easy to accidentally introduce vulnerabilities otherwise.

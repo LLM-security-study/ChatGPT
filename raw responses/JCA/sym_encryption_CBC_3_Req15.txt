@@ -1,0 +1,40 @@
+To decrypt data using AES algorithm in CBC mode, you need to use Java Cryptography Extension (JCE). Here is a simple example:
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Initialize keys
+        String key = "1234567812345678";  // Dummy key for example
+        String initVector = "1234567812345678"; // Dummy vector for example
+        
+        // Encoded string which we have to decode
+        String encryptedString = "vCIkqU5CqaAgaR2klYFGAA==";
+
+        System.out.println(decrypt(key, initVector, encryptedString));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) throws Exception {
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+        SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+        byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+        return new String(original);
+    }
+}
+```
+Please note that you need to define a correct key and initVector in order to successfully decrypt the encrypted data. AES keys should be of 16 bytes.
+
+This code uses AES in CBC mode to decrypt strings. The code gets a string encrypted with AES in CBC mode with a specific Key and Init Vector, then decrypts it and returns the original string.
+
+Keep in mind that the "javax.crypto.Cipher" class provides the functionality of a cryptographic cipher for encryption and decryption. It forms the core of the Java Cryptographic Extension (JCE) framework. The "AES/CBC/PKCS5PADDING" is a transformation string that describes the operation (or set of operations) to be performed on the given input to produce some output. 
+
+Disclaimer: Do not try to develop your own Cryptography or Cipher methods if you are developing a real project. Go for tested and proven libraries/packages.

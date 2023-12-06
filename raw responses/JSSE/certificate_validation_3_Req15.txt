@@ -1,0 +1,45 @@
+Sure, to implement certificate validation in SSL/TLS, we use Java Secure Socket Extension (JSSE) API. Here is a simplified version of the code.
+
+```java
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.Socket;
+import javax.net.ssl.SSLSocketFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        BufferedReader in = null;
+        PrintWriter out = null;
+        Socket clientSocket = null;
+        try{
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            clientSocket = sslSocketFactory.createSocket("HOST_NAME", PORT_NUMBER);
+            in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            out = new PrintWriter(clientSocket.getOutputStream(), true);
+            
+            // perform input/output operations using 'in' and 'out'
+            
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+        } finally {
+            try {
+                if (in != null) in.close();
+                if (out != null) out.close();
+                if (clientSocket != null) clientSocket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+Replace "HOST_NAME" and "PORT_NUMBER" with your server's host name and port number respectively. 
+
+This program just establishes a secure connection to the server. For specific certificate validation, like checking if the certificate is issued by the trusted party, checking the expiration of certificates etc, you need to create custom `javax.net.ssl.X509TrustManager`. This talk lies beyond the basic TLS/SSL connection and is quite advanced.
+
+Note: I assumed this at a basic level. In reality, you also must manage your keyStore and trustStore to prevent SSLHandshakeExceptions. If you do not manage it, it will look for the default JSSE certificates provided by the JDK for validating the server certificates which might not always be preferred. 
+
+Also to ensure thread-safety and reusability, in production-grade coding, we can implement it with multithreading and connection pooling concepts.

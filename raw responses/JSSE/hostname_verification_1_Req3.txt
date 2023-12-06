@@ -1,0 +1,53 @@
+Hostname verification is crucial for SSL/TLS communication to ensure that the certificate presented by the server matches the expected hostname. In Java, JSSE (Java Secure Socket Extension) is primarily used for SSL/TLS communication. In the JSSE API, the "HttpsURLConnection" class performs hostname verification by default.
+
+Here is an example of a program to perform hostname verification in an SSL/TLS communication:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.URL;
+import java.net.URLConnection;
+
+public class Main {
+    private static final String HOSTNAME = "www.example.com";
+
+    public static void main(String[] args) throws Exception {
+        // Establish a URLConnection
+        URL url = new URL("https://" + HOSTNAME);
+        URLConnection conn = url.openConnection();
+
+        if (conn instanceof HttpsURLConnection) {
+            HttpsURLConnection httpsConn = (HttpsURLConnection) conn;
+
+            // Instantiate SSLSocketFactory and get a SSLSocket
+            SSLContext sslContext = SSLContext.getDefault();
+            SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(HOSTNAME, 443);
+
+            // Get the SSLParameters from the SSLSocket
+            SSLParameters sslParams = sslSocket.getSSLParameters();
+
+            // Enable endpoint identification algorithms
+            sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+
+            // Set the SSLParameters to the HttpsURLConnection
+            httpsConn.setSSLSocketFactory(sslSocketFactory);
+
+            // Connect to the server
+            httpsConn.connect();
+
+            // Print the result
+            System.out.println("Hostname verification succeeded for " + HOSTNAME);
+        }
+    }
+}
+```
+
+This program firstly establishes a connection to a given URL (`HOSTNAME`) using `HttpsURLConnection`. It then gets a default `SSLContext` and uses it to create an `SSLSocketFactory` to create an `SSLSocket`. It retrieves the `SSLParameters` from the `SSLSocket` and enables the endpoint identification algorithms. Finally, it sets the `SSLParameters` to the `HttpsURLConnection`, connects to the server, and prints a success message.
+
+Please replace "www.example.com" with your actual server address that you want to connect with.
+
+Bear in mind that if you have custom SSL parameters or algorithms, you may need to adjust the program to suit your needs.

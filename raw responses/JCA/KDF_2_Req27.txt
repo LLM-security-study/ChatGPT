@@ -1,0 +1,45 @@
+Below is a simple Java program named `Main` which generates a secret key from a user-provided password using the standard Java APIs. The key is generated using the PBKDF2WithHmacSHA256 algorithm provided by Java's SecretKeyFactory:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+    private static final String SECRET_KEY_FACTORY_ALGORITHM = "PBKDF2WithHmacSHA256";
+    private static final String SALT = "ssshhhhhhhhhhh!!!!";
+    private static final int ITERATION_COUNT = 65536;
+    private static final int KEY_LENGTH = 256;
+
+    public static void main(String[] args) {
+        System.out.println("Please enter your password:");
+        Scanner scanner = new Scanner(System.in);
+        String password = scanner.nextLine();
+
+        byte[] salt = SALT.getBytes();
+        SecretKey secretKey = generateSecretKey(password.toCharArray(), salt);
+        String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
+
+        System.out.println("Your secret key is: " + encodedKey);
+    }
+
+    private static SecretKey generateSecretKey(char[] password, byte[] salt) {
+        SecretKeyFactory factory;
+        try {
+            factory = SecretKeyFactory.getInstance(SECRET_KEY_FACTORY_ALGORITHM);
+            KeySpec spec = new PBEKeySpec(password, salt, ITERATION_COUNT, KEY_LENGTH);
+            SecretKey tmp = factory.generateSecret(spec);
+            return new SecretKeySpec(tmp.getEncoded(), "AES");
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+This program requests password input from the user, and generates a secret key from this password. The `String SALT` provides some additional security by "salting" the password before generating the key.
+
+Please replace the "ssshhhhhhhhhhh!!!!" by own salt. The salt is used to prevent dictionary attacks, where the attacker has precomputed the hash for common passwords and just looks for a match. The salt, in essence, creates a unique hash for every possible password, which means that precomputation isn't possible.

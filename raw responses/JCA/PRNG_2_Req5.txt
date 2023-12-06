@@ -1,0 +1,31 @@
+Sure! Here is a basic Java program that generates a seed to initialize a pseudorandom number generator and then uses the PRNG to generate a salt for password hashing.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        // Generate a seed
+        long seed = System.nanoTime();
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.setSeed(seed);
+        
+        // Generate salt
+        byte[] salt = new byte[16];  // You may choose the length of salt according to your requirements
+        secureRandom.nextBytes(salt);
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+        
+        System.out.println("Generated salt: "+saltStr);
+    }
+}
+```
+In this program, we use `System.nanoTime()` to generate a seed, which is then used to initialize a `SecureRandom` object. Then we generate a random byte array, which we encode to a Base64 string to obtain our salt.
+
+The `SecureRandom` class provides a cryptographically strong random number generator. SecureRandom is more secure than Random and should be used for generating sensitive data such as salts for password hashing.
+
+Please note that you should handle exception carefully in a production-level application. This is a simple demonstration, so I'm not handling potential exceptions here for the sake of simplicity. 
+
+Also note that the 16-byte salt is quite common, but depending on how secure you want your application to be you might increase that. The understanding of doing so goes beyond this simple introductory example.
+
+This is a simple but important part of a much larger process of handling hash and salt to securely store the user passwords. This example does not address HOW to hash and salt the passwords, but generating salts, which is required for that process.

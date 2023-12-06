@@ -1,0 +1,43 @@
+The following solution is centered on the use of Java's built-in `KeyStore` API plus SSL (Secure Socket Layer) for secure communication:
+
+```java
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.security.KeyStore;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Build a KeyStore object which contains the server's certificate 
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(new FileInputStream("/path/to/keystore.jks"), "password".toCharArray());
+            
+            // Build a TrustManager which will ensure the authenticity of the certificate of the server
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keyStore);
+            
+            // Set the SSL context to use the TrustManager
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, tmf.getTrustManagers(), null);
+            
+            // Create a Socket which connects to the server
+            SSLSocketFactory sf = context.getSocketFactory();
+            SSLSocket sslSocket = (SSLSocket) sf.createSocket("www.server.com", 1234);
+            
+            // Now you can use the sslSocket for a secure communication
+            System.out.println("Connection is secure."); 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Note: This implementation assumes that the server's certificate has already been imported into a Java KeyStore (`keystore.jks`). You need to replace `/path/to/keystore.jks` with the actual path where your Java KeyStore is located and replace `"password"` with the password for the KeyStore.
+
+This basic program will attempt to create an SSL socket to `www.server.com` on port `1234` and validate the server's certificate against the Java KeyStore. If the certificate is valid, it will print "Connection is secure." Otherwise, it will throw an exception.
+
+You may want to handle the exception properly and add a communication/interaction logic with the server.
+
+Finally, remember to add proper error handling logic, it's skipped here for brevity.

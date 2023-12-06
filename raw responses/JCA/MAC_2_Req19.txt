@@ -1,0 +1,44 @@
+Here is a simple implementation:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // The message
+            String message = "This is a test message";
+
+            // The secret key
+            byte[] keyBytes = "1234567890abcdef".getBytes(StandardCharsets.UTF_8);
+
+            // Get an HMAC-MD5 key from the raw key bytes
+            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "HmacMD5");
+
+            // Get an instance of the MAC mechanism
+            Mac mac = Mac.getInstance("HmacMD5");
+
+            // Initialize the MAC mechanism
+            mac.init(secretKey);
+
+            // Compute the MAC
+            byte[] resultBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // Print the result
+            System.out.println(Arrays.toString(resultBytes));
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+
+In this program, we are generating a Message Authentication Code (MAC) for a simple string message, using the HMAC-MD5 algorithm. The secret key is also a simple string. 
+
+The program first gets an instance of the HMAC-MD5 MAC mechanism. It then initializes this mechanism with the secret key. The next step is the computation of the MAC for the input message, which is then printed.
+
+Note: You should replace the secret key and message with your own secure inputs. In a real production system, the secret key should be stored securely using appropriate measures. Also, avoid to exposing sensitive data in exceptions.

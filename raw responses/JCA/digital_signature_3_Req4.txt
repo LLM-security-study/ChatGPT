@@ -1,0 +1,48 @@
+Signing a message involves cryptography, which ensures the integrity and authenticity of the message. This is typically done using a private key known only to the sender. When the receiver gets the signed message, they can use the sender's public key to verify if the signature was indeed created by the sender. 
+
+Below is a basic code using Java's Signing functionality in conjunction with SHA256withRSA algorithm:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        //Generate KeyPair
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048);
+        KeyPair pair = keyPairGen.generateKeyPair();
+        
+        //Sign the message
+        String msg = "Message to be signed";
+        byte[] bytes = msg.getBytes();
+      
+        Signature sign = Signature.getInstance("SHA256withRSA");
+      
+        //Initializing the signature
+        sign.initSign(pair.getPrivate());
+      
+        //Adding data to the signature
+        sign.update(bytes);
+      
+        //Calculating the signature
+        byte[] signature = sign.sign();
+        System.out.println("Signed message: " + new String(signature, "UTF8"));
+      
+        //Initialising the signature for verification
+        sign.initVerify(pair.getPublic());
+        sign.update(bytes);
+      
+        //Verifying the signature
+        boolean bool = sign.verify(signature);
+        
+        if(bool) {
+            System.out.println("Signature verified");
+        } else {
+            System.out.println("Signature failed");
+        }
+    }
+}
+```
+In this code, we first generate a KeyPair using the RSA algorithm. String `msg` is the message we want to sign. Bytes of this message is passed to the signature object. Then we sign the message using the `sign()` method. After that we are verifying the signature by `sign.verify(signature)`, which returns true if the signature is verified.
+
+Please note that due to the cryptographic nature of the task, the program may throw exceptions. Proper exception handling is not implemented in the provided code to keep explanation focused on signature algorithms. Also, the generated signature is not consistent, every time you run this program, a different signature will be generated.

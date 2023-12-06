@@ -1,0 +1,55 @@
+Here's a simple example of how you might use the AES algorithm in CBC mode with Java's standard Cipher class. It's a basic program which just encrypts a text using a secret key and then decrypts it again.
+
+AES keys will always be of length: 16, 24, or 32 bytes.
+
+I'm using "AES/CBC/PKCS5Padding" as transformation, for using AES in CBC mode with PKCS5 padding. "PKCS5Padding" specifies that we want to pad our data in blocks of 8 bytes.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String SECRET_KEY = "MySecretKey12345";
+    private static final String INITIALIZATION_VECTOR = "InitializationVe";
+
+    public static void main(String[] args) throws Exception {
+        String originalText = "Text to be encrypted";
+
+        //Encrypt the Text
+        Cipher encryptCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, getKey(), getIvParameterSpec());
+        byte[] encrypted = encryptCipher.doFinal(originalText.getBytes());
+        String encryptedText = Base64.getEncoder().encodeToString(encrypted);
+        System.out.println("Encrypted Text: " + encryptedText);
+
+        //Decrypt the Text
+        Cipher decryptCipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        decryptCipher.init(Cipher.DECRYPT_MODE, getKey(), getIvParameterSpec());
+        byte[] decrypted = decryptCipher.doFinal(Base64.getDecoder().decode(encryptedText));
+        String decryptedText = new String(decrypted);
+        System.out.println("Decrypted Text: " + decryptedText);
+
+    }
+
+    private static Key getKey() {
+        return new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+    }
+
+    private static IvParameterSpec getIvParameterSpec() {
+        return new IvParameterSpec(INITIALIZATION_VECTOR.getBytes());
+    }
+
+}
+```
+
+As a reminder, it’s not a good idea to use a password as a key directly – that’s the purpose of the SecretKeySpec. Instead, you should use some form of password-based key derivation function.
+
+It's also important to mention that using a static IV in production code is a bad idea because it reduce the encryption strength (the purpose of the IV is to add some randomness into the process). 
+
+You should also catch and handle exceptions in your production code.
+
+Please replace "MySecretKey12345" and "InitializationVe" with your secret key and initialization vector and keep them secret.

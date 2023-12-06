@@ -1,0 +1,66 @@
+The thought of "verifying the integrity of an Android device" is quite wide and can mean a couple of different things. However, if we're talking about checking if the device has been rooted or not, we can leverage the SafetyNet API provided by Google Play Service.
+
+Here is a simple Java program that uses the Google SafetyNet API to check for the integrity of the Android device:
+
+To include Google SafetyNet in your project, add this to your project's build.gradle file:
+
+```java
+dependencies{
+    implementation 'com.google.android.gms:play-services-safetynet:17.0.0'
+}
+```
+Now, you can create a class, say `Main.java`, as follows:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+
+    MainActivity mActivity; // Suppose mActivity is your activity context
+    String API_KEY = "YOUR_API_KEY";
+
+    public void checkDeviceIntegrity() {
+        SafetyNet.getClient(mActivity).attest(generateNonce(), API_KEY)
+                .addOnSuccessListener(mActivity,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Use response.getJwsResult() to get the result data.
+                                String result = response.getJwsResult();
+                                //...verification logic
+                            }
+                        })
+                .addOnFailureListener(mActivity, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error with the Google Play Services API contains some additional details.
+                            ApiException apiException = (ApiException) e;
+                            // ...
+                        } else {
+                            // Unknown type of error, possibly a network error.
+                            // ...
+                        }
+                    }
+                });
+    }
+
+    /**
+     * Generates a random 24-byte nonce.
+     */
+    private byte[] generateNonce() {
+        // Pseudo-random number generator
+        byte[] nonce = new byte[24];
+        new SecureRandom().nextBytes(nonce);
+        return nonce;
+    }
+}
+```
+This is a very rudimentary implementation and does not cover or take into account various cases, such as what to do if attestation fails, if device is rooted, etc. Always consult the full SafetyNet Attestation API documentation for a comprehensive understanding on how it works and how to properly use it.
+ 
+Please replace "YOUR_API_KEY" with your own API Key.

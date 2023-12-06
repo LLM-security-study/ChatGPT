@@ -1,0 +1,33 @@
+Sure, here is a simple program for your request.
+
+```Java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Generate Seed for PRNG
+        SecureRandom seedGenerator = new SecureRandom();
+        byte[] seed = seedGenerator.generateSeed(20); // 20-byte (160-bit) seed
+
+        // Initialize PRNG with the generated Seed
+        SecureRandom prng = new SecureRandom(seed);
+
+        // Generate Salt for password hashing
+        byte[] salt = new byte[16]; // 16-byte (128-bit) salt 
+        prng.nextBytes(salt);
+
+        // print the generated salt
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+        System.out.println("The generated salt is: " + saltStr);
+
+        // Note: for actual password hashing, use the salt byte array
+    }
+
+}
+```
+
+This program generates a seed using the `SecureRandom` class, which provides a cryptographically strong random number generator. The seed is used to initialize another instance of `SecureRandom`, which is then used to generate a salt for password hashing. The salt is printed to the console in Base64 encoding.
+
+Please note: in a real-world application, you should not print sensitive data like salts or keys to the console. This is done here for demonstration purposes only. Moreover, changing the seed for every new salt in a short period of time could negatively affect the randomness of the generated salts, so you might want to reconsider doing that in a real-world application.

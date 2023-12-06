@@ -1,0 +1,63 @@
+Integrating Google Single Sign-On (SSO) involves dealing with OAuth 2.0 and certain web-based flows which are challenging to demonstrate with plain Java code without the context of a web server and request/response handling architecture.
+
+Here is a simple example of how to use the Google's OAuth client library to authenticate a user:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google SSO Integration";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private static final List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/userinfo.profile");
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credential = getCredentials(HTTP_TRANSPORT);
+        System.out.println("User is authorized!");
+    }
+}
+```
+
+In this example, a local server will be started on port 8888 which the user will be redirected to after successful authorization from Google. The "credentials.json" file should be located in the resources directory of your project and it should contain your client ID and client secret.
+
+Also, a tokens directory is used to store valid tokens received from Google. The SCOPES variable declares what information the application wants to access, in this case, user profile information.
+
+Note: This is a standalone Java application. Incorporating this into a Java EE or Spring Boot web application would take more architectural planning and appropriate web request/response handling.
+
+Please replace "https://www.googleapis.com/auth/userinfo.profile" with the correct Google API scopes for your application and "/credentials.json" with the correct path to your Google project credential file.
+
+And also note that if you want to create a web application using JSP, Servlet, Spring, etc. you have to handle the HTTP response and request appropriately. This example does not cater to that, the actual implementation may vary based upon the specific architecture of your web application.

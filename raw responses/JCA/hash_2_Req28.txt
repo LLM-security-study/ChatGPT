@@ -1,0 +1,60 @@
+In your requirement, you are basically trying to detect whether a file was tampered with or not. A common solution for this type of problem involves hashing. A hash function generates a string (the hash code), which represents the content of the file. If the file content changes, the hash will also change.
+
+Here is an example of such a program:
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    
+    public static void main(String[] args) throws Exception {
+        String fileName = "example.txt"; // File to check
+        String originalHash = "5d41402abc4b2a76b9719d911017c592"; // Original hash
+
+        String calculatedHash = calculateHash(fileName);
+        System.out.println("Original Hash: " + originalHash);
+        System.out.println("Calculated Hash: " + calculatedHash);
+        
+        if(calculatedHash.equals(originalHash)) {
+            System.out.println("Integrity Check Passed!");
+        } else {
+            System.out.println("Integrity Check Failed!");
+        }
+    }
+    
+    private static String calculateHash(String fileName) {
+        try (FileInputStream fis = new FileInputStream(fileName); 
+             DigestInputStream dis = new DigestInputStream(fis, MessageDigest.getInstance("MD5"))) {
+            
+            while (dis.read() != -1) { /*empty loop to clear the data input stream*/ }
+            
+            MessageDigest md = dis.getMessageDigest();
+            byte[] bytes = md.digest();
+            
+            StringBuilder sb = new StringBuilder();
+            for(byte b : bytes) {
+                sb.append(String.format("%02x", b));
+            }
+            
+            return sb.toString();
+            
+        } catch (NoSuchAlgorithmException | IOException ex) {
+            ex.printStackTrace();
+        }
+        
+        return null;
+    }
+}
+```
+
+In this code, the `calculateHash` function computes the MD5 hash of the given file. The original hash is hardcoded for comparison. If the calculated hash and the original hash are equal, then the file has not been modified. Otherwise, an integrity check failure message is printed.
+
+Please note that to run the above program correctly, you need to replace "example.txt" with the path to your actual file and replace the string in originalHash variable with the correct MD5 hash for your unmodified file.
+
+Also, remember to handle the exceptions appropriately in your production code.
+
+This is a simple implementation. In a more robust system, you might want safeguards like signed hashes, secret keys, etc. for additional security.

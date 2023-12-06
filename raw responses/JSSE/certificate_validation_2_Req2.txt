@@ -1,0 +1,44 @@
+Sure, here is a simple Java program snippet that retrieves and validates the SSL/TLS certificate of a given HTTS url using the HttpsUrlConnection class which is a part of Java’s java.net package.
+
+Please note, for simplicity and brevity, this program just prints out the certificates. In a real-world situation, you would programmatically examine the certificate for attributes such as issue date, expiration date, issuer details, and public key.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+
+public class Main {
+  public static void main(String[] args) {
+    try {
+      URL url = new URL("https://www.example.com"); // replace with your https url
+      HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+      conn.connect();
+
+      Certificate[] certs = conn.getServerCertificates();
+
+      System.out.println("Number of certificates: " + certs.length);
+      for (Certificate cert : certs) {
+        if (cert instanceof X509Certificate) {
+          X509Certificate x = (X509Certificate) cert;
+          System.out.println("Certificate issuer: " + x.getIssuerDN());
+          System.out.println("Certificate subject: " + x.getSubjectDN());
+          System.out.println("Certificate serial number: " + x.getSerialNumber());
+        } else {
+          System.out.println("Unknown certificate type: " + cert);
+        }
+      }
+
+      conn.disconnect();
+
+    } catch (IOException ex) {
+      System.out.println("IOException : " + ex.getMessage());
+    }
+  }
+}
+```
+
+The `HttpsURLConnection` class's `getServerCertificates()` method is used to retrieve the chain of certificates used to secure the connection. Typically, the application needs to send the root certificate and the intermediate certificate(s) and the end entity's ssl certificate. An individual certificate in the returned array is of type `java.security.cert.Certificate`. We can safely cast it to `javax.security.cert.X509Certificate` in most situations, to access X.509-specific features.
+
+Please replace `"https://www.example.com"` with your HTTPS url.

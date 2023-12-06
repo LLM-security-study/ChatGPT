@@ -1,0 +1,30 @@
+Sure, here's a basic example of such a program:
+
+```Java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Generate a seed to initialize a pseudorandom number generator
+        SecureRandom seedGenerator = new SecureRandom();
+        byte[] seed = new byte[10];
+        seedGenerator.nextBytes(seed);
+
+        // Use the seed to initialize a new pseudorandom number generator
+        SecureRandom prng = new SecureRandom(seed);
+
+        // Generate the salt for password hashing
+        byte[] salt = new byte[16];
+        prng.nextBytes(salt);
+
+        // Print out the generated salt
+        System.out.println("Generated Salt: " + Base64.getEncoder().encodeToString(salt));
+    }
+}
+```
+
+This program first generates a seed to initialize a pseudorandom number generator (PRNG). It uses `java.security.SecureRandom` for generating cryptographically strong random numbers. Then it uses the generated seed to initialize a new PRNG. 
+
+Finally, it generates a 16-byte salt for password hashing and prints it out. `getEncoder().encodeToString(salt)` is used to convert the byte array to a string, which is easier to display and work with. For the byte array `salt`, remember that the byte size should be appropriate for whatever password hashing algorithm you are using.

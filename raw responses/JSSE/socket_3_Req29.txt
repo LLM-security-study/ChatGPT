@@ -1,0 +1,46 @@
+In order to make an SSL socket with a remote server, we'll need the `SSLSocketFactory` class from the javax.net.ssl package, which is a part of the Java Secure Socket Extension (JSSE) API.
+
+Here's a simple Java program:
+
+```Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String remoteServer = "YourRemoteServer.com"; // replace with your remote server
+        int remotePort = 1234; // replace with your port
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(remoteServer, remotePort);
+
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Let's just send a simple message to the server
+            output.println("Hello Server");
+            output.flush();
+
+            // Let's read the response
+            String response = input.readLine();
+            System.out.println("Server Response: " + response);
+
+            // Close streams and socket
+            output.close();
+            input.close();
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("Unable to establish SSL socket connection");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Be sure to replace `"YourRemoteServer.com"` and `1234` with your server name and port. This basic program will open an SSL socket to the remote server, send the string `"Hello Server"` and then print out the server's response.
+
+Please note that you need to secure your server with SSL and your client needs to trust the server's certificate. Otherwise, the connection will be untrusted and fail. You might have to add server's public certificate to your client's keystore.
+
+This is just a basic program for SSL socket communication. You may wish to implement additional error handling and functionality as needed for your specific use-case.

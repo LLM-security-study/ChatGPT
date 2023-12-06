@@ -1,0 +1,39 @@
+Here is a basic implementation of an SSL Socket for secure communication in Java:
+
+```java
+import javax.net.ssl.SSLServerSocket;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSocket;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLServerSocketFactory sslserversocketfactory =
+                    (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            SSLServerSocket sslserversocket =
+                    (SSLServerSocket) sslserversocketfactory.createServerSocket(9999);
+            SSLSocket sslsocket = (SSLSocket) sslserversocket.accept();
+
+            BufferedReader bufferedReader = new BufferedReader(
+                    new InputStreamReader(sslsocket.getInputStream()));
+
+            String string = null;
+            while ((string = bufferedReader.readLine()) != null) {
+                System.out.println(string);
+                System.out.flush();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+}
+```
+
+Remember that SSL/TLS secure communication needs certificates or trustStores. This detail is omitted in the example to keep it simple. Before running this program, you must setup your java keystore by importing the certificate using keytool.
+
+This program will start an SSLServerSocket listening on port 9999 and print out the text the client sends to it. The 'SSLServerSocketFactory' is a factory class for SSL server sockets and 'SSLSocketFactory' is a factory class for SSL client sockets. Volley requests are sent as HTTP requests.
+
+
+In practical applications, remember to handle SSL context, certificates, handshaking and other security aspects based on your exact requirements.

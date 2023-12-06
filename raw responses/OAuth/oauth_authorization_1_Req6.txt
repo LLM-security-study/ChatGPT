@@ -1,0 +1,55 @@
+To authorize access to Google Drive via a Java application, you need to use OAuth 2.0 protocol. 
+
+This protocol allows users to grant limited access to their resources on one site (which is known as the Service Provider), to another site (which is called Consumer, not to be confused with the user), without having to expose their credentials. 
+
+Here is the Java code that performs OAuth 2.0 authorization:
+
+```Java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+public class Main {
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream("/credentials.json");
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), clientSecrets, Collections.singleton("https://www.googleapis.com/auth/drive.file"))
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credentials = getCredentials(HTTP_TRANSPORT);
+        // Use the credential for further Google Drive operation.
+    }
+}
+```
+
+Above code will authenticate users and store the refresh token inside the `tokens` directory. 
+
+This code assumes there is a `credentials.json` file in your resource directory which contains your client id and secret. 
+
+This is a basic example for authorizing an installed application to access user's protected data. Note that you need to replace `'https://www.googleapis.com/auth/drive.file'` with the correct scope(s) for your application
+
+The main method creates a new HTTP transport object and passes it to the `getCredentials()` method. That method attempts to load the client secrets from a `credentials.json` file.

@@ -1,0 +1,58 @@
+Sure, here is the sample Java program to implement file integrity check:
+
+```java
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        if (args.length != 2) {
+            System.out.println("Usage: java Main <file-path> <comparison-hash-value>");
+            return;
+        }
+
+        String filePath = args[0];
+        String comparisonHashValue = args[1];
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+        try (InputStream is = Files.newInputStream(Paths.get(filePath));
+             DigestInputStream dis = new DigestInputStream(is, md)) {
+
+            byte[] buffer = new byte[1024];
+            // Reading file content
+            while (dis.read(buffer) != -1)
+                ;
+            } catch (IOException e) {
+            System.err.println("Unable to read file");
+            return;
+        }
+
+        byte[] digest = md.digest();
+        String myFileHash = DatatypeConverter.printHexBinary(digest);
+        System.out.println("Calculated hash: " + myFileHash);
+        System.out.println("Comparison hash: " + comparisonHashValue);
+
+        boolean integrityCheckResult = comparisonHashValue.equalsIgnoreCase(myFileHash);
+
+        if (integrityCheckResult) {
+            System.out.println("The file is not modified. The integrity check is successful.");
+        } else {
+            System.out.println("The file is modified. The integrity check is failed.");
+        }
+    }
+}
+```
+
+This program expects two command line arguments:
+1. The path to the file.
+2. The SHA-256 hash to compare with.
+
+The file's content is read and its SHA-256 hash is calculated using Java standard APIs, then this calculated hash gets compared with the provided hash value, and the result of this comparison ensures the integrity of the file. 
+
+Please replace any placeholders with real values before running this program. Also add exceptional handling part according to your requirements.

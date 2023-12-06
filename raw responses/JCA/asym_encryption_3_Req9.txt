@@ -1,0 +1,56 @@
+Sure. The most common cryptographic algorithm for asymmetric encryption is RSA, so I'm going to create a simple example using RSA. Here's how you can create an asymmetric encryption program in Java:
+
+```java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+  public static void main(String[] args) {
+    try {
+      // generate public and private keys
+      KeyPair keyPair = buildKeyPair();
+      PublicKey pubKey = keyPair.getPublic();
+      PrivateKey privateKey = keyPair.getPrivate();
+
+      // encrypt the message
+      byte[] encrypted = encrypt(privateKey, "This is a secret message");
+      System.out.println("Encrypted message: "+ new String(encrypted, "UTF8")); 
+      
+      // decrypt the message
+      byte[] decrypted = decrypt(pubKey, encrypted);                                 
+      System.out.println("Decrypted message: "+ new String(decrypted, "UTF8"));
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
+    final int keySize = 2048;
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(keySize);      
+    return keyPairGenerator.genKeyPair();
+  }
+
+  public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");  
+    cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+    return cipher.doFinal(message.getBytes());  
+  }
+  
+  public static byte[] decrypt(PublicKey publicKey, byte [] encrypted) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");  
+    cipher.init(Cipher.DECRYPT_MODE, publicKey);
+    
+    return cipher.doFinal(encrypted);
+  }
+}
+```
+
+This code first generates a key pair (public key and private key). Uses the private key to encrypt the message, and then uses the public key to decrypt it.
+
+Please replace "This is a secret message" with your own message that needs encryption.
+
+As the encryption and decryption parts are using the RSA algorithm, they can be leveraged into two different systems (communication purposes).
+
+Please note: In real situations, you would typically use the public key for encryption and the private key for decryption. This example is structured this way for simplicity and to stay within the same program.

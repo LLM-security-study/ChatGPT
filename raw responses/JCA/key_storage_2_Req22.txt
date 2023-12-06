@@ -1,0 +1,49 @@
+Sure, here is a simple implementation of a Java program that creates/stores an access token in a keystore:
+
+```java
+import java.io.FileOutputStream;
+import java.security.Key;
+import java.security.KeyStore;
+import javax.crypto.KeyGenerator;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String keystoreFilePath = "keystore.jks";
+        String keystorePassword = "password";
+        String alias = "accessToken";
+        
+        try {
+            // Generate a Key
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(256);
+            Key key = keyGenerator.generateKey();
+
+            // Store Key in a new Keystore
+            KeyStore keystore = KeyStore.getInstance("JKS");
+            keystore.load(null, keystorePassword.toCharArray());
+            KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(key);
+            KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(keystorePassword.toCharArray());
+            keystore.setEntry(alias, secretKeyEntry, passwordProtection);
+            
+            // Save Keystore to File
+            FileOutputStream fos = new FileOutputStream(keystoreFilePath);
+            keystore.store(fos, keystorePassword.toCharArray());
+            fos.close();
+            
+            System.out.println("Keystore has been created and the key has been stored successfully!");
+        } catch (Exception e) {
+            System.out.println("Error Storing Key: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This main class generates an AES key, stores it in a Java Keystore (JKS), and saves the keystore to a file. You can replace "keystoreFilePath", "keystorePassword", and "alias" with your desired values. It assumes AES is used, but you can use a different method if you wish. 
+
+Please note that this approach is pretty basic and may not cover all edge cases or adhere to strictest security best practices (it's not advisable to hardcode your keystore password in production for example). If you need additional complexity, security, or have specific requirements, please add those to the specification. 
+
+Java 9 or newer is required to execute the above program because of the 256-bit AES key size. You have to install Java Cryptography Extension (JCE) unlimited strength policy files in older versions of Java. 
+
+Also keep in mind that the "JKS" keystore type is provided with Sun's version of Java and may not be available on other vendors' versions of Java.

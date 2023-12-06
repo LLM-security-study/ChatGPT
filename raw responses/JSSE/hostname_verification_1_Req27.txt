@@ -1,0 +1,52 @@
+Here's a basic implementation of host name verification in a Java SSL/TLS communication.
+
+Please keep in mind that we need to import the required packages javax.net.ssl in order to use SSL and TSL based APIs.
+
+The main class is 'Main', and main SSL/TLS related API that we use is 'HttpsURLConnection'.
+
+Our program begins establishing an SSL connection using HttpsURLConnection and then proceeds to verify the host.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+
+public class Main {
+
+    public static void main(String[] args) throws URISyntaxException {
+        String urlString = "https://www.google.com";
+        URI uri = new URI(urlString);
+        try {
+            HttpsURLConnection conn = (HttpsURLConnection) new URL(urlString).openConnection();
+            conn.setHostnameVerifier((String hostname, SSLSession session) -> {
+                if (!hostname.equals(uri.getHost())) {
+                    throw new SSLException("Invalid Host");
+                }
+                return true;
+            });
+            conn.connect();
+
+            System.out.println("Host verification success!");
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+```
+
+In this code:
+- We use HttpsURLConnection to communicate over HTTPs.
+- We specify our url, which we’ll be connecting with.
+- We set our custom host name verification logic. In our case, we simply compare the host name in our url with the host name in our SSLSession.
+- If the host names match, we return true. If not, we throw an SSLException with a message 'Invalid Host'.
+
+Remember to replace `urlString` with the URL of the host you wish to verify.
+
+Please note that this solution above would not be fit for production level code as the hostname verification is simplistic and not comprehensive.
+In real applications, Java's built-in HostnameVerifier should be used, or better yet, rely on the default one provided by Java which follows HTTPS RFC.

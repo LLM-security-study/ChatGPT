@@ -1,0 +1,71 @@
+Given that implementing SSO is a fairly complex process, there are various libraries available to simplify the task. Google's OAuth 2.0 APIs are used for authentication and authorization. Here is a skeleton of how to use them in Java:
+
+Please add the following dependency to your project.:
+
+```xml
+<dependency>
+  <groupId>com.google.api-client</groupId>
+  <artifactId>google-api-client</artifactId>
+  <version>1.23.0</version>
+</dependency>
+```
+
+Here's the implementation:
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+
+public class Main {
+
+    private static final String CLIENT_SECRET_FILE = "/path/to/your/client_secret.json";
+    private static final String REDIRECT_URI = "Your redirect URI";
+
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+        // load client secrets 
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+            JacksonFactory.getDefaultInstance(), new FileReader(CLIENT_SECRET_FILE));
+
+        // build Authorization flow 
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            new NetHttpTransport(), JacksonFactory.getDefaultInstance(), clientSecrets,
+            Collections.singleton("openid"))
+            .build();
+
+        // trigger user authorization via browser 
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+
+        // The user will be redirected to REDIRECT_URI after user consent, 
+        // your web app should extract the authorization code from the GET request and 
+        // exchange it for a id token 
+    }
+
+    private static GoogleIdToken getIdToken(String authCode) throws IOException {
+        // (Receive authCode by HTTPS POST)
+
+        GoogleTokenResponse tokenResponse = 
+            flow
+                .newTokenRequest(authCode)
+                .setRedirectUri(REDIRECT_URI)
+                .execute();
+        
+        GoogleIdToken idToken = tokenResponse.parseIdToken();
+        return idToken;
+    }
+
+}
+```
+
+This code demonstrates the server-side flow for token acquisition with a Google Account. It uses the Google API client libraries to handle OAuth 2.0 steps.
+
+In the main method, the Google Authorization Code Flow is set up with the client secrets and scopes. The user is then redirected to Google's OAuth 2.0 server for user consent via their browser.
+
+In a real application there should be a separate servlet handling the response from the Google Server, extracting the authorization code and exchanging it for a ID token. Here, I have mentioned it in the `getIdToken` function.

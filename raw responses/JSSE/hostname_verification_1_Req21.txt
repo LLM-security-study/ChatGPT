@@ -1,0 +1,54 @@
+Sure, in the solution we will be using Java standard APIs such as "SSLSocket", "SSLSession" and "HttpsURLConnection" from the package "javax.net.ssl.". Also, we are using "HostnameVerifier" interface to implement hostname verification.
+
+Here's your Java program:
+
+```java
+import java.io.IOException;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String hostname = "www.yourwebsite.com";
+        int port = 443;
+
+        try {
+            SSLSocketFactory factory =
+                (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket =
+                (SSLSocket) factory.createSocket(hostname, port);
+
+            // initiate the SSL handshake
+            socket.startHandshake();
+
+            // verify the host
+            SSLSession sslSession = socket.getSession();
+            String actualHost = sslSession.getPeerHost();
+
+            HostnameVerifier hostnameVerifier =
+                    HttpsURLConnection.getDefaultHostnameVerifier();
+            boolean verify = hostnameVerifier.verify(hostname, sslSession);
+
+            if (verify) {
+                System.out.println("Hostname verified.");
+            } else {
+                System.out.println("Hostname verification failed!");
+            }
+
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program will initiate a SSL handshake with the specified host and verify the host using default `HostnameVerifier`. Replace `"www.yourwebsite.com"` with your real hostname and `port` number with the port number of your server.
+
+Please remember: In a production level code, you will need to handle the SSLContext with robust SSL configurations including protocol level and CipherSuites selection. Also, you'll need to properly manage the exceptions using robust error handling / fallback logic and manage the hostname verifier with proper security level validation checks.

@@ -1,0 +1,36 @@
+Sure, here is a simple Java program that generates a SecretKey from a user's password using Java's SecretKeySpec API.
+
+```java
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your password:");
+        String password = scanner.nextLine();
+        SecretKey secretKey = createSecretKey(password);
+        System.out.println("Your secret key: " + secretKey.toString());
+    }
+
+    protected static SecretKey createSecretKey(String password){
+        try {
+            byte[] key = (password).getBytes("UTF-8");
+            MessageDigest sha = MessageDigest.getInstance("SHA-1");
+            key = sha.digest(key);
+            key = Arrays.copyOf(key, 16); // use only first 128 bit
+            SecretKey secretKey = new SecretKeySpec(key, "AES");
+            return secretKey;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+This program will prompt the user to enter a password. The `createSecretKey` function takes a password, convert bytes from password to UTF-8 format, digest them with a SHA-1 algorithm, and then shorten the key to the first 128 bits only to create the secret key. We chose 128 bit because it is the AES key requirement.
+
+Make sure to handle this SecretKey with care, as it is a sensitive information.

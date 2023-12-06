@@ -1,0 +1,50 @@
+Sure, we will use Java Secure Socket Extension(JSSE) for implementation. It provides functionality for data encryption, server authentication, message integrity etc. This is widely used to secure applications that transmit data over networks.
+
+Below is a basic implementation of hostname verification for SSL/TLS communication in Java.
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+
+public class Main {
+   public static void main(String[] args) {        
+        try{
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
+            
+            SSLSession sslSession = conn.getSSLSession();
+            if(sslSession.isValid())
+            {
+                String hostname = url.getHost();
+                verifyHostname(hostname, sslSession);
+            }
+            else
+            {
+                System.out.println("Invalid SSL Session");
+            }
+            conn.disconnect();              
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    public static void verifyHostname(String hostname, SSLSession session) throws SSLPeerUnverifiedException {
+        javax.net.ssl.HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+        boolean result = hv.verify(hostname, session);
+        if(result){
+            System.out.println("Hostname verification successful");
+        }else{
+            System.out.println("Hostname verification unsuccessful");
+        }
+    }
+}
+```
+
+This code connects to a url and gets its SSLSession. An SSLSession represents an ongoing SSL/TLS connection. It then validates the SSL session and verifies the hostname using JSSE's default HostnameVerifier. If host matches with the server's identification hostname, then the verification is successful. If not, the verification fails. 
+
+Note: Modify `"https://www.example.com"` to the site you want to verify.
+
+This simplified example doesn't represent a complete hostname verification, so it's preferable to rely on a complex library for hostname verification in production environment.

@@ -1,0 +1,54 @@
+Sure, here's a basic example of such a program using the Java Security API. Note that we are using a private key to sign the message, and a public key to verify the message. This is a common practice in public key cryptography:
+
+```java
+import java.security.*;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+
+    static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
+    }
+
+    static byte[] sign(String plainText, PrivateKey privateKey) throws Exception {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(plainText.getBytes(StandardCharsets.UTF_8));
+
+        byte[] signature = privateSignature.sign();
+
+        return signature;
+    }
+
+    static boolean verify(String plainText, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(plainText.getBytes(StandardCharsets.UTF_8));
+
+        return publicSignature.verify(signature);
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = generateKeyPair();
+
+        String message = "The quick brown fox jumps over the lazy dog.";
+
+        byte[] signature = sign(message, keyPair.getPrivate());
+
+        System.out.println("Signature: " + new String(signature, StandardCharsets.UTF_8));  //print out the signature
+
+        System.out.println("Verification: " + verify(message, signature, keyPair.getPublic()));  //should return true   
+    }
+}
+```
+In this program, the `sign` function takes a message and a private key, and returns a signature. The `verify` function takes a message, a signature and a public key, and returns a boolean indicating whether the signature is valid.
+
+In the `main` function, we generate a `KeyPair` (which contains a private key and a public key), sign a message using the private key, and then verify the signature using the public key.
+
+Keep in mind, the signature we get is in bytes, if you print it directly, it might not give you a meaningful string.
+
+Please note that "SHA256withRSA" is a commonly used algorithm for signatures, but there are many others that could be used, reflecting different tradeoffs between speed, security, and other factors.
+
+This is a simple demonstration. In a real world application, you would probably want to add more error checking and exception handling.

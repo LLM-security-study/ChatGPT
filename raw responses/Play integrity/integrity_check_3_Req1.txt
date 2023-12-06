@@ -1,0 +1,78 @@
+To verify the integrity of an Android device, Google's SafetyNet Attestation API is available. SafetyNet Attestation checks whether a device is compatible, not tampered with, and that the app is not running in a simulated environment. 
+
+Please do keep in mind that only devices that pass Google's device compatibility tests can use the SafetyNet API to provide integrity-related signals.
+
+Here's a simple implementation of an Android Application using SafetyNet Attestation API in Java:
+
+```java
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+public class Main extends AppCompatActivity {
+
+    private static final String TAG = Main.class.getSimpleName();
+    private TextView textViewResult;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        Button buttonCheck = findViewById(R.id.buttonCheck);
+        textViewResult = findViewById(R.id.textViewResult);
+
+        buttonCheck.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkDeviceIntegrity();
+            }
+        });
+    }
+
+    private void checkDeviceIntegrity() {
+        String nonceData = "Safety Net Sample: " + System.currentTimeMillis();
+        byte[] nonce = nonceData.getBytes();
+
+        Task<SafetyNetApi.AttestationResponse> attestTask = SafetyNet.getClient(this).attest(nonce, "API_KEY_HERE");
+
+        attestTask.addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+            @Override
+            public void onSuccess(SafetyNetApi.AttestationResponse attestationResponse) {
+                String result = attestationResponse.getJwsResult();
+                // Do something with result, like send it to your server for verification.
+                textViewResult.setText("Result: " + result);
+                Log.d(TAG, "Result: " + result);
+            }
+        });
+    }
+}
+```
+Remember to replace "API_KEY_HERE" with the actual key.
+This code creates an Android activity that, when launched, checks the current device's integrity via the SafetyNet API.
+
+On the successful completion of the integrity check, "Result: (the response result)" will be printed on the screen.
+
+You also need to have your device connected to Google Play Services as SafetyNet Attestation API is part of Google Play services.
+
+And also don't forget to add the necessary permissions and the dependencies in your gradle file.
+
+```gradle
+dependencies {
+    implementation 'com.google.android.gms:play-services-safetynet:17.0.0'
+}
+```
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+Remember to verify the JWT (JSON Web Token) response on your server to ensure the response is indeed from Google's SafetyNet server.

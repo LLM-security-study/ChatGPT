@@ -1,0 +1,57 @@
+Here's a program that stores a SSL certificate in a keystore file:
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    private static final String KEYSTORE_FILE = "myKeystore.jks";
+    private static final String KEYSTORE_PASSWORD = "password";
+    private static final String CERTIFICATE_FILE = "myCertificate.pem";
+    private static final String CERTIFICATE_ALIAS = "myAlias";
+   
+    public static void main(String[] args) throws Exception {
+        Certificate certificate = loadCertificate(CERTIFICATE_FILE);
+        storeInKeystore(certificate, CERTIFICATE_ALIAS, KEYSTORE_FILE, KEYSTORE_PASSWORD);
+        System.out.println("Certificate stored in keystore");
+    }
+   
+    private static Certificate loadCertificate(String filename) throws Exception {
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        FileInputStream in = new FileInputStream(filename);
+        try {
+            return cf.generateCertificate(in);
+        } finally {
+            in.close();
+        }
+    }
+   
+    private static void storeInKeystore(Certificate certificate, String alias, String keystoreFile, String keystorePass) throws Exception {
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keystore.load(null, keystorePass.toCharArray());
+
+        keystore.setCertificateEntry(alias, certificate);
+
+        FileOutputStream fos = new FileOutputStream(keystoreFile);
+        try {
+            keystore.store(fos, keystorePass.toCharArray());
+        } finally {
+            fos.close();
+        }
+    }
+}
+```
+
+Note: 
+
+1) Make sure that the REVISED_CERTIFICATE_FILE, KEYSTORE_FILE and KEYSTORE_PASSWORD constants are replaced with your actual certificate file, keystore file, and password respectively.
+
+2) It's presumed that a PKCS12 keystore is to be used. If you prefer to use a JKS keystore, replace "PKCS12" with "JKS".
+
+3) For better security, avoid hardcoding KEYSTORE_PASSWORD in the code. Retrieve it from a secure source at runtime. 
+
+Ensure that you have the necessary Java Security permissions to read the certificate file, write to the keystore file and use the specified Certificate and KeyStore types. You'll also need to handle or propagate the checked exceptions that are thrown by the Java Security APIs.

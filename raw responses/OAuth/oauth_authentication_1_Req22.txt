@@ -1,0 +1,62 @@
+To integrate Google Single-Sign-On (SSO) for user authentication into a web application in Java, we need to use the Google Java Client Library. Here is the basic code structure outlining how to use it:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+/*
+This Java program integrates Google Single-Sign-On (SSO) with a web application for user authentication. 
+This program is limited to the implementation of the authentication functionality.
+*/
+
+public class Main {
+    private static final String CLIENT_ID = "yourGoogleApiClientId";
+    private static final String CLIENT_SECRET = "yourGoogleApiClientSecret";
+    private static final List<String> SCOPE = Arrays.asList("https://www.googleapis.com/auth/userinfo.profile;https://www.googleapis.com/auth/userinfo.email".split(";"));
+    private static final String REDIRECT_URI = "yourRedirectUri";
+
+    private static GoogleAuthorizationCodeFlow flow = null;
+
+    protected static GoogleAuthorizationCodeFlow getFlow() {
+        if (flow == null) {
+            flow = new GoogleAuthorizationCodeFlow.Builder(
+                    new NetHttpTransport(),
+                    new JacksonFactory(),
+                    CLIENT_ID, // Update with your app Id
+                    CLIENT_SECRET, // Update with your app secret
+                    SCOPE )
+                    .setAccessType("online") 
+                    .setApprovalPrompt("auto").build();
+        } 
+        return flow;
+    }
+
+    public static void authenticate(String authenticationCode) throws IOException {
+        GoogleTokenResponse response = getFlow().newTokenRequest(authenticationCode).setRedirectUri(REDIRECT_URI).execute();
+        Credential credential = getFlow().createAndStoreCredential(response, null);
+    }
+   
+    public static String buildLoginUrl() {
+        final GoogleAuthorizationCodeRequestUrl url = getFlow().newAuthorizationUrl();
+        return url.setRedirectUri(REDIRECT_URI).build();
+    }
+}
+```
+This program authenticates users by requesting access tokens from the Google Authorisation Server and builds login URLs to redirect users to for login.
+
+The `authenticate` method is used for exchanging the authentication code received from Google for a token response, while the `buildLoginUrl` method is for building redirect URLs for user login.
+
+Note: 
+1. The `CLIENT_ID`, `CLIENT_SECRET`, and `REDIRECT_URI` constants should be replaced with your actual Google API client ID, client secret, and redirect URI.
+2. Before running this program, add the Google API Client Library to your classpath. 
+3. This is a general example and should be customized for your specific needs to handle errors and customize the user experience. 
+
+This does not include servlets/JSPs or any web server configurations as it is beyond the scope.

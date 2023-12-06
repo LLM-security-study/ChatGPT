@@ -1,0 +1,44 @@
+Sure, here is a simple Java program that will do just that.
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Use SecureRandom to generate seed for PRNG
+        SecureRandom sr = new SecureRandom();
+        byte[] seed = new byte[16];
+        sr.nextBytes(seed);
+
+        // Use the seed to initialize a new instance of SecureRandom
+        SecureRandom prng = new SecureRandom(seed);
+        
+        // Use the PRNG to generate an IV
+        byte[] iv = new byte[16]; // Default length for an IV is usually 16 bytes
+        prng.nextBytes(iv);
+
+        // Print the seed and the iv
+        System.out.println("Seed: " + bytesToHex(seed));
+        System.out.println("IV: " + bytesToHex(iv));
+    }
+
+    // Helper method to convert byte array to hex String
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+In this code, `SecureRandom` is used as a cryptographically strong pseudorandom number generator (PRNG). The PRNG's seed is generated using the first `SecureRandom` instance, then it's re-seeded with the generated seed to create another instance. 
+
+The program uses this generated PRNG to create an Initialization Vector (IV) needed for some modes of operation in encryption algorithms (such as CBC mode in AES).
+
+Finally, the program prints the seed used to initialize the PRNG and the IV.
+
+NOTE: This code uses the byte-to-hex conversion method to make the output readable as the results are in bytes.

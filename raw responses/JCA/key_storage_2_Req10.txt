@@ -1,0 +1,52 @@
+Sure, here is a simple Java implementation on how you can store an access token into a keystore:
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.KeyStore.PasswordProtection;
+import java.security.KeyStore.SecretKeyEntry;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+class Main {
+
+    public static void main(String[] args) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableEntryException {
+        FileOutputStream fos = null;
+        try {
+            String accessToken = "Your-Access-Token-Here";
+            byte[] encoded = accessToken.getBytes("UTF-8");
+            SecretKey secretKey = new SecretKeySpec(encoded, "AES");
+
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(null, null);
+            PasswordProtection keyPass = new PasswordProtection("password".toCharArray());
+            SecretKeyEntry secretKeyEntry = new SecretKeyEntry(secretKey);
+            ks.setEntry("accessToken", secretKeyEntry, keyPass);
+            
+            fos = new FileOutputStream("keystore.jceks");
+            ks.store(fos, "password".toCharArray());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally{
+            if(fos != null){
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+}
+```
+You need to replace "Your-Access-Token-Here" and "password" with your own access token and a secure password. The key alias is set to "accessToken", you can change this if you want. The keystore type is set to "JCEKS", suitable for storing secret keys.
+
+To run this program, ensure that you handle possible exceptions correctly such as from loading the keystore, or file output operations.
+
+This program will create a new file named "keystore.jceks" with the access token stored securely within it. Make sure that the keystore and passwords used to protect it are stored securely.

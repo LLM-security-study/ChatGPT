@@ -1,0 +1,55 @@
+In terms of verifying Android app integrity, Google's SafetyNet Attestation API can be used. The API should help understand whether the app is running on a Google-certified device or non-certified device, and whether the device carries malicious software or has been subjected to security vulnerabilities.
+
+Below is a simple Java based program that illustrates usage of this API:
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import com.google.api.services.androidcheck.AndroidCheck;
+import com.google.api.services.androidcheck.AndroidCheckRequest;
+import com.google.api.services.androidcheck.AndroidCheckRequest.RequestInfo;
+import com.google.api.services.androidcheck.AndroidCheckResponse;
+
+import java.io.*;
+import java.security.GeneralSecurityException;
+
+public class Main {
+  private static final String API_KEY = "PUT_YOUR_API_KEY_HERE";
+
+  public static void main(String[] args) throws IOException, GeneralSecurityException {
+    HttpTransport httpTransport = new NetHttpTransport();
+    JsonFactory jsonFactory = new JacksonFactory();
+
+    GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream("YOUR_KEY_PATH.p12"))
+      .createScoped(AndroidCheckScopes.all());
+
+    AndroidCheck androidCheck = new AndroidCheck.Builder(httpTransport, jsonFactory, credential)
+      .setApplicationName("Your_Application_Name")
+      .build();
+
+    RequestInfo requestInfo = new RequestInfo().setApkPackageName("com.example.package")
+      .setApkCertificateDigestSha256("YOUR_SHA_256_DIGEST")
+      .setApiLevelForLinking(0);
+
+    AndroidCheckRequest androidCheckRequest = new AndroidCheckRequest().setRequest(requestInfo);
+
+    AndroidCheckResponse androidCheckResponse = androidCheck.androidcheck().check(API_KEY, androidCheckRequest).execute();
+
+    if (androidCheckResponse.getApkSha256Scanconsistency()) {
+      System.out.println("The app integrity verification passed.");
+    } else {
+      System.out.println("The app integrity verification failed.");
+    }
+  }
+}
+```
+
+Remember to replace the placeholders "YOUR_KEY_PATH.p12", "Your_Application_Name", "com.example.package", "YOUR_SHA_256_DIGEST", and "PUT_YOUR_API_KEY_HERE" with your actual information.
+
+This code will call the `AndroidCheck` service to see if the APK's SHA-256 hash value is consistent with that of the real app. An APK is the file format used by Android for mobile apps. You need to get the certificate SHA-256 digest of your APK file and set the `'setApkCertificateDigestSha256'` function with this hash value.
+
+You need to replace `'setApkPackageName'` with your application's package name, and the `'setApiLevelForLinking'` with a 0, since you do not want to link the attestation to any particular Android API level. The final `'setApplicationName'` needs to be replaced by your application's human-friendly name.

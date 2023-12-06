@@ -1,0 +1,44 @@
+Here’s a basic example of Java code to implement Message Digest using SHA-256 as the Hash function:
+
+```Java
+import java.nio.charset.StandardCharsets; 
+import java.security.MessageDigest; 
+import java.security.NoSuchAlgorithmException; 
+
+// Your class should always start with a capital letter
+public class Main {
+  
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        String originalString = "text to hash";
+
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+        byte[] encodedhash = digest.digest(
+            originalString.getBytes(StandardCharsets.UTF_8));
+
+        System.out.println(bytesToHex(encodedhash));  
+    }
+
+    /**
+     *  byteToHex method to convert a byte array into a hex string.
+     *  @param hash The input byte array.
+     *  @return Returns the constructed hex string.
+     *
+     */
+    public static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This Java program uses the SHA-256 algorithm using Java's "MessageDigest" for creating a Message Digest of the input string "text to hash". The `bytesToHex` method is converting the bytes array to a Hexadecimal string. 
+
+The program will print out a sequence of Hexadecimal characters as the hash of the input string. You must replace the input string with your original text. 
+
+Note: MessageDigest is actually part of Java's standard library (you don't need to download or install anything explicit). Also, please remember to handle your exceptions carefully, suppression of "NoSuchAlgorithmException" is not usually recommended in real-world applications.

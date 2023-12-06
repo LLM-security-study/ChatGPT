@@ -1,0 +1,86 @@
+SSO is a complex feature that requires interaction with web pages, which Java alone cannot accomplish. However, you may use Java along with a web framework like Spring Boot.
+
+Here's a skeleton of how the SSO adapter might look using Spring Boot and Spring Security:
+
+```java
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+
+@SpringBootApplication
+public class Main {
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
+
+    @Configuration
+    public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+        @Override
+        protected void configure(HttpSecurity http) throws Exception {
+            http
+                .authorizeRequests()
+                .anyRequest().authenticated()
+                .and()
+                .oauth2Login()
+                .userInfoEndpoint()
+                .oidcUserService(this.oidcUserService());
+        }
+
+        private OAuth2UserService<OidcUserRequest, OidcUser> oidcUserService() {
+            return (userRequest) -> {
+                // Placeholder to get necessary information from userRequest
+                // and other processing if necessary.
+
+                // Return a new OidcUser object
+                return new OidcUser() {
+                    @Override
+                    public Map<String, Object> getClaims() {
+                        return new HashMap<>(); 
+                    }
+                    @Override
+                    public OidcUserInfo getUserInfo() {
+                        return null;  // Replace null as needed.
+                    }
+                    @Override
+                    public OidcIdToken getIdToken() {
+                        return null;  // Replace null as needed.
+                    }
+                    @Override
+                    public Map<String, Object> getAttributes() {
+                        return new HashMap<>(); 
+                    }
+                    @Override
+                    public Collection<? extends GrantedAuthority> getAuthorities() {
+                        return Collections.singletonList(new OidcUserAuthority());
+                    }
+                    @Override
+                    public String getName() {
+                        return null;  // Replace null as needed.
+                    }
+                };
+            };
+        }
+    }
+}
+```
+
+This is a skeleton for the SSO configuration. This code will ensure every request is authenticated via OAuth2 (the protocol Google uses for authentication). When a user attempts to access the site, they will be redirected to Google's SSO sign-in page.
+
+The `oidcUserService` method returns a `OAuth2UserService` interface. The role of this service is to load user-specific data given an `OidcUserRequest` and return an `OidcUser` object.
+
+Further steps are needed to make this solution work:
+- Register an application in the Google Developer Console, get the client ID and client secret.
+- Define these properties in the application:
+  - spring.security.oauth2.client.registration.google.client-id
+  - spring.security.oauth2.client.registration.google.client-secret
+  - spring.security.oauth2.client.registration.google.redirect-uri. 
+
+Please note that this works with the state-of-the-art Spring Security 5 framework. In older versions, the configuration might be slightly different.

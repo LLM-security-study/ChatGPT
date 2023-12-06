@@ -1,0 +1,51 @@
+Sure, here is a very basic Java program implementing an SSL Socket for secure communication with a server:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    private static final String SERVER_IP = "127.0.0.1";
+    private static final int SERVER_PORT = 25565;
+
+    public static void main(String[] args) throws IOException {
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket sslSocket = null;
+        try {
+            sslSocket = (SSLSocket) sslSocketFactory.createSocket(SERVER_IP, SERVER_PORT);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+
+            String line = reader.readLine();
+            while (line != null) {
+                System.out.println("Received from server: " + line);
+                line = reader.readLine();
+            }
+        } catch (IOException e) {
+            System.out.println("I/O error occurred while reading/writing socket data.");
+            e.printStackTrace();
+        } finally {
+            if (sslSocket != null && sslSocket.isConnected()) {
+                try {
+                    sslSocket.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+Note: 
+
+1. For this to function in real-world scenarios, appropriate SSL certificates need to be installed and configured both on the client and server side.
+
+2. Replace `"127.0.0.1"` with your own server IP address.
+
+3. Replace `25565` with your own server port.
+
+This basic program simply reads data from the server in plaintext and print out in the console.
+
+Please also keep in mind that SSL/TLS communication requires a trusted certificate to avoid a "man-in-the-middle" attack.

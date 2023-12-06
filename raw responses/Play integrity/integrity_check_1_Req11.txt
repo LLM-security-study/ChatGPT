@@ -1,0 +1,42 @@
+To achieve this, Google Play provides the SafetyNet Attestation API which performs a series of checks on a device to determine whether it's tamper-free and satisfies the API's standards. Here is a simple Java code snippet that uses SafetyNet API to check if the binary app interacts with Google play recognizes:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    private String API_KEY = "input your api key here";  // Input your API Key here
+
+    public static void main(String[] args) {
+        new Main().callSafetyNetAttestationApi();
+    }
+
+    private void callSafetyNetAttestationApi() {
+        byte[] nonce = generateRandomNonce();  // Implement this method to generate a random nonce
+
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Use response.getJwsResult() to get the result data.
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                    }
+                });
+    }
+}
+```
+
+Note: In this program, the “generateRandomNonce()” function generates a random nonce used as a tracking identifier within your application. The nonce should be at least 16 bytes in length.
+
+Please use the required dependencies and permissions in order to get authenticate reports. Also, Android emulator may not be able to connect to google services and a runtime error may occur. 
+
+This code must be run in Android environment since it involves Android APIs. It does not work in a simple JVM environment.

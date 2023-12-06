@@ -1,0 +1,55 @@
+Sure, here is an example:
+
+```java
+import android.content.Context;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+
+public class Main {
+
+    private CancellationSignal cancellationSignal;
+    private Context appContext;
+
+    public Main(Context context) {
+        appContext = context;
+    }
+
+    public void startAuthentication(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+        cancellationSignal = new CancellationSignal();
+        if (manager != null) {
+            manager.authenticate(cryptoObject, cancellationSignal, 0, new AuthenticationHandler(), null);
+        }
+    }
+
+    private class AuthenticationHandler extends FingerprintManager.AuthenticationCallback {
+        @Override
+        public void onAuthenticationError(int errorCode, CharSequence errString) {
+            super.onAuthenticationError(errorCode, errString);
+            // Expose error to the user (use a toast, dialog, etc.)
+        }
+
+        @Override
+        public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+            super.onAuthenticationHelp(helpCode, helpString);
+            // Provide help to the user, hints about the finger etc.
+        }
+
+        @Override
+        public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+            super.onAuthenticationSucceeded(result);
+            // Notify the user that the authentication was successful
+        }
+
+        @Override
+        public void onAuthenticationFailed() {
+            super.onAuthenticationFailed();
+            // Notify user that the authentication failed
+        }
+      }
+}
+```
+Now it's important to note two significant things:
+1. This example requires API level 23 (Android 6.0 Marshmallow, M) or greater since Android only started supporting fingerprint API from Android 6.
+2. The "startAuthentication" method requires CryptoObject as an argument, which means you need to encrypt or sign some kind of secure object.
+
+Put your existing code inside the onAuthenticationSucceeded() function to execute as soon as the fingerprint authentication process is passed.

@@ -1,0 +1,61 @@
+For user authentication using Google Single-Sign-On in a web application, you need to use a suitable Java-based web technology or framework, such as Java Servlet, Spring Boot, etc. 
+
+Your required environment doesn't seem to be specified here, so I will give you an abstract code in Java Servlet to help you grasp the essential process. Please note that this is not a standalone Java application, but it must be integrated into a web application that can handle HTTP responses and requests.
+
+```java
+// Import necessary libraries
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+//Main class
+public class Main extends HttpServlet {
+
+    // Client ID should be stored in a more secure variable or environment. 
+    private String GOOGLE_CLIENT_ID="Your_Google_Client_Id";
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String idTokenString = req.getParameter("idtoken");
+        
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+        	.setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
+		.build();
+
+        // Verify id token using verifier object
+        GoogleIdToken idToken = null;
+        try {
+            idToken = verifier.verify(idTokenString);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+
+            // Get profile information from payload
+            String userId = payload.getSubject();
+            String email = payload.getEmail();
+            String name = payload.get("name").toString();
+            
+            // The following steps would likely include storing the user data and creating a session
+
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+    }
+}
+```
+Remember, this abstract code covers only the verification part of the Google Sign-In on the server-side. The client-side must be set up to send the ID token to the server after successful Google authentication.
+
+Also, remember to handle the necessary error exceptions and edge cases. For example, GeneralSecurityException should be caught when calling the verify method.
+
+The Google Sign-In API, Google Client API and Servlet API should be included in your dependency management tool (like Maven or Gradle) or your project classpath.

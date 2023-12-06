@@ -1,0 +1,40 @@
+Here's how you might write that in Java:
+
+```Java
+
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        try {
+            // specify the url and create connection
+            URL url = new URL("https://www.google.com");
+            HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+            
+            // get the certificate from the server
+            conn.connect();
+            java.security.cert.Certificate[] certs = conn.getServerCertificates();
+            
+            System.out.println("Server certificate :");
+            for(int i = 0; i < certs.length; i++){
+                java.security.cert.Certificate cert=certs[i];
+                System.out.println("Certificate is : " + cert.toString());
+            }
+            
+            // disconnect the url connection after use
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Here, we are creating a connection using the HttpsURLConnection API which is a part of the Java standard libraries used to create secure SSL/TLS connections. 
+
+We attempt to open a connection to the specified URL and call the getServerCertificates() function to retrieve the server certificates. The certificates are then printed out line by line.
+
+If there is an error (for example, the certificate could not be retrieved), the exception is printed out.

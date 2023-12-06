@@ -1,0 +1,63 @@
+Here is a simple implementation of what you requested:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    private static final String key = "aesEncryptionKey";
+    private static final String initVector = "encryptionIntVec";
+
+    public static void main(String[] args) {
+        String originalString = "This is the original string";
+
+        System.out.println("Original string: " + originalString);
+
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted string: " + encryptedString);
+
+        String decryptedString = decrypt(encryptedString);
+        System.out.println("Decrypted string: " + decryptedString);
+    }
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+Remember, this is a simple example for illustration purposes. In a real scenario, you should properly manage keys and never hard-code them into your programs. Considering using KeyStore, SecretKeyFactory, or similar. Moreover, handle exceptions in a more sophisticated way that suits your application's needs. 
+
+Also, make sure you have the necessary security policies and permissions to execute this type of operation, and it's compatible with your java version.

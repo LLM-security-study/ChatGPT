@@ -1,0 +1,39 @@
+Sure, Here is a simple Java program that generates a seed and uses it to initialize a SecureRandom instance, which is then used to generate a salt for password hashing. 
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // get a large random number for seeding
+        long seed = System.currentTimeMillis();
+        
+        // create an instance of SecureRandom using the given seed
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.setSeed(seed);
+        
+        // a salt is usually of a fixed size
+        byte[] salt = new byte[16];
+        secureRandom.nextBytes(salt);
+        
+        System.out.println("Generated salt: " + bytesToHex(salt));
+    }
+    
+    /*
+    * converting byte array into hexadecimal string
+    * for easier visibility and storage. 
+    */
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X ", b));
+        }
+        return sb.toString();
+    }
+}
+```
+Please note that SecureRandom is a cryptographically strong random number generator. Also, System.currentTimeMillis() in this example is prone to attacks because it can be predicted. In a real-world scenario, a better source of random seed should be used. 
+
+Remember, longer salt length is generally better. Depending on the requirement and technological constraints, you can increase the array size. The bytesToHex function is used to convert the byte array into a hexadecimal string. It could be stored in a file or a database or wherever the software architecture needs it to be.
+
+This program will generate a unique 16-byte salt each time it is run.

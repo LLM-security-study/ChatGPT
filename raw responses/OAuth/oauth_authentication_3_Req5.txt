@@ -1,0 +1,69 @@
+Given the asynchronous nature of web applications, implementing an SSO using Google accounts in Java is typically done by using a library like Spring Security OAuth2 or similar. If we strip it down to basic functionality, here is how an OAuth2-based authentication process could be coded up in Java through the HTTP Servlets API.
+```java
+//Java Program that uses Google-oauth2 to implement Single-Sign-On (SSO) for a Web Applicaiton
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class Main extends HttpServlet {
+
+    private static final String CLIENT_ID = "your_client_id_here";
+      
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String idTokenString = req.getParameter("idtoken");
+        
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+            .setAudience(Collections.singletonList(CLIENT_ID))
+            .build();
+
+        // (Receive idTokenString by HTTPS POST)
+
+        GoogleIdToken idToken = null;
+        try {
+            idToken = verifier.verify(idTokenString);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+
+            // Print user identifier
+            String userId = payload.getSubject();
+            System.out.println("User ID: " + userId);
+
+            // Get profile information from payload
+            String email = payload.getEmail();
+            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+            String name = (String) payload.get("name");
+            String pictureUrl = (String) payload.get("picture");
+            String locale = (String) payload.get("locale");
+
+            // Use or store profile information
+            // ...
+
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+    }
+
+    // remaining code....
+
+}
+
+```
+This is an oversimplified version of the SSO process, as it doesn't include error handling or any other functionality beyond verifying the token and extracting data.
+
+You also need to add `com.google.http-client:google-http-client-gson:1.26.0`, `com.google.oauth-client:google-oauth-client:1.27.0`, and `com.google.apis:google-api-services-oauth2:v2-rev131-1.23.0` to your Maven or Gradle project depending on the libraries used. 
+
+This code must live in a web application that is hosted on an application server such as Apache Tomcat. 
+
+Last but not least, you have to make sure that the "idtoken" is actually sent from the client side to the server side. The client side has to retrieve this idtoken using the Google's JavaScript SDK.

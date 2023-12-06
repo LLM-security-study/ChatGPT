@@ -1,0 +1,70 @@
+Here is a simple implementation of message encryption and decryption using AES in CBC mode in Java. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.Base64;
+import java.security.Key;
+
+public class Main {
+    private static final String key = "abcdefghijklmnop"; // 128-bit secret key 
+    private static final String initVector = "qrstuvwx01234567"; // 128-bit IV 
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String originalString = "hello world";
+        String encryptedString = encrypt(originalString);
+
+        System.out.println("Original String: " + originalString);
+        System.out.println("Encrypted String: " + encryptedString);
+        System.out.println("Decrypted String: " + decrypt(encryptedString));
+    }
+}
+```
+
+In this code:
+
+- We are using "AES/CBC/PKCS5Padding" as the transformation in our ciphers. The instruction `Cipher.getInstance()` obtains the Cipher instance requested. `AES` defines the encryption of the cipher.
+- We use an initial vector (IV) that is needed for CBC mode. 
+- `Cipher.ENCRYPT_MODE` sets the cipher to encryption mode, and `Cipher.DECRYPT_MODE` sets the cipher to decryption mode in the respective methods.
+- The encrypted value is Base64 encoded before it is returned. The decryption method decodes the Base64 encoding before it decrypts the message.
+- The key and the initial vector are hardcoded. In a real world case, you would probably want to change this.
+- The main method encrypts a sample string and then decrypts it to demonstrate the working of the two methods.
+
+Please ensure that the length of the initial Vector and key is 16 bytes (128 bits) to make it compatible with AES-128 encryption. You might want to have exception handling in case the provided text is null or the encoding is not possible.

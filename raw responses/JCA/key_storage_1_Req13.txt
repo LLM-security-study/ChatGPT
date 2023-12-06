@@ -1,0 +1,58 @@
+Certainly! Below is a simple example of a Java code to store a cryptographic key in a keystore file using Java standard APIs.
+
+```java
+import java.security.KeyStore;
+import java.security.Key;
+import java.security.cert.Certificate;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Creating an instance of KeyStore
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+
+            // password for the keystore
+            char[] password = "password".toCharArray();
+
+            // load the keystore
+            keyStore.load(null, password);
+
+            // Define the secret key
+            byte[] keyBytes = new byte[] {
+                // fill with desired bytes (16 bytes for AES 128 for instance)
+            };
+            String algorithm = "AES"; // Example for AES
+            Key key = new SecretKeySpec(keyBytes, algorithm);
+
+            // store the key in the keystore
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
+            keyStore.setEntry("alias", skEntry, new KeyStore.PasswordProtection(password));
+
+            // Save the keystore to a file
+            try (FileOutputStream fos = new FileOutputStream("keystore.jks")) {
+                keyStore.store(fos, password);
+            }
+        } catch (KeyStoreException | NoSuchAlgorithmException |
+                 CertificateException  | IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Please replace the `keyBytes` variable with your desired secret key value, `algorithm` variable with your prefered encryption algorithm and keystore password, alias and filename as per your requirement.
+
+This program will not run properly as it's because we didn't define keyBytes. You must replace the `keyBytes` variable, with your 16 (or 24 or 32, depending on the key length you want to use) bytes secret key.
+
+Note: Always keep your secret key and algorithm secret.
+
+Ensure the keystore.java file and Main.java file are both stored in the same directory.
+
+Please never use a password like "password" in production, this is purely for demonstrational purposes. Use a safe, strong and private password when you're dealing with keystore files and cryptographic keys.

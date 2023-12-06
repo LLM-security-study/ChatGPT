@@ -1,0 +1,36 @@
+Below is the Java program that calculates the hash value of the given input string using Java standard APIs:
+
+```Java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        String originalString = "This is a message for hashing";
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+            String hashedString = bytesToHex(encodedhash);
+            System.out.println("Original String: " + originalString);
+            System.out.println("Hashed String: " + hashedString);
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+In this program, the `MessageDigest` class is used to calculate the hash value. It takes "SHA-256" as the algorithm name to generate the hash. The `digest.digest()` method calculates the hash value of the input string. The `bytesToHex()` method is used to convert the byte array hash into a hexadecimal string. Replace 'This is a message for hashing' with your input string on which you want to calculate the hash value. Also, remember to handle `NoSuchAlgorithmException` appropriately as per your requirements in the larger scope of your application.
+

@@ -1,0 +1,51 @@
+Sure, here is a basic structure of the Java program that implements the required OAuth2.0 authorization to Google Contacts API:
+
+This is a high-level code that may need some additional adjustments based on precise requirements and your use case. Please remember to replace 'YOUR_CLIENT_ID', 'YOUR_CLIENT_SECRET', 'YOUR_REDIRECT_URI' with your actual Client ID, Client Secret, and Redirect URI.
+
+```java
+import com.google.api.client.auth.oauth2.draft10.AccessTokenResponse;
+import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessProtectedResource;
+import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAccessTokenRequest.GoogleAuthorizationCodeGrant;
+import com.google.api.client.googleapis.auth.oauth2.draft10.GoogleAuthorizationRequestUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson.JacksonFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Main {
+    private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+    private static final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+    private static final String REDIRECT_URI = "YOUR_REDIRECT_URI";
+
+    public static void main(String[] args) throws IOException {
+        String authUrl = new GoogleAuthorizationRequestUrl(CLIENT_ID, REDIRECT_URI, "https://www.google.com/m8/feeds/").build();
+
+        System.out.println("Please open the following URL in your browser then type the authorization code:");
+        System.out.println("  " + authUrl);
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String code = br.readLine();
+
+        AccessTokenResponse response = new GoogleAuthorizationCodeGrant(new NetHttpTransport(),
+                new JacksonFactory(),
+                CLIENT_ID,
+                CLIENT_SECRET,
+                code,
+                REDIRECT_URI).execute();
+
+        GoogleAccessProtectedResource access = new GoogleAccessProtectedResource(response.accessToken,
+                new NetHttpTransport(),
+                new JacksonFactory(),
+                CLIENT_ID,
+                CLIENT_SECRET,
+                response.refreshToken);
+
+        // The access object can now be used to initiate contact with Google APIs.
+    }
+}
+```
+The code generates an authorization request URL and prompts the user to visit this URL and manually authorize the application. The user is then asked to enter the returned authorization code. This code is then used to request an access token from Google. This token can then be used to call the Google Contacts API.
+
+Please check the dependencies and other project set up requirements while setting up the working environment for the program.

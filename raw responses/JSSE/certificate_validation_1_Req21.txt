@@ -1,0 +1,63 @@
+Sure, here is a simple example of a Java program for certificate validation using the Java Secure Socket Extension (JSSE) API. Note: This is a basic non-complete program and does not implement actual secure communication; it simply demonstrates the certificate validation using the API.
+
+```java
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.net.MalformedURLException;
+import java.io.IOException;
+
+public class Main {
+
+  public static void main(String[] args)
+  {
+    new Main().testIt();
+  }
+
+  private void testIt(){
+
+     String https_url = "https://www.google.com/";
+     URL url;
+     try {
+
+	    url = new URL(https_url);
+	    HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+
+	    //get the server's certificate chain
+	    Certificate[] certs = conn.getServerCertificates();
+	    
+	    System.out.println("Server's Certificate: ");
+	    for(Certificate cert : certs){
+	      System.out.println("Cert Type : " + cert.getType());
+	      System.out.println("Cert Hash Code : " + cert.hashCode());
+	      System.out.println("Cert Public Key Algorithm : " + cert.getPublicKey().getAlgorithm());
+	      System.out.println("Cert Public Key Format : " + cert.getPublicKey().getFormat());
+
+	       System.out.println("\n");
+	    }
+            
+     } catch (MalformedURLException e) {
+
+	    e.printStackTrace();
+
+	 } catch (SSLPeerUnverifiedException e) {
+
+	    e.printStackTrace();
+
+	 } catch (IOException e){
+     
+	    e.printStackTrace();
+
+	 }
+
+    }
+
+}
+```
+Replace the value of `https_url` with the URL of the server you want to connect with. This program prints the certificate details like `Type`, `Hash Code`, `Public Key Algorithm`, and `Public Key Format` of the server's certificate.
+
+This code should be run in a secure, trusted environment, as it involves access to sensitive data. It is a sample code and further error handling and optimization may be necessary for your specific use case. Also, this will just list server information; the validation part must be written depending on your security requirements. This also does not establish an HTTPS connection to the server.

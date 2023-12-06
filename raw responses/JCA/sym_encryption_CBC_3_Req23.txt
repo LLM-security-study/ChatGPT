@@ -1,0 +1,46 @@
+Sure, here is a simple Java program that implements an AES algorithm with CBC mode and PKCS5 padding. This program mainly encapsulates the decryption function. Before decryption, make sure that you have the correct byte array of the key and initialization vector.
+
+```java
+import java.security.Key;
+import java.security.spec.AlgorithmParameterSpec;
+import java.security.InvalidKeyException;
+import java.security.InvalidAlgorithmParameterException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Cipher;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    private static final String ALGORITHM = "AES/CBC/PKCS5PADDING";
+
+    public static String decrypt(byte[] cipherText, Key key, byte[] iv) {
+        try {
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            AlgorithmParameterSpec algorithmParams = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, key, algorithmParams);
+            byte[] decryptedText = cipher.doFinal(cipherText);
+            return new String(decryptedText);
+        } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void main(String[] args) {
+        byte[] keyBytes = new byte[16]; // Initialize with the key bytes
+        byte[] iv = new byte[16]; // Initialize with the IV bytes
+        byte[] cipherText = new byte[16]; // Initialize with the cypher text bytes
+
+        Key key = new SecretKeySpec(keyBytes, "AES");
+
+        System.out.println("Decrypted Text: "+ decrypt(cipherText, key, iv));
+    }
+}
+``` 
+
+The `decrypt` method is used to decrypt the input cipher text with a given key and initialization vector. The key, initialization vector, and cipher text should be provided in the `args`.
+The `main` method initializes the key and the initialization vector and then calls the `decrypt` method to decrypt the cipher text. Note that before running this program, you should replace the initializing array for keyBytes, iv and cipherText to the actual values.
+
+Remember: Always keep your keys and initialization vector secure. Note that you may need to handle the catched exceptions according to your solution requirements.

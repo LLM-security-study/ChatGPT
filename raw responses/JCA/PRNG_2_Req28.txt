@@ -1,0 +1,25 @@
+Sure, here is a basic example in Java to generate a seed for PRNG and then use it to generate the salt.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        byte[] salt = createSalt();
+        System.out.println(Base64.getEncoder().encodeToString(salt));
+    }
+
+    private static byte[] createSalt() {
+        SecureRandom sr = new SecureRandom();
+        byte[] bytes = new byte[16];
+        sr.nextBytes(bytes);
+        return bytes;
+    }
+}
+```
+The code above will generate a secure 16 byte salt value for each call to `createSalt()`. This salt can then be used in conjunction with a password to create a hashed password. The salt value is very important for password security as it prevents attackers from pre-calculating hashes for common passwords. It is important to generate a new salt value for each password (do not reuse salt values).
+
+NOTE: A good way to deal with the salt is to concatenate it with the hashed password and to store that in the database. So when a login attempt is made, you extract the salt from the stored value, hash the provided password with salt, and compare it with the stored hashed password.
+
+Also, this password hashing procedure should only be part of your security strategy, other measures such as using HTTPS, securing your server, setting security headers, etc, should also be considered.

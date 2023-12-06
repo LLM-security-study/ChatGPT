@@ -1,0 +1,52 @@
+Sure. Please find below the java program to fulfill your request:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String text = "This is a test string";
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+
+            byte[] hash = digest.digest(
+                    text.getBytes(StandardCharsets.UTF_8));
+
+            System.out.println(bytesToHex(hash)); //prints the hash
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder();
+
+        for (byte b : bytes) {
+            String hex = Integer.toHexString(0xff & b);
+
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+
+            hexString.append(hex);
+        }
+
+        return hexString.toString();
+    }
+}
+```
+
+This program calculates the SHA-256 hash of the given string. It represents hash as a hexadecimal number.
+
+Replace "This is a test string" with your input. Make sure to import necessary classes. Catch `NoSuchAlgorithmException` as `MessageDigest.getInstance` throws this checked exception.
+
+You can see that Java standard APIs like `MessageDigest`, `StandardCharsets`, `getBytes`, `Integer.toHexString` are used. 
+
+Try to make the SHA-256 hash algorithm standard. It's widely accepted and secure as of now. It generates a 64 length string of characters. 
+
+You can notify or take necessary steps if hash output doesn't match with the original one.
+
+Note: A tiny security point that the SHA algorithm is a one-way hashing algorithm means you can generate a hash from text but you are not able to generate original text again from hash.

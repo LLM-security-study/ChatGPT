@@ -1,0 +1,55 @@
+Sure. Here is a sample Java program that stores an access token in a keystore file using Java's KeyStore class.
+
+```java
+import java.security.KeyStore;
+import java.io.FileOutputStream;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Access token to be saved
+            String accessToken = "your_access_token";
+
+            // Create a new KeyStore
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+
+            // Load the keystore. Since it's new, provide null as the input stream and the password.
+            ks.load(null, null);
+
+            // Convert the access token to Secret Key
+            SecretKeySpec sks = new SecretKeySpec(accessToken.getBytes(), "RAW");
+
+            // Create a KeyStore.ProtectionParameter object 
+            KeyStore.ProtectionParameter protParam = new KeyStore.PasswordProtection("keystore_password".toCharArray());
+
+            // Create a KeyStore.SecretKeyEntry to wrap the secret key
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(sks);
+
+            // Add the SecretKeyEntry to the KeyStore
+            ks.setEntry("alias", skEntry, protParam);
+
+            // Create a FileOutputStream to save the keystore
+            FileOutputStream fos = new FileOutputStream("keystore.jks");
+
+            // Save the KeyStore to the FileOutputStream
+            ks.store(fos, "keystore_password".toCharArray());
+
+            // Close the FileOutputStream
+            fos.close();
+
+            System.out.println("The access token was stored successfully!");
+        } catch (Exception e) {
+            System.out.println("An error occurred");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates a new keystore, adds an access token as a secret key under an alias, and then saves the keystore to a file named "keystore.jks". Please replace "your_access_token" and "keystore_password" with your actual access token and desired password. 
+
+Remember to handle the access token and the keystore password with care. The access token grants whoever possesses it the permissions associated with it, and the keystore password protects the keys stored within the keystore.
+
+If you plan to distribute this code or put it on version control, remember not to include any sensitive data (like the access token or passwords) directly in your code. It's best to retrieve such information from environment variables or secure config files. In a production environment, relying on a secure vault technology (e.g., Hashicorp Vault) could be a better way.
+

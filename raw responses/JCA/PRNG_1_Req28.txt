@@ -1,0 +1,37 @@
+Here is a simple program that generates a seed for initializing a pseudorandom number generator (PRNG). This seed is then used to generate an initialization vector (IV) for encryption using Java's SecureRandom and KeyGenerator classes.
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+  
+  public static void main(String[] args) throws Exception {
+        // Generate a seed for PRNG
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] seed = new byte[20];
+        secureRandom.nextBytes(seed);
+
+        // Initialize PRNG with the generated seed
+        SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+        prng.setSeed(seed);
+
+        // Use the PRNG to generate an IV
+        byte[] iv = new byte[128/8];
+        prng.nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        // Print the generated IV
+        System.out.println("Generated Initialization Vector: ");
+        for(byte b : ivSpec.getIV()) {
+            System.out.format("%02x", b);
+        }
+    }
+}
+```
+
+This program generates a 20-byte random seed using the SecureRandom class. This seed is then used to initialize another SecureRandom instance ("prng") with the SHA1PRNG algorithm. The iv is then generated from the prng.
+
+Note: Generating an initialization vector (iv) this way is not secure for real-world use. Always use the platform default PRNG and never seed it manually unless you know what you are doing. Alternatively, you can directly use SecureRandom to generate an initialization vector.

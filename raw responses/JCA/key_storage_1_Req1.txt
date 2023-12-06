@@ -1,0 +1,46 @@
+Here is a simple Java program that utilizes Java's `KeyStore` API to create a cryptographic key and then stores it into a `KeyStore` file. It is important to note that we're storing the keys in a `KeyStore` to protect the sensitive information it encapsulates.
+
+This example uses the `KeyStore` to store the symmetric `SecretKey`.
+
+```java
+import javax.crypto.KeyGenerator;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.KeyStore.SecretKeyEntry;
+import javax.crypto.SecretKey;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // creating a new KeyStore
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+
+        // loading the KeyStore
+        keyStore.load(null, null); // create an empty keystore
+
+        // generating the cryptographic key
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128); //setting key size
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        // creating a SecretKeyEntry to protect the SecretKey
+        SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(secretKey);
+
+        // setting a password for the key
+        KeyStore.ProtectionParameter protectionParameter = new KeyStore.PasswordProtection("password".toCharArray());
+
+        // setting the key entry into the keystore
+        keyStore.setEntry("keyAlias", secretKeyEntry, protectionParameter);
+
+        // saving the keystore into the file system
+        try (FileOutputStream fileOutputStream = new FileOutputStream("keystore.jceks")) {
+            keyStore.store(fileOutputStream, "keystorePassword".toCharArray());
+        }
+
+        System.out.println("Cryptographic key stored in the keystore successfully!");        
+    }
+}
+```
+
+In the above code, we're creating an empty `KeyStore` with type `JCEKS`. Then, we're generating a new AES key, with a size of 128 bits. We create a `SecretKeyEntry` for our key in order to store it into the `KeyStore`. We associate a password to our key alias. Next, we're storing the `KeyStore` into a file named "keystore.jceks" with a keystore-wide password.
+
+NOTE: Change the filename, key alias and the passwords with the values suitable for your own requirement. The best practice is to avoid hardcoded passwords within your code. Always ensure to handle sensitive data such as keys and passwords in a secure manner.

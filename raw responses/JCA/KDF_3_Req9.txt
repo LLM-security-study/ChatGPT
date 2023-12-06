@@ -1,0 +1,44 @@
+Sure, here is a basic example of a password-based key derivation program in Java.
+
+This program uses PBKDF2WithHmacSHA1 algorithm to generate an AES key from password. Adjust the parameters of this program, such as iteration count, the length of the derived key, and salt to suit to your use-case.
+
+You also need to use a secure and random salt. Make sure to save this salt safely, because you'll need exactly the same salt to reproduce the key.
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+
+class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, NoSuchProviderException {
+        try {
+            String password = "mypassword";
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+            byte[] salt = new byte[16];
+            sr.nextBytes(salt);
+
+            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            PBEKeySpec pbeKeySpec = new PBEKeySpec(password.toCharArray(), salt, 10000, 128);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKeyFactory.generateSecret(pbeKeySpec).getEncoded(), "AES");
+
+            // Print key
+            for (byte b : secretKeySpec.getEncoded()) {
+                System.out.format("%02x", b);
+            }
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this code:
+
+- SecureRandom is used to generate a random salt.
+- PBKDF2WithHmacSHA1 is password-based key derivation function defined in PKCS #5 v2.0.
+- PBEKeySpec is a key specification for a SecretKey and also specifies the salt and iteration count. The password is converted to char array, then it is used along with salt, iteration count and key size to generate PBEKeySpec.
+- At the end, SecretKeyFactory is used to convert key specification into SecretKeySpec.

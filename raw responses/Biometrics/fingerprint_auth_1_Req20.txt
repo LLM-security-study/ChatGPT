@@ -1,0 +1,73 @@
+Here is a basic program that you might consider:
+
+This program uses `FingerprintManager` and `FingerprintManager.AuthenticationCallback` for implementing fingerprint-based authentication.
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Toast;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+       
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager = getSystemService(FingerprintManager.class);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Fingerprint authentication permission is not enabled",
+                        Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (!fingerprintManager.isHardwareDetected()) {
+                Toast.makeText(this, "Your device doesn't support fingerprint authentication",
+                        Toast.LENGTH_LONG).show();
+            } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                Toast.makeText(this, "No fingerprint configured. Please register at least one fingerprint",
+                        Toast.LENGTH_LONG).show();
+            } else {
+                startAuth(fingerprintManager, null);
+            }
+        } else {
+            Toast.makeText(this, "Fingerprint authentication is not supported in your device",
+                        Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void startAuth(FingerprintManager fingerprintManager, FingerprintManager.CryptoObject cryptoObject) {
+        FingerprintManager.AuthenticationCallback authCallback = new FingerprintManager.AuthenticationCallback() {
+            
+            // Callback when fingerprint authentication is successful
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                Toast.makeText(Main.this, "Authentication succeeded!", Toast.LENGTH_LONG).show();
+            }
+
+            // Callback when fingerprint authentication failed
+            @Override
+            public void onAuthenticationFailed() {
+                Toast.makeText(Main.this, "Authentication failed", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        fingerprintManager.authenticate(cryptoObject, null, 0, authCallback, null);
+    }
+}
+```
+Please note that this is a simple implementation and a real-world application might require more consideration for exception and error handling, as well as user experience improvements. Also, fingerprintManager was deprecated in API level 28, for more recent APIs you should use BiometricPromp or BiometricManager. 
+
+Also, don't forget to add the following permission to your AndroidManifest.xml file:
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```

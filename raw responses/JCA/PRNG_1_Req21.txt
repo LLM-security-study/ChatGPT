@@ -1,0 +1,42 @@
+Sure, here is a simple Java program that accomplishes this:
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        // Generate a seed for PRNG
+        long seed = System.currentTimeMillis();
+        // Create a SecureRandom object using the specified seed
+        SecureRandom secureRandom = new SecureRandom();
+        secureRandom.setSeed(seed);
+        
+        // Generate a 16-byte IV for AES using PRNG
+        byte[] iv = new byte[16];
+        secureRandom.nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        
+        // Print the generated IV
+        System.out.println("Generated Initialization Vector (IV): " + bytesToHex(iv));
+    }
+        
+    // Function to convert byte array to hex string (used for printing the IV)
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+This program first gets the current time in milliseconds as a seed for the pseudorandom number generator. 
+
+Then, it creates a new `SecureRandom` object and sets the seed using that time value. 
+
+Next, it generates a 16-byte initialization vector using `nextBytes` method of the SecureRandom instance. This is specific to AES encryption, which requires a 16-byte IV.
+
+Lastly, it prints out the IV in hex format using a helper function. This is just for visualization in the console, it's not necessary for the encryption process. The `IvParameterSpec` object containing the generated IV can be used along with a key to initialize a `Cipher` for encryption or decryption.

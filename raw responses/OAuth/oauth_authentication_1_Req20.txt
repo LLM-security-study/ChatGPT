@@ -1,0 +1,52 @@
+Sure, here is a basic Java snippet demonstrating Google Single-Sign-On integration for user authentication. This uses Google's OAuth 2.0 system for authentication:
+
+```java
+/*
+This Java program implements Google Single-Sign-On for user authentication into a web application. 
+The objective is to implement the authentication functionality, excluding other tasks like designing the user interface.
+*/
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+
+    private static final String CLIENT_ID = "YOUR_CLIENT_ID_HERE";
+
+    public static void main(String[] args) {
+        // Replace this with the token you received
+        String idTokenString = "YOUR_TOKEN_STRING_HERE";
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+            // Specify the CLIENT_ID of the app that accesses the backend:
+            .setAudience(Collections.singletonList(CLIENT_ID))
+            // Or, if multiple clients access the backend:
+            //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+                .build();
+
+        try{
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+              Payload payload = idToken.getPayload();
+              System.out.println("User ID: " + payload.getSubject());
+              // more additional info can be retrieved
+            } else {
+              System.out.println("Invalid ID token.");
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Note: Replace `"YOUR_CLIENT_ID_HERE"` and `"YOUR_TOKEN_STRING_HERE"` with your authentic Client ID and Token string respectively. You'll want to handle the token securely, rather than embedding it in the code like this.
+
+Disclaimer: Please remember working with Google APIs often involves usage of Google Client Library for Java which needs to be properly imported and configured in your project. Be aware that this script is not going to work in standalone mode. The code snippet above assumes that you have Google's java client libraries installed and configured in your classpath.
+
+The example above also simplifies error handling for brevity, in reality you would want to have more robust error handling.

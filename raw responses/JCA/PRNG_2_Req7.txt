@@ -1,0 +1,45 @@
+Sure, here is an example of a Java program which generates a seed for PRNG and then generates a salt for password hashing:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Create a SecureRandom instance
+        SecureRandom random = new SecureRandom();
+
+        // Generate a seed for PRNG
+        byte[] seed = random.generateSeed(20);
+        System.out.println("Seed: " + bytesToHex(seed));
+
+        // Initialize PRNG with the seed
+        random.setSeed(seed);
+
+        // Generate a salt for password hashing
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+        System.out.println("Salt: " + bytesToHex(salt));
+    }
+
+    /**
+     * Converts a byte array to a hexadecimal String.
+     *
+     * @param bytes The byte array
+     * @return The hexadecimal String
+     */
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder hexString = new StringBuilder(2 * bytes.length);
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xff & bytes[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+}
+```
+This program first generates a seed for a pseudorandom number generator (PRNG), using the `SecureRandom` class in the Java API. Then, the PRNG is seeded with the generated seed. Finally, a salt is generated using the PRNG. The seed and the salt are printed to the console in hexadecimal form.

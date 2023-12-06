@@ -1,0 +1,52 @@
+Here is a simple Java program that creates a new KeyStore and writes a "SecretKey" entry, which is an accessToken in this case, into it.
+
+Please make sure you handle exceptions appropriately in a real-world situation. Also, remember to guard stored secrets properly. This is a primitive example and insufficient for actual secure storage and management.
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        try {
+            KeyStore.PasswordProtection keyStorePP = new KeyStore.PasswordProtection("myPassword".toCharArray());
+
+            KeyStore ks = KeyStore.getInstance("JCEKS");
+            ks.load(null, "myPassword".toCharArray()); // null input stream => new (empty) keystore
+
+            // generating key for accessToken 
+            KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+            keyGen.init(128); // for example
+            SecretKey secretKey = keyGen.generateKey();
+
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(secretKey);
+            ks.setEntry("accessToken", skEntry, keyStorePP);
+
+            //storing keystore to file
+            try (FileOutputStream fos = new FileOutputStream("accessToken.keystore")) {
+                ks.store(fos, "myPassword".toCharArray());
+            }
+            System.out.println("Access token stored in KeyStore file successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program saves the access token as a SecretKey in a new keystore with the alias "access token". 
+
+Please replace "myPassword" and "accessToken.keystore" with appropriate sensible values. Using this same hard-coded password plainly is an awful practice for actual code.
+
+Please include your own AES key as the accessToken. In this case, for instance, I've generated a random AES key, but you may want to adapt that line to get your accessToken. 
+
+Moreover, the keystore itself is password-protected, and individual entries can be as well. 
+
+Before running this code in the production environment, consider in-depth understanding of the libraries used, and security concepts related to storing sensitive information in any form. 
+
+Also, never expose any sensitive information as plaintext and make sure that you have secured your password using standard security protocols in production.

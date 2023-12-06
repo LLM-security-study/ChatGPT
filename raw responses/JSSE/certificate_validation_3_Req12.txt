@@ -1,0 +1,51 @@
+You can achieve this with the Java Secure Socket Extension (JSSE) API, which is a standard Java API. Here is a sample code to validate an SSL certificate in Java using JSSE API:
+
+```java
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.security.cert.Certificate;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        new Main().testIt();
+    }
+
+    private void testIt() {
+
+        String urlString = "https://www.google.com";
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+            Certificate[] certs = connection.getServerCertificates();
+            for (Certificate cert : certs) {
+                System.out.println("Certificate is: " + cert.toString());
+            }
+            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String input;
+
+            while ((input = br.readLine()) != null){
+                System.out.println(input);
+            }
+            br.close();
+            
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("SSL peer unverified " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+
+This program opens a connection to a specified HTTPS URL (Google in this case), retrieves the server's certificates, prints these certificates, and reads the server's response until it is finished.
+
+Please replace "https://www.google.com" with the link you want to validate. 
+
+Remember, for a real-world application, you would need to manage key stores and trust stores, and handle SSL context properly.
+
+The classes used are provided by JSSE API. For example, javax.net.ssl.HttpsURLConnection provides HTTPS specific functionalities like managed certificates. java.security.cert.Certificate enables the user to handle the certificate related functionalities.

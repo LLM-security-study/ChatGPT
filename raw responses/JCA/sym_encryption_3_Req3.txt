@@ -1,0 +1,43 @@
+Below is a basic example of a symmetric cryptography algorithm, specifically the Advanced Encryption Standard (AES). Here we are decrypting data that was previously encrypted. Make sure you have the correct encrypted data and secret key for success decryption.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.Key;
+import java.util.Base64;
+
+public class Main {
+    private static final String ALGORITHM = "AES";
+    public static void main(String[] args) {
+
+        String secretKey = "1234567890abcdef";  // Your secret key (it's just an example)
+        String encryptedData = "encrypted data";  // Replace it with your encrypted data
+
+        try {
+            String decryptedData = decrypt(encryptedData, secretKey);
+            System.out.println("Decrypted data: " + decryptedData);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static String decrypt(String data, String key) throws Exception {
+        Key secretKey = new SecretKeySpec(key.getBytes(), ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedByteValue = cipher.doFinal(data.getBytes("utf-8"));
+        String decryptedValue = new String(decryptedByteValue, "utf-8");
+        return decryptedValue;
+    }
+}
+```
+
+Please replace the `encryptedData` and `secretKey` with your own data. In the `decrypt` function, we first create a `secretKey` using the provided key, then we initialize our cipher in the decrypt mode with the secret key.
+
+We decrypt the data by calling `cipher.doFinal(data.getBytes("utf-8"))`, we then create a string from decrypted byte array and return the decrypted data.
+
+Make sure to handle any exceptions as necessary.
+
+Please note that the secret key must be of the right length for the specified algorithm. For example, for AES, it uses a key of 16 characters (128 bits). Also, the encryption data above is not a true encrypted content. Input a true encrypted content that was encrypted using the AES and same AES key.
+
+Always remember that dealing with cryptography requires a deep understanding of the security risks related to the management of the keys, data, and the algorithm itself.

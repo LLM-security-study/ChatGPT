@@ -1,0 +1,47 @@
+Here is a basic implementation of Digital Signature using Java's Signature API. In this example, we'll be signing a simple string data using private key, and verify the received data using the public key. 
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // KeyPairGenerator class is used to generate pairs of public and private keys.
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        keyGen.initialize(1024, random);
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey priv = pair.getPrivate();
+        PublicKey pub = pair.getPublic();
+
+        String str = "This is the text to be signed.";
+        byte[] realSig = signData(str.getBytes(), priv);
+
+        boolean status = verifySig(str.getBytes(),pub,realSig);
+        System.out.println("Signature verification status: "+ status);
+    }
+
+    static byte[] signData(byte[] data, PrivateKey priv) throws Exception {
+        Signature rsa = Signature.getInstance("SHA1withDSA");
+        rsa.initSign(priv);
+
+        rsa.update(data);
+
+        return rsa.sign();
+    }
+
+    static boolean verifySig(byte[] data, PublicKey pub, byte[] sig) throws Exception {
+        Signature sign = Signature.getInstance("SHA1withDSA");
+        sign.initVerify(pub);
+
+        sign.update(data);
+
+        return sign.verify(sig);
+    }
+}
+```
+
+In order to create a secure socket, you can use Java's inbuilt APIs - `SSLSocketFactory` for creating client socket and `SSLServerSocket` for server socket. These methods will utilize the system's inbuilt keystore and truststore for implementing secure SSL communication. To overcome the limited data size for encryption, instead of encrypting the whole data, you can first generate the hash of data (eg. using SHA-256), and sign that hash. 
+
+Take note that you should handle exceptions properly in your production code. This is a simple demonstration program, so I am not doing that here. 
+
+Also, this program uses DSA (Digital Signature Algorithm), you can replace this with RSA or any other algorithms if you like. You will also need to generate a key pair using proper secure methods and pass the private key & public key to the correct function. In this sample the key pair is generated dynamically for demonstration purposes.

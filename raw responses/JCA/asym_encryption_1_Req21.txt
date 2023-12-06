@@ -1,0 +1,54 @@
+Here is a basic sample implementation of a Java program with encryption and decryption methods using RSA public-key and private-key pair:
+
+```
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+
+    public static void main (String args[]) throws Exception {
+        KeyPair keyPair = buildKeyPair();
+        PublicKey pubKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        String message = "Hello, World!";
+        
+        byte[] encrypted = encrypt(privateKey, message);     
+        System.out.println(new String(encrypted));
+
+        byte[] secret = decrypt(pubKey, encrypted);                                 
+        System.out.println(new String(secret));     
+    }
+
+    public static KeyPair buildKeyPair() throws Exception {
+        final int keySize = 2048;
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(keySize);      
+        return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+        return cipher.doFinal(message.getBytes());  
+    }
+
+    public static byte[] decrypt(PublicKey publicKey, byte[] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+
+The mainWindow() function generates a RSA key pair (private key and public key). The encrypt function uses the private key to encrypt the message to a byte array called 'encrypted'. The 'encrypted' byte array is then decrypted back into the original message 'Hello, World!' using the public key. 
+
+Please note that the decryption functionality apparently appears to take a public key and encrypted text but returns decrypted text. This might not be an appropriate behavior because generally, the decryption is performed with a private key. However, RSA allows encryption and decryption interchangeably either with public key or private key. It's just matter of your preference and context whether you want to use them for encryption or decryption.
+
+You may have to include necessary exception handling and you must consider input validation and error handling to make this usable in a production environment. This is a bare minimum working example. Remember to safely manage and handle keys in a secure manner in real-world scenarios.
+

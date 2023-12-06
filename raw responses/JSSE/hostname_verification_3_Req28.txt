@@ -1,0 +1,44 @@
+Understood! Here we go, below is the sample Java code using Java standard APIs to verify a server hostname in an SSL/TLS communication.
+
+The specific class we'll use to for the SSL/TLS handshake is `javax.net.ssl.SSLSocket`. We'll also use the `SSLParameters` class to set the endpoint identification algorithm to HTTPS, enabling the host name verification.
+
+Please remember to handle exceptions according to your project specification, as it's crucial for production quality code.
+
+```java
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+
+public class Main {
+    public static void main (String[] args) {
+        String hostname = "example.com";
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(hostname, 443);
+
+            // Enable https hostname verification
+            SSLParameters sslParams = new SSLParameters();
+            sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+            socket.setSSLParameters(sslParams);
+
+            // Now as the setEndpointIdentificationAlgorithm method has been called 
+            // with the "HTTPS" parameter, hostname verification will be automatically
+            // performed once the connection has been established.
+
+            // Start handshaking
+            socket.startHandshake();
+
+            // Always remember to close the socket when done
+            socket.close();
+            
+            System.out.println("Hostname is valid!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This will establish a secure connection to the server and verify the server's identity against its hostname. Please add exception handling according to your requirements. The `IOException` will generally be thrown when there's a network error, or the hostname doesn't match the server's identification.

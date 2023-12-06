@@ -1,0 +1,63 @@
+In order to store a cryptographic key in a keystore file in Java, we can use the `KeyStore` class from `java.security` package. Please update the keystore password, key password, alias and key algorithm to suit your needs.
+
+Here's a simple Java program for your requirement:
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import javax.crypto.SecretKey;
+import javax.crypto.KeyGenerator;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // 1. Set up
+            String keystoreFile = "nameofyourkeystoreFile.jceks";
+            String keystorePassword = "keystorePassword";
+            String alias = "alias";
+            String keyPassword = "keyPassword";
+            String keyAlgorithm = "HmacSHA256";
+
+            // 2. Generate SecretKey
+            KeyGenerator keyGen = KeyGenerator.getInstance(keyAlgorithm);
+            SecretKey key = keyGen.generateKey();
+
+            // 3. Create KeyStore and set the keyStore & password
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(null, keystorePassword.toCharArray());
+
+            // 4. Store SecretKey in KeyStore
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
+            keyStore.setEntry(alias, skEntry, new KeyStore.PasswordProtection(keyPassword.toCharArray()));
+
+            // 5. Store KeyStore in a file
+            java.io.FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(keystoreFile);
+                keyStore.store(fos, keystorePassword.toCharArray());
+            } finally {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+            System.out.println("Success! The cryptographic key is stored in keystore file.");
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+
+Here's what the above Java program does:
+
+1. Set up: Specify the keystore file name, keystore password, key alias, key password and key algorithm.
+2. Generate a SecretKey: Use the `KeyGenerator` to create a new SecretKey.
+3. Create a `KeyStore` and set up the keystore type and password.
+4. Store the SecretKey in the `KeyStore` with given alias and key password.
+5. Store the `KeyStore` in a file using `FileOutputStream`.
+
+Be careful not to share your keystore file and passwords as they can be used to access the stored secret keys.
+
+Note that this is a simple example and may not cover all security considerations you may need in a production environment. You may need additional protective measures, like more secure handling of the keystore password and key password.

@@ -1,0 +1,39 @@
+Sure, here is a simple example using Password-Based Key Derivation Function 2 (PBKDF2) algorithm in Java.
+
+```java
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
+    private static final int ITERATION_COUNT = 65536;
+    private static final int KEY_LENGTH = 256;
+    private static final byte[] SALT = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
+
+    public static void main(String[] args) {
+        System.out.println("Input Password: " + args[0]);
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+            KeySpec spec = new PBEKeySpec(args[0].toCharArray(), SALT, ITERATION_COUNT, KEY_LENGTH);
+            SecretKey secret = factory.generateSecret(spec);
+            byte[] raw = secret.getEncoded();
+
+            System.out.println("Generated Key: " + Base64.getEncoder().encodeToString(raw));
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program applies a secure hash function to the input password along with a salt, iterates over the hash value a large number of times (65536 in this case), and then generates a derived key of the desired length (256-bits in this case). The derived key is then printed to the console, encoded in Base64.
+
+Please note that we need to provide a unique salt per user, for this example a fixed salt is used. In practice, the salt should be randomly generated, unique per user, and stored alongside the user's record so it can be used for subsequent password verifications and key derivations.
+
+Also, please ensure the size of the salt you generate fits the requirement of the algorithm you use, in case of "PBKDF2WithHmacSHA256" it should be 8 bytes or more.

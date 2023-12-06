@@ -1,0 +1,44 @@
+The main API we will use for this task is Signature API, PackageManager API from Android library for verifying the integrity of an Android app.
+
+```java
+package com.example.checkintegrity;
+
+import java.io.File;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.os.Bundle;
+import android.util.Log;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+    private static final String TAG = "IntegrityVerification";
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        PackageManager pm = getPackageManager();
+        
+        try {
+            // Insert your package name
+            String packageName = "com.example.package.name";
+            PackageInfo packageInfo = pm.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            Signature[] sigs = packageInfo.signatures;
+            for (Signature sig : sigs) {
+                Log.i(TAG, "Signature : " + sig.hashCode());
+            }
+        } 
+        catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this code, we retrieve the API key from the chosen package and then apply PackageManager to get all signatures for this concrete API key. The signatures are then outputted to the log for verification.
+
+Please note that you will have to adjust this to your particular use case. You might want to store the correct hash somewhere safe and then compare the calculated hash with the stored one to see if they match.
+
+Also, this is a very basic integrity checking method, which only uses the hash code of the APK signature. If you want to do a more sophisticated check, you might need other methods.

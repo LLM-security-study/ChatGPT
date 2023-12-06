@@ -1,0 +1,50 @@
+Here's a basic Java program that does this. This program uses HMAC-SHA256 to generate a MAC.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Please enter a message:");
+            String message = scanner.nextLine();
+
+            // Secret Key
+            String secret = "secretkey";
+            SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secret_key);
+            byte[] bytes = mac.doFinal(message.getBytes("UTF-8"));
+
+            // Convert bytes array to hexadecimal
+            StringBuilder hash = new StringBuilder();
+            for (byte b : bytes) {
+                hash.append(String.format("%02x", b));
+            }
+
+            System.out.println("The MAC is: " + hash.toString());
+        } catch (NoSuchAlgorithmException | InvalidKeyException | UnsupportedEncodingException e) {
+            System.out.println("Error generating MAC: " + e.getMessage());
+        }
+    }
+}
+```
+
+It's important to note that for a real-world application, you will need to secure the secret key. It should never be hard-coded or stored in plain text, as it is done above for simplicity. You'd typically store such keys in a secure configuration that's separate from the codebase. 
+
+The order of operations is generally as follows:
+
+1. A message is provided by the user
+2. A secret key ("secretKey" in this case, needing secure storage in real cases) is defined
+3. The secret key is used to initialize a Mac object
+4. The Mac object generates the MAC from the user's message
+5. The byte array output from the Mac is converted to a hex string and printed
+
+And the program also catches and exceptions that occur during this process, printing a relevant error message.

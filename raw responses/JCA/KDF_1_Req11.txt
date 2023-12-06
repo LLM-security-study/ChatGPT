@@ -1,0 +1,36 @@
+Here is the Java program to derive cryptographic keys from a user's password using Java standard APIs:
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter your password: ");
+        String password = scanner.nextLine();
+
+        System.out.println("Enter salt value (should be long & complex for security): ");
+        String salt = scanner.nextLine();
+
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 256);
+        byte[] secret = factory.generateSecret(spec).getEncoded();
+
+        System.out.println("Derived cryptographic keys from user's password: " + Arrays.toString(secret));
+    }
+}
+```
+
+User is asked to input their password and salt value in console. SecretKeyFactory with algorithm "PBKDF2WithHmacSHA256" generates the cryptographic keys of 256 bits, given the iteration count is 65536 and salt value is provided as byte array. The keys are derived securely using standard Java cryptography APIs.
+
+Noted: Salt value being used here is user-provided and should be unique. In real time it's always recommended to keep salt value as much complex and long as possible to make hashing process more secure.
+
+Always store salt together with your hashed passwords in your database system: When a user attempts to login, retrieve the salt that was used when the user set up their account, use it to hash their password attempt, and then compare to the original hashed password.

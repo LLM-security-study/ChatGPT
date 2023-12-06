@@ -1,0 +1,49 @@
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class KDF_1_Req10 {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter your password: ");
+        String password = input.nextLine();
+
+        // Generate Salt. This usually should be stored with in the database with the password hash for password verification.
+        byte[] salt = new byte[16]; 
+        new java.security.SecureRandom().nextBytes(salt);
+
+        SecretKeyFactory factory = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
+        byte[] hash = new byte[0];
+        try {
+            assert factory != null;
+            hash = factory.generateSecret(spec).getEncoded();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        
+        System.out.println("Derived cryptographic key: " + bytesToHex(hash));
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}

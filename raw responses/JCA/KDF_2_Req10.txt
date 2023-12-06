@@ -1,0 +1,38 @@
+Sure, here is a simple Java program to create a SecretKey from a password using `SecretKeyFactory` and `PBEKeySpec` classes which are part of Java's standard APIs.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Scanner;
+
+public class Main {
+    public static SecretKey getSecretKey(char[] password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException{
+        PBEKeySpec pbeKeySpec = new PBEKeySpec(password, salt, 1000, 256);
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        return secretKeyFactory.generateSecret(pbeKeySpec);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter password: ");
+        String password = sc.nextLine();
+
+        // Normally, you should use a randomly generated salt.
+        // For demo purposes, let's use a constant salt.
+        byte[] salt = new byte[16];
+
+        try {
+            SecretKey secretKey = getSecretKey(password.toCharArray(), salt);
+            System.out.println("Secret Key: " + secretKey.toString());
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+           System.err.println("Error generating secret key: " + e.getMessage());
+        }
+    }
+}
+```
+
+Please note that in a production environment, random and unique salts should be used for each user and the salt should be stored in a secure manner. This program uses PBKDF2WithHmacSHA256 as the secret key factory type. However, the actual algorithm should be selected based on the specific needs of your application. 
+
+Likewise, output of the `secretKey.toString()` method is not the actual secret key but only a representation of the secret key object. To get the key in its raw format, `secretKey.getEncoded()` should be used. However, how you handle and store these keys is incredibly important for the security of your application. In many cases, you wouldn't want to print out or expose these keys in any way.

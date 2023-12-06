@@ -1,0 +1,55 @@
+Sure, here is a summarized Java code using JSSE (Java Secure Socket Extension) in a class named Main specifically to validate the certificate in an SSL/TLS connection.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            TrustManager[] trustManagerArray = {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        // Here is where the validation should be done.
+                        // Write whatever check you want to perform on the provided certificate. 
+                        // Throw a CertificateException if the certificate is not trusted.
+                    }
+                }
+            };
+
+            sslContext.init(null, trustManagerArray, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+
+            URL url = new URL("https://your-secure-api-url.com");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            
+            System.out.println("Response Code : " + connection.getResponseCode());
+            System.out.println("Cipher Suite : " + connection.getCipherSuite());
+            System.out.println("\n\nCertificate Information : ");
+            connection.getServerCertificates().forEach(System.out::println);
+            connection.disconnect();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This program connects to a given secure API URL and then retrieve and print out the certificate information. It doesn't validate the certificate yet, it just sets the ground to do so, the validation should be done in the `checkServerTrusted` method of the `X509TrustManager` by throwing a `CertificateException` when a certificate is not trusted.
+
+Please replace `"https://your-secure-api-url.com"` with the secured site you are trying to connect to.
+
+Please note also that this code isn't complete and is not validating the certificate yet. Security implications should be taken into account when doing SSL/TLS validation, specific to the set of features the application needs. It's strongly recommended to revise this code with a security expert to ensure its robustness.

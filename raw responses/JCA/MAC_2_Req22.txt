@@ -1,0 +1,43 @@
+In Java, you can do message integrity verification using Message Authentication Code (MAC) function. You can use widely used algorithm HMACSHA256 which is a method to calculate a Message Authentication Code (MAC) involving a cryptographic hash function in combination with a secret key. Here is the solution for the given assignment:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        String secret = "secretkey";
+
+        try {
+            // Get an instance of the HMACSHA256 Mac
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+
+            // Create a new secret key
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256Hmac.init(secretKey);
+
+            // Compute the hmac on input data bytes
+            byte[] hmacSha256Bytes = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // Convert hmacSha256Bytes to Base64 format
+            String checksum = Base64.getEncoder().encodeToString(hmacSha256Bytes);
+            
+            System.out.println("Message: " + message);
+            System.out.println("Message Checksum: " + checksum);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+
+In the above program, we are creating an instance of the HMACSHA256 Mac. Then, we initialize the Mac with a SecretKeySpec. The SecretKeySpec is being initialized with a secret key. We are using a simple secret key "secretkey" for this example. You could alternatively generate and use a more complex key to improve security. 
+
+This program then calculates the HMACSHA256 for a simple message "Hello, World!". The resulting HMACSHA256 bytes are then converted to a Base64 string. This string can be used as a checksum, which can be used to verify message integrity. 
+
+Finally, the calculated checksum is displayed in the terminal. The checksum should always stay the same as long as the message and the secret key remain the same. 
+
+You need to take care of the exception handling as necessary modifications might need to be done based on your requirement.

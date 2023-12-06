@@ -1,0 +1,60 @@
+Sure, here is your code.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.GeneralSecurityException;
+import java.util.Base64;
+
+public class Main {
+    private static final String keyString = "replaceThisKey!!"; // 16 characters
+    private static final String ivString = "replaceThisIV!!!"; // 16 characters
+
+    public static String encrypt(String rawData) throws GeneralSecurityException {
+        SecretKeySpec keySpec = new SecretKeySpec(keyString.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivString.getBytes());
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec, ivSpec);
+
+        byte[] encryptedData = cipher.doFinal(rawData.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedData);
+    }
+
+    public static String decrypt(String encryptedData) throws GeneralSecurityException {
+        SecretKeySpec keySpec = new SecretKeySpec(keyString.getBytes(), "AES");
+        IvParameterSpec ivSpec = new IvParameterSpec(ivString.getBytes());
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+
+        byte[] decodedValue = Base64.getDecoder().decode(encryptedData);
+        byte[] decryptedVal = cipher.doFinal(decodedValue);
+        return new String(decryptedVal);
+    }
+
+    public static void main(String[] args) {
+        try {
+            String rawData = "Hello, World!";
+            String encrypted = encrypt(rawData);
+            String decrypted = decrypt(encrypted);
+            
+            System.out.println("Original: " + rawData);
+            System.out.println("Encrypted: " + encrypted);
+            System.out.println("Decrypted: " + decrypted);
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Replace "replaceThisKey!!" and "replaceThisIV!!!" with your secret 16 characters key and initialization vector(IV) respectively.
+
+In this program, the main class is "Main" and it has two functions "encrypt" and "decrypt" that handle the encryption and decryption of a string respectively. The encryption and decryption are performed by using the Advanced Encryption Standard (AES) algorithm in Cipher Block Chaining (CBC) mode.
+
+The key and IV are both 16 characters long (16 bytes), which are the required lengths for the AES algorithm. The key and IV are both used in the creation of the SecretKeySpec and IvParameterSpec.
+
+The encrypt function uses the Cipher object to encrypt the raw data and then convert the encrypted data into a Base64 string.
+
+The decrypt function converts the Base64 string back into bytes and uses the Cipher object to decrypt the data. The decrypted data is then converted into a string.
+
+In the main function, a string is encrypted and then decrypted, and the original string, the encrypted string, and the decrypted string are all printed to the console.

@@ -1,0 +1,44 @@
+Here's a sample Java program to generate a seed for PRNG using SecureRandom class in Java, and then to generate a salt using that PRNG. SecureRandom class provides a cryptographically strong random number generator.
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+   
+    public static void main(String[] args) {
+        // Create a SecureRandom instance
+        SecureRandom secureRandom = new SecureRandom();
+        
+        // Generate a seed
+        byte[] seed = new byte[20];
+        secureRandom.nextBytes(seed);
+        
+        // Use the seed to re-initialize the SecureRandom instance.
+        secureRandom.setSeed(seed);
+
+        // Generate salt
+        byte[] salt = new byte[16];
+        secureRandom.nextBytes(salt);
+
+        // Prints the generated salt
+        System.out.println("Generated Salt: " + bytesToHex(salt));
+    }
+
+    // Convert byte array to hex string for better readability
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X ", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+This program first instantiates SecureRandom, and then generates a seed. This seed is used to setState of the SecureRandom instance. Then, a 16-byte salt is generated using the initialized SecureRandom instance. The salt is then printed as a hex string. 
+
+Note that a salt should be generated for each user individually and should be stored in the database along with the corresponding hashed password. 
+
+Every time the user logs in, you use the same salt from database, append it to given password, hash the result and then compare that with the hashed password in the database. 
+
+If you generate a new salt every time, the hashed passwords won't match.

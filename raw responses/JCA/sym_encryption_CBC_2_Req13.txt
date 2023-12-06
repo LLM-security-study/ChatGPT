@@ -1,0 +1,43 @@
+Below is the Java code that uses the `Cipher` class of Java's Security API and applies the AES cipher in CBC mode with PKCS5Padding.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    private static final String KEY = "aesEncryptionKey";
+    private static final String INIT_VECTOR = "encryptionIntVec";
+ 
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(KEY.getBytes(StandardCharsets.UTF_8), "AES");
+ 
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+ 
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String originalString = "original string";
+        System.out.println("Original String to encrypt - " + originalString);
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted String - " + encryptedString);
+    }  
+}
+```
+
+This program accepts a string, encrypts it using AES with CBC mode and then prints it. Initialisation vectors (IVs) are used to randomise the encryption ensuring the same plain text encrypted twice will not result in the same cipher text. `KEY` and `INIT_VECTOR` are hard-coded strings that work as seed values to generate keys and IVs.
+
+`IvParameterSpec` class and `SecretKeySpec` class are used to specify the initialisation vector and the secret key. Here, `"AES/CBC/PKCS5PADDING"` is the transformation string which denotes the algorithm, the mode of operation and the padding scheme.
+
+Keep in mind this is a simple illustration. For more sophisticated purposes, you must not use a hard-coded key and initial vector due to security reasons. Please use a secure key management system.

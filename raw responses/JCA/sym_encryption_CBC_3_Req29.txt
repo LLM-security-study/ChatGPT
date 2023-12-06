@@ -1,0 +1,41 @@
+Here is a simple Java program to decrypt data using the AES algorithm in CBC mode:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+
+        String cipherText = " your encrypted text "; //Replace with your encrypted text
+        String initVector = "SecureRandomVector"; // 16 bytes IV
+        String key = "AESEncryptionKey"; // 128 bit key
+        
+        System.out.println("Decrypted Text: " + decrypt(key, initVector, cipherText));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+This program will decrypt the encrypted text using the AES algorithm in CBC mode. In order to use this program, you need to replace `" your encrypted text "` with the text you want to decrypt.
+
+Note: Special care should be taken with the use of an Initialization Vector (IV). The secrecy of the IV is irrelevant in the prevention of plaintext recovery, but for various protocols, the IV needs to be unpredictable at encryption time.

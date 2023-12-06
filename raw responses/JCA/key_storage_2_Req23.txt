@@ -1,0 +1,54 @@
+Here is a simple Java program that creates a KeyStore, and stores an access token as a secret key.
+
+Please note, You'll need to substitute the passwords and token with your actual values.
+
+```java
+
+import java.security.KeyStore;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.KeyGenerator;
+import java.util.Base64;
+import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+
+   public static void main(String[] args) throws Exception {
+      // creating password array
+      char[] password = "keystorepass".toCharArray();
+      // creating a new key store
+      KeyStore keyStore = KeyStore.getInstance("JCEKS");
+
+      // loading the keystore
+      keyStore.load(null, password);
+      
+      Scanner input = new Scanner(System.in);
+      System.out.println("Please enter your access token: ");
+
+      String accessToken = input.next();
+      // Converting access token to byte array
+      byte[] accessTokenByte = accessToken.getBytes(StandardCharsets.UTF_8);
+
+      SecretKey mySecretKey = new SecretKeySpec(accessTokenByte, 0, accessTokenByte.length, "AES");
+      KeyStore.SecretKeyEntry skEntry=new KeyStore.SecretKeyEntry(mySecretKey);
+      keyStore.setEntry("mySecretKeyAlias", skEntry, new KeyStore.PasswordProtection(password));
+
+      // Storing the keystore
+      java.io.FileOutputStream fos = null;
+      try {
+          fos = new java.io.FileOutputStream("newKeyStoreFileName.jceks");
+          keyStore.store(fos, password);
+      } finally {
+          if (fos != null) {
+              fos.close();
+          }
+      }        
+   }
+}
+
+```
+
+When you run this code and provide an access token, it'll be stored in a new keystore file called 'newKeyStoreFileName.jceks'. The alias for the secret key is 'mySecretKeyAlias' and the password for the keystore is 'keystorepass'. 
+
+Again, you should NOT hard-code sensitive information like passwords and tokens. You should retrieve them from a secure source at runtime.

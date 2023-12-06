@@ -1,0 +1,33 @@
+Here is a simple Java program that uses the "PBKDF2WithHmacSHA256" algorithm to derive cryptographic keys from a user's password:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
+import java.util.*;
+
+public class Main {
+
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Scanner in = new Scanner(System.in);
+        System.out.print("Enter your password: ");
+        String password = in.nextLine();
+
+        // Generate salt
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+
+        // Derive key using PBKDF2WithHmacSHA256 algorithm
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256); 
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] hash = factory.generateSecret(spec).getEncoded();
+
+        System.out.println("Derived cryptographic key: " + Arrays.toString(hash));
+    }
+}
+```
+
+The program asks the user to enter a password, generates a random salt, and then uses password-based encryption with the PBKDF2WithHmacSHA256 algorithm to derive a cryptographic key from the password.
+
+Please note: the "PBKDF2WithHmacSHA256" algorithm is available from Oracle's Java 8u161 onwards. If you're using a lower version, you may need to use a different key derivation function, or upgrade your Java version to use this algorithm. Also, remember this example doesn't handle any potential IOExceptions and errors for simplicity, you will need to handle them in a production-quality program.

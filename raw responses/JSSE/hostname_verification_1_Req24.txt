@@ -1,0 +1,53 @@
+The hostname verification in SSL/TLS communications can be implemented through Java's standard SSL library's `HttpsURLConnection` class. A standard way of doing hostname verification is by matching the server's hostname with domain name listed in server's SSL certificate issued by the Certificate Authority (CA).
+
+Please see the Java code snippet below. This program attempts a secure connection to a provided URL and then verifies the returned SSL certificate's Common Name (CN) with the expected hostname.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String urlString = "https://www.example.com";
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    Certificate[] certs;
+                    try {
+                        certs = session.getPeerCertificates();
+                    } catch (SSLPeerUnverifiedException e) {
+                        return false;
+                    }
+                    X509Certificate x509 = (X509Certificate)certs[0];
+                    String dn = x509.getSubjectX500Principal().getName();
+                    String cn = getCommonName(dn);
+                    return hostname.equals(cn);
+                }
+
+                private String getCommonName(String dn) {
+                    String[] parts = dn.split(",");
+                    for (String part : parts) {
+                        if (part.startsWith("CN=")) {
+                            return part.substring(3);
+                        }
+                    }
+                    return "";
+                }
+            });
+            urlConnection.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Please proceed with caution as every implementation of host name verification could be exploited if not properly implemented. The provided sample doesn't offer complete security on its own and must be used as only a part of a comprehensive security strategy.

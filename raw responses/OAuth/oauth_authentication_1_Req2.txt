@@ -1,0 +1,92 @@
+Sure, here's a simple Java program utilizing Spring Boot and Spring Security for Google Single-Sign-On:
+
+We proceed step by step:
+
+1. Add Dependencies
+2. Create the WebSecurityConfig Class
+3. Create the Controller Class
+
+Step 1: Adding Dependencies
+
+In the project’s pom.xml file, you have to add needed dependencies for Spring Security and Google's OAuth2:
+
+```xml
+<!-- pom.xml -->
+
+<dependencies>
+     <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-security</artifactId>
+     </dependency>
+     <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter-web</artifactId>
+     </dependency>
+     <dependency>
+          <groupId>org.springframework.security.oauth.boot</groupId>
+          <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+          <version>2.1.0.RELEASE</version>
+     </dependency>
+</dependencies>
+```
+
+Step 2: Support Google Single-Sign-On (SSO)
+
+You create a class "WebSecurityConfig". This class will provide a configuration for Google SSO.
+
+```java
+// WebSecurityConfig.java
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.oauth2.client.OAuth2ClientContext;
+import org.springframework.security.oauth2.client.token.grant.code.AuthorizationCodeResourceDetails;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+
+@Configuration
+@EnableOAuth2Client
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+   
+    @Value("${google.client.client-id}")
+    private String clientId;
+    
+    @Value("${google.client.client-secret}")
+    private String clientSecret;
+
+    @Value("${google.client.redirectUri}")
+    private String redirectURI;
+
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.antMatcher("/**").authorizeRequests()
+        .anyRequest().authenticated()
+        .and().oauth2Login();
+    }
+}
+```
+Remember to replace the `client-id`, `client-secret`, and `redirectUri` with your values.
+
+Step 3: Creating the Controller
+
+A user accesses a specific path of the application, if they're authenticated with a Google Account, the server will send the user's information.
+
+```java
+//Main.java
+
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class Main {
+    @GetMapping("/")
+    public String getUser(@AuthenticationPrincipal OAuth2User principal) {
+        return principal.toString();
+    }
+}
+```
+
+Remember, for using any Google's services you should enable them through API & Services / Library in the Google Developers Console. In addition, you need to whitelist your redirect URI into the Google Developers Console.

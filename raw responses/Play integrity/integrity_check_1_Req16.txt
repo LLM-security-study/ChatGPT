@@ -1,0 +1,59 @@
+To verify an Android App's integrity, we can use Google's SafetyNet Attestation API. The safety net allows you to assess the Android environment in which your app is running. 
+
+The SafetyNet Attestation API helps you assess the security and compatibility of the Android environments in which your apps run. 
+
+Here's a simple Java program using the SafetyNet Attestation API:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    private static final String TAG = "IntegrityCheck";
+
+    public static void main(String[] args) {
+        String nonceData = "Safety Net Sample: " + System.currentTimeMillis();
+        byte[] nonce = nonceData.getBytes();
+
+        SafetyNet.getClient(this).attest(nonce, "<Your API key here>")
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        Log.d(TAG, "Success! SafetyNet result:\n" + 
+                                   response.getJwsResult() + "\n");
+                    }
+                })
+            .addOnFailureListener(this, 
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error with the Google Play services API contains some 
+                               // additional details.
+                            ApiException apiException = (ApiException) e;
+
+                            Log.d(TAG, "Error: " + 
+                                       CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) 
+                                       + ": " + apiException.getStatusMessage());
+                        } else {
+                            // Unknown type of error has occurred.
+                            Log.d(TAG, "Error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+}
+```
+Note: Please replace "<Your API key here>" with your actual API key. 
+
+Please take into consideration that this code is ran in the context of an Activity and it can't be used in a standard Java console/standalone app. So, it will not work in the "Main" class as a public static void main. You should create an Android application and use it there. Furthermore, calling "addEventListener()" may unknowingly hold onto the context, creating a potential memory leak. You may use Android's ViewModel objects to avoid this potential memory leak. 
+
+The JWS (JSON Web Signature) result that is returned from the SafetyNet Attestation API contains a JSON-format payload, which contains the information about the device's compatibility with SafetyNet. 
+
+Remember to handle the API key securely.

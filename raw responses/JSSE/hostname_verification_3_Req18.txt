@@ -1,0 +1,48 @@
+Alright. For this task, we will be using the javax.net.ssl API which is a part of Java's standard API collection. 
+
+Here is a reference implementation demonstrating the verification of a server's hostname during a SSL/TLS session:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        String urlString = "https://www.example.com"; // replace with your URL
+
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // Create an SSL Socket
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(url.getHost(), 443);
+
+            // Enable HostnameVerification
+            SSLParameters sslParameters = sslSocket.getSSLParameters();
+            sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+            sslSocket.setSSLParameters(sslParameters);
+
+            // Start Handshake
+            sslSocket.startHandshake();
+            System.out.println("SSL/TLS handshake successful. Hostname verified.");
+
+            // Appropriate connection termination and resource management
+            sslSocket.close();
+            connection.disconnect();
+        } catch (IOException e) {
+            System.out.println("SSL/TLS Handshake failed. (" + e.getMessage() + ")");
+        }
+    }
+}
+```
+
+This program works by establishing an SSL/TLS connection using a javax.net.ssl.HttpsURLConnection. The hostname is verified during the SSL/TLS handshake phase. If the hostname in the certificate matches with the actual host, the SSL/TLS handshake is successful. Otherwise, an exception is thrown indicating that the handshake failed.
+
+Please ensure to replace "https://www.example.com" with the URL of the server you wish to verify.
+
+This is a simplified example and assumes the existence of a network that this service can connect to. In an actual production environment, other parameters would need to be configured such as read and connect timeouts, error handling measures, and possibly the configuration of a custom SSLContext and TrustManager for more advanced use cases or needs.

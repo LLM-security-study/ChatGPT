@@ -1,0 +1,60 @@
+Sure, here's an example of a simple Java program that implements the RSA asymmetric encryption algorithm.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+import javax.crypto.Cipher;
+
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+      
+    KeyPair keyPair = generateKeyPair();
+    PublicKey publicKey = keyPair.getPublic();
+    PrivateKey privateKey = keyPair.getPrivate();
+
+    String originalMessage = "This is a confidential message";
+    byte[] originalMessageBytes = originalMessage.getBytes();
+
+    byte[] encryptedMessage = encrypt(originalMessageBytes, publicKey);
+
+    byte[] decryptedMessage = decrypt(encryptedMessage, privateKey);
+
+    System.out.println("Original Message: " + originalMessage);
+    System.out.println("Decrypted Message: " + new String(decryptedMessage));
+  }
+
+  private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+    KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+    generator.initialize(2048);
+    KeyPair keyPair = generator.genKeyPair();
+    return keyPair;
+  }
+
+  private static byte[] encrypt(byte[] data, PublicKey key) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");
+    cipher.init(Cipher.ENCRYPT_MODE, key);
+    return cipher.doFinal(data);
+  }
+
+  private static byte[] decrypt(byte[] data, PrivateKey key) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");
+    cipher.init(Cipher.DECRYPT_MODE, key);
+    return cipher.doFinal(data);
+  }
+  
+}
+```
+
+In this program:
+
+- `generateKeyPair` method generates a pair of private and public keys.
+- `encrypt` method encrypts the original data with the public key.
+- `decrypt` method decrypts the encrypted data back to its original form using the private key.
+- Inside the `main` method, we use the generated keys to encrypt original message and then decrypt it back to validate our implementation. The decrypted message should match the original message.
+    
+Please, replace `"This is a confidential message"` string with your actual data that you want to encrypt.

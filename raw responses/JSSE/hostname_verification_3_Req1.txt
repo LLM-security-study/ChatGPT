@@ -1,0 +1,46 @@
+Here is a basic Java program which uses Java's SSL API `HttpsURLConnection` to setup a connection, then uses `getServerCertificates` method to access the certificate, and finally uses `X509Certificate`'s `getSubjectX500Principal` method to extract the host name. This program prints out the common name (CN) from the hostname URL which usually houses the domain name.
+
+Here's the code:
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateParsingException;
+import java.security.cert.X509Certificate;
+import java.util.Collection;
+import java.util.List;
+
+public class Main {
+  public static void main(String[] args) {
+    String hostname = "https://google.com";
+    try {
+      URL destinationURL = new URL(hostname);
+      HttpsURLConnection conn = (HttpsURLConnection) destinationURL.openConnection();
+      conn.connect();
+      Certificate[] certs = conn.getServerCertificates();
+      for (Certificate cert : certs) {
+        if (cert instanceof X509Certificate) {
+          try {
+            Collection<List<?>> subjectAltNames = ((X509Certificate)cert).getSubjectAlternativeNames();
+            if (subjectAltNames != null) {
+              for (List<?> san : subjectAltNames) {
+                if (san.get(1) instanceof String) {
+                  String hostnameFromCertificate = (String) san.get(1);
+                  System.out.println("Hostname from certificate: " + hostnameFromCertificate);
+                }
+              }
+            }
+          } catch (CertificateParsingException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+Note: This program just prints out hostname found in the certificate. It's not verifying the hostname. Verifying would include checking if the hostname is as expected or checking for a trusted certificate authority etc. Actual verification part is complex and demands customized solutions based on the actual requirements.

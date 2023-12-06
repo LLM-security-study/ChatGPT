@@ -1,0 +1,45 @@
+Sure, Here is a simple implementation using Java's standard `javax.net.ssl` APIs.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main {
+    // Set your hostname here
+    private static final String HOSTNAME = "www.example.com";
+
+    public static void main(String[] args) throws Exception {
+        installHostnameVerifier();
+
+        HttpsURLConnection connection = null;
+        URL url = new URL("https://" + HOSTNAME);
+        connection = (HttpsURLConnection) url.openConnection();
+        // You can add the necessary code under openConnection.
+    }
+
+    private static void installHostnameVerifier() {
+        // Install the all-trusting trust manager
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            HostnameVerifier allHostsValid = (hostname, session) -> {
+                if (hostname.equals(HOSTNAME)) {
+                    return true;
+                }
+                return false;
+            };
+            sc.init(null, null, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+        } catch (Exception e) {
+            System.out.println("Error installing hostname verifier: " + e.getMessage());
+        }
+    }
+}
+```
+
+The `HostnameVerifier` used in this example is fairly basic, and simply checks if the hostname of the SSL session matches the `HOSTNAME` specified in the class. In a production environment, you would likely want to use a more sophisticated `HostnameVerifier`.
+
+This program uses the `javax.net.ssl.SSLContext` and `javax.net.ssl.HttpsURLConnection` classes to establish a secure connection which then uses the `HostnameVerifier` for validation.
+
+Please note that to connect to a server using TLS/SSL, the server needs to be set up accordingly and it should use a valid certificate by a certifying authority (CA). The hostname in the certificate provided by the server during TLS handshake must be verified and it should match with the actual server hostname (FQDN), during hostname verification. This code currently uses a dummy hostname `www.example.com` which needs to be replaced by the actual hostname of the server you want to connect.

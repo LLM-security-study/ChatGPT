@@ -1,0 +1,51 @@
+Sure, Here's a basic Java program to implement certificate validation. This sample program uses the javax.net.ssl API, which is a standard Java API for SSL/TLS operations. However, it does not handle all the cases which you might encounter in a real-world application. The certificates used for validation are also just placeholders and they should be replaced with your own certificates:
+
+```java
+import javax.net.ssl.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // load the truststore
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        try (FileInputStream fis = new FileInputStream("truststore.jks")) {
+            trustStore.load(fis, "password".toCharArray());
+        }
+
+        // create a trust manager factory
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(trustStore);
+
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, tmf.getTrustManagers(), null);
+
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+        try (SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("hostname", 443)) {
+            sslSocket.startHandshake();
+
+            // check the server's certificate chain
+            SSLSession session = sslSocket.getSession();
+            java.security.cert.Certificate[] servercerts = session.getPeerCertificates();
+            for (int i = 0; i < servercerts.length; i++) {
+                // You can check the validity of each certificate in the chain using X.509 specific features
+                ((X509Certificate) servercerts[i]).checkValidity();
+                System.out.println("Certificate " + (i+1) + ":");
+                System.out.println("-------------------------------------------------");
+                System.out.println(servercerts[i]);
+            }
+        }
+    }
+}
+```
+Please note that this is a basic validation checking the validity period of each certificate in the chain. Additional checks like validation against a Certificate Revocation List (CRL), checks for certificate status in the Online Certificate Status Protocol (OCSP) response, and hostname verification are not included, but they can be added using the relevant Java APIs.
+
+Also, you have to replace "password" with your truststore password, "truststore.jks" with your truststore path, and "hostname" with the hostname you want to connect to.
+
+Please ensure you handle all exceptions properly.

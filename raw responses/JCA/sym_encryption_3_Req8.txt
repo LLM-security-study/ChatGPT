@@ -1,0 +1,56 @@
+Here is a simple example of a Symmetric Cryptography Algorithm in Java with AES Encryption. In this case, plain text is encrypted using a secret key, and then the same secret key will be needed to decrypt the encrypted text.
+
+```java
+import java.security.Key;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static String algorithm = "AES";
+    private static byte[] keyValue = new byte[]{'A', 'S', 'E', 'E', 'N', 'C', 'R', 'Y', 'P', 'T', 'I', 'O', 'N', 'T', 'E', 'S'};
+
+    // Performs Encryption
+    public static String encrypt(String plainText) throws Exception {
+        Key key = generateKey();
+        Cipher chiper = Cipher.getInstance(algorithm);
+        chiper.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encVal = chiper.doFinal(plainText.getBytes());
+        String encryptedValue = Base64.getEncoder().encodeToString(encVal);
+        return encryptedValue;
+    }
+
+    // Performs decryption
+    public static String decrypt(String encryptedText) throws Exception {
+        Key key = generateKey();
+        Cipher chiper = Cipher.getInstance(algorithm);
+        chiper.init(Cipher.DECRYPT_MODE, key);
+        byte[] decordedValue = Base64.getDecoder().decode(encryptedText);
+        byte[] decValue = chiper.doFinal(decordedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+    }
+
+    // generateKey() is used to generate a secret key for AES algorithm
+    private static Key generateKey() throws Exception {
+        Key key = new SecretKeySpec(keyValue, algorithm);
+        return key;
+    }
+
+    // Test the Encryption and Decryption method
+    public static void main(String[] args) throws Exception {
+
+        String plainText = "Hello World";
+        String encryptedText = Main.encrypt(plainText);
+        String decryptedText = Main.decrypt(encryptedText);
+
+        System.out.println("Plain Text : " + plainText);
+        System.out.println("Encrypted Text : " + encryptedText);
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+}
+```
+
+This program uses the AES algorithm and encodes the output in base64. The secret key is specified in the variable "keyValue". This key needs to be secret and the same for encryption and decryption. The encrypted text is base64 encoded to smooth byte[] to String transition.
+
+Please note that proper error handling is not included in this code. Always include error handling in your production-level code. Also, securely managing keys is out of this example's scope, so keep in mind the importance of appropriately securing your keys when using cryptography outside a learning environment.

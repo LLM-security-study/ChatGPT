@@ -1,0 +1,50 @@
+Sure, below is a simple Java program that can generate a MAC using HMAC-SHA256 from a given message.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter a message: ");
+        String message = scan.nextLine();
+
+        System.out.println("MAC (Message Authentication Code): " + generateMac(message));
+    }
+
+    private static String generateMac(String message){
+        try {
+            // creating the byte array of secret key (example: "key12345")
+            byte[] secretKey = "key12345".getBytes(StandardCharsets.UTF_8);
+
+            // creating a Mac instance
+            Mac mac = Mac.getInstance("HmacSHA256");
+
+            // initializing the Mac object
+            mac.init(new SecretKeySpec(secretKey, "HmacSHA256"));
+
+            // performing the mac operation
+            byte[] macbytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // encoding and returning the mac
+            return Base64.getEncoder().encodeToString(macbytes);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+**Explanation:**
+
+- The program asks the user to input a message.
+- It then calls `generateMac(message)`, which uses a `Mac` instance to generate a Message Authentication Code in the form of a string. HMAC-SHA256 is used as the MAC algorithm.
+- Note that a hard-coded secret key "key12345" is used just for demonstration purpose. In a real-world application, you would want a secure way to generate and store this key.
+- The SecretKeySpec class is a standard way to create a secret cryptographic key from a byte array, it doesn't actually hold the key value.
+- The `Mac.init()` method initializes the `Mac` object using the provided secret key.
+- The `Mac.doFinal()` method processes the given array of bytes and finishes the MAC operation.
+- Finally, MAC bytes are encoded as a Base64 string and returned.

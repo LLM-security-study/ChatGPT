@@ -1,0 +1,44 @@
+Sure, I will be creating a program to generate a HMAC (Hash-based Message Authentication Code) in Java using standard APIs. HMAC is a kind of Message Authentication Code (MAC) that involves a cryptographic hash function and a secret key.
+
+Here's the code:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+
+    private static final String key = "secret"; // Add your key here
+
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the message: ");
+        String message = sc.next();
+        System.out.println("MAC result: " + computeHmacSHA256(message, key));
+    }
+
+    private static String computeHmacSHA256(String message, String key) throws NoSuchAlgorithmException, InvalidKeyException {
+        Mac hasher = Mac.getInstance("HmacSHA256");
+        hasher.init(new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+
+        byte[] hash = hasher.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+        // Convert byte array into a readable format
+        StringBuilder builder = new StringBuilder();
+        for (byte b : hash) {
+            builder.append(Integer.toHexString(0xFF & b));
+        }
+        return builder.toString();
+    }
+}
+```
+
+Program accepts a message as input and prints the corresponding HMAC value of it. 
+
+This uses the SHA256 hash function, which is commonly used for HMAC computation.
+
+Do note that Java's 'javax.crypto' package is used which implements the HMAC protocol and the secret key ("secret" in the program) is given as a static string for demonstration. You can replace it with your key. Keep in mind to secure it properly while implementing this in production.

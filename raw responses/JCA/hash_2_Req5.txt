@@ -1,0 +1,58 @@
+Sure, here is a basic Java program that reads a file, calculates its hash (SHA-256) and compares it with a given hash. It may not be perfect and can be optimized, but it serves the purpose you asked for:
+
+```java
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        String filePath = "file.txt";  // Replace this with your actual file path
+        String givenHash = "abc123";  // Replace this with the given hash that you want to be compared
+        
+        try {
+            byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+            byte[] fileHashBytes = MessageDigest.getInstance("SHA-256").digest(fileBytes);
+            String fileHash = bytesToHex(fileHashBytes);
+            
+            System.out.println("File's hash: " + fileHash);
+            System.out.println("Given hash: " + givenHash);
+            
+            if(fileHash.equals(givenHash)) {
+                System.out.println("File integrity check passed. The file has not been modified.");
+            } else {
+                System.out.println("File integrity check failed. The file has been modified.");
+            }
+            
+        } catch (IOException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+In this program, `file.txt` is the file that we want to check the integrity of, and `abc123` is the randomly given hash value. You should replace these with actual values.
+
+The `bytesToHex()` method is used to convert a byte array into a hexadecimal string. 
+
+Also note that we are comparing the hash values as strings, and the comparison is case-sensitive. If you want the comparison to be case-insensitive, you can convert both hash strings to lower case or upper case before comparison, like: `fileHash.toLowerCase().equals(givenHash.toLowerCase())`.
+ 
+This code can be run from `Main` class as it is a standalone class. 
+
+Make sure to handle exceptions appropriately depending on your preference and requirement. In this example, I just printed the stack trace of the exception to the console.
+
+Please remember that a proper implementation of file integrity checks would be more complicated. Issues that are not addressed by this simplified program may include security matters, performance, handle various file types, etc.

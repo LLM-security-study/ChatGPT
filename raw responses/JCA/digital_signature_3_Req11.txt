@@ -1,0 +1,47 @@
+Sure, here is a Java program which uses the KeyPairGenerator and Signature classes to sign a given message.
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception{
+        String message = "This is the message to be signed";
+
+        // Generate key pair
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA");
+        keyPairGen.initialize(2048);
+        KeyPair pair = keyPairGen.generateKeyPair();
+
+        // Get private and public keys
+        PrivateKey privKey = pair.getPrivate();
+        PublicKey pubKey = pair.getPublic();
+
+        // Sign the message
+        byte[] signedMessage = signMessage(message, privKey);
+
+        // check if the message is signed properly
+        boolean isValid = verifySignature(message, signedMessage, pubKey);
+        System.out.println("Signature valid? " + isValid);
+    }
+
+    public static byte[] signMessage(String message, PrivateKey privateKey) throws Exception {
+        Signature sign = Signature.getInstance("SHA256withDSA");
+        sign.initSign(privateKey);
+        sign.update(message.getBytes());
+        return sign.sign();
+    }
+
+    public static boolean verifySignature(String message, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature verifySign = Signature.getInstance("SHA256withDSA");
+        verifySign.initVerify(publicKey);
+        verifySign.update(message.getBytes());
+        return verifySign.verify(signature);
+    }
+}
+```
+
+You can replace "This is the message to be signed" with the message you want to sign.
+
+Remember to handle the exceptions properly in your code. The way I've done it above is for illustric purposes.
+
+Note: The SHA256withDSA signature algorithm is being used here. You can use a different algorithm if you wish. The KeyPair is generated with the DSA algorithm. RSA could also be used.

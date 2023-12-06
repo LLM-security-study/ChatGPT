@@ -1,0 +1,58 @@
+To verify the integrity of an Android app, we can use the SafetyNet Attestation API. This API helps verify that the calling app is genuine and is running on a certified Android device.  
+
+Here is a simple Android sample that checks whether the app is running in a tamper-resistant environment:
+
+```java
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        String nonceData = "SampleRequestNonce";
+        byte[] nonce = nonceData.getBytes();
+
+        SafetyNet.getClient(this).attest(nonce, "<YOUR_API_KEY>")
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Use response.getJwsResult() to get the result data.
+                                Log.d("MainActivity", "Success! SafetyNet result:\n" + response.getJwsResult() + "\n");
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        // An error occurred while communicating with the SafetyNet Api
+                        Log.d("MainActivity", "Oops, an error occurred while communicating with the SafetyNet Api");
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            Log.d("MainActivity", "ApiException: " + apiException.getStatusCode());
+                        } else {
+                            Log.d("MainActivity", "Other Exception: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+}
+```
+
+In this sample, we used the 'attest()' method of the SafetyNet API. This API checks whether the device is compatible and is not modified. If the request is successful, the API returns a signed response (a JWT, JSON Web Token), so the app can verify its signature and parse the response.
+
+Don't forget to replace <YOUR_API_KEY> with your actual API key. 
+
+This is just a simple verification and a lot more can be added depending upon the requirements, like checking whether the device is running on an emulator, etc.
+
+Also, don’t forget to add necessary permissions and dependencies in your manifest and build files.

@@ -1,0 +1,31 @@
+Here's an example Java code that demonstrates how you can generate a seed for your PRNG, then use the PRNG to generate a salt for password hashing:
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Random;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        // 1. Generating a seed for PRNG
+        SecureRandom secureRandomForSeed = new SecureRandom();
+        byte[] seed = secureRandomForSeed.generateSeed(20); // 20 bytes seed
+
+        // 2. Initialize PRNG with seed
+        SecureRandom secureRandom = new SecureRandom(seed);
+
+        // 3. Generate salt
+        byte[] salt = new byte[16];
+        secureRandom.nextBytes(salt);
+        
+        // 4. Convert salt to string for storage and use in hashing process
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+        System.out.println("Generated salt: " + saltStr);
+    }
+}
+```
+
+This program creates a seed using `SecureRandom`, then uses that seed to create another `SecureRandom`. With this second `SecureRandom`, a byte array for a salt is generated. This array is then converted to a string using `Base64` encoding, as strings are easier to handle and store. Finally, the salt string is printed to the console with `System.out.println()`. 
+
+You may want to replace the print statement with code to actually use the salt in password hashing, depending on the context of your program. Please be aware that the size of the seed and the salt (in bytes) as well as other specifics like the exact character set of `Base64` can depend on the specifications of the system you are working on/purpose of the salt.

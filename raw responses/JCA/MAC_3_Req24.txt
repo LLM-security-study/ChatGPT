@@ -1,0 +1,35 @@
+Here is a basic Java program that generates a Message Authentication Code (MAC) using HmacSHA256 algorithm. This ensures the integrity of a message by creating a unique MAC for each unique input.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args){
+
+        String secret = "secret-key";
+        String message = "Hello, World!";
+        
+        try {
+            Mac sha256HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256HMAC.init(secretKey);
+    
+            byte[] bytes = sha256HMAC.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            String mac = Base64.getEncoder().encodeToString(bytes);
+    
+            System.out.println("MAC: " + mac);
+        } catch (Exception e) {
+            System.out.println("Error");
+        }
+    }
+}
+```
+
+This program uses java cryptography (javax.crypto) package for creating MAC. Secret key and message are passed as a string which need the HMAC SHA256 hash.
+
+Here, we initialize the Mac instance with the HmacSHA256 algorithm, then initialize the SecretKeySpec with the secret key and the same HmacSHA256 algorithm. After that, using the Mac instance (sha256HMAC), the doFinal() method is called, passing in the message bytes to calculate the final MAC. Finally, the result is encoded using base64 encoder for representing as String.
+
+Please replace "secret-key" and "Hello, World!" with the key and message as per your requirement.

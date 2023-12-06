@@ -1,0 +1,44 @@
+Here is the Java program that uses RSA encryption and decryption with Keys:
+
+```java
+import javax.crypto.Cipher;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(1024);
+        KeyPair keyPair = kpg.generateKeyPair();
+
+        String originalMessage = "Hello World!";
+
+        Cipher cipher = Cipher.getInstance("RSA");
+
+        // Encryption
+        PublicKey publicKey = keyPair.getPublic();
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedBytes = cipher.doFinal(originalMessage.getBytes());
+        String encryptedMessage = Base64.getEncoder().encodeToString(encryptedBytes);
+        System.out.println("Original Message: " + originalMessage);
+        System.out.println("Encrypted Message: " + encryptedMessage);
+
+        // Decryption
+        PrivateKey privateKey = keyPair.getPrivate();
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedBytes = cipher.doFinal(Base64.getDecoder().decode(encryptedMessage));
+        String decryptedMessage = new String(decryptedBytes);
+        System.out.println("Decrypted Message: " + decryptedMessage);
+    }
+}
+```
+
+In this program, first, the key pair (Public and Private Key) is generated using KeyPairGenerator class of Java Security API. Then, the original string is encrypted using a Public key and the RSA cipher is initialized in ENCRYPT_MODE. The encrypted message is converted to a String using Base64 encoding.
+
+In the second part of the program, the same encrypted message is decrypted using the Private key and the cipher is initialized in DECRYPT_MODE. The decrypted message is again converted to a string from bytes.
+
+Please note this is just a simple usage of the RSA algorithm and might not be suitable for real-world situations. Using keys directly like this without any sort of secure key management can be a security risk. A more secure approach would be to securely manage the keys using the appropriate certificate and key stores.

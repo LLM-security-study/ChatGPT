@@ -1,0 +1,45 @@
+Sure, here is a simple program that implements a symmetric AES (Advanced Encryption Standard) algorithm using Java's Cryptography Extension (JCE). 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        String originalMessage = "Hello World";
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(256);
+
+        SecretKey secretKey = keyGenerator.generateKey();
+        byte[] aesKeyData = secretKey.getEncoded();
+        
+        SecretKeySpec aesKey = new SecretKeySpec(aesKeyData, "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+
+        // Encryption
+        cipher.init(Cipher.ENCRYPT_MODE, aesKey);
+        byte[] encryptedMessage = cipher.doFinal(originalMessage.getBytes());
+        String encryptedMessageStr = Base64.getEncoder().encodeToString(encryptedMessage);
+        System.out.println("Encrypted Message: " + encryptedMessageStr);
+
+        // Decryption
+        cipher.init(Cipher.DECRYPT_MODE, aesKey);
+        byte[] decryptedMessage = cipher.doFinal(Base64.getDecoder().decode(encryptedMessageStr));
+        String decryptedMessageStr = new String(decryptedMessage);
+        System.out.println("Decrypted Message: " + decryptedMessageStr);
+    }
+}
+```
+
+In the above program, "Hello World" string is encrypted using a randomly generated AES 256 bit key and then decrypted back to its original form using the same key.
+
+Please note that Java limits key size due to US export laws; to use 256-bit keys you need to have Java Cryptography Extension (JCE) Unlimited Strength installed in your JDK.
+
+The program requires the javax.crypto package for the cryptographic operations. If you're working with plain text, the program converts it to a byte array before encryption/decryption and then converts back to a String. The encrypted data is Base64-encoded to make it safe for printing or transmission.   

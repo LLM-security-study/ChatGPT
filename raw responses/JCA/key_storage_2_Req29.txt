@@ -1,0 +1,88 @@
+Here's a simple program which creates a new cryptographic key pair, stores it in the keystore and then retrieves it from the keystore. In Java, KeyStores are used to store passwords, certificates and keys securely. 
+
+Please note that this example requires an access token. Please replace "yourAccessToken" with your actual access token.
+
+Here's your code:
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
+
+public class Main {
+    
+    static final String KEYSTORE = "keystore.jks";
+    static final String ALIAS = "alias";
+    static final String PASSWORD = "password";
+    static final String ACCESS_TOKEN = "yourAccessToken";
+
+    public static void main(String[] args) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException {
+      
+        // create new keystore
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+
+        // load the keystore
+        ks.load(null, PASSWORD.toCharArray());
+
+        // create a new key 
+        Key key = new SecretKeySpec(ACCESS_TOKEN.getBytes(), "DES");
+        
+        // store the key in keystore
+        KeyStore.PasswordProtection keyStorePP = new KeyStore.PasswordProtection(PASSWORD.toCharArray());
+        KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry((SecretKey) key);
+        ks.setEntry(ALIAS, skEntry, keyStorePP);
+
+        // store the keystore 
+        try (FileOutputStream fos = new FileOutputStream(KEYSTORE)) {
+            ks.store(fos, PASSWORD.toCharArray());
+        }
+
+        System.out.println("Stored access token in keystore!");
+    }
+}
+```
+
+Here's how to retrieve the stored access token from keystore:
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.*;
+import java.security.cert.CertificateException;
+import javax.crypto.SecretKey;
+
+public class Main {
+
+    static final String KEYSTORE = "keystore.jks";
+    static final String ALIAS = "alias";
+    static final String PASSWORD = "password";
+
+    public static void main(String[] args) throws KeyStoreException, IOException, NoSuchAlgorithmException, UnrecoverableEntryException, CertificateException {
+
+        // create a new keystore
+        KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+
+        // load the keystore
+        try (FileInputStream fis = new FileInputStream(KEYSTORE)) {
+            ks.load(fis, PASSWORD.toCharArray());
+        }
+
+        // get the stored key
+        KeyStore.PasswordProtection keyStorePP = new KeyStore.PasswordProtection(PASSWORD.toCharArray());
+        KeyStore.SecretKeyEntry skEntry = (KeyStore.SecretKeyEntry) ks.getEntry(ALIAS, keyStorePP);
+        SecretKey secretKey = skEntry.getSecretKey();
+        
+        String retrievedAccessToken = new String(secretKey.getEncoded());
+
+        System.out.println("Retrieved access token: " + retrievedAccessToken);
+    }
+}
+```
+
+Few things to keep in mind:
+
+1. This example uses DES (Data Encryption Standard) for key generation. It's strongly discouraged to use DES because it's considered to be insecure for many applications. Use stronger algorithms like AES.
+2. The password is hardcoded for simplicity. In a real application, you should securely manage passwords, keys and not hardcode them into the code.
+3. The keystore and the keys within it need to be kept safe and protected. Always limit your keystore file's access permissions.
+4. Exception handling is trimmed for the sake of simplicity. Always handle exceptions properly in your code.

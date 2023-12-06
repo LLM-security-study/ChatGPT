@@ -1,0 +1,27 @@
+Here's a simple Java program that does what you asked:
+
+```Java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom sr = new SecureRandom();
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        String encodedSalt = Base64.getEncoder().encodeToString(salt);
+
+        System.out.println("Generated salt: " + encodedSalt);
+    }
+}
+```
+
+This program uses the `SecureRandom` class, which is a cryptographically strong random number generator (RNG). The program generates a random byte array of length 16 (128 bits), which it then encodes into a string using Base64.
+
+This program prints out the generated salt, so that you can see if it works correctly. In a real application, you would probably store the salt somewhere safe instead of printing it. 
+
+Remember: This salt should then be hashed together with the user's password using a secure hashing algorithm. 
+
+Also, each user should have their own unique salt. Do not reuse salts!
+
+To run the program, please make sure that you have the Java Runtime Environment (JRE) installed on your machine.

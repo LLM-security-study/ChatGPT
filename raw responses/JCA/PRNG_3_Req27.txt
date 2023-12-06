@@ -1,0 +1,29 @@
+Sure, I can help you with this. Here is a simple Java code that could do this:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom sr = new SecureRandom();
+
+        // initialize internal state
+        byte[] bytes = new byte[20];
+        sr.nextBytes(bytes);
+
+        // generate a seed to initialize the internal state
+        sr.setSeed(bytes);
+
+        // generate a random integer intended for cryptographic applications
+        int randomInt = sr.nextInt();
+        
+        System.out.println("Random Integer for Cryptographic Application : " + randomInt);
+    }
+}
+```
+
+In the above program, we are using `SecureRandom` class which provides a cryptographically strong pseudorandom number generator (PRNG).
+
+We initialize the internal state by generating and setting a seed.
+
+Please note: The SecureRandom class is widely used for generating random numbers particularly in cryptographic applications. The SecureRandom class completely omits linear congruential calculations. It's also flexible and either thread-safe or features easy-to-use thread local scope.

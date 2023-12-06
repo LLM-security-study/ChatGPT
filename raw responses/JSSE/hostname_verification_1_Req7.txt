@@ -1,0 +1,45 @@
+You can use Java Secure Socket Extension (JSSE) in the javax.net.ssl package to implement hostname verification for an SSL/TLS communication. The main class is named "Main". And below is a basic example of how to do this:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] {new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return new X509Certificate[0];
+            }
+            public void checkClientTrusted(
+                    java.security.cert.X509Certificate[] certs, String authType) {
+            }
+            public void checkServerTrusted(
+                    java.security.cert.X509Certificate[] certs, String authType) {
+            }
+        }};
+
+        // Install the all-trusting trust manager
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // Create all-trusting host name verifier
+        javax.net.ssl.HostnameVerifier allHostsValid = new javax.net.ssl.HostnameVerifier() {
+            public boolean verify(String hostname, javax.net.ssl.SSLSession session) {
+                return true; // Or replace with your hostname verification logic
+            }
+        };
+
+        // Install the all-trusting host verifier
+        HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
+    }
+}
+```
+
+This program sets a default SSL context and hostname verifier to allow all connections regardless of whether their certificates are trusted or their host names match the certificate host name. 
+
+Please note, this is example code and it is not advised to use in production as it bypasses critical security checks for SSL/TLS communications. For production, you must replace the implementation of `checkClientTrusted`, `checkServerTrusted` and `verify` methods with proper security checks.

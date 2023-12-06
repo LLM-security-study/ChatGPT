@@ -1,0 +1,34 @@
+Sure, here is a simple implementation of a program that generates a seed to initialize a pseudorandom number generator and also uses the PRNG to generate a salt for password hashing.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+  public static void main(String[] args) {
+
+    // Generate a seed
+    SecureRandom secureRandomSeed = new SecureRandom();
+    byte[] seed = new byte[20];
+    secureRandomSeed.nextBytes(seed);
+
+    // Initialize a Pseudo Random Number Generator with the seed
+    SecureRandom prng = new SecureRandom(seed);
+
+    // Generate a 16 bytes salt
+    byte[] salt = new byte[16];
+    prng.nextBytes(salt);
+
+    // Convert the salt to a base64 string
+    String saltBase64 = Base64.getEncoder().encodeToString(salt);
+
+    // Print the random seed and the generated salt
+    System.out.println("Random Seed: " + Base64.getEncoder().encodeToString(seed));
+    System.out.println("Generated Salt: " + saltBase64);
+  }
+}
+```
+Please note that:
+1. We are using `java.security.SecureRandom` rather than `java.util.Random`, because `SecureRandom` is better suited for generating values that need to be secure like a salt for password hashing. However, for other operations where security is not a concern, `java.util.Random` might be more optimal.
+2. We are generating a 16 byte salt, because this is typically an adequate length for password salts. However, the required length of the salt might be different based on your specific use case.
+3. At the end, we are base64 encoding the salt and printing it. The base64 format allows the salt to be stored or transmitted as a simple string, rather than a byte array.

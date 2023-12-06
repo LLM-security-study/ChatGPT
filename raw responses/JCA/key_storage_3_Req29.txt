@@ -1,0 +1,40 @@
+Here's a simple Java program which adds the SSL certificate to a Keystore file.
+
+Please note that, to load an SSL certificate and to store it, we need an actual SSL certificate file (*.cer or *.crt).
+Also, Keystore password and Certificate's alias are required to store it successfully.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            //Create CertificateFactory and load the SSL certificate
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate certificate = cf.generateCertificate(new FileInputStream("/path/to/sslcertificate.cer")); //TODO: Replace with actual path of SSL certificate
+
+            //Create Keystore instance of type "JKS"
+            KeyStore ks = KeyStore.getInstance("JKS");
+
+            //Load the Keystore
+            ks.load(null, null); //null, null represents no existing keystore file, if any use the path and password to load
+            
+            //Store the certificate to Keystore
+            ks.setCertificateEntry("alias", certificate); //TODO: Replace "alias" with actual alias if any
+
+            //Save the keystore to a file
+            ks.store(new FileOutputStream("/path/to/keystore.jks"), "password".toCharArray()); //TODO: Replace with actual path and password
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program reads the SSL certificate from a certain path, then creates a keystore object of type "JKS" that loads an empty keystore (or loads an existing one if it's there), then it stores the certificate to the keystore and finally, it saves the keystore to a certain path with a particular password.
+
+Make sure to replace "/path/to/sslcertificate.cer", "alias", "/path/to/keystore.jks", and "password" with your SSL certificate path, your alias, your desired keystore's path, and your keystore's password respectively.

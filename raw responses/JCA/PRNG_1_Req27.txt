@@ -1,0 +1,51 @@
+Here is a simple Java program that makes use of SecureRandom to generate a seed for PRNG and Initialization Vector (IV)
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a secure random number generator
+            SecureRandom secureRandom = new SecureRandom();
+
+            // Get 128 random bits for seed
+            byte[] seed = new byte[16];
+            secureRandom.nextBytes(seed);
+
+            // Reset the secure random number generator with the given seed.
+            secureRandom.setSeed(seed);
+
+            // Use the generator to generate an initialization vector (IV)
+            byte[] iv = new byte[16];
+            secureRandom.nextBytes(iv);
+
+            IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+            System.out.println("Seed: " + bytesToHex(seed));
+            System.out.println("IV: " + bytesToHex(iv));
+        } catch (Exception ex) {
+            System.out.println("Error generating IV: " + ex.getMessage());
+        }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+
+In this program, we use the `SecureRandom` class from Java's standard library. First, we create an instance of `SecureRandom` and generate a seed of 16 bytes. The `nextBytes` function fills the provided byte array with random numbers.
+
+Once we have our seed, we feed it back to the `SecureRandom` generator using the `setSeed` method. This changes the state of the generator to match the seed.
+
+Then, we use the `SecureRandom` generator to generate an Initialization Vector (IV) of 16 bytes as well. The IV is often used to provide randomness for the first block of data in a block cipher.
+
+Finally, we use `IvParameterSpec` class to create an IvParameterSpec based on the IV bytes.
+
+The `bytesToHex` is a helper method used to print the byte values in hexadecimal format.

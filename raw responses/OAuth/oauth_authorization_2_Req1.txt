@@ -1,0 +1,52 @@
+Google Calendar API does not allow server-side programming to create an event using the Client ID only. Instead, we must use OAuth2 in order to access the user's account. We will use the Google OAuth Java Client Library for obtaining the access token and the Google Calendar API for accessing the calendar data.
+
+Below is a sample Java program:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Main {
+
+    private static final String APPLICATION_NAME = "YOUR_APPLICATION_NAME";
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream("/credentials.json");
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in));
+
+        // Build flow and prompt for user authorization.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), clientSecrets, Lists.newArrayList(CalendarScopes.CALENDAR))
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+            .setAccessType("offline")
+            .build();
+            
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        return credential;
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        getCredentials(HTTP_TRANSPORT);
+    }
+}
+```
+Please replace the "YOUR_APPLICATION_NAME" with your application name. 
+
+Also, ensure that you have a `credentials.json` file containing your Client ID and Client Secret from your Google API Console in the same directory as your Main.java file. This file will be used to authorize the application.
+
+This program will open a browser where the user will grant access rights to your application and afterwards it will store the access token in a file defined by TOKENS_DIRECTORY_PATH property. When you run the program for the first time, it will redirect you to a web page to get authorization from the user. The token will then be stored in the path defined in TOKENS_DIRECTORY_PATH for further use. 
+
+Make sure to handle the necessary exception handling and further adjustments based on your production environment. 
+
+Before you can run the sample, you will also need to enable the Calendar API and install the Google Client Library as described in Google API Client Libraries. You will also need to add required dependencies to your Maven or Gradle project.

@@ -1,0 +1,54 @@
+Sure, I'll write a simple example which uses HMAC-SHA256 algorithm to compute the MAC of a message.
+
+Here’s the Java code to calculate the HMAC SHA256 hash for a message using a secret key:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // secret key
+            String secret = "secret";
+
+            // message to be authenticated
+            String message = "Hello, World!";
+
+            // converting secret key to bytes
+            byte[] secretByte = secret.getBytes(StandardCharsets.UTF_8);
+
+            // creating a SecretKeySpec
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretByte, "HmacSHA256");
+
+            // getting the instance of MAC
+            Mac mac = Mac.getInstance("HmacSHA256");
+
+            // initializing the MAC with secret key
+            mac.init(secretKeySpec);
+
+            // calculating MAC
+            byte[] doFinal = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // encoding the MAC in base64 and printing it out
+            System.out.println(Base64.getEncoder().encodeToString(doFinal));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This Java program gets an instance of `Mac` for `HmacSHA256`, initialize it with the secret key and calculate the Mac of the message.
+
+The `doFinal` method performs actual MAC computation and then restarts the Mac to be reused.
+
+The Base64 encoder is used to encode the bytes array result into a string.
+
+Remember: Replace the secret and message with the actual values you want. Also note that any party knowing the secret key can compute the MAC of the message. So, the secret key needs to be transferred in a secure manner.
+
+This is a simple example. A secure system should implement more thorough safety controls.

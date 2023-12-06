@@ -1,0 +1,42 @@
+Here's a simple example of a Java program that creates an SSL socket.
+
+We'll need to import few SSL libraries from Java APIs:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] arstring) {
+        try {
+            System.setProperty("javax.net.ssl.trustStore","myTrustStore.jts");
+            SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket("localhost", 9999);
+
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(sslsocket.getOutputStream()));
+            output.println("Hello, Server!");
+            output.flush();
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(sslsocket.getInputStream()));
+            System.out.println(input.readLine());
+
+            output.close();
+            input.close();
+            sslsocket.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+}
+```
+
+This program first sets up necessary system properties for SSL connection. It SETs the "javax.net.ssl.trustStore" property for an SSL certificate, which is used to validate the server. We have used a mock location "myTrustStore.jts" for your reference, replace it with the actual path that has your certificate files.
+
+Then, it creates an SSLSocket instance for server "localhost" on port number 9999. Here again, replace "localhost" and "9999" with your own server details.
+
+The program then writes text to the server via PrintWriter. After sending the commands to the server, this program just reads the server's first line of response using BufferedReader.
+
+Lastly, it closes all the resources.
+
+Remember to replace the server address, port number and trust store file to suit your needs.

@@ -1,0 +1,49 @@
+Sure, Here's a Java program that creates a new cryptographic key and then stores it in a keystore file named "keystore.jks".
+
+```java
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.KeyStore;
+import java.security.KeyStore.PasswordProtection;
+import java.security.KeyStore.SecretKeyEntry;
+import java.io.FileOutputStream;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // Generate a secret key
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        SecretKey secretKey = keyGen.generateKey();
+
+        // Create a keystore of type JKS
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+
+        // Initially, keystore doesn't have any keys
+        keyStore.load(null, null);
+
+        // Create a protection parameter using the password "password" for the keystore
+        PasswordProtection passProt = new PasswordProtection("password".toCharArray());
+
+        // Create a secret key entry to add to the keystore
+        SecretKeyEntry secretKeyEntry = new SecretKeyEntry(secretKey);
+        
+        // Set the entry alias as "mySecretKey"
+        keyStore.setEntry("mySecretKey", secretKeyEntry, passProt);
+
+        // Store the keystore in a file named "keystore.jks"
+        try (FileOutputStream fos = new FileOutputStream("keystore.jks")) {
+            keyStore.store(fos, "password".toCharArray());
+        }
+    }
+}
+```
+
+Please note following:
+
+1. We have hardcoded the name "mySecretKey" as the alias for our secret key. 
+2. We have also hardcoded the password for the keystore as well as the secret key as "password".
+3. This program generates an AES secret key of 256 bits. You can generate keys of different sizes by replacing 256 by the desired key size in the `init` method. 
+4. Please replace the dummy passwords with secure passwords before usage. Also, the key creation, storage, and retrieval should be performed in a secure environment, as well as additional measures may be needed to further protect the keystore file.
+
+You also have to handle exceptions properly in your production code.

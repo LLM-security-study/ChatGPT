@@ -1,0 +1,52 @@
+Here's a simple Java program that uses the AES symmetric encryption algorithm to encrypt and decrypt data.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        //Generate key
+        SecretKey secretKey = generateSecretKey();
+
+        //Text to be encrypted
+        String plainText = "I am a programming assistant!";
+
+        //Encrypt text
+        String encryptedText = encryptText(secretKey, plainText);
+        System.out.println("Encrypted Text: " + encryptedText);
+
+        //Decrypt text
+        String decryptedText = decryptText(secretKey, encryptedText);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+    public static SecretKey generateSecretKey() throws Exception {
+        KeyGenerator generator = KeyGenerator.getInstance("AES");
+        generator.init(128);
+        return generator.generateKey();
+    }
+
+    public static String encryptText(SecretKey key, String plainText) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encryptedBytes = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(encryptedBytes);
+    }
+
+    public static String decryptText(SecretKey key, String encryptedText) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decryptedBytes = Base64.getDecoder().decode(encryptedText);
+        return new String(decryptedBytes, StandardCharsets.UTF_8);
+    }
+}
+```
+
+Please replace `"I am a programming assistant!"` with your actual text. Also, note that this program uses the AES algorithm, which requires a key of length 128 bits. This is the standard AES key length and meets the most security requirements. 
+
+This code will not run if the unlimited strength jurisdiction policy files are not installed on your JVM, as these files enable all the encryption techniques that might be restricted in some countries due to export controls.

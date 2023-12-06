@@ -1,0 +1,44 @@
+In Java, you can use the SecretKeyFactory class for generating a secret key from a user password. Here we go:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner input = new Scanner(System.in);
+
+        System.out.println("Enter password:");
+        String password = input.nextLine();
+
+        try {
+            // Generate a SecretKey from the given password
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), "randomSalt".getBytes(), 65536, 128);
+            SecretKey key = factory.generateSecret(spec);
+            SecretKey secret = new SecretKeySpec(key.getEncoded(), "AES");
+            
+            // Print the secret key
+            System.out.println("Secret key: " + Base64.getEncoder().encodeToString(secret.getEncoded()));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Notes:
+- This program uses the PBKDF2WithHmacSHA256 algorithm to generate the key, which is a popular choice for password-based key generation.
+- Since generating a secret key from a password involves a random component (the salt), you would generally not expect to get the same key from the same password.
+- "randomSalt" is hard-coded here which is not good practice, it should ideally be randomly generated and then must be stored as it is needed for any subsequent decryption.
+- This is a simple console program that reads a password from console, so handle with care.
+- Error handling is done only for demonstration purposes, make sure to handle the exceptions properly in real code.
+- Secret key is printed in Base64 format just for a readable representation.
+

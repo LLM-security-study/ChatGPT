@@ -1,0 +1,42 @@
+Sure, I can draft a very basic program based on your requirement. Here, I'll be using `javax.net.ssl.SSLContext` in Java for establishing a secure communication with a specific server. Note that this program assumes that you already have the server's certificate file in your system.
+
+```java
+import javax.net.ssl.*;
+import java.security.*;
+import java.security.cert.CertificateException;
+
+public class Main {
+
+    public static void main(String[] args) throws NoSuchAlgorithmException, KeyManagementException {
+        TrustManagerFactory trustManagerFactory = null;
+
+        try {
+            // get the default TrustManager
+            trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            // Here, we must initialize our TrustManagerFactory with a KeyStore of our choosing.
+            trustManagerFactory.init((KeyStore) null);
+        } catch (NoSuchAlgorithmException | KeyStoreException ex) {
+            ex.printStackTrace();
+        }
+
+        // we create a new SSLContext and initialize it with a new TrustManager array, based on the TrustManagerFactory we just created
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), new SecureRandom());
+
+        // We can now get a SSLSocketFactory, and apply the sslContext to it
+        SSLSocketFactory sslSocketFactory = sslContext.getSocketFactory();
+
+        try {
+            // Now we can apply this SSL socket to a normal socket
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", 8080);
+            // start handshake which includes certificate validation
+            sslSocket.startHandshake();
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+In this program, `SSLSocket` will communicate with the server over SSL to provide a secure connection. If the server's certificate doesn't match the TrustManager's KeyStore, an SSLException will be thrown during the handshake. 
+
+This is a simple and very basic program; real-world scenarios may require additional functionality (such as handling self-signed certificates, more intricate certificate chains, etc).

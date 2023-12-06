@@ -1,0 +1,54 @@
+Sure, below you can find an example of a program that fits your requirements, it uses the RSA algorithm to encrypt and decrypt strings.
+
+Please note that normally, for security reasons private and public keys pair are saved to files and not directly used in the code.
+
+```java
+import java.security.*;
+import javax.crypto.*;
+
+public class Main
+{
+    private static final String ALGORITHM = "RSA";
+    
+    public static void main(String[] argv) throws Exception 
+    {
+        // Generate keys
+        KeyPair keyPair = generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        String originalText = "This is a secure message";
+        System.out.println("Original Text: " + originalText);
+
+        String cipherText = encrypt(originalText, publicKey);
+        System.out.println("Encrypted Text: " + cipherText);
+        
+        String decryptedText = decrypt(cipherText, privateKey);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+    
+    static KeyPair generateKeyPair() throws NoSuchAlgorithmException 
+    {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(ALGORITHM);
+        keyPairGenerator.initialize(2048);
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    static String encrypt(String plaintext, Key key) throws Exception
+    {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encryptedBytes = cipher.doFinal(plaintext.getBytes());
+        return new String(encryptedBytes, "UTF8");
+    }
+
+    static String decrypt(String ciphertext, Key key) throws Exception
+    {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decryptedBytes = cipher.doFinal(ciphertext.getBytes("UTF8"));
+        return new String(decryptedBytes);
+    }
+}
+```
+Note that this implementation can't handle long strings because of RSA limitations. Also, encrypted byte arrays can contain bytes that can't be represented as characters, so converting it to string will potentially lose data. Typically the byte array will be transformed to a safer format for display, like hexadecimal or Base64, but that's out of scope of this question. Also Usual Java Cryptography Extension (JCE) installations only support RSA keys of up to 2048 bits and you may need to upgrade it to handle 4096 bit keys. Disscussing security measures and optimizations, including handling of keys, padding and block modes are beyond of this question.

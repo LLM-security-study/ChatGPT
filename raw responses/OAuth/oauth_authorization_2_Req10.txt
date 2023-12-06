@@ -1,0 +1,76 @@
+To accomplish this task in Java, you will need to make use of the Google Calendar API. Before diving into the code, make sure you add the two following dependencies to your Maven `pom.xml` file or Gradle `build.gradle` file.
+
+Maven dependencies:
+```xml
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.23.0</version>
+</dependency>
+<dependency>
+    <groupId>com.google.apis</groupId>
+    <artifactId>google-api-services-calendar</artifactId>
+    <version>v3-rev305-1.23.0</version>
+</dependency>
+```
+Gradle dependencies:
+```groovy
+implementation 'com.google.api-client:google-api-client:1.23.0'
+implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.23.0'
+```
+
+Now, here is a code sample for a `Main` class, which loads the `client_secrets.json` file containing the Client ID and Client Secret, and completes the OAuth 2.0 authorization flow.
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.api.services.calendar.Calendar;
+
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleClientSecrets clientSecrets;
+        
+        try (InputStream in = Main.class.getResourceAsStream("/client_secrets.json");
+             Reader reader = new InputStreamReader(in)) {
+            clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, reader);
+        }
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+
+        // Next, you can use the Calendar service with the authorized credential:
+        // Calendar service = new Calendar.Builder(HTTP_TRANSPORT, JSON_FACTORY, credential).setApplicationName(APPLICATION_NAME).build();
+    }
+}
+```
+This program uses an "offline" access type, allowing the application to refresh the access token when the user isn't present at the browser. It also stores the user's credentials in a file, so they don't have to re-authorize the application every time.
+
+Please replace `"client_secrets.json"` with the actual path to your Client Secrets file and `"tokens"` with the path where you'd like user credentials to be stored. Make sure not to share the secrets file or other sensitive info. Remember to define `APPLICATION_NAME` with the name of your application when creating the Calendar service instance.
+
+Lastly, this is a console application. If you're doing this for a web application, the process will be somewhat different.

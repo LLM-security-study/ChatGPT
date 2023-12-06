@@ -1,0 +1,59 @@
+Before we start, please make sure you have properly set up the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files in your JDK.
+
+In order to generate keystore programmatically, you have to use KeyStore API provided by Java.
+
+Here is the skeleton implementation:
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        try {
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+
+            // initialize a new keystore
+            char[] password = "password".toCharArray();
+            keyStore.load(null, password);
+
+            // store the access token as a secret key
+            KeyStore.SecretKeyEntry secretKeyEntry =
+                    new KeyStore.SecretKeyEntry(
+                            new javax.crypto.spec.SecretKeySpec("accessToken".getBytes(),"RAW")); // Replace "accessToken" with your access token
+
+            KeyStore.ProtectionParameter entryPassword =
+                    new KeyStore.PasswordProtection(password);
+
+            keyStore.setEntry("alias", secretKeyEntry, entryPassword); 
+
+            // store the keystore in a file
+            FileOutputStream fos = new FileOutputStream("keystore.jks");
+            keyStore.store(fos, password);
+            fos.close();
+            
+        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException | UnrecoverableKeyException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In the above program:
+- KeyStore.getInstance(...) is used to get an instance of keystore of the default type.
+- The load(null, password) is used to initialize a new keystore.
+- A SecretKeyEntry is created using the access token. I used "accessToken" string as an example, replace it with your own access token.
+- setEntry(..) adds the secret key (access token in our case) to the keystore.
+- The store(..) method is used to save the keystore to a file.
+
+Replace `"password"` and `"alias"` with your desired keystore password and entry alias. 
+
+Please note, for the demonstration purposes the password and access tokens are hardcoded here, in production level code, this is not a good approach to keep sensitive data. Always handle them securely.
+
+Also, consider adding proper exception handling as per your project needs.

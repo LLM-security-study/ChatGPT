@@ -1,0 +1,48 @@
+This is a simple example of how you might create a program in Java to connect to an HTTPS URL and get information about its server's certificate. The program will use the standard Java API for secure communication, javax.net.ssl.
+
+```Java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://Your_Website_URL.com");
+            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+            printServerCertificateInformation(connection);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void printServerCertificateInformation(HttpsURLConnection connection) {
+        try {
+            connection.connect();
+            Certificate[] certificates = connection.getServerCertificates();
+            for (Certificate certificate : certificates) {
+                System.out.println("Cert Type : " + certificate.getType());
+                System.out.println("Cert Hash Code : " + certificate.hashCode());
+                System.out.println("Cert Public Key Algorithm : " + certificate.getPublicKey().getAlgorithm());
+                System.out.println("Cert Public Key Format : " + certificate.getPublicKey().getFormat());
+                System.out.println("\n");
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace `'https://Your_Website_URL.com'` with the URL of the website you want to check the SSL/TLS certificate of.
+
+This program prints out some basic information about each certificate it receives from the server. It accesses the server's certificate chain via a HttpsURLConnection, which is a standard part of Java's Secure Sockets Extension (JSSE) located in package 'javax.net.ssl'. 
+
+Please note, exception handling is kept to a minimum in this sample code for the sake of clarity. A production use-case should have more comprehensive error handling.

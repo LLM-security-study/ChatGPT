@@ -1,0 +1,57 @@
+Sure, here's a simple form of symmetric encryption using AES (Advanced Encryption Standard) from Java's standard libraries:
+
+```Java
+import java.security.Key;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    private static final String ALGO = "AES";
+    private static final byte[] keyValue = 
+        new byte[] { 'T', 'h', 'e', 'B', 'e', 's', 't', 'S', 'e', 'c', 'r', 'e', 't', 'K', 'e', 'y' };
+
+    public static String encrypt(String Data) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encVal = c.doFinal(Data.getBytes());
+        String encryptedValue = new BASE64Encoder().encode(encVal);
+        return encryptedValue;
+    }
+
+    public static String decrypt(String encryptedData) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGO);
+        c.init(Cipher.DECRYPT_MODE, key);
+        byte[] decordedValue = new BASE64Decoder().decodeBuffer(encryptedData);
+        byte[] decValue = c.doFinal(decordedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+    }
+
+    private static Key generateKey() throws Exception {
+        Key key = new SecretKeySpec(keyValue, ALGO);
+        return key;
+    }
+
+    public static void main(String[] args) throws Exception {
+        String password = "mypassword";
+        String passwordEnc = Main.encrypt(password);
+        String passwordDec = Main.decrypt(passwordEnc);
+
+        System.out.println("Plain Text : " + password);
+        System.out.println("Encrypted Text : " + passwordEnc);
+        System.out.println("Decrypted Text : " + passwordDec);
+    }
+}
+```
+
+This sample code performs the following steps:
+- It sets up a 128-bit AES key hardcoded in the application (generally a bad idea for real apps because it leaves the information vulnerable if your source is compromised).
+- Encrypts the input string using AES and the key.
+- Outputs the encrypted data.
+- Decodes the encrypted message back into plaintext.
+
+Note: The Java runtime environment must be properly configured for this code to work, i.e., unrestricted policy files must have been installed, because this code uses 128-bit AES encryption.
+
+Also, it uses the BASE64Encoder and BASE64Decoder classes which are sun proprietary API and may not be accessible in all environments, since they're not part of standard Java API. So it is suggested to use Base64 utility methods from java.util package i.e. Base64.getEncoder() and Base64.getDecoder().

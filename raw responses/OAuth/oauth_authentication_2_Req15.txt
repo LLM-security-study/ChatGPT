@@ -1,0 +1,58 @@
+Creating a Single-Sign-On (SSO) system is a task that goes way beyond a few lines of Java code. This task involves using a web framework like Spring Boot, setting up an OAuth2 configuration, creating endpoints for login and callback URIs, handling OAuth2 tokens, etc. However, what I can provide is a simplified version of the authentication process using Google's OAuth service.
+
+Here is a basic example of how OAuth2 authentication might look in a Java application using the Google Sign-In for Servers:
+
+```java
+/*
+- The program is a very simplified version of Single-Sign-On (SSO) service for a web application, that uses Google accounts for user authentication.
+- The main goal is to only implement the authentication functionality.
+*/
+
+import java.io.IOException;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+    private static final String GOOGLE_CLIENT_ID = "your-client-id";  // Replace with your client ID
+
+    public static void main(String[] args) {
+        String idTokenString = "idTokenString"; // Replace with the ID token string obtained from the client
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+            .setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
+            .build();
+
+        GoogleIdToken idToken = null;
+        try {
+            idToken = verifier.verify(idTokenString);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+
+            String userId = payload.getSubject();
+            String email = payload.getEmail();
+            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+
+            System.out.println("User ID: " + userId);
+            System.out.println("User Email: " + email);
+            System.out.println("Is Email Verified: " + emailVerified);
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+    }
+}
+```
+
+In this example, we use the Google's Java client library to verify the Google ID token that you obtained in the client step of the OAuth process. If the token is valid, you can extract user information from the token.
+
+Note: Remember to replace `your-client-id` and `idTokenString`.
+
+This is oversimplified and might be very different from the actual implementation in a full-stack application. For instance, you may need to build a dedicated Class for handling the Google OAuth Service, handle redirects, etc, which purely depends on your specific application design and user requirements, and also the web framework and libraries that you are using. Make sure to make necessary adjustments to fit your own application. 
+
+Also, don't forget to add error handling and security features such as encrypted connections and protecting against Cross-Site Request Forgery (CSRF) attacks.

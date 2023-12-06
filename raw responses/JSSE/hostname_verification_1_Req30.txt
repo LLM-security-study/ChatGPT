@@ -1,0 +1,43 @@
+You can use Java's HttpsURLConnection API to perform hostname verifications and establish a SSL/TLS communication. The HttpsURLConnection API uses HTTPS-specific features as inherited from URLConnection. Among many things, you can modify the SSL/TLS settings and data handling process using this API. 
+
+Here is a basic example on how we can establish an SSL connection with hostname verification in Java. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a URL instance
+            URL url = new URL("<insert-https-url-here>"); 
+            
+            // Open Https Connection
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                      
+            // Enforce hostname verification
+            connection.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
+
+            // If we managed to open the connection without throwing exception, print success message
+            System.out.println("Successfully connected to the secure server with host name verification enabled.");
+            
+            // Don't forget to close the connection at the end.
+            connection.disconnect();
+            
+        } catch (Exception e) {
+            // If there's any error, print out the error message
+            System.out.println("Failure!! Unable to make secure connection!!\n" + e.getMessage());
+        }
+    }
+}
+```
+
+To run the above program, replace "<insert-https-url-here>" with the URL you want to connect securely. 
+
+This is a very simple example where we are only connecting to a HTTPS server with hostname verification enabled. In reality, you will need to handle more complex scenarios, for instance, sending requests, handling responses, dealing with various error situations, etc. 
+
+Also, the getDefaultHostnameVerifier() method ensures that it matches the hostname with the Common Name (CN) or subject alternative name (SAN) fields in the certificate presented by the server. 
+
+You can also create a custom HostnameVerifier and set it in the connection if you have specific requirements. If the verify function inside your custom HostnameVerifier returns false, the connection process will be stopped. 
+
+This example program does not include any error handling, input parsing, or any other robust program behaviors. Always remember to write your code in a robust and error-handled manner.

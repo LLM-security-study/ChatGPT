@@ -1,0 +1,60 @@
+Here is a simple Java program that demonstrates the use of RSA for encryption. This program generates a RSA key pair (public and private) and then uses these keys to encrypt and decrypt a message. 
+
+It should be mentioned that in real-life applications, symmetric encryption (like AES) is always combined with asymmetric encryption (like RSA). RSA is only used to encrypt the symmetric key due to performance reasons.
+
+```java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+
+    private Cipher cipher;
+
+    public Main() throws Exception {
+        this.cipher = Cipher.getInstance("RSA");
+    }
+
+    public KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator gen = KeyPairGenerator.getInstance("RSA");
+        gen.initialize(2048, new SecureRandom());
+        return gen.generateKeyPair();
+    }
+
+    public byte[] encrypt(String plainText, PublicKey publicKey) throws Exception {
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(plainText.getBytes());
+    }
+
+    public String decrypt(byte[] cipherText, PrivateKey privateKey) throws Exception {
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] result = cipher.doFinal(cipherText);
+        return new String(result);
+    }
+
+    public static void main(String[] args) {
+        try {
+            Main app = new Main();
+            
+            KeyPair keyPair = app.generateKeyPair();
+            String message = "This is the secret message";
+
+            // Encrypt the message
+            byte[] cipherText = app.encrypt(message, keyPair.getPublic());
+
+            // Decrypt the message
+            String decryptedMessage = app.decrypt(cipherText, keyPair.getPrivate());
+
+            System.out.println("Original message: " + message);
+            System.out.println("Decrypted message: " + decryptedMessage);
+        } catch (Exception e) {
+            System.out.println("Something went wrong: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+You need to add Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy files to your JRE to run this. Also, please make sure that message is not bigger than key size / 8 - 11. 2048 bit key can encrypt message up to 245 bytes long.
+
+Please consider that above example is highly simplified. For real use cases, you may need to follow a standard like RSA/NONE/OAEPWithSHA256AndMGF1Padding and combine with symmetric encryption. Always consult a cryptography expert when you deal with sensitive data encryption.

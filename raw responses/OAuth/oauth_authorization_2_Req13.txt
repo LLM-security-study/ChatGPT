@@ -1,0 +1,76 @@
+Sure, for our Java program to access Google Calendar API, we should use the Google Client Library. We will be using OAuth 2.0 for authorization and authentication. Following is a simple outline of the program:
+
+```java
+// required imports
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.CalendarScopes;
+
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
+
+//Main class
+public class Main {
+
+    // The Client ID and Secret can be found on the Google API Console
+    private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+    private static final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+    // Define the required scopes
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
+    // Define the JSON factory
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    // Define the path to the token directory
+    private static final java.io.File TOKENS_DIRECTORY_PATH = new java.io.File("tokens");
+
+    static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws Exception {
+        // Load client secrets.
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY,
+                new InputStreamReader(new FileInputStream(CLIENT_ID + ".json")));
+
+        // Build the authorization flow - GoogleAuthorizationCodeFlow
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(TOKENS_DIRECTORY_PATH))
+                .setAccessType("offline").build();
+
+        // Return the authorization code installed for the application
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws Exception {
+        // Initialize the transport
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        // Get the credential
+        Credential c = getCredentials(HTTP_TRANSPORT);
+    }
+}
+```
+
+This program requires these dependencies to be included in the build.gradle file of the project:
+
+```gradle
+dependencies {
+    implementation 'com.google.api-client:google-api-client:1.31.3'
+    implementation 'com.google.oauth-client:google-oauth-client-jetty:1.31.4'
+    implementation 'com.google.apis:google-api-services-calendar:v3-rev305-1.25.0'
+}
+```
+
+Please, replace "YOUR_CLIENT_ID" and "YOUR_CLIENT_SECRET" in the code with your actual client id and client secret.
+This project needs a "tokens" directory in the same directory from where the java main class is running, to save and use access and refresh tokens later. This method assumes a file "YOUR_CLIENT_ID.json" at the base directory of project. 
+
+Remember to respect Google's API usage guidelines, especially those regarding user privacy and data security.
+
+Further enhancement can be done to handle IOException, GeneralSecurityException, etc.
+The code provided is for educational purposes only. You may also want to adhere to best practices for storing the CLIENT_ID and CLIENT_SECRET safely, not hardcoding in a public class.

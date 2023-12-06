@@ -1,0 +1,62 @@
+Here we will be using Servlet to implement Google Sign-In for server-side, and Google Sign-In JavaScript client library for the front-end (client-side).
+
+File: Main.java
+```java
+/*
+This is the main class for integrating Google Single-Sign-On for user authentication into a web application.
+*/
+
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class Main extends HttpServlet {
+  private static final long serialVersionUID = 1L;
+  
+  private static final String CLIENT_ID = "<replace-with-your-client-id>";
+  private static final String CLIENT_SECRET = "<replace-with-your-client-secret>";
+  private static final String REDIRECT_URI = "<replace-with-your-redirect-uri>";
+
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException {
+    String authCode = request.getParameter("code");
+    GoogleTokenResponse tokenResponse =
+        new GoogleAuthorizationCodeTokenRequest(
+            new NetHttpTransport(),
+            JacksonFactory.getDefaultInstance(),
+            "https://oauth2.googleapis.com/token",
+            CLIENT_ID,
+            CLIENT_SECRET,
+            authCode,
+            REDIRECT_URI)  
+        .execute();
+
+    String accessToken = tokenResponse.getAccessToken();
+
+    final Credential credential = new Credential(BearerToken.authorizationHeaderAccessMethod())
+        .setAccessToken(accessToken);
+    GoogleIdToken idToken = tokenResponse.parseIdToken();
+    String email = idToken.getPayload().getEmail();
+
+    response.setContentType("text/html");
+    response.getWriter().print("Hello, " + email + "!");
+  }
+}
+```
+
+In this servlet, we are handling the `POST` request. We get the authorization code from the client (front-end), send a `POST` request to the Google server to get an access token using our client ID, client secret and the authorization code. After this, we check the ID token payload to get the user's email and print a greeting for the user using the user's e-mail.
+
+Don't forget to replace `<replace-with-your-client-id>`, `<replace-with-your-client-secret>` and `<replace-with-your-redirect-uri>` with your actual values. They were already obtained from google API.
+  
+Please note Java servlet API must be set up in order for this script to work. Also, take into account, this is only on your server side. On client side, you have to implement Google's JavaScript client library for sign in.
+
+This example may be incomplete for a production environment because there could be additional setup and functionality required depending on your application's database, session management and security requirements.

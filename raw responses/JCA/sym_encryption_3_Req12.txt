@@ -1,0 +1,56 @@
+Below is an example of a symmetric cryptographic algorithm implemented in Java. The main method is in the class "Main" and the encryption process occurs with the help of "AES/CBC/PKCS5Padding" encryption method. After this, I will implement the decryption as well.
+
+The Cryptographic Key and the IV (Initial Vector) should be pre-defined and shared between the sender and recipient.
+
+```java
+// Necessary imports
+import java.util.Base64;
+import java.io.UnsupportedEncodingException;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.BadPaddingException;
+
+public class Main {
+  
+  // Pre-defined Cryptographic Key
+  private static final String key = "aesEncryptionKey";
+  
+  // Pre-defined Initialization Vector
+  private static final String initVector = "encryptionIntVec";
+  
+  public static void main(String[] args) {
+    String cipherText = "U2FsdGVkX1+vupppZksvRf5pq5g5XjFRlipRkwB0K1Y96Qsv2Lm+31cmzaAILwyt";
+    System.out.println("Ciphered Text: " + cipherText);
+
+    String decryptedText = decrypt(key, initVector, cipherText);
+    System.out.println("Decrypted Text: " + decryptedText);
+  }
+  
+  public static String decrypt(String key, String initVector, String encrypted) {
+    try {
+      IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+      SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+      cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+      byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+      return new String(original);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    return null;
+  }
+}
+```
+
+>Note: The AES key length must be equal to 128, 192, or 256-bits. So make sure that your key meets this requirement. If it's not, the SecretKeySpec object will throw an exception. Also, the Initialization Vector (initVector) should have 16 characters (since block size of AES is 128 bits which is 16 bytes). If it's not, the IvParameterSpec object will throw an exception. First make sure, the encryption key and initialization vector you got should be coming from proper encryption process, otherwise decryption may not work properly.
+

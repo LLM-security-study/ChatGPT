@@ -1,0 +1,82 @@
+Sure, here's the Java program that utilizes AES in CBC mode for encryption and decryption.
+
+Please note: This is a very basic implementation and does not include all of the checks and balances you may need to consider for a secure system.
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static String secretKey = "aesEncryptionKey";
+    private static String salt = "encryptionIntVec";
+
+    public static String encrypt(String strToEncrypt)
+    {
+        try
+        {
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt.getBytes(), 65536, 256);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(tmp.getEncoded(), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivspec);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static String decrypt(String strToDecrypt)
+    {
+        try
+        {
+            byte[] iv = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+            IvParameterSpec ivspec = new IvParameterSpec(iv);
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(secretKey.toCharArray(), salt.getBytes(), 65536, 256);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(tmp.getEncoded(), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, ivspec);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static void main(String[] args) 
+    {
+        String originalString = "hello world";
+        String encryptedString = Main.encrypt(originalString);
+        String decryptedString = Main.decrypt(encryptedString);
+        
+        System.out.println(originalString);
+        System.out.println(encryptedString);
+        System.out.println(decryptedString);
+    }
+}
+```
+This program uses a hard-coded key and IV for the sake of simplicity. It works by first encrypting a given input string and then decrypting it. Note that the decryption should output the original input string.
+
+For a production system, you should secure your keys properly and use a secure method to generate and store your IV. Instead of hard-coding them into your program. The key and IV that I've used here are just placeholders and are not secure.
+As with any cryptography, you always have to store your keys securely, and never in your source code or somewhere it can be accessed easily. For securing keys you might use hardware security module (HSM), a secure OS level keystore or a cloud based service such as AWS KMS, GCP's Cloud KMS or Azure Key Vault. 
+
+Also, keep in mind that AES is a symmetric encryption algorithm, which means it uses the same key for encryption and decryption. Ensure that the keys are secure and private. Only share encryption keys over a secure channels and store them in a secure location.

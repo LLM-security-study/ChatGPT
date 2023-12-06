@@ -1,0 +1,39 @@
+Sure. Here's a simple Java program to derive AES keys from a user-supplied password. In this example, we use the PBKDF2WithHmacSHA1 algorithm from Java Cryptography Extensions (JCE) framework:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter a password: ");
+            char[] password = scanner.nextLine().toCharArray();
+
+            byte[] salt = new byte[16]; // Ideally use a random salt.
+            int iterationCount = 65536; // Use a minimum count of 64,000 for PBKDF2
+            int keyLength = 128;
+            
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            KeySpec spec = new PBEKeySpec(password, salt, iterationCount, keyLength);
+            SecretKey tmp = factory.generateSecret(spec);
+            SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+            
+            System.out.println("Generated AES key: " + Arrays.toString(secret.getEncoded()));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program uses the Password-Based Key Derivation Function 2 (PBKDF2), a key stretching algorithm, to produce a cryptographic key from the user's password. Please note that this program uses a fixed salt, which is insecure, so you should replace it with a randomly generated salt in your real implementation.
+
+Again, remember that cryptographic functions need to be used carefully to ensure security. It's always a good idea to consult with a security expert when writing such code.

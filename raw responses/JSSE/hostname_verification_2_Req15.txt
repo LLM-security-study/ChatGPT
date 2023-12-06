@@ -1,0 +1,51 @@
+In Java, we can use Java Secure Socket Extension (JSSE) for securing the connection between client and server with SSL/TLS encryption.
+
+Here is a simple program to perform hostname verification using SSLSocket:
+
+```java
+import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = HttpsURLConnection.getDefaultSSLSocketFactory();
+            SSLSocket socket = (SSLSocket)factory.createSocket(args[0], Integer.parseInt(args[1]));
+
+            socket.startHandshake();
+            
+            SSLSession session = socket.getSession();
+            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+            if (!hv.verify(args[0], session)) {
+                throw new SSLException("Hostname verification failed");
+            }
+            
+            // Connection is established
+            System.out.println("Hostname verification is successful: " + args[0]);
+            socket.close();
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Usage:
+
+You can run this program from the command line. Replace `<hostname>` and `<port>` with the hostname (eg: www.google.com) and port (eg: 443) you want to connect to.
+
+```shell
+java Main <hostname> <port>
+```
+This program:
+
+1. Establishes an SSL/TLS connection with the given host
+2. Initiates the SSL handshake
+3. Verifies the hostname against the peer's certificate
+4. If the verification is successful, it prints a success message and closes the connection
+5. If the verification is unsuccessful, it throws an SSLException.

@@ -1,0 +1,40 @@
+Okay, here's a simple Java program that verifies the hostname in an SSL/TLS connection. We'll use the standard HttpsURLConnection in Java for the connection and SSLParameters to set the endpoint identification algorithm to HTTPS.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLParameters;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a URL object with the server you want to connect
+            URL url = new URL("https://example.com");
+
+            // Open connection and cast it to HttpsURLConnection
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Create SSLParameters and set endpoint identification algorithm to HTTPS
+            SSLParameters sslParams = new SSLParameters();
+            sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+
+            // Apply the SSLParameters to the connection
+            conn.setSSLParameters(sslParams);
+
+            // Connect to the server
+            conn.connect();
+
+            // Print out the response code
+            System.out.println("Response Code: " + conn.getResponseCode());
+
+            // Close the connection
+            conn.disconnect();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+This program will establish a connection to the "example.com". It will receive a response code and print it out. If the hostname doesn't match the certificate, it will throw an SSLHandshakeException. Make sure to replace "example.com" with the website your trying to verify.

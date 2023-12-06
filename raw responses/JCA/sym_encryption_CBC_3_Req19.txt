@@ -1,0 +1,28 @@
+Sure, here is a basic example of using AES in CBC mode for decryption with the standard Java API.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String initialVector= "1234567890123456"; // Should be 16 bytes
+        String secretKey= "mysecretkey";
+        byte[] encryptedData = "YOUR_ENCRYPTED_DATA"; //replace this with your real encrypted data
+        IvParameterSpec iv = new IvParameterSpec(initialVector.getBytes("UTF-8"));
+        SecretKeySpec key = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+        byte[] original = cipher.doFinal(encryptedData);
+        System.out.println(new String(original));
+    }
+}
+```
+
+Replace "YOUR_ENCRYPTED_DATA" with the actual data you want to decrypt. Also, keep in mind this is a simple example. Production-grade code would need better secret key handling and likely more robust error and exception handling. The secret key and initial vector are typically provided securely and not hard-coded into an application.
+
+Don't forget to catch exceptions or declare that your method could throw them. I've used a generic "throws Exception" here for simplicity, but in a real application, you'd want to handle different exception types separately. Plus, you need to have the `java.crypto` package installed.
+
+**Please note: Key and IV generation or delivery is a complex process that depends on the level of security that your application needs. The key and iv used in this example are purely for demonstrational purposes and should not be used in production. Be sure to comply with all applicable local, state, national, and international laws and regulations for encryption and cryptography.**

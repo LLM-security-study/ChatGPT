@@ -1,0 +1,45 @@
+Sure, in Android, fingerprint authentication is handled by the FingerprintManager class. To use this, we will need to include the USE_FINGERPRINT permission. Here's a basic example:
+
+```java
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
+
+@TargetApi(Build.VERSION_CODES.M)
+public class Main {
+  
+  FingerprintManager fingerprintManager;
+
+  @RequiresApi(api = Build.VERSION_CODES.M)
+  public boolean checkFingerPrintSensor() {
+    // Checking if fingerprint sensor exists
+    if (!fingerprintManager.isHardwareDetected()) {
+      Toast.makeText(this, "Fingerprint authentication permission not enabled",
+          Toast.LENGTH_SHORT).show();
+      return false;
+    }
+    // Checking if permission is given to use fingerprint sensor
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+      Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_SHORT).show();
+      return false;
+ 
+    }
+    return fingerprintManager.hasEnrolledFingerprints();
+  }
+}
+```
+
+Please note this is a very basic example and will only tell if the device has a fingerprint sensor and if fingerprints are enrolled. For more advanced functionalities or requesting permissions at runtime, you will have to develop further.
+
+Also, don't forget to declare the permission in your android manifest file like this:
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+```
+Implementing the entire end-to-end fingerprint authentication functionality involves more steps such as creating a cryptoObject and a callback method that is beyond the scope of this simple illustration. It is worth noting that as of Android P (Android 9), Google recommends using the BiometricPrompt API for biometric authentication, which is more flexible and future-proof than using the FingerprintManager directly. 
+
+Remember to be mindful of the user's privacy and the security implications of fingerprint authentication.

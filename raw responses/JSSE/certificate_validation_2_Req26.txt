@@ -1,0 +1,49 @@
+The main API you can use for this implementation in Java is `javax.net.ssl`. 
+This provides classes for the secure socket package, including SSLSocket, SSLServerSocket, and interfaces for the SSL sessions. 
+
+Here is a basic Java program that does SSL certificate validation:
+
+```java
+import javax.net.ssl.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        try {
+            URL url = new URL("https://www.example.com"); 
+
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+            
+            Certificate[] certificates = connection.getServerCertificates();
+
+            System.out.println("Server's certificate information: ");
+            for (Certificate cert : certificates) {
+                System.out.println("\tCertificate Type : " + cert.getType());
+                System.out.println("\tHash Code : " + cert.hashCode());
+                System.out.println("\tPublic Key : " + cert.getPublicKey());
+                System.out.println("\tCertificate Encoding: " + cert.getEncoded());
+            }
+            
+            connection.disconnect();
+
+        } catch (SSLHandshakeException e) {
+            System.out.println("Could not establish SSL connection. Certificate validation failed.");
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Note: This is a simple example. It only retrieves the server's certificate chain, and outputs the details. It's not validating any certificates against a list of known/trusted certificates. You might need to consider working with a Certificate Authority (CA) issued certificate, and validating the server's certificate by cross-verifying it with the root certificate in the chain. 
+
+Always remember, properly validating SSL certificates in a production environment is extremely essential for the security of your application and sensitive user data.

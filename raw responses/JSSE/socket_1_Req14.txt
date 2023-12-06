@@ -1,0 +1,53 @@
+SSL Sockets provide a secure connection between a client and server to transfer information safely. In Java, SSL Sockets are provided by the JSSE (Java Secure Socket Extension) API.
+
+Here is a basic SSL socket client example:
+
+```Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] arstring) {
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", 9999);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            BufferedReader stdIn = new BufferedReader(new InputStreamReader(System.in));
+            String userInput;
+
+            while((userInput = stdIn.readLine()) != null){
+                out.println(userInput);
+                System.out.println("echo: " + in.readLine());
+            }
+
+            out.close();
+            in.close();
+            stdIn.close();
+            sslSocket.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates a client SSL socket and connects it to the specified host and port. 
+
+Please adjust the code according to your needs: the server machine ("localhost" in this example) and the port number (9999 in this example) where the server is waiting for incoming connections.
+
+Also, you should have a proper trust store setup (via system properties) that trusts the server's certificate. This can be done like so right before the SSLSocket instantiation:
+
+```Java
+System.setProperty("javax.net.ssl.trustStore", path_to_your_truststore_file);
+System.setProperty("javax.net.ssl.trustStorePassword", "password");
+```
+
+This approach expects that the server is set up and waiting for client connections at specified port.
+
+In real world applications, it would be best to implement proper error handling and find a secure way to deal with the truststore password.
+
+Please note that this example only presents basic usage of SSL sockets in Java for one-way SSL communication. For two-way SSL mutual authentication, additional steps are required, such as setting up a keystore for the client and providing it to SSLSocket's SSLContext but is not covered here.

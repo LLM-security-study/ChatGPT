@@ -1,0 +1,42 @@
+Here is a simple Java program that calculates the hash value of a given string using the `MessageDigest` class provided in Java's standard APIs.
+
+```java
+import java.util.Scanner;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter string: ");
+        String input = scanner.nextLine();
+
+        try {
+            // Create a SHA-1 instance of MessageDigest
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            
+            // Process the string
+            md.update(input.getBytes());
+            
+            // Get the hash's bytes
+            byte[] bytes = md.digest();
+
+            // Convert to hexadecimal
+            StringBuilder builder = new StringBuilder();
+            for (byte b : bytes) {
+                builder.append(String.format("%02x", b));
+            }
+            
+            // print the hashed value
+            System.out.println("Hash value: " + builder.toString());
+        }
+        catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+You can run this program and provide any input string. The program will output the hash value of the string. This program uses SHA-1 hashing, but you can replace it with SHA-256 or MD5 based on your requirement. The hex format makes it more readable.
+
+Please ensure that appropriate error handling and validations are done based on your requirements.

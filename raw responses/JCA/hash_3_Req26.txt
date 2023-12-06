@@ -1,0 +1,43 @@
+Sure, here is the basic Java program that creates the SHA-256 hash of a given string using Java standard MessageDigest API. 
+
+```java
+import java.security.MessageDigest;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        try {
+            Scanner input = new Scanner(System.in);
+            System.out.print("Enter message to hash: ");
+            String msg = input.nextLine();
+           
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            
+            byte[] hash = md.digest(msg.getBytes("UTF-8"));
+            
+            StringBuilder sb = new StringBuilder();
+            for(byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if(hex.length() == 1)
+                    sb.append('0');
+                sb.append(hex);
+            }
+           
+            System.out.println("Hash: " + sb.toString());
+        }
+        catch(Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+In this program, the user is asked to input a string which will be converted to a hash. The chosen hash algorithm (SHA-256 in this case) is specified when calling `MessageDigest.getInstance`. 
+
+Then, the `msg` string is converted to bytes using `getBytes("UTF-8")` and digested (hashed) using `md.digest()`.
+
+Finally, the byte[] representation of the hash is converted to a hexadecimal String for easier reading. If `hex.length() == 1`, an extra '0' is appended to preserve the correct number of characters in the hash. 
+
+Make sure that you're running your code in a secure environment, as catching and rethrowing the exception as `RuntimeException` is a simplistic approach mainly used for concise demonstration. In a real-world application, you'd want to have more robust exception handling.

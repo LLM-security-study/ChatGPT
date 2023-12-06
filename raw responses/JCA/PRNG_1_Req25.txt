@@ -1,0 +1,44 @@
+Sure, here's a simple Java program that fulfills your requirements:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create secure random number generator
+            SecureRandom sr = new SecureRandom();
+            
+            // Create array for seed
+            byte[] seed = new byte[20];
+            // Get random seed
+            sr.nextBytes(seed);
+            
+            System.out.println("Generated Seed: " + Base64.getEncoder().encodeToString(seed));
+
+            // Initialize random number generator with seed
+            SecureRandom prng = new SecureRandom(seed);
+
+            // Create array for IV
+            byte[] iv = new byte[16]; // IV is typically 16 bytes for AES
+            // Get random IV
+            prng.nextBytes(iv);
+            
+            // Create IV spec
+            IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+            System.out.println("Generated IV: " + Base64.getEncoder().encodeToString(iv));
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.toString());
+        }
+    }
+}
+```
+
+This program first generates a random seed using SecureRandom, then it initializes another SecureRandom (PRNG) with this seed. It then uses the PRNG to create a random Initialization Vector (IV) for encryption. Both the seed and IV are printed in base64 format for easy visualization.
+
+Note: SecureRandom provides a cryptographically strong random number generator that you may use instead of the typical Random class. Also, the IV is usually 16 bytes if you are going to use it for AES encryption.
+
+Remember to store your seed and IV securely if you intend to use them later to generate the same pseudorandom numbers for encryption purposes (like using it for a symmetric encryption key). Allowing these values to be exposed may leave your encrypted data vulnerable to attackers.

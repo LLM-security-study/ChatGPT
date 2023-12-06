@@ -1,0 +1,58 @@
+The main API used for the hostname verification in the SSL/TLS connection would be Java Secure Socket Extension (JSSE). JSSE is a package that enables secure Internet communication. It implements a Java version of SSL and TLS protocols and includes functionality for data encryption, server authentication, message integrity etc.
+
+Here is a simple example of how to set hostname verification when establishing an SSL/TLS connection:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+import java.net.HttpURLConnection;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://your_url_here");
+
+            // Create a context that doesn’t check certificates.
+            SSLContext sslCtx = SSLContext.getInstance("TLS"); 
+            sslCtx.init(null, null, null); 
+
+            // From the context, create a HostnameVerifier that does nothing.
+            HostnameVerifier hnVer = (hostname, session) -> true;
+
+            // From the context, create a socket factory that does nothing.
+            SSLSocketFactory sslSocketFactory = sslCtx.getSocketFactory();
+
+            // Now put it all together to create a connection.
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.setSSLSocketFactory(sslSocketFactory);
+            connection.setHostnameVerifier(hnVer);
+
+            HttpURLConnection.setFollowRedirects(false);
+            connection.setConnectTimeout(7000); // 7 sec
+            connection.setReadTimeout(7000); // 7 sec
+
+            int responseCode = connection.getResponseCode();
+
+            System.out.println("Response Code : " + responseCode);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program connects to the specified URL via an SSL/TLS connection with manual hostname verification. Actual solutions should perform real certificate checks and hostname verifications for secure server connections.
+
+In the code snippet above, the HostnameVerifier is unrealistically permissive: we could replace it with `HttpsURLConnection.getDefaultHostnameVerifier()` for a real hostname verification. Our current HostnameVerifier, in this instance, allows all hostnames. It is by no means secure and it is not recommended to use in production.
+
+The default HostnameVerifier in HttpsURLConnection provides a more secure hostname verification process compared to the example here, which doesn't verify anything.
+
+Both the SSLSocketFactory initialization and the HostnameVerifier initialization in this code are overly permissive and offer no actual security. They are shown in the provided code only for demonstration purposes. 
+
+DO NOT USE THIS IN A PRODUCTION ENVIRONMENT, since this kind of setup is susceptible to all kinds of attacks, including man-in-the-middle attacks. 
+
+This is just a simple example of how you might set up an SSL/TLS connection manually. Actual solutions will have to consider secure server certificates and hostname verifications.

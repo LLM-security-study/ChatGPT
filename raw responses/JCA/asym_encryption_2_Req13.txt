@@ -1,0 +1,54 @@
+Sure, here is a simple Java program implementing the RSA algorithm, which is a widely used asymmetric cryptography algorithm. Note that this does not include exception handling code to keep it simple, but in a production setting you would want to properly handle the possible exceptions.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+import javax.crypto.Cipher;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String plainText = "Hello, World!";
+        
+        // Generate public and private keys.
+        KeyPair kp = buildKeyPair();
+        PublicKey publicKey = kp.getPublic();
+        PrivateKey privateKey = kp.getPrivate();
+
+        // Encrypt the plain text using the public key.
+        byte[] cipherText = encrypt(publicKey, plainText);
+        System.out.println("Cipher Text: " + new String(cipherText));
+        
+        // Decrypt the cipher text using the private key.
+        String decryptedPlainText = decrypt(privateKey, cipherText);
+        System.out.println("Decrypted Plain Text: " + decryptedPlainText);
+    }
+
+    public static KeyPair buildKeyPair() throws Exception {
+        int keySize = 2048;
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(keySize);      
+        return keyPairGenerator.genKeyPair();
+    }
+    
+    public static byte[] encrypt(PublicKey publicKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);  
+
+        return cipher.doFinal(message.getBytes());  
+    }
+    
+    public static String decrypt(PrivateKey privateKey, byte [] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        
+        return new String(cipher.doFinal(encrypted));
+    }
+}
+```
+
+When you'll run this code you will get the encrypted text (in a not human-readable format) and then decrypted text (which is going to be same as your input text). 
+
+Error handling, production readiness, and edge case scenarios are not considered for the sake of simplicity.

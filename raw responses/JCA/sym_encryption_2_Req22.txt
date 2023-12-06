@@ -1,0 +1,49 @@
+Given your requirements, you may want to use AES (Advanced Encryption Standard) which is a symmetric encryption algorithm. AES is a part of java.security package and javax.crypto package.
+
+Here is an example of a simple AES encryption and decryption program:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class Main {
+
+    static Cipher cipher;
+
+    public static void main(String[] args) throws Exception {
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128);
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        cipher = Cipher.getInstance("AES");
+
+        String plainText = "Hello World!";
+        System.out.println("Original Text : " + plainText);
+
+        String encryptedText = encrypt(plainText, secretKey);
+        System.out.println("Encrypted Text : " + encryptedText);
+
+        String decryptedText = decrypt(encryptedText, secretKey);
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+
+    public static String encrypt(String plainText, SecretKey secretKey)
+            throws Exception{
+        byte[] plainTextByte = plainText.getBytes();
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedByte = cipher.doFinal(plainTextByte);
+        return new String(encryptedByte);
+    }
+
+    public static String decrypt(String encryptedText, SecretKey secretKey)
+            throws Exception{
+        byte[] encryptedTextByte = encryptedText.getBytes();
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedByte = cipher.doFinal(encryptedTextByte);
+        return new String(decryptedByte);
+    }
+}
+```
+
+Please note that this program is just a simple example and may not choose the best and secure options for a practical use case, such as the key length, cipher mode, padding scheme, etc. For a serious use case, you would also store the key securely not just generate a new one each time, and the encrypted data would typically be in a binary format, so you would want to use something like base64 for storing or transmitting the encrypted data.

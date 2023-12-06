@@ -1,0 +1,47 @@
+Sure, Here's a simple Java program which uses standard Java security API 'javax.crypto.Mac' for generating Message Authentication Code (MAC) for a given string. 
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Enter a message to generate a MAC:");
+        String message = scanner.nextLine();
+
+        // Key to be used for MAC generation
+        String keyString = "secretkey";
+        SecretKeySpec key = new SecretKeySpec(keyString.getBytes(), "HmacSHA256");
+
+        try {
+            // Fetching Mac instance for HmacSHA256
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(key);
+
+            // Computing the Message Authentication Code (MAC)
+            byte[] bytes = mac.doFinal(message.getBytes());
+
+            // Convert MAC to String for display
+            String macString = Base64.getEncoder().encodeToString(bytes);
+
+            System.out.println("The MAC for the given message is: " + macString);
+
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            System.out.println("MAC Generation Error: " + e.getMessage());
+        }
+
+        scanner.close();
+    }
+}
+```
+This program will take a string as an input and compute its MAC using 'HmacSHA256'. The secret key "secretkey" is pre-defined. You may want to adjust/secure according to your need. 
+
+This MAC will then be converted to a string using Base64 encoding for display purposes.
+
+Note: you should replace "secretkey" with your own secret key for production, also you should securely store your secret key.

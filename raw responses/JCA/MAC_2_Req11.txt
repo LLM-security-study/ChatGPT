@@ -1,0 +1,34 @@
+To implement this, the built-in Java Cryptography Architecture (JCA) can be used. The Java program could use HMAC (Hash-based Message Authentication Code) algorithms provided by the JCA, such as HmacMD5 or HmacSHA256. Below is a simple implementation of a program that checks the integrity of a message using HmacSHA256. 
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        final String originalMessage = "This is the original message";
+        final String hmacSha256 = "HmacSHA256";
+        SecretKeySpec secretKeySpec = new SecretKeySpec(hmacSha256.getBytes(), hmacSha256);
+
+        Mac mac = Mac.getInstance(hmacSha256);
+        mac.init(secretKeySpec);
+        byte[] hmacBytes = mac.doFinal(originalMessage.getBytes());
+
+        System.out.println(Arrays.toString(hmacBytes));
+
+        // Now validate the integrity of the message
+        String newMessage = "This is the original message";
+        mac.init(secretKeySpec);
+        byte[] newHmacBytes = mac.doFinal(newMessage.getBytes());
+
+        if (Arrays.equals(hmacBytes, newHmacBytes)) {
+            System.out.println("Message is valid");
+        } else {
+            System.out.println("Message is not valid");
+        }
+    }
+}
+```
+
+This program works by calculating a HMAC value for a given message with a secret key and a specific algorithm, storing it. Then, when it needs to verify the received message, it calculates the HMAC for the received message with the same secret key and the specific algorithm, and compares this HMAC with the previously stored one. If they match, the message is valid and has not been tampered with. If they do not match, the message has been altered in some way, and is invalid.

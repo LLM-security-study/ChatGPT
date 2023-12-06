@@ -1,0 +1,44 @@
+Heres is a simple implementation of a Java program that can decrypt data using the AES algorithm in CBC mode:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String cipherText = "5F1AG==5A0B3C4D";
+        String key = "ABCDEFGHIJKLMNOP";
+        String initVector = "RandomInitVector"; // 16 bytes IV
+
+        System.out.println(decrypt(key, initVector, cipherText));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+In this code, a hardcoded key and initial vector are chosen for the AES decryption in CBC mode. Make sure to replace the cipherText, key and initVector with your actual values. Note that the key size should be 16 characters as AES uses 128 bits keys.
+
+The function decrypt() performs decryption. It first initializes an IvParameterSpec object and a SecretKeySpec using the key and initial vector. Then it initializes an AES Cipher in CBC mode with PKCS5PADDING, and finally decrypts and un-base64s the ciphertext.
+
+Keep in mind that in a real world application it's crucial to protect these secret keys as compromising them would defeat the encryption.
+
+Before you run this code, make sure to have the latest version of Java and JCE (Java Cryptography Extension) installed in your system.

@@ -1,0 +1,45 @@
+Certainly, you can use the Java Secure Socket Extension (JSSE) API to implement it. Here is a simple program that verifies server hostname in SSL/TLS.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Replace with your server URL
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+
+            connection.setHostnameVerifier((hostname, session) -> hostname.equals(session.getPeerHost()));
+
+            // Establishing the connection
+            connection.connect();
+            
+            System.out.println("Hostname is verified");
+
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("Host name not verified. "+ e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error occurred "+ e.getMessage());
+        }
+    }
+}
+```
+
+This program connects to the given URL and verifies if the server's hostname matches with what's in the server's certificate. It throws an exception if the hostname is not verified.
+
+Note: You might need to handle other exceptions as per your use case. This is a simple example with just url hostname verification. 
+
+This should be run in a 'try-with-resources' or in some other way that ensures the resources are properly disposed off after usage.
+
+Also, add this to configure Java SSL:
+
+```java
+System.setProperty("https.protocols", "TLSv1,TLSv1.1,TLSv1.2");
+System.setProperty("jsse.enableSNIExtension", "true");
+System.setProperty("javax.net.debug", "ssl:handshake");
+```

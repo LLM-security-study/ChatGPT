@@ -1,0 +1,59 @@
+Sure, here's a simple implementation of the mentioned requirement. However, it does not include the generation of RSA keys. Before doing that you should have the RSA keys pair. 
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Let's start by generating a private key
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048);
+        KeyPair pair = keyPairGen.generateKeyPair();
+        PrivateKey privKey = pair.getPrivate();
+        PublicKey pubKey = pair.getPublic();
+
+        // Data to sign.
+        byte[] data = "Test data".getBytes("UTF8");
+
+        // Compute signature.
+        Signature instance = Signature.getInstance("SHA256withRSA");
+        instance.initSign(privKey);
+        instance.update(data);
+        byte[] signature = instance.sign();
+
+        // Now let's verify the signature
+        instance.initVerify(pubKey);
+        instance.update(data);
+        boolean verifies = instance.verify(signature);
+        System.out.println("Signature verifies: " + verifies);
+    }
+}
+```
+This program generates a key pair, signs some data with the private key, and verifies the data with the public key.
+
+Please follow the steps to run the above provided code -
+JDK should be installed plus the CLASSPATH must be set to the `jdk\bin` folder.
+
+Save this Java code in a file called "Main.java".
+
+Compile the code using the command:`javac Main.java`.
+
+Run the compiled Java program using the command:`java Main`.
+
+If everything goes well, "Signature verifies: true" will be printed to the terminal.
+
+You might use `java.nio.file` package to store and read keys from files if the keys already exist. 
+
+NOTE: 
+
+The `Signature.getInstance()` method gets a Signature object that implements the specified signature algorithm.
+
+The `initSign()` method initializes this object for signing.
+
+The `update()` method updates the data to be signed or verified using the specified array of bytes.
+
+The `sign()` method finishes the signing operation using the initialized private key.
+
+The `initVerify()` method initializes this object for verification.
+
+The `verify()` method verifies the passed-in signature.

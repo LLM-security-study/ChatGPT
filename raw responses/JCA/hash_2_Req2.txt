@@ -1,0 +1,49 @@
+Here is a simple Java program in which the class "Main" calculates the hash value of a given file and then compares it to a predetermined hash value. This program uses MessageDigest API to calculate the hash value.
+
+```java
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.security.MessageDigest;
+import java.util.Arrays;
+
+public class Main {
+
+    private static String givenHash = "Your_Predefined_Hash_Value";   // define your known hash value here
+
+    public static void main(String[] args) {
+        String filename = "/path/to/your/file";   // put full path of your file here
+        try {
+            String calculatedHash = calculateHash(filename);
+            System.out.println("Calculated Hash: " + calculatedHash);
+            if(calculatedHash.equals(givenHash)) {
+                System.out.println("The file is original.");
+            } else {
+                System.out.println("The file has been modified.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static String calculateHash(String filename) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        try (InputStream is = new FileInputStream(filename)) {
+            byte[] buffer = new byte[1024];
+            int readBytes;
+            while ((readBytes = is.read(buffer)) != -1) {
+                md.update(buffer, 0, readBytes);
+            }
+        }
+        byte[] digest = md.digest();
+        StringBuilder sb = new StringBuilder();
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        return sb.toString();
+    }
+}
+```
+
+Please replace "/path/to/your/file" with the path of the file you want to check the integrity of and "Your_Predefined_Hash_Value" with the known hash value of that file. This program uses SHA-256 to calculate hash. If you would like to use another algorithm, replace "SHA-256" in the getInstance() method with the preferred one, e.g., "MD5", "SHA-1".
+
+The method `calculateHash()` reads the file and calculates the hash of the contents. The `main()` method takes the calculated hash and compares it with the predefined hash. If they're the same, the file is deemed original; otherwise, it is considered to have been modified.

@@ -1,0 +1,45 @@
+Sure, here's a simple Java program that generates a seed and then uses it to create a pseudorandom number generator :
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    static final int IV_SIZE = 16; // 128 bits
+
+    public static void main(String[] args) {
+        // Create SecureRandom instance
+        SecureRandom random = new SecureRandom();
+        
+        // Create seed bytes
+        byte[] seed = new byte[20];
+        random.nextBytes(seed);
+        
+        // Now, let's use the seed to generate pseudorandom numbers
+        SecureRandom prng = new SecureRandom(seed);
+        
+        // Generate IV for encryption 
+        byte[] iv = new byte[IV_SIZE];
+        prng.nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+        
+        // print generated IV
+        System.out.println("Generated IV: " + bytesToHex(iv));
+    }
+    
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+You can replace any desired size (with 20 and 16 as example sizes) for the seed and IV respectively. This depends on what your encryption algorithm accepts.
+
+Also, note that Java’s SecureRandom is a cryptographically strong random number generator and, in Java, SecureRandom is preferred over Random for generating encryption keys or Initialization Vectors (IVs). 
+
+This uses a helper method "bytesToHex" to print out the byte arrays as hexadecimal strings, making it easier to read the output.
+
+Please make sure to handle the exceptions properly in your production code.

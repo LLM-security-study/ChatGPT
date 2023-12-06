@@ -1,0 +1,56 @@
+Here's a basic example of encryption and decryption using standard Java libraries. This example uses the AES encryption protocol which is a symmetric encryption protocol.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    private static final String KEY = "1234567812345678"; // 128 bit key
+
+    public static void main(String[] args) throws Exception {
+        String toEncrypt = "A important message";
+        System.out.println("Encrypting...");
+        String encrypted = encrypt(toEncrypt);
+        System.out.println("Encrypted Text: " + encrypted);
+
+        System.out.println("Decrypting...");
+        String decrypted = decrypt(encrypted);
+        System.out.println("Decrypted Text: " + decrypted);
+    }
+
+    public static String encrypt(String strToEncrypt) throws Exception{
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        final SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        final String encryptedString = Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
+        return encryptedString;
+    }
+
+    public static String decrypt(String strToDecrypt) throws Exception{
+        Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+        final SecretKeySpec secretKey = new SecretKeySpec(KEY.getBytes(), "AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        final String decryptedString = new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        return decryptedString;
+    }
+}
+```
+
+In this program, we use the AES encryption protocol along with ECB (Electronic Codebook Mode) and PKCS5Padding.
+We've chosen AES/ECB/PKCS5Padding as our cipher - AES represents Advanced Encryption Standard, ECB stands for Electronic Codebook mode and PKCS5Padding is a padding scheme used in conjunction with encryption algorithms.
+
+We then wrap our key in a SecretKeySpec to let the cipher know that we're using AES for our encryption.
+
+Please replace the dummy key "1234567812345678" with your actual key. Make sure the Key length should be 16 for AES encryption. 
+
+After encrypting, we then convert the byte array to a base64 string so it can be passed around or saved to a database. The decrypt function reverses this process. 
+
+Please keep in mind: 
+
+1. This is a very basic example and shouldn't be used in production without further security measures such as using a more secure key storage solution.
+2. In real scenarios, do not hardcode the secret key. The secret key should be securely stored and accessed.
+
+
+Please note: Java may not allow certain encryption methods based on the installed Java Cryptography Extension (JCE) policy files. If you get a key length error, this is the likely cause. You can find Unlimited Strength JCE policy files if needed.

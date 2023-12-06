@@ -1,0 +1,45 @@
+Sure, here is a basic Java program that uses HMAC-SHA256 algorithm to create the MAC through Java's built-in crypto libraries.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String secretKey = "ThisIsASecretKey";
+        String message = "This is the message that needs to be checked for integrity.";
+
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            mac.init(secretKeySpec);
+
+            byte[] macBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            StringBuilder result = new StringBuilder(macBytes.length * 2);
+            for (byte b : macBytes) {
+                String hex = Integer.toHexString(b & 0xFF);
+                if (hex.length() == 1) {
++                    result.append('0');
+                }
+                result.append(hex);
+            }
+            
+            System.out.println("Message: " + message);
+            System.out.println("MAC: " + result.toString());
+            
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+This program first sets up the MAC with HMAC-SHA256 and a secret key. Then it processes the message byte array and gets the Message Authentication Code in bytes. After that, it converts the bytes into a hexadecimal string representation. If an error occurs during the generation of the MAC, it prints the exception.
+
+The secret key and the message are hardcoded in this given example. Always remember to replace them with real, secure values in a production environment.
+
+NOTE: Don't forget to add error handling in your own application, and ensure the secret key is managed securely.

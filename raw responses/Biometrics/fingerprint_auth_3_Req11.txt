@@ -1,0 +1,58 @@
+Applying fingerprint recognition and authentication in Android applications is done using the FingerprintManager class for devices running Marshmallow (API level 23) and above.
+
+You can add the FingerprintManager and KeyguardManager objects to your main activity class. KeyguardManager will provide API to check if the device has a secured lock screen.
+
+You also need to check if your device already has enrolled fingerprints. If not, you can prompt the user to go to the settings and register at least one.
+
+Here is the basic implementation showing these steps.
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.security.keystore.KeyProperties;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyPermanentlyInvalidatedException;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
+import java.security.KeyStore;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+
+public class Main extends AppCompatActivity {
+
+    private KeyStore keyStore;
+    private static final String KEY_NAME = "androidHive";
+    private Cipher cipher;
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+            if (!fingerprintManager.isHardwareDetected()) {
+                // Device doesn't support fingerprint authentication  
+            } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                // User hasn't granted permission to use Fingerprint. Request it here.
+            } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                // User hasn't enrolled any fingerprints to authenticate with  
+            } else {
+                // Everything is ready for fingerprint authentication 
+            }
+        }
+    }
+}
+```
+
+Creating and encrypting symmetric keys is requires for the cryptographic objects related to Android Keystore System to make fingerprint authentication possible.
+
+Note: A complete example with UI interactions would require a more detailed development. This includes creating a prompt dialog for fingerprint authentication, handling each of the various possible authentication result outcomes, operation cancellation, etc. Additionally, it’s also recommended to use BiometricPrompt, which is a better version of fingerprint authentication for Android P and above.

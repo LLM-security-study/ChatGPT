@@ -1,0 +1,45 @@
+Sure, to verify a server hostname in an SSL/TLS communication in Java, you could use the SSLParameters class. Here's an example implementation:
+
+```java
+import javax.net.ssl.*;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] argv) throws Exception {
+        String urlString = "https://www.example.com/";
+
+        URL url = new URL(urlString);
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        connection.setHostnameVerifier((hostname, session) -> {
+            HostnameVerifier hv = HttpsURLConnection.getDefaultHostnameVerifier();
+            return hv.verify("www.example.com", session);
+        });
+
+        SSLSocketFactory sf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+        try (SSLSocket socket = (SSLSocket) sf.createSocket(url.getHost(), 443)) {
+            SSLParameters params = new SSLParameters();
+            params.setEndpointIdentificationAlgorithm("HTTPS");
+            socket.setSSLParameters(params);
+
+            // Initiate SSL/TLS handshake
+            socket.startHandshake();
+
+            // You can retrieve SSL/TLS session information here
+            SSLSession session = socket.getSession();
+            System.out.println("PeerHost = " + session.getPeerHost());
+        } catch (IOException ex) {
+            System.out.println("Failed to create SSL socket: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+In this Java code, the `HostnameVerifier` interface is used to verify that the hostname received from SSL/TLS server matches what's expected. The `getDefaultHostnameVerifier()` method returns the default hostname verifier provided by the JDK, which is used to handle SSL server identification.
+
+And the provided hostname (`www.example.com` in the example above) is the expected hostname that matches with the SSL/TLS server's identification.
+
+In the try-catch block, we create an SSLSocket to the target host and port, and initiate the SSL/TLS handshake using the `startHandshake()` method. The `SSLParameters` object is configured to require server name verification ("HTTPS" stands for HTTP over SSL).

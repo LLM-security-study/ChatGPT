@@ -1,0 +1,29 @@
+To sign a given message in Java, we'll need to leverage several components of the Java Security and Cryptography API. Here's an example of how you can do this:
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Prepare the message
+        String message = "Hello, world!";
+
+        // Generate a key pair
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048);
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+
+        // Sign the message
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(keyPair.getPrivate());
+        signature.update(message.getBytes());
+        byte[] digitalSignature = signature.sign();
+
+        // Print the signature
+        System.out.println("Digital Signature: " + Base64.getEncoder().encodeToString(digitalSignature));
+    }
+}
+```
+
+IMPORTANT: This example is for educational purposes. Real applications should manage keys and cryptographic functions very carefully, often using trusted libraries or operating system functions to minimize the risks of key exposure or other security problems.

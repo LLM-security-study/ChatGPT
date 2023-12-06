@@ -1,0 +1,50 @@
+Below is a simple Java program to generate a Message Authentication Code (MAC) from an input message:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    private static final String SECRET_KEY = "secret-key"; // replace with your secret key
+    private static final String HMAC_ALGORITHM = "HmacSHA256";
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your message:");
+        String message = scanner.nextLine();
+
+        try {
+            String mac = generateMac(message, SECRET_KEY);
+            System.out.println("Generated MAC: " + mac);
+        } catch (Exception e) {
+            System.out.println("Error generating MAC: " + e);
+        }
+    }
+
+    private static String generateMac(String message, String secretKey) throws Exception {
+        Mac sha256Hmac = Mac.getInstance(HMAC_ALGORITHM);
+        SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), HMAC_ALGORITHM);
+        sha256Hmac.init(keySpec);
+
+        byte[] macData = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+        
+        // Convert the bytes to Hex
+        StringBuilder sb = new StringBuilder(macData.length * 2);
+        for(byte b: macData) {
+            sb.append(String.format("%02x", b & 0xff));
+        }
+        
+        return sb.toString();
+
+    }
+} 
+```
+Please replace the SECRET_KEY with your secret key. This is just an example and the SECRET_KEY should not be hardcoded in a real-world scenario, it should be securely stored and retrieved.
+
+When you run this code, it will ask for the message input from the console. After you input the message, it will generate a MAC for the input message and print it out.
+
+Please note that the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files must be installed properly to avoid "Illegal key size or default parameters" or similar exceptions. 
+
+Make sure your secret key length is acceptable by the HmacSHA256 algorithm, which requires a key of at least 256 bits. If you want to make this program work with a key length less than this, you can replace the algorithm with HmacSHA1, for example.

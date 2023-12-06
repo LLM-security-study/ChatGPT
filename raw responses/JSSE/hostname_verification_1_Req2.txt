@@ -1,0 +1,58 @@
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.io.IOException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        // Specify the URL you want to connect
+        String urlString = "https://<yourURL>";
+
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+            public boolean verify(String hostname, SSLSession session) {
+                // check if the hostname equals the server's identification hostname
+                if (hostname.equals(session.getPeerHost())) {
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+
+            // Open communication link (network traffic occurs here)
+            urlConnection.connect();
+
+            // Check for hostname verification
+            if (urlConnection.getDefaultHostnameVerifier().verify(url.getHost(), urlConnection.getSSLSession())) {
+                System.out.println("Hostname verification successful");
+            } else {
+                System.out.println("Hostname verification failed");
+            }
+
+            // disconnect after use
+            urlConnection.disconnect();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("Hostname verification failed");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this, you can replace `<yourURL>` string with the actual URL that you want to verify the hostname for. 
+
+Please note that this is a simple implementation and as such it has ability to only verify the hostname with what is returned by `SSLSession.getPeerHost()`. This might not always be accurate because `getPeerHost()` just returns the hostname that was used to create the socket. If a more rigorous validation is needed, then `SSLSession.getPeerCertificate()` should be used my taking the `javax.security.cert.X509Certificate` and calling `getSubjectDN()` on it and parsing that value for the canonical name `(CN)` field. 
+
+Also, this implementation might be insecure because `getDefaultHostnameVerifier()` what it does is it defaults to the "trust all" behavior if no `HostnameVerifier` has been set, putting your connection at risk. It'd be better to provide your own `HostnameVerifier` implementation for security reasons.

@@ -1,0 +1,54 @@
+Here's a simple implementation of an SSL Socket Client in Java, which connects to a remote server and enables secure communication using Secure Socket Layer (SSL) protocol.
+
+Please replace "yourHostName" and "yourPortNumber" with your server's host name and port number.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main{
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+
+            SSLSocket sslSocket = (SSLSocket)factory.createSocket("yourHostName", yourPortNumber);
+
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            String request = "yourRequest";
+            output.println(request);
+            output.println();
+            output.flush();
+
+            String responseLine;
+            while ((responseLine = input.readLine()) != null) {
+                System.out.println(responseLine);
+            }
+
+            output.close();
+            input.close();
+            sslSocket.close();
+        }
+        catch (Exception e) {
+            System.out.println("Exception caught "+e);
+        }
+    }
+}
+```
+
+In the above codes:
+
+1. The SSLSocketFactory class is called to create a SSLSocket.
+2. Then, PrintWriter and BufferedReader are created to handle the writing to, and reading from the SSL Socket.
+3. The request message "yourRequest" is sent to the server over the SSL Socket.
+4. The response from the server is then read line by line and printed out to the standard output.
+5. At the end, all the resources are closed.
+
+Note: The default SSL settings for Java runtime can be modified for your specific requirements such as use of particular SSL protocols, cipher suites, client authentication etc. 
+
+Also, you must properly handle SSLHandshakeException and CertificateException for validating server's certificate. The above program is quite simplistic and doesn't handle these complications.
+
+For SSL Socket Servers, different classes such as SSLServerSocket and SSLServerSocketFactory from the same javax.net.ssl package should be set up. We would also need to set up a KeyStore for the server's SSL certificates.

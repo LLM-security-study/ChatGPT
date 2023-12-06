@@ -1,0 +1,73 @@
+The Google SafetyNet API suits perfectly for this purpose. It provides a set of services and API for security-related operations. The SafetyNet Attestation API helps assessing the security and compatibility of the Android environment in which your app runs. You can use this API to analyze devices that have installed your app.
+
+Here is how you may use this API in Java Android application:
+
+```java
+import android.app.Activity;
+import android.os.Bundle;
+import android.widget.TextView;
+
+import com.google.android.gms.safetyne.SafetyNet;
+import com.google.android.gms.safetyne.SafetyNetClient;
+import com.google.android.gms.safetyne.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends Activity{
+    /* Replace with your own API KEY */
+    public static final String SAFETYNET_API_KEY = "YOUR_API_KEY_HERE";
+    private TextView tvAppIntegrity;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        tvAppIntegrity = (TextView) findViewById(R.id.tv_app_integrity);
+
+        /* Request Test */
+        SafetyNetClient client = SafetyNet.getClient(this);
+        client.attest("SampleNonce".getBytes(), SAFETYNET_API_KEY)
+                .addOnSuccessListener(this,new OnSuccessListener<SafetyNetApi.AttestationResponse>(){
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        /* Indicates communication with the service was successful.
+                           Use response.getJwsResult() to get the result data. */
+                        boolean valid = validateSafetyNetResponse(response.getJwsResult());
+                        if (valid){
+                            tvAppIntegrity.setText("The app is legitimate and it hasn't been tampered with.");
+                        } else {
+                            tvAppIntegrity.setText("The app integrity is compromised or it may have been tampered with!");
+                        }
+                    }
+                }).addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        /* An error occurred while communicating with the service. */
+                        tvAppIntegrity.setText("An error occurred: " + e.getMessage());
+                   }
+               });
+     }
+
+
+    /* Validate the JWS Message and check its payload for app integrity */
+    private boolean validateSafetyNetResponse(String jwsResult){
+        //TODO: Implement this method with JWS message validation and integrity check...
+        /* Ideally you should not perform the JWS validation on the client side, 
+           send this to the server side and validate response with JWS's integrity and authenticity there. */
+
+        return false;  
+     }
+}
+```
+
+Instructions for running the program:
+- Please initialize the "SafetyNetClient" using "SafetyNet.getClient(context)" method.
+- Call the "attest" method on the client. It takes two parameters, a nonce (in byte format) and your API Key.
+- Add success and failure listeners to handle the outcome of the request.
+- On Success, validate the SafetyNetResponse with your server or locally (not suggested).
+
+Important Instructions:
+The nonce must be at least 16 bytes in length, and you should use a new nonce for each call.
+Do not rely on a local, client-side validation of the SafetyNet reCAPTCHA API result. Instead, for optimal security, send the user's response and the user's app's package name and hash to your server using an HTTPS connection, and validate the API result there. 
+
+Note: This example requires Google Play Services SDK, Android API level 28, and appropriate permissions. Use a real device to test this code, because SafetyNet also checks for device compatibility that's not possible on emulators.

@@ -1,0 +1,32 @@
+Certainly, here is a simple implementation of your request using the Java standard APIs.
+
+Please note that this code snippet will not run on its own. `signData` method expects a private key and `verifySignature` method expects a public key, which are not provided in this snippet.
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) {
+        //No keys are provided, this code is incomplete.
+    }
+
+    public static byte[] signData(byte[] data, PrivateKey key) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initSign(key);
+        signer.update(data);
+        return (signer.sign());
+    }
+
+    public static boolean verifySignature(byte[] data, byte[] signature, PublicKey key) throws NoSuchAlgorithmException, 
+                                                                                              InvalidKeyException, 
+                                                                                              SignatureException {
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initVerify(key);
+        signer.update(data);
+        return (signer.verify(signature));
+    }
+}
+```
+In this code snippet, the `signData` method will create a digital signature for provided data using provided `PrivateKey` and `SHA256withRSA` algorithm, and the `verifySignature` will check whether a given signature applies to given data for a given `PublicKey`. 
+
+Please note that in real life applications, you need to manage keys very careful for security.

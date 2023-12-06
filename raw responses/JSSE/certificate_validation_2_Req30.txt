@@ -1,0 +1,38 @@
+Here is a simple example of how you can validate the certificate of a URL using Java's inbuilt `HttpURLConnection` API. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+public class Main {
+
+  public static void main(String[] args) {
+
+    String urlStr = "https://www.example.com";
+    try {
+      URL url = new URL(urlStr);
+      HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+      conn.connect();
+
+      // Get server certificates
+      Certificate[] certs = conn.getServerCertificates();
+      System.out.println("Server certificates :");
+      for (Certificate cert : certs) {
+        System.out.println("Cert Type : " + cert.getType());
+        System.out.println("Cert Hash Code : " + cert.hashCode());
+        System.out.println("Cert Public Key Algorithm : " + cert.getPublicKey().getAlgorithm());
+        System.out.println("Cert Public Key Format : " + cert.getPublicKey().getFormat());
+        System.out.println("\n");
+      }
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+}
+```
+Just replace the `urlStr` with the URL you want to check. This program prints out the main details about the certificate being used by the server for the HTTPS connection.
+
+Note: As per Java documentation, this code will validate the certificate against the trust store that was used when establishing the network connection. If the certificate is not in the trust store, an SSLException will be thrown when trying to connect to the URL.

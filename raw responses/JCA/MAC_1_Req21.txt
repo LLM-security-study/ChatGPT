@@ -1,0 +1,38 @@
+Sure, here is your Java program which uses HMAC-SHA256 algorithm for generating MAC.
+
+```Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter the message: ");
+        String message = scanner.nextLine();
+
+        String secret = "secret-key";
+
+        Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+        sha256Hmac.init(secretKey);
+
+        String hash = bytesToHex(sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8)));
+        System.out.println("The MAC (Message Authentication Code) is: " + hash);
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+
+In the above program, we use a predefined secret key ("secret-key") to create a Message Authentication Code for the input message. The generated code is a Hash-based Message Authentication Code (HMAC) which combines a secret key with the message using SHA-256 cryptographic hash function.
+
+This program will ask for an input message, generate a MAC for it and print it.
+Make sure that the secret key is kept safe and shared only with the party that needs to verify the MAC.

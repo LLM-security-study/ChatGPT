@@ -1,0 +1,59 @@
+The main task of this program is to get authorization token from Google Contact API.
+
+```java
+// Import the required libraries
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+
+    // Define the required constants
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/contacts.readonly");
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+    
+    /**
+    * Load client secrets.
+    * @throws IOException If the credentials.json file does not exist
+    */
+    private static Credential getCredentials() throws IOException {
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+            JSON_FACTORY, new InputStreamReader(in)
+        );
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+            .setDataStoreFactory(
+                new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+            .setAccessType("offline")
+            .build();
+
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize();
+    }
+
+    public static void main(String... args) throws IOException {
+        getCredentials();
+    }
+}
+```
+
+NOTE: This program will not run without the `credentials.json` file. It contains the `client_id` and `client_secret` for your Google API. Make sure you generate this file from your Google API Dashboard and put it in the root path of your project.
+
+To generate `credentials.json` in Google API dashboard:
+1. Go to the Google API Console.
+2. From the project drop-down, choose your project.
+3. Navigate to "Credentials" on the left-side panel.
+4. Click "Create credentials" and choose "OAuth client ID".
+5. Choose "Web application" and fill out the form.
+6. Download the JSON file and name it as `credentials.json`.

@@ -1,0 +1,49 @@
+Sure. Here is a simple example of a Java program to create an SSL socket. Please replace placeholder values (like YOUR_HOST, YOUR_PORT) with actual values based on your use case. 
+
+This program uses Java Secure Socket Extension (JSSE) APIs that are standard for Java platform.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] arstring) {
+        int port = YOUR_PORT;  // replace with actual port number
+        String host = "YOUR_HOST"; // replace with actual host
+        
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(host, port);
+
+            // Enable all the suites
+            String[] supported = sslSocket.getSupportedCipherSuites();
+            sslSocket.setEnabledCipherSuites(supported);
+
+            Writer writer = new OutputStreamWriter(sslSocket.getOutputStream());
+            writer.write("Hello Secure World!\n");
+            writer.flush();
+
+            // Reading response from the server
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            String line = bufferedReader.readLine();
+            while (line != null) {
+                System.out.println(line);
+                line = bufferedReader.readLine();
+            }
+
+            writer.close();
+            bufferedReader.close();
+            sslSocket.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This program does a very basic functionality, it first establishes a secure SSL connection with the server using SSL socket. Then it tries to send a simple message ("Hello Secure World!") to the server and reads the response from the server.
+
+Also, remember that the SSL handshake process and the subsequent secure communication will fail if the server's certificate is not trusted by the JSSE implementation in the client side. If you are connecting to a server which has self-signed certificate or certificate issued by an unknown CA, you should import the server's certificate into client's truststore first.
+
+As a final note, this example outlines basic SSL socket communication. Further error checking and proper resource cleanup are necessary for production-quality applications.

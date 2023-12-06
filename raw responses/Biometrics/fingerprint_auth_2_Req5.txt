@@ -1,0 +1,56 @@
+Unfortunately, Android doesn't provide a direct way to compare two human fingerprints for authentication. However, they provide FingerprintManager and BiometricPrompt (from Android 9 Pie - API 28 and above), so you can use these classes to interact with the fingerprint sensor and confirm user identity. Below is a demonstration on how to use FingerprintManager for authentication. A lot will be handled by the Android framework and you'll just have to manage the user interfaces and provide callbacks to handle authentication results.
+
+`FingerprintManager` was deprecated in API 28 so you'll want to use `BiometricPrompt` for newer APIs and `FingerPrintManagerCompat` for backwards compatibility. Due to the complexity of full implementation, only the `FingerprintManager` process is shown here. For actual use, please consult official Android documentation.
+
+```java
+import android.content.Context;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.support.v4.app.ActivityCompat;
+
+public class Main {
+
+    private CancellationSignal cancellationSignal;
+    private FingerprintManager fingerprintManager;
+
+    public Main(Context context) {
+        fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
+    }
+
+    public void startAuth(FingerprintManager.AuthenticationCallback callback) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fingerprintManager.authenticate(null, cancellationSignal, 0, callback, null);
+    }
+
+    public void cancel() {
+        cancellationSignal.cancel();
+    }
+}
+```
+
+In your activity:
+
+```java
+Main main = new Main(this);
+main.startAuth(new FingerprintManager.AuthenticationCallback() {
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        // Handle authentication succeed
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        // Handle authentication failed
+    }
+    // and add other methods as needed: 
+    // onAuthenticationError, onAuthenticationHelp
+});
+
+```
+The above script is only for API 23 (Marshmallow) and above.
+
+This sample code creates an instance of `FingerprintManager`, then starts an authentication with the method `authenticate()`. The result of this authentication request will be supplied through the `AuthenticationCallback`.

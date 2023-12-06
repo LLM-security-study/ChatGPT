@@ -1,0 +1,51 @@
+Sure, here is the basic example of a program which encrypts and decrypts a string using RSA algorithm using the Java's standard APIs:
+
+```java
+import javax.crypto.Cipher;
+import java.security.*;
+
+public class Main {
+    private static KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048, new SecureRandom());
+        return generator.generateKeyPair();
+    }
+
+    private static byte[] encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return encryptCipher.doFinal(plainText.getBytes("UTF-8"));
+    }
+
+    private static String decrypt(byte[] bytes, PrivateKey privateKey) throws Exception {
+        Cipher decryptCipher = Cipher.getInstance("RSA");
+        decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(decryptCipher.doFinal(bytes), "UTF-8");
+    }
+
+    public static void main(String... args) throws Exception {
+        // Generate the key pair
+        KeyPair keyPair = generateKeyPair();
+
+        // Create an RSA message
+        String message = "The quick brown fox jumps over the lazy dog.";
+
+        // Encrypt it
+        byte[] stringToEncrypt = message.getBytes();
+        byte[] encryptedData = encrypt(message, keyPair.getPublic());
+
+        // Decrypt it
+        String decryptedMessage = decrypt(encryptedData, keyPair.getPrivate());
+
+        System.out.println("Input: " + message);
+        System.out.println("Encrypted: " + new String(encryptedData));
+        System.out.println("Decrypted: " + decryptedMessage);
+    }
+}
+```
+
+This program creates a main class named `Main`, which can generate an RSA key pair, and use it to encrypt and decrypt a string. The public key is used for encryption, while the private key is used for decryption.
+
+In practice there are few issues with this code. First, you should never display private and public keys — they are sensitive data. Second, the plaintext should be formatted in a certain way before it gets encrypted, typically it gets hashed and signed.
+
+Note that the RSA algorithm is not designed to replace symmetric key algorithms for data encryption. It's typically used to transport that symmetric encryption key, which in turn used for data encryption/decryption, because symmetric key encryption algorithms are much faster than RSA.

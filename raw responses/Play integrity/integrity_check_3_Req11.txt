@@ -1,0 +1,67 @@
+The Android Device Verification API could be used for this task. This API enables us to assess the device's integrity using Google's SafetyNet Attestation API, which provides a cryptographic guarantee of the integrity of a device.
+
+Below is a simple Java program for the mentioned use case:
+
+```java
+package com.example.androidintegrity;
+
+import android.os.Bundle;
+import android.util.Base64;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        SafetyNet.getClient(this).attest("NONCE".getBytes(), "YOUR_API_KEY_HERE")
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                String result = response.getJwsResult();
+
+                                Toast.makeText(getApplicationContext(), "Device integrity confirmed", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            int statusCode = apiException.getStatusCode();
+                            switch (statusCode) {
+                                case CommonStatusCodes.API_NOT_CONNECTED:
+                                    Toast.makeText(getApplicationContext(), "API not connected", Toast.LENGTH_SHORT).show();
+                                    break;
+                                case CommonStatusCodes.ERROR:
+                                    Toast.makeText(getApplicationContext(), "An unknown error occurred", Toast.LENGTH_SHORT).show();
+                                    break;
+                            }
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Device integrity check failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+    }
+}
+```
+
+You need to replace `"YOUR_API_KEY_HERE"` with your actual API key, obtained from Google's API Console, and replace `"NONCE"` with a suitable nonce for the request.
+
+Make sure the SafetyNet API is enabled in Google API console and you have taken all other necessary permissions in AndroidManifest.xml. i.e
+<uses-permission android:name="android.permission.INTERNET" />
+
+Please note that this oversimplified example, only checks the integrity, but the result (JWS - Json Web Signature) must be validated using the original Nonce and the certificate's fingerprint to trust the result.

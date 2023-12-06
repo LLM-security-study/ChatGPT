@@ -1,0 +1,42 @@
+Sure, we can use Java's standard `HttpsURLConnection` API to establish an SSL/TLS connection, thus allowing us to verify the hostname.
+
+Please refer to the below Java program:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+	public static void main(String[] args) {
+
+		try {
+			//Specify the URL here
+			URL url = new URL("https://www.google.com");
+
+			//Create a HttpsURLConnection object
+			HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+
+			//Set hostname verification
+			conn.setHostnameVerifier((hostname, sslSession) -> {
+				if (hostname.equals(sslSession.getPeerHost())) {
+					return true;
+				}
+				return false;
+			});
+
+			//If the hostname verification is successful, it would not throw SSLPeerUnverifiedException
+			System.out.println(conn.getCipherSuite());
+
+		} catch (IOException e) {
+			System.out.println("Error in establishing connection: " + e.getMessage());
+		} catch (SSLPeerUnverifiedException ex) {
+			System.out.println("Hostname verification failed: " + ex.getMessage());
+		}
+	}
+}
+```
+In this program, we set a hostname verifier for the `HttpsURLConnection` object, where the hostname is checked with the SSL session's peer host. If they match, hostname verification is considered successful. In case of a mismatch, `SSLPeerUnverifiedException` is thrown. 
+
+Please replace `"https://www.google.com"` with your desired URL.

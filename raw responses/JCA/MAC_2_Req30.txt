@@ -1,0 +1,33 @@
+Sure, here is a simple example of a Java program that uses MAC (Message Authentication Code) for message integrity using standard Java APIs.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String secret = "secretkey";
+            String message = "Hello, World!";
+
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            sha256_HMAC.init(secret_key);
+
+            String hash = DatatypeConverter.printHexBinary(sha256_HMAC.doFinal(message.getBytes()));
+            System.out.println(hash);
+        } catch (Exception e){
+            System.out.println("Error");
+        }
+    }
+}
+```
+
+This program generates a HMAC (Hash-based Message Authentication Code) for the input message string "Hello, World!". It uses a secret key "secretKey" for hash generation. The generated hash is then printed on the console.
+
+This program uses the HmacSHA256 algorithm which is a type of keyed hash algorithm that is constructed from the SHA-256 hash function and used as a Hash-based Message Authentication Code (HMAC). The output hash will be different for different messages. Any change or modification in the message will result in a different hash output, ensuring message integrity.
+
+Please ensure that Java Cryptography Extension (JCE) is properly set up in your environment to use "HmacSHA256". It usually comes with the standard Java Development Kit (JDK) setup.
+
+For production-level use, please securely manage the secret key as it is part of your secure hashing algorithm. Any compromise in the secret key will compromise your hash check.

@@ -1,0 +1,26 @@
+Here is a simple Java program:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+  public static void main(String[] args) {
+    SecureRandom secureRandom = new SecureRandom();
+
+    // Get the seed
+    byte[] seed = secureRandom.generateSeed(20);
+
+    // Now use this seed to generate a secure random number
+    secureRandom.setSeed(seed);
+
+    // Generate a random integer
+    int randomInteger = secureRandom.nextInt();
+    System.out.println("The random integer is: " + randomInteger);
+  }
+}
+```
+This program uses the java.security.SecureRandom class, which provides a cryptographically strong random number generator (RNG). 
+
+It first creates an instance of SecureRandom, which is initially not seeded. The generateSeed method is called to generate a seed, which is stored in a byte array of the desired size. Then, the setSeed method is used to seed the SecureRandom instance, before calling nextInt method to generate a random integer.
+
+Please note: this is a simple program for demonstration. In a real application, you'd typically need much more code to handle things like input validation, error checking and so forth.

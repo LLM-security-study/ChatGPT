@@ -1,0 +1,53 @@
+Sure, here's a simple Java program that uses the standard Java Security API to derive a cryptographic key from a user's password using the PBKDF2WithHmacSHA256 algorithm:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+    private static final String ALGORITHM = "PBKDF2WithHmacSHA256";
+    private static final int SALT_SIZE = 16;
+    private static final int ITERATION_COUNT = 65536;
+    private static final int KEY_LENGTH = 128;
+
+    private static SecretKey deriveKey(char[] password, byte[] salt) 
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATION_COUNT, KEY_LENGTH);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance(ALGORITHM);
+        return factory.generateSecret(spec);
+    }
+    
+    private static byte[] generateSalt() throws NoSuchAlgorithmException {
+        SecureRandom random = SecureRandom.getInstanceStrong();
+        byte[] salt = new byte[SALT_SIZE];
+        random.nextBytes(salt);
+        return salt;
+    }
+
+    public static void main(String[] args) 
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter password: ");
+        char[] password = scanner.nextLine().toCharArray();
+        
+        byte[] salt = generateSalt();
+        SecretKey key = deriveKey(password, salt);
+        
+        System.out.println("Derived key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+    }
+}
+```
+
+In this program:
+
+* The program prompts the user to enter a password.
+* The `generateSalt` method is used to generate a salt. 
+* This salt, along with the user's password, is used by the `deriveKey` method to derive a cryptographic key.
+* The derived key is then printed to the console.
+
+As always, this is a rather simple program, and you'd want to include more robust error handling and security features for a real-world program. Specifically, you'd generally not want to print a cryptographic key to the console but rather store it securely.

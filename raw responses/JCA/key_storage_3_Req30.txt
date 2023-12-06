@@ -1,0 +1,46 @@
+Sure, I will provide a basic structure of the program you are asking for, there isn't any standard API to store SSL certificate in Java, but we can use KeyStore API to store the certificate. 
+
+I'm assuming that you have already created an SSL certificate and just want to store it in a keystore file.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception{
+        // load the keystore
+        char[] keystorePassword = "password".toCharArray(); // your keystore password
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        java.io.InputStream in = new FileInputStream("keystore.jks");  // your keystore file path
+        keystore.load(in, keystorePassword);
+        in.close();
+
+        // store the certificate
+        char[] certPassword = "password".toCharArray(); // your certificate password
+        Key key = keystore.getKey("alias", certPassword); // "alias" is alias of certificate
+        Certificate[] chain = keystore.getCertificateChain("alias");
+        keystore.setKeyEntry("alias", key, certPassword, chain);
+
+        // write the keytore to filesystem
+        FileOutputStream fos = null;
+        try {
+            fos = new java.io.FileOutputStream("newKeystore.jks");
+            keystore.store(fos, keystorePassword);
+        } finally {
+            if (fos != null) {
+                fos.close();
+            }
+        }
+    }
+}
+```
+
+Important: Replace the `"password"`, `"alias"`, `"keystore.jks"`, and `"newKeystore.jks"` with your actual passwords, alias and file paths.
+
+NOTE: The importance of adequate protection for private keys cannot be overemphasized. If private keys are not kept secret, then the trust of all systems using the public key certificate may be jeopardized. 
+
+I suggest, not to expose the password and other sensitive informations directly in your code. Consider using encryption methods or environment variables.

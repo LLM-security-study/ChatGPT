@@ -1,0 +1,42 @@
+Here is a simple Java program that utilizes javax.crypto library to create a SecretKey from a user's password. Note that you may need additional error handling and security measures for a production environment.
+
+Note: This implementation uses PBKDF2WithHmacSHA256, a standard Password-Based Key Derivation Function 2 with an HMAC-SHA256 hash. Prior to Java 8 in order to use PBKDF2WithHmacSHA256 there needs additional security provider that implements it, like Bouncy Castle API.
+```
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Please enter a password for key derivation:");
+        String password = scanner.nextLine();
+        
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+
+            //change these as needed
+            final int iterationCount = 65536;  // number of iterations for the algorithm
+            final int keyLength = 256;  // key length in bits
+
+            //salt should be securely randomized
+            byte[] salt = new byte[16]; //salt size depends on the algorithm used, 16 bytes is usually secure
+
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+            SecretKey key = factory.generateSecret(spec);
+            
+            System.out.println("Generated cryptographic key: " + new String(key.getEncoded()));
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program first prompts the user to enter a password, then it creates a SecretKey from the user's password using the PBKDF2WithHmacSHA256 algorithm. The generated SecretKey is then printed to the console.
+
+This is a demonstration of how to derive a key from a password, in real application it's important to securely generate and store the salt (in this demo a zero byte array is used for demonstration purposes), and handle possible exceptions.

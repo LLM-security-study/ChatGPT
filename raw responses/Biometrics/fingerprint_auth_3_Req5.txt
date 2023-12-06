@@ -1,0 +1,73 @@
+To implement fingerprint recognition in an Android app, you would require to use BiometricPrompt API or FingerprintManager for older API levels (older than API level 28).
+
+Firstly, add the necessary permissions to your Android Manifest:
+
+```java
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+```
+
+Now let's create Main.java file:
+
+```java
+import android.content.Context;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
+
+public class Main {
+
+    private CancellationSignal cancellationSignal;
+    private Context context;
+
+    public Main(Context context){
+        this.context = context;
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    public BiometricPrompt getBiometricPrompt(BiometricPrompt.AuthenticationCallback authenticationCallback) {
+        Executor newExecutor = Executors.newSingleThreadExecutor();
+        BiometricPrompt myBiometricPrompt = new BiometricPrompt.Builder(context)
+                .setTitle("Fingerprint Authentication")
+                .setSubtitle("Please place your finger on the fingerprint sensor to authenticate.")
+                .setDescription("")
+                .setNegativeButton("Cancel", newExecutor, (dialogInterface, i) -> {})
+                .build();
+        return myBiometricPrompt;
+    }
+
+    public BiometricPrompt.AuthenticationCallback getAuthenticationCallback(){
+        return new BiometricPrompt.AuthenticationCallback() {
+            //handling different events
+            @Override
+            public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(context, "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show();
+            }
+        };
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.P)
+    private CancellationSignal getCancellationSignal(){
+        cancellationSignal = new CancellationSignal();
+        cancellationSignal.setOnCancelListener(() -> Toast.makeText(context,"Authentication was cancelled by the user.", Toast.LENGTH_LONG).show() );
+        return cancellationSignal;
+    }
+}
+```
+
+With that, you will be able to perform biometric authentication, however, remember that you will still need to handle what happens if the device doesn't have a fingerprint sensor, the user hasn't enrolled any fingerprints, or other biometric authentication setup issues. Also remember to handle the result according to your own business logic, such as moving the user to a different activity if the authentication was successful.
+

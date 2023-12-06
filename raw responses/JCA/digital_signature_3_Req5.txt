@@ -1,0 +1,35 @@
+Here's a simple Java implementation that uses SHA256withRSA algorithm for signing a given message.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.Signature;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String message = "This is the message to be signed";
+
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(keyPair.getPrivate());
+        signature.update(message.getBytes());
+
+        byte[] digitalSignature = signature.sign();
+        System.out.println("Digital Signature: " + new String(digitalSignature));
+    }
+}
+```
+
+The above program follows these steps:
+
+1. First, a KeyPairGenerator instance is created for RSA algorithm and initialized with 2048 bits.
+2. Then, keyPair score of PrivateKey and PublicKey is generated.
+3. Then, a Signature instance is created for SHA256withRSA, then initializes it with the PrivateKey for signing.
+4. The message is updated to the Signature instance.
+5. The signing is done and the digital signature is returned as bytes array.
+
+You may want to convert the bytes array of the digital signature to some encoded string (e.g., Base64) for convenient transportation. Keep in mind, this code is very barebones and lacks error checking, handling, or safety precautions a production level system would include.

@@ -1,0 +1,49 @@
+Sure, Here is a simple example illustrating the usage of MAC (Message Authentication Code) in Java:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        String secretKey = "thisisasecretkey"; // Set your secret key here
+        String message = "This is the message to check integrity of"; // Set your message here
+
+        try {
+            byte[] macResult = calculateMAC(secretKey.getBytes(), message.getBytes());
+ 
+            System.out.println(bytesToHex(macResult));
+
+        } catch (InvalidKeyException | NoSuchAlgorithmException ex) {
+            System.out.println("Error creating MAC: " + ex.getMessage());
+        }
+    }
+
+    static byte[] calculateMAC(byte[] secretKey, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException {
+        // Get an instance of the HMAC-SHA256 Mac
+        Mac mac = Mac.getInstance("HmacSHA256");
+
+        // Initialize the Mac with the secret key
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "HmacSHA256");
+        mac.init(secretKeySpec);
+
+        // Calculate the HMAC
+        return mac.doFinal(message);
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+
+}
+```
+This Java program calculates and prints the HMAC-SHA256 Message Authentication Code (MAC) of a message using a secret key. The MAC helps to ensure the integrity and authenticity of the message.
+
+Please note that this is just a basic example. In a production system, you will need to manage and securely store your secret keys to ensure the security of your application. Be careful with your keys to avoid exposing them to unauthorized entities.

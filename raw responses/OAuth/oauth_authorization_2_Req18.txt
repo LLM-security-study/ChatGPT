@@ -1,0 +1,56 @@
+To implement this task, the Google Calendar API must be used. In Java, a library called "Google Client Library" should be used to access this API with ease. 
+
+Here's a simple Java program to handle the necessary authorization process:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.calendar.CalendarScopes;
+
+
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google Calendar API Java";
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR);
+
+    private static Credential getCredentials() throws Exception {
+        // Load client secrets.
+        Reader clientSecretReader = new InputStreamReader(Main.class.getResourceAsStream("/client_secret.json"));
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+                JacksonFactory.getDefaultInstance(), clientSecretReader);
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                JacksonFactory.getDefaultInstance(), clientSecrets, SCOPES)
+                .build();
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws Exception {
+        // Build a new authorized API client service.
+        com.google.api.services.calendar.Calendar service =
+                new com.google.api.services.calendar.Calendar.Builder(
+                        GoogleNetHttpTransport.newTrustedTransport(),
+                        JacksonFactory.getDefaultInstance(),
+                        getCredentials())
+                        .setApplicationName(APPLICATION_NAME)
+                        .build();
+
+        // Application logic goes here.
+    }
+}
+```
+
+Note: The code assumes token based authorization handled by `getCredentials()`. The app's client secret JSON file should be located in the `/resources` directory and named as 'client_secret.json'.
+
+This code doesn't handle the tokens' storage and reuse. The user will be prompted to authorize access every time the app is run, which is far from ideal in a real-life situation. When implementing the production-grade application, consider storing and reusing tokens (until they're invalidated).

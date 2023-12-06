@@ -1,0 +1,51 @@
+Sure, here's a simple implementation of a digital signature in Java:
+
+Firstly, import the necessary packages:
+
+```java
+import java.security.*;
+import java.util.Base64;
+```
+
+Define the `Main` class:
+
+```java
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Generate a KeyPair
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+            keyPairGen.initialize(2048);
+            KeyPair keyPair = keyPairGen.generateKeyPair();
+
+            // Sign data
+            String data = "I am data to be signed.";
+            byte[] digitalSignature = signData(data, keyPair.getPrivate());
+
+            // Verify signature
+            boolean isVerified = verifySignature(data, digitalSignature, keyPair.getPublic());
+            System.out.println("Signature Verified: " + isVerified);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static byte[] signData(String data, PrivateKey privateKey) throws Exception {
+        Signature rsa = Signature.getInstance("SHA256withRSA");
+        rsa.initSign(privateKey);
+        rsa.update(data.getBytes());
+        return rsa.sign();
+    }
+
+
+    public static boolean verifySignature(String data, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initVerify(publicKey);
+        sig.update(data.getBytes());
+        return sig.verify(signature);
+    }
+}
+```
+
+In this program, we first generate a pair of keys using the RSA algorithm. The `signData` function signs the data using the private key and the `verifySignature` function verifies the signature using the public key. The `main` function orchestrates this by generating the keys, signing the data, and then verifying the signature.

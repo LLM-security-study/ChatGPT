@@ -1,0 +1,38 @@
+Sure, here is a simple Java program demonstrating signing a message using Java's standard Security and Cryptography APIs:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        //Initial data
+        String data = "Input message";
+
+        //Generate a key-pair
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048);
+        KeyPair pair = keyPairGen.generateKeyPair();
+
+        //Sign Data
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(pair.getPrivate());
+        byte[] bytes = data.getBytes(StandardCharsets.UTF_8);
+        signature.update(bytes);
+        byte[] digitalSignature = signature.sign();
+
+        //Check validity
+        signature.initVerify(pair.getPublic());
+        signature.update(bytes);
+
+        //Print the results
+        System.out.println("Is the signature valid? " + signature.verify(digitalSignature));
+    }
+}
+```
+
+This is a simple demonstration and shows how basic functionality can be achieved. 
+
+Notice that this program generates a new key pair every time it's runned. In a real-world scenario, the private key which is used to sign the message would be kept secure and only made available to the sender, while the public key would be freely distributed to allow anyone to verify the validity of the signed message.
+
+The input `data` would be your class input parameter.

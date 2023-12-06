@@ -1,0 +1,46 @@
+Sure, the Java Secure Socket Extension (JSSE) is the main standard API used for this kind of SSL communication. Here is a basic Java code snippet that connects to a remote server using an SSL socket. 
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    private static final String REMOTE_SERVER = "hostname"; // replace with your remote server
+    private static final int PORT = 1234; // replace with the port number
+
+    public static void main(String[] args) {
+        try {
+            // Obtain a SSLSocketFactory object using getSocketFactory method
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create a SSLSocket using the factory object and connect to the remote server
+            SSLSocket socket = (SSLSocket) factory.createSocket(REMOTE_SERVER, PORT);
+
+            // Create input and output streams to read from and write to the server
+            InputStream inputstream = socket.getInputStream();
+            OutputStream outputstream = socket.getOutputStream();
+
+            // Replace with your application specific logic of communication with server.
+            // Write something to the outputstream, send to the server.
+            outputstream.write("Hello Server".getBytes());
+            outputstream.flush();
+
+            // Read the response from the server.
+            BufferedReader response = new BufferedReader(new InputStreamReader(inputstream));
+            String line;
+            while ((line = response.readLine()) != null) {
+                System.out.println("Server response: " + line);
+            }
+
+            // Always be sure to close the socket when you're done
+            socket.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Replace 'hostname' and port number with your server details and insert your specific logic to communicate with the server in the appropriate location. Please make sure your JVM is correctly configured to use SSL. Some servers require client certificates or special cipher suites to successfully establish the connection, in those cases, additional configuration will be required.
+

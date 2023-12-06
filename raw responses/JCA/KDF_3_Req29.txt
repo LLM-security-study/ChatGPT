@@ -1,0 +1,40 @@
+Sure, here is an example of a Java program that implements Password-Based Key Derivation Function 2 (PBKDF2) using Java's standard APIs:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Arrays;
+
+public class Main {
+    private static final String PBKDF2_ALGORITHM = "PBKDF2WithHmacSHA1";
+
+    public static byte[] generateDerivedKey(char[] password, byte[] salt, int iterationCount, int keyLength)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        PBEKeySpec keySpec = new PBEKeySpec(password, salt, iterationCount, keyLength);
+        SecretKeyFactory keyFactory = SecretKeyFactory.getInstance(PBKDF2_ALGORITHM);
+        return keyFactory.generateSecret(keySpec).getEncoded();
+    }
+
+    public static void main(String[] args) throws Exception {
+        char[] password = "YourPassword".toCharArray();
+        byte[] salt = new BigInteger("54786929bbe6a64ae873d214c50f0ce3", 16).toByteArray();
+        int iterationCount = 10000;
+        int derivedKeyLength = 256;
+
+        byte[] derivedKey = generateDerivedKey(password, salt, iterationCount, derivedKeyLength);
+        System.out.println("Derived Key: " + Arrays.toString(derivedKey));
+    }
+}
+```
+The code above shows how to use the PBKDF2 (Password-Based Key Derivation Function 2) algorithm with HMAC-SHA1 as the PRF (Pseudo-Random Function) to generate a derived key from a password, salt, a specific number of iterations and a derived key length. 
+
+For simplicity, the salt is fixed in this example. In a real use case, you should generate and store a new salt for each user (and each password change).
+
+Remember to replace "YourPassword" with your actual password, and adjust the iteration count and derived key length to meet your security requirements. 
+
+A higher iteration count increases the computation needed to derive the key, which can slow down potential brute-force attacks. However, it also increases the time it takes for your application to generate the key. Therefore, you should choose a value that provides a good balance between security and performance.
+
+The derived key length should be equal to or larger than the size of the key needed by the cryptographic algorithm you plan to use. For example, if you need a 256-bit key for AES encryption, you should generate a derived key with a length of at least 256 bits.

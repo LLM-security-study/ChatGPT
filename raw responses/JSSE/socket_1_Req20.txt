@@ -1,0 +1,46 @@
+Sure, here's a simple example of how you might create a secure SSL Socket connection in Java program.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args){
+        String host = "localhost"; 
+        int port = 8080; 
+        try{
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+
+            // Enable the necessary protocols 
+            String[] protocols = socket.getSupportedProtocols();
+            socket.setEnabledProtocols(protocols);
+
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            
+            // Send a message to the server
+            String message = "Hello Server!";
+            writer.println(message);
+            writer.flush();
+            
+            String serverResponse = reader.readLine();
+            System.out.println("Server responded with: " + serverResponse);
+            
+            // Close the connections
+            reader.close();
+            writer.close();
+            socket.close();
+         } catch (Exception e){
+             e.printStackTrace();
+         }
+    }
+}
+```
+
+In this example, you will need to specify the right port and host and have valid trusted certificates installed, as SSL connections require them to verify the connection's security. Make sure the server is configured correctly to accept SSL connections. 
+
+This simple example sends a single string message to the server, then expects a single string response from the server and prints it. Ensure you close your sockets and streams when finished with them to free up system resources.
+
+This program uses the Java's standard javax.net.ssl package to implement SSL connections. It ensures that all connections use a secure SSL socket via the SSLSocketFactory.

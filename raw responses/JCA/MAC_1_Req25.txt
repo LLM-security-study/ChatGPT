@@ -1,0 +1,48 @@
+Sure, here is a simple program that takes a message and a secret key to generate a Message Authentication Code (MAC) using HMAC-SHA256.
+
+Please make sure to have the required imports for this class at the top of your program file: javax.crypto.spec.SecretKeySpec, javax.crypto.Mac, java.nio.charset.StandardCharsets and java.util.Base64.
+
+```java
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.Mac;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String HMAC_SHA256 = "HmacSHA256";
+
+    public static String calculateHMAC(String data, String key) {
+        try {
+            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
+            Mac mac = Mac.getInstance(HMAC_SHA256);
+            mac.init(secretKeySpec);
+            byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(rawHmac);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to calculate hmac", e);
+        }
+    }
+
+    public static void main(String[] args) {
+        if(args.length < 2) {
+            System.out.println("Usage: Main <data> <key>");
+            System.exit(1);
+        }
+        String data = args[0];
+        String key = args[1];
+        String mac = calculateHMAC(data, key);
+        System.out.println("MAC: " + mac);
+    }
+}
+```
+
+This program defines a main method that accepts command line arguments. The first argument is the text data, and the second argument is a secret key. The method `calculateHMAC` calculates HMAC value of the input data using the secret key.
+
+The Mac object represents a Message Authentication Code (MAC) and is initialized with the secret key.
+
+Finally, we run the HMAC function on the input data and encode the result in Base64 string to create a more readable HMAC.
+
+If the program doesn't receive the necessary command line arguments, it will show a usage hint and then exit.
+
+Please note that proper error handling is also added to catch any exceptions that could occur during HMAC calculation.

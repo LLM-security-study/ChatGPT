@@ -1,0 +1,51 @@
+Sure! Here is a simple Java program using the `HttpsURLConnection` class from Java standard SDK to validate the SSL certificate through an SSL/TLS connection. Please, replace `https://yourwebsite.com` with the address you're trying to verify.
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class Main {
+    public static final String urlAddress = "https://yourwebsite.com";
+
+    public static void main(String[] args) {
+        new Main().validateCertificate();
+    }
+
+    public void validateCertificate() {
+        try {
+            URL url = new URL(urlAddress);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.connect();
+            Certificate[] certs = conn.getServerCertificates();
+
+            System.out.println("Cipher Suite: " + conn.getCipherSuite() + "\n");
+
+            for(Certificate cert : certs) {
+                if (cert instanceof X509Certificate) {
+                    try {
+                        ((X509Certificate) cert).checkValidity();
+                        System.out.println("Certificate (" + ((X509Certificate) cert).getSubjectDN() +") is valid and within expiration date");
+                    } catch (Exception e) {
+                        System.out.println("Certificate (" + ((X509Certificate) cert).getSubjectDN() +") is invalid or expired");
+                    }
+                }
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("Could not verify the SSL certificate");
+            e.printStackTrace();
+        } catch (Exception e) {
+            System.out.println("Error establishing SSL connection");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In the program above, we first open a connection to the provided URL. Thereafter, we fetch all certificates provided by the server with `conn.getServerCertificates()`. For each certificate that is of type `X509Certificate`, we call `checkValidity()` to ensure it's within its validity period. If the certificate is expired or not yet valid a `CertificateExpiredException` or `CertificateNotYetValidException` is thrown, respectively, which are combined under the general `Exception` in our scenario.
+
+Keep in mind that this program only checks the validity of the certificate itself. It does not perform any checks regarding the identity of the host, i.e., it does not check whether the certificate actually belongs to the host.
+
+If you need to validate the host's identity (verify that the certificate indeed belongs to the host), you would need to perform a host verification. This would require you to use for instance a `SSLSocketFactory` and a custom `HostnameVerifier` to compare the certificate's Common Name (CN) or Subject Alternative Name (SAN) with the host's address. The exact implementation would depend on your needs and your security environment.

@@ -1,0 +1,27 @@
+Sure, here's a simple example of a Java program that generates a SecretKey derived from an user supplied string password.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.*;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String password = "SomePassword"; // This should be provided by user
+
+        // We use PBKDF2WithHmacSHA1 key generation algorithm and 1000 iteration count
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), new byte[]{111,222,333,444,555,666,777,888}, 1000, 256);
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        byte[] key = f.generateSecret(spec).getEncoded();
+
+        System.out.println("Secret Key Generated from the provided password is : "+ Arrays.toString(key));
+    }
+}
+```
+
+This program generates a 256-bit SecretKey using the PBKDF2WithHmacSHA1 key derivative function, from a user supplied password. 
+
+The salt(byte array) here is hard-coded in this example. In actual production scenarios, you should consider generating a new random salt per user and storing it safely. The number of iterations (1000 in this example) also can be increased for better security.
+
+Note: This program simplifies many aspects of key generation including error handling for the purpose of providing a clear example. Make sure to enhance this to meet security and robustness requirements of your project.

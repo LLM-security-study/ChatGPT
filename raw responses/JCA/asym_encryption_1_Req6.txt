@@ -1,0 +1,52 @@
+Sure, Here is a simple implementation of RSA algorithm for a string in Java using standard API.
+
+```java
+import java.security.*;
+import java.util.Base64;
+import javax.crypto.Cipher;
+
+public class Main {
+    private static KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048, new SecureRandom());
+        KeyPair pair = generator.generateKeyPair();
+
+        return pair;
+    }
+
+    public static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes());
+
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    public static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+        byte[] bytes = Base64.getDecoder().decode(cipherText);
+
+        Cipher decryptCipher = Cipher.getInstance("RSA");
+        decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        return new String(decryptCipher.doFinal(bytes));
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPair pair = generateKeyPair();
+
+        String cipherText = encrypt("Hello, world!", pair.getPublic());
+
+        System.out.println("cipherText=" + cipherText);
+        String decryptedText = decrypt(cipherText, pair.getPrivate());
+
+        System.out.println("decryptedText=" + decryptedText);
+    }
+}
+```
+The "generateKeyPair" function generates a public and private key pair using RSA algorithm and a secure random seed. 
+The "encrypt" function takes a plain text and a public key, then encrypts the plain text using the public key and returns a cipher text.
+The "decrypt" function takes a cipher text and a private key, then decrypts the cipher text using the private key and returns the plain text.
+The program firstly generates a public-private key pair, then encrypts a string "Hello, world!" with the public key, at last decrypts it back to plain text with the private key.
+
+Please note, RSA isn't normally used to directly encrypt/decrypt large chunks of data for performance reasons. But it's good enough here for small strings, which is what you've asked.

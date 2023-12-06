@@ -1,0 +1,43 @@
+Sure, below is an implementation as per your requirements. This program generates a secure seed for initializing SecureRandom (a PRNG in Java), and then uses this PRNG to generate a salt for password hashing.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    // Size of the salt
+    private static final int SALT_SIZE = 32;
+
+    public static void main(String[] args) {
+        try {
+            // Create a secure random number generator
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+
+            // Create a seed
+            byte[] seed = sr.generateSeed(SALT_SIZE);
+        
+            // Set the seed for the secure random number generator
+            sr.setSeed(seed);
+        
+            // Generate the salt
+            byte[] salt = new byte[SALT_SIZE];
+            sr.nextBytes(salt);
+
+            System.out.println("Generated salt: " + Base64.getEncoder().encodeToString(salt));
+
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please keep the SALT_SIZE value as per your requirements. I have kept it as 32 bytes. 
+
+This code can give salt in different sizes according to the SALT_SIZE set.   Also, SHA1PRNG is used for generating seed here. You can use a different algorithm if you need.
+
+The generated salt is then printed in Base64-encoded form.
+
+Exception handling is also incorporated to catch any potential exceptions during the program run.

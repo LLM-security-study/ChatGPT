@@ -1,0 +1,44 @@
+Here is a simple java program that creates a message digest of a given string using the SHA-256 hashing algorithm. 
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            System.out.println("Please input message:");
+            Scanner scanner = new Scanner(System.in);
+            String message = scanner.nextLine();
+
+            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = messageDigest.digest(message.getBytes());
+
+            String hash = bytesToHex(encodedhash);
+            System.out.println("Hash: " + hash);
+            
+            scanner.close();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    } 
+    
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This will accept the user input message from the console, digest it and display the value as hexadecimal. 
+
+Make sure that the Java program is run with the sufficient privileges to use Java Security API's and if your environment restricts access to these API's, you may have to alter your security policies. 
+
+Note: The hash function does not encrypt data, and it is not intended to be a secure way to store sensitive data.

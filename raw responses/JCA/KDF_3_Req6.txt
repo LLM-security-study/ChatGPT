@@ -1,0 +1,36 @@
+You can use the Java Cryptography Architecture (JCA) for the generation of key derivation. Below is the simple code snippet:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        char[] password = "secret".toCharArray();
+        byte[] salt = new byte[16]; // recommended salt length. In production level, use a better way to produce salt.
+
+        SecretKeyFactory factory = null;
+        byte[] hash = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password, salt, 65536, 256); // 256 bit derived key
+            hash = factory.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(Arrays.toString(hash));  // print derived key.
+    }
+}
+```
+
+This code generate a derived key from a password using PBKDF2WithHmacSHA256 algorithm. The salt is a series of random bytes.
+
+In this code, '65536' is the iteration count which determines how slow the hash function will be, which means it will be more difficult to a hacker to brute force your password hash. '256' is the desired key length.
+
+Please note that this is a raw implementation. Remember to secure the salt and do error checking as necessary.

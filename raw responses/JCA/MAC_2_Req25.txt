@@ -1,0 +1,41 @@
+Sure, below is a simple java program which performs a message integrity check using a Message Authentication Code (MAC) function.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        String secret = "secretkey1";
+
+        try{
+            String macCode = calculateHMAC(message, secret);
+            System.out.println("MAC code: " + macCode);
+        } catch (Exception e) {
+            System.out.println("Error occurred while generating MAC: " + e.getMessage());
+        }
+    }
+
+    public static String calculateHMAC(String data, String key) throws Exception {
+      SecretKeySpec secret_key = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
+      Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(secret_key);
+      byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+      Base64.Encoder encoder = Base64.getEncoder();
+      return new String(encoder.encode(rawHmac));
+   }
+}
+```
+
+Please note that you need to provide a secret key to generate MAC. Never use a hard-coded secret key in a real-world application. You should manage keys in a secure way.
+
+Important points about the program:
+1. This Java program uses the standard Java libraries javax.crypto.Mac and javax.crypto.spec.SecretKeySpec for creating a MAC.
+2. HMAC (Hash-based Message Authentication Code) is being used with the SHA-256 hash function. 
+3. The calculateHMAC() function calculates the HMAC value for the input string data with the secret key. The HMAC value is a generated code that is unique for the same input and secret key.
+4. In the main() method the HMAC value is calculated and then printed.
+
+Please replace "Hello, World!" and "secretkey1" with your own message and key to be used.

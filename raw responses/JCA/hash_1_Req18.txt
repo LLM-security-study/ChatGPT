@@ -1,0 +1,41 @@
+Sure, here's a Java Program that will calculate the hash value of a given string.
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+class Main {
+
+    private static String calculateHash(String text) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(text.getBytes(StandardCharsets.UTF_8));
+            return bytesToHex(hash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    public static void main(String[] args) {
+        String text = "Hello, World!";
+        String hash = calculateHash(text);
+        System.out.println("The hash value of '" + text + "' is: " + hash);
+    }
+}
+```
+This code works by defining a method called `calculateHash`, which uses the SHA-256 algorithm to generate a hash value of the input string. The resulting hash is returned as a hexadecimal string.
+
+The `main` method demonstrates the usage of `calculateHash` method by passing a string "Hello, World!" and printing its hash value to the console.

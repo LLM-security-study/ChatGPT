@@ -1,0 +1,43 @@
+Here is a simple program that uses Java API's to generate a SecretKey from a user's password. This program uses the PBKDF2WithHmacSHA256 algorithm provided by Java to generate the SecretKey. It uses a random salt for generating the SecretKey. Use of the salt for password hashing may help to combat the utility of rainbow tables to an attacker.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.security.*;
+import java.security.spec.*;
+
+public class Main {
+    private static final int ITERATION_COUNT = 65536;
+    private static final int KEY_LENGTH = 256;
+
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        char[] password = "MyPassword123".toCharArray();
+        byte[] salt = new byte[16];
+
+        // Generate random salt
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(salt);
+
+        SecretKey secretKey = generateSecretKey(password, salt);
+
+        // print secret key
+        System.out.println(DatatypeConverter.printHexBinary(secretKey.getEncoded()));
+    }
+
+    private static SecretKey generateSecretKey(char[] password, byte[] salt) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATION_COUNT, KEY_LENGTH);
+        SecretKey tmp = secretKeyFactory.generateSecret(spec);
+        return new SecretKeySpec(tmp.getEncoded(), "AES");
+    }
+}
+```
+
+In the above code. I've used a static password "MyPassword123". You can take this as input from the user. This program will print SecretKey in hexadecimal format.
+
+**Please note that handling and storing passwords in real-life applications is a complex topic and requires a thorough understanding of relevant security measures. You usually never store passwords as plain text but as hashed or encrypted values.**
+
+This code is for illustrative purposes only and uses a simplified version of password-based encryption. It should not be used as-is in a production environment without additional safety measures. 
+
+For instance, you'd want to use a strong random salt and store it along with the hashed password. Also, hashing should be computationally expensive (longer execution time). So, you might want to increase the iteration count from the provided value. The number should be as high as possible without causing unacceptable application performance.

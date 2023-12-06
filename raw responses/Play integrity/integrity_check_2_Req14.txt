@@ -1,0 +1,76 @@
+The Android API does not directly support verifying the integrity of an app from within another app. However, you can use Android's PackageManager to get basic information such as the package name and signatures about an installed app, which can be used to do a basic integrity check.
+
+Here is a simple example how you can verify the package name and signature of a target app:
+
+```java
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Log;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    private static final String TAG = "AppIntegrityCheck";
+    private static final String TARGET_APP_PACKAGE = "com.example.targetapp";
+    private static final String TARGET_APP_SIGNATURE = "308201dd30820146...EXAMPLE...bc5f9f60a";
+
+    public static void main(String[] args) {
+        // Assume Context (e.g.: Activity or Application context)
+        // is accessible via getContext() function
+        Context context = getContext();
+
+        final PackageManager pm = context.getPackageManager();
+        try {
+            PackageInfo packageInfo = pm.getPackageInfo(TARGET_APP_PACKAGE, PackageManager.GET_SIGNATURES);
+
+            // Verify package name
+            if (!packageInfo.packageName.equals(TARGET_APP_PACKAGE)) {
+                Log.e(TAG, "Package name mismatch");
+                return;
+            }
+
+            // Verify app signature
+            Signature[] appSignatures = packageInfo.signatures;
+            if (appSignatures.length == 0) {
+                Log.e(TAG, "No signatures found");
+                return;
+            }
+
+            MessageDigest md;
+            md = MessageDigest.getInstance("SHA");
+            md.update(appSignatures[0].toByteArray());
+
+            byte[] digest = md.digest();
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : digest) {
+                String hex = Integer.toHexString(0xFF & b);
+                if (hex.length() == 1) {
+                    hexString.append('0');
+                }
+                hexString.append(hex);
+            }
+
+            if (!hexString.toString().equals(TARGET_APP_SIGNATURE)) {
+                Log.e(TAG, "Signature mismatch");
+            } else {
+                Log.i(TAG, "App integrity check passed");
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Package not found", e);
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "SHA MessageDigest not available", e);
+        }
+    }
+}
+```
+
+Please replace `TARGET_APP_PACKAGE` and `TARGET_APP_SIGNATURE` values with the actual package name and SHA1 signature of target app, respectively. Signatures can be obtained using keytool command in JDK.
+
+PLEASE NOTE: This only provides rudimentary integrity check against basic tampering. It is NOT a full-proof solution against more advanced app tampering or repackaging techniques. For more advanced protection, please refer to Android's SafetyNet Attestation API or third-party security solutions. 
+
+Also, please replace `getContext()` method with the correct method to get context in your application. In android, you cannot actually run a program with a main method as an entry point. The entry point would instead be an activity, where you could put this code inside its onCreate method.
+
+This code should be run on an Android device or emulator with the target app installed. It will not run on a conventional JVM.

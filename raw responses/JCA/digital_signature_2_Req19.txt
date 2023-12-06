@@ -1,0 +1,58 @@
+Sure, here is a simple program that demonstrates the use of Digital signature function in java:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception{
+
+        // Creating a KeyPairGenerator
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+
+        // Initializing the KeyPairGenerator
+        keyGen.initialize(1024);
+
+        // Generate the pair of keys
+        KeyPair pair = keyGen.generateKeyPair();
+
+        // Getting the private key from the key pair
+        PrivateKey priv = pair.getPrivate(); 
+        
+        // Getting the public key from the key pair
+        PublicKey pub = pair.getPublic();       
+       
+        // Creating a Signature object
+        Signature sign = Signature.getInstance("SHA256withDSA");
+
+        // Initializing the signature
+        sign.initSign(priv);
+
+        String msg = "Hello World!";
+
+        // Adding data to the signature
+        byte[] bytes = msg.getBytes();
+        sign.update(bytes);
+
+        // Calculating the signature
+        byte[] signature = sign.sign(); 
+
+        // Initializing the same signature object with the public key
+        sign.initVerify(pub);
+
+        // Updating the signature
+        sign.update(bytes);
+
+        // Verifying the signature
+        boolean bool = sign.verify(signature);
+
+        if(bool) {
+            System.out.println("Signature verified");
+        } else {
+            System.out.println("Signature failed");
+        }
+    }
+}
+```
+This program demonstrates how to generate a digital signature for a message in Java. The private key is used to sign the message and generate a signature. The receiver then uses the corresponding public key to verify the signature. If the signature is verified, it means the message is from the expected sender and it hasn't been altered during transfer.
+
+Remember to include necessary exception handling in your code based on the specific requirements and context of your program. This is a basic example and does not handle any possible exceptions that might occur in a wider scoped program.

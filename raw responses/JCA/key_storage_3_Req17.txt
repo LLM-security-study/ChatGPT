@@ -1,0 +1,58 @@
+Here is a Java program which uses KeyStore API in Java's Security package to store and retrieve an SSL Certificate in a keystore file:
+
+```Java
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore.PasswordProtection;
+
+public class Main {
+    public static void main(String[] args) {
+     
+        try {
+            FileInputStream fis = new FileInputStream("myCertificate.crt"); // your certificate file
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate certificate = cf.generateCertificate(fis);
+            fis.close();
+            
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            char[] password = "myPassword".toCharArray();  // your keystore password
+            keyStore.load(null, password);
+            
+            keyStore.setCertificateEntry("myAlias", certificate);  // your alias
+
+            try (FileOutputStream fos = new FileOutputStream("myKeystore.jks")) {  // your keystore file
+                keyStore.store(fos, password);
+            }
+            
+            // To read from keystore
+            try (FileInputStream keyStoreData = new FileInputStream("myKeystore.jks")) {
+                keyStore.load(keyStoreData, "myPassword".toCharArray());
+            }
+            PasswordProtection keyPassword =       
+            new PasswordProtection("myPassword".toCharArray()); // your key password
+            KeyStore.PrivateKeyEntry privateKeyEntry = (KeyStore.PrivateKeyEntry)
+            keyStore.getEntry("myAlias", keyPassword );
+            
+            Certificate storedCertificate = privateKeyEntry.getCertificate();
+            System.out.println(storedCertificate.toString());
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this Java program:
+
+- The `java.security.KeyStore` class is a storage facility for cryptographic keys and certificates.
+- The `load()` method is used to load the `keystore` file. If the file does not exist, an empty `keystore` is created.
+- The `FileInputStream` class obtains input bytes from a file.
+- The `setCertificateEntry()` method is used to assign the given certificate to the given alias.
+- The `store()` method is used to save the `keystore` to a file.
+- The `CertificateFactory` class defines the functionality of a certificate factory, which is used to generate certificate, certification path (`CertPath`) objects and `CRL` objects from their encodings.
+- The `getEntry()` method gets the `KeyStore.Entry` for the specified alias with the specified protection parameter.
+
+**Please replace the placeholders `"myCertificate.crt"`, `"myPassword"`, `"myAlias"`, `"myKeystore.jks"` with the actual file name, password, alias, and the `keystore` file name respectively.** Make sure the certificate and the program file are in the same directory.

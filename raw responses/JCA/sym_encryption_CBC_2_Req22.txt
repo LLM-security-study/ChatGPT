@@ -1,0 +1,55 @@
+Sure, I'll create a class file named "Main.java" with a java program to encrypt data using AES in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    static private final int KEY_SIZE = 16;  // 128 bits
+    static private final int IV_SIZE = 16;  // 128 bits
+
+    public static void main(String[] args) {
+        String plainText = "This is a test.";
+        String secretKey = "mySecretKey12345";
+
+        // Make sure the key is 16 bytes
+        while (secretKey.length() < KEY_SIZE)
+            secretKey += "0";
+        secretKey = secretKey.substring(0, KEY_SIZE);
+
+        try {
+
+            // Encrypt
+            final byte[] iv = new byte[IV_SIZE];
+            new SecureRandom().nextBytes(iv);
+            final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(secretKey.getBytes(), "AES"), new IvParameterSpec(iv));
+            final byte[] cipherText = cipher.doFinal(plainText.getBytes());
+            final byte[] cipherTextWithIv = new byte[iv.length + cipherText.length];
+            System.arraycopy(iv, 0, cipherTextWithIv, 0, iv.length);
+            System.arraycopy(cipherText, 0, cipherTextWithIv, iv.length, cipherText.length);
+            String encryptedText = Base64.getEncoder().encodeToString(cipherTextWithIv);
+            System.out.println("Encrypted text: " + encryptedText);
+
+            // Decrypt
+            byte[] decodedCiphertext = Base64.getDecoder().decode(encryptedText);
+            byte[] decryptedIv = new byte[IV_SIZE];
+            byte[] decryptedCiphertext = new byte[decodedCiphertext.length - IV_SIZE];
+            System.arraycopy(decodedCiphertext, 0, decryptedIv, 0, decryptedIv.length);
+            System.arraycopy(decodedCiphertext, IV_SIZE, decryptedCiphertext, 0, decryptedCiphertext.length);
+            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(secretKey.getBytes(), "AES"), new IvParameterSpec(decryptedIv));
+            byte[] originalPlainText = cipher.doFinal(decryptedCiphertext);
+            System.out.println("Decrypted text: " + new String(originalPlainText));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program uses AES encryption in CBC mode with 128-bit keys. It both encrypts and decrypts a string for demonstration purposes.

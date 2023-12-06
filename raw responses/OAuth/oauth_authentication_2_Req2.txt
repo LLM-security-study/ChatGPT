@@ -1,0 +1,51 @@
+Below is a sample Java code for integrating Google's Single Sign-On service into a web application, utilizing Google's APIs. Please ensure to replace your "client-id" & "client-secret" with your own values. 
+
+This program does not include the requested server endpoints that facilitate the OAuth 2.0 flow (for example, as servlets in a web application). Such details are dependent on the specific web application framework in use.
+
+```java
+/*
+* a Java program to establish a Single-Sign-On (SSO) service for a web application
+* using Google accounts for user authentication. The primary goal is to implement the
+* authentication functionality.
+*/
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Main {
+
+    private static final String CLIENT_SECRET_FILE = "/path/to/client_secret.json";
+    private static final String REDIRECT_URI = "Your Redirect URI here";
+
+    public static void main(String... args) throws IOException {
+
+        // Load client secrets.
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+                JacksonFactory.getDefaultInstance(), new FileReader(CLIENT_SECRET_FILE));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(), JacksonFactory.getDefaultInstance(), clientSecrets,
+                Arrays.asList("https://www.googleapis.com/auth/userinfo.email"))
+                .setAccessType("offline")
+                .build();
+
+        // Replace with actual SignIn Link, user would be redirected here after signIn 
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+
+        System.out.println("Please open the following URL in your browser then type the authorization code:");
+        System.out.println("  " + url);
+    }
+}
+```
+
+This code demonstrates the initial part of Google's OAuth 2.0 flow: it generates a URL that the user clicks on to authenticate with Google. After authentication, Google redirects the user back to a specified redirect URI with an authorization code.
+
+You should build an endpoint (not included in this example code) in your web application that listens on the redirect URI, exchanges the authorization code for a user ID token, and checks the validity of that user ID token.

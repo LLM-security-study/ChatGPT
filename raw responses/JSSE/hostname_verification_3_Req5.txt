@@ -1,0 +1,47 @@
+Sure, I'll develop a simple program utilizing Java's javax.net.ssl API (Standard API). This API provides the functionality required for secure network communication using SSL/TLS protocols.
+
+```java
+import java.net.URL;
+import java.net.URLConnection;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.HostnameVerifier;
+
+class Main {
+    
+    static class MyHostnameVerifier implements HostnameVerifier {
+        public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
+            if ("expected.hostname.com".equals(hostname)) {
+                return true;
+            }
+            return false;
+        }
+    }
+    
+    public static void main(String[] args) {
+        try {
+            // Create a URL object
+            URL url = new URL("https://expected.hostname.com:port");
+            
+            // Open a connection to the URL
+            URLConnection connection = url.openConnection();
+            
+            if(connection instanceof HttpsURLConnection) {
+                ((HttpsURLConnection) connection).setHostnameVerifier(new MyHostnameVerifier());
+            }
+            
+            // Connect to the URL
+            connection.connect();
+            
+            System.out.println("Successfully connected to the server.");
+        }
+        catch (Exception e) {
+            System.out.println("Failed to connect to the server.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+Replace "expected.hostname.com:port" with the actual hostname and port number that you expect. This code verifies if the host of the SSL/TLS communication is the expected one. If it is not, the verification fails and a SSLPeerUnverifiedException is thrown. You can adjust this code according to your needs.
+
+For this code to properly handle SSL/TLS verification, you also need to ensure that the necessary certificates are present in the Java keystore. This is especially relevant when connecting to a server with a self-signed certificate.

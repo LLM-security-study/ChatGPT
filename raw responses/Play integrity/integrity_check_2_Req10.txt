@@ -1,0 +1,65 @@
+To verify an Android app's integrity, one way is using the Google Play App Signing feature provided by Google Play. Google Play App Signing holds the app's signing key and uses it to re-sign the app after each update. 
+
+In this scenario, the Google Play App Signing uses a feature called Release management -> App integrity which provides an API called the PackageManager, particularly its method getPackageInfo().
+
+Let's implement it in a Java class.
+
+```java
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Base64;
+import android.util.Log;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    private static final String TAG = "IntegrityCheck";
+
+    //Supply the expected signature
+    private static final String EXPECTED_SIGNATURE = "<Expected_Signature>";
+
+    public static void main(String[] args) {
+        //Assume the context object as supplied
+        PackageManager pm = context.getPackageManager();
+            
+        try {
+            PackageInfo packageInfo = pm.getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES);
+            if (packageInfo == null
+                || packageInfo.signatures == null
+                || packageInfo.signatures.length == 0
+                || packageInfo.signatures[0] == null) {
+
+                Log.e(TAG, "No signatures found!");
+            } else {
+                Signature signature = packageInfo.signatures[0];
+                MessageDigest md;
+                
+                md = MessageDigest.getInstance("SHA");
+                md.update(signature.toByteArray());
+
+                String currentSignature = Base64.encodeToString(md.digest(), Base64.NO_WRAP);
+                
+                //Compare signatures 
+                if(EXPECTED_SIGNATURE.equals(currentSignature)){
+                    Log.i(TAG, "App's signature is valid");
+                } else {
+                    Log.e(TAG, "App's signature is NOT valid");
+                }
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Unable to find package to obtain signature.", e);
+        } catch (NoSuchAlgorithmException e) {
+            Log.e(TAG, "Unable to obtain the necessary algorithm to compute signature.", e);
+        }
+    }
+}
+```
+
+Note:
+
+1. As we are dealing with codes written with Android SDK classes, it would not be possible to replicate it in a simple main method as you have asked because Android SDK classes do not have a main method. The code needs to be run within an Android Application hence it needs to be integrated inside an Android Application class.
+
+2. You need to replace `<Expected_Signature>` with the actual expected signature acquired from: Release management -> App integrity in the Play Console.
+
+3. This is a base implementation, and should be adjusted according to your need.

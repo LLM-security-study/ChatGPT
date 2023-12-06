@@ -1,0 +1,45 @@
+Sure, for Certificate Validation which is a part of SSL/TLS connection in Java, the primary Java standard API we will use is JSSE (Java Secure Socket Extension).
+
+Here is a basic example of how you might compose the Main class to achieve this:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "yourHostname";
+        int port = 443;
+
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        try (SSLSocket socket = (SSLSocket) factory.createSocket(hostname, port)) {
+            socket.startHandshake();
+
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            out.println("GET / HTTP/1.0");
+            out.println();
+            out.flush();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This is a simplified example which connects to a chosen hostname and port over SSL/TLS and retrieves data. The `startHandshake()` method call will perform the SSL/TLS handshake which includes certificate validation.
+
+For real-world use, you'd definitely need to handle exceptions more robustly, and likely need to make the hostname and port configurable rather than hard-coded. Also keep in mind that this only creates a client, you would need other configurations on the server side as well.
+
+To configure which certificates are trusted, you'd usually configure your Java runtime's keystore or truststore. This isn't shown in the code above, as it's usually a configuration done outside of the application's codebase.
+
+Please note that the above code will not work with self-signed certificates unless they're added to Java's keystore since these certificates can't be verified with a trusted third party, as you normally would with an SSL/TLS handshake.

@@ -1,0 +1,69 @@
+The Android Biometric API introduced in Android 9.0 (Pie) makes it easy to integrate a fingerprint authentication system into your application. The recommended method is to use the AndroidX Biometric library which supports all Biometric APIs from API level 23 (Android 6.0 Marshmallow) and is backward compatible with older versions, while maintaining uniformity across devices.
+
+Below is a simple implementation of the same:
+
+Firstly, add below dependency in your app-level build.gradle file.
+```java
+dependencies {
+  implementation 'androidx.biometric:biometric:1.0.1'
+}
+```
+And, here's how to implement it in your code:
+
+```java
+import android.os.Bundle;
+import android.util.Log;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+
+public class Main extends AppCompatActivity {
+  private BiometricPrompt.PromptInfo promptInfo;
+  private BiometricPrompt biometricPrompt;
+  private final Executor executor = Executors.newSingleThreadExecutor();
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    
+    biometricPrompt = new BiometricPrompt(this, executor, new BiometricPrompt.AuthenticationCallback() {
+      @Override
+      public void onAuthenticationError(int errorCode, CharSequence errString) {
+        super.onAuthenticationError(errorCode, errString);
+        Log.e("Biometric", "Authentication Error : " + errString);
+      }
+
+      @Override
+      public void onAuthenticationSucceeded(BiometricPrompt.AuthenticationResult result) {
+        super.onAuthenticationSucceeded(result);
+        Log.d("Biometric", "Authentication Succeeded");
+      }
+
+      @Override
+      public void onAuthenticationFailed() {
+        super.onAuthenticationFailed();
+        Log.e("Biometric", "Authentication Failed");
+      }
+    });
+    
+    promptInfo = new BiometricPrompt.PromptInfo.Builder()
+      .setTitle("Fingerprint Authentication")
+      .setSubtitle("Please place your finger on the sensor to authenticate.")
+      .setNegativeButtonText("Cancel")
+      .build();
+
+    biometricPrompt.authenticate(promptInfo);
+  }
+}
+```
+The above code will display a BiometricPrompt to the user. If the authentication process is successful, the`onAuthenticationSucceeded()` method is called. On the other hand, if the authentication process fails, the`onAuthenticationFailed()` method is called.
+
+Don't forget to add necessary permissions in the AndroidManifest.xml
+
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC" />
+```
+With this implementation, the use of fingerprint authentication can be allowed within an Android app.

@@ -1,0 +1,44 @@
+Hostname verification in a SSL/TLS connection is a crucial part of maintaining secure network connections in Java applications. The HostnameVerifier interface is an essential player in this process. It is utilised to ascertain whether the hostname associated with a SSL session's certificate aligns with the hostname the client used to establish the SSL session.
+
+The following Java program illustrates the use of the HostnameVerifier interface using HttpsUrlConnection class from the Java.net package:
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // create a url that refers to a page on ssl protected site
+            URL url = new URL("https://www.yoursite.com");
+
+            // open connection
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // set the HostnameVerifier
+            conn.setHostnameVerifier(new CustomHostnameVerifier());
+
+            // connection successful if we reach this point
+            System.out.println("Connection Success");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+//HostnameVerifier implementation
+class CustomHostnameVerifier implements HostnameVerifier {
+    public boolean verify(String hostname, SSLSession session) {
+        // verify if the hostname is as expected or not
+        if (hostname.equals("www.yoursite.com")) {
+            return true;
+        }
+        return false;
+    }
+}
+```
+Here, CustomHostnameVerifier overrides the `verify()` method of the HostnameVerifier interface. Within the `verify()` method, we specify our hostname verification logic by matching it to our expected hostname "www.yoursite.com".

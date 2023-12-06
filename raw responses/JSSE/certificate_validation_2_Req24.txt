@@ -1,0 +1,44 @@
+Here is a simple Java program that validates the certificate in an SSL/TLS connection using the HttpsURLConnection API which is a part of standard Java APIs.
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().validateCertificate();
+    }
+
+    public void validateCertificate() {
+        try {
+            // Specify the URL you want to connect to
+            URL url = new URL("https://www.google.com");
+
+            // Create a connection
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Connect to the URL
+            conn.connect();
+
+            // Get the certificate
+            java.security.cert.Certificate[] certificates = conn.getServerCertificates();
+
+            System.out.println("Server certificates:");
+            for (java.security.cert.Certificate certificate : certificates) {
+                System.out.println("Certificate is: " + certificate.toString());
+            }
+
+            // Close the connection
+            conn.disconnect();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+In this code, we establish an HTTPS URL connection to a server and retrieve the certificates of this server. Then, we print out the certificates. This validation code is basic - the Java API does validation automatically, and would throw an SSLHandshakeException if the certificate is not trusted.
+
+By calling getServerCertificates(), an SSL handshake is initiated, the certificates are automatically validated, and if that validation passes the certificates are then returned and printed.
+
+For more complex validation, you would need to build and set a custom `TrustManager`. The default `TrustManager` used by `HttpsURLConnection` only checks the certificates against Java's pre-installed Certificate Authorities (CAs), it does not do any hostname verification and does not allow for certificate pinning.

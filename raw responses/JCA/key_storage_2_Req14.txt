@@ -1,0 +1,64 @@
+Here is a simple Java program that meets your requirements:
+
+```java
+import java.io.FileOutputStream;
+import java.security.*;
+import javax.security.cert.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            //Creating the KeyStore object
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+
+            //Loading the KeyStore object
+            char[] keyStorePassword = "keystorePassword".toCharArray();
+            keyStore.load(null, keyStorePassword);
+
+            //Creating the Key pair generator object
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+
+            //Initializing the key pair generator
+            keyPairGenerator.initialize(2048);
+
+            //Generating the pair of keys
+            KeyPair pair = keyPairGenerator.generateKeyPair();
+
+            //Creating a X509 certificate
+            Certificate[] chain = new Certificate[1];
+            chain[0] = Certificate.getInstance("X.509");
+
+            //Creating the KeyStore.ProtectionParameter object
+            KeyStore.PasswordProtection passwordProtection = new KeyStore.PasswordProtection(keyStorePassword);
+
+            //Creating the PrivateKeyEntry object
+            KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(pair.getPrivate(), chain);
+
+            //Setting the entry into keyStore
+            keyStore.setEntry("accessToken", privateKeyEntry, passwordProtection);
+
+            //Storing the KeyStore into the file
+            FileOutputStream outputStream;
+            outputStream = new FileOutputStream("keystore.jks");
+            keyStore.store(outputStream, keyStorePassword);
+
+            outputStream.close();
+            System.out.println("Your accesstoken has been stored in a Keystore");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this program, we are creating a RSA key pair and a certificate to encapsulate the private key. We're storing the private key, certificate (public key) and an alias "accessToken" in the keystore. We finally store the keystore into a file named "keystore.jks".
+
+Please replace "keystorePassword" and other details as per your needs.
+
+Important to note:
+
+1. You need to replace "X.509" with a real X.509 certificate.
+2. Use your actual access token string instead of "accessToken".
+3. The `Certificate.getInstance("X.509")` is a placeholder; this will throw an UnsupportedOperationException as it's an abstract method and in the real world would be populated as a Certificate instance from a CertificateFactory.
+4. Also, remember to install security policies as default JCE can only support 128-bit encryption.

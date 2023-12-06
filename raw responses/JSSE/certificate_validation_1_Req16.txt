@@ -1,0 +1,63 @@
+To enable secure communication with a server, you can utilize the SSL/TLS protocol. In this context, the Java Secure Socket Extension (JSSE) could be a perfect choice.
+
+Below, you will find a simple Java program for the client side that validates the server's certificate. We can create a SSL Socket connection and then retrieve and check server's certificates:
+
+```java
+import javax.net.ssl.*;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.security.cert.Certificate;
+
+public class Main {
+  public static void main(String[] args) {
+    String hostname = "localhost";
+    int port = 443;
+    try {
+      // Create SSL Socket
+      SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+      SSLSocket sslSocket = (SSLSocket) factory.createSocket(hostname, port);
+      
+      // Start handshake
+      sslSocket.startHandshake();
+      
+      // Get server's certificates
+      SSLSession session = sslSocket.getSession();
+      Certificate[] serverCertificates = session.getPeerCertificates();
+      
+      // Check each one of them
+      for (Certificate c : serverCertificates) {
+        System.out.println(c);
+        c.checkValidity(); // throws CertificateExpiredException or CertificateNotYetValidException if invalid
+      }
+      
+      // Initiate IO streams
+      PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+      BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+      
+      // termination part of client
+      out.close();
+      in.close();
+      sslSocket.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+  }
+}
+```
+Please note that this program only checks the validity of a certificate: it doesn't ensure the certificate has been issued by a trusted Certificate Authority or that the server's hostname matches the certificate. This is important for production-quality security. 
+
+Typically, you may want to use your own custom truststore file, which has imported certificates of your trusted Certificate Authority. This way, you can establish a connection to the server only if it has a certificate signed by your trusted Certificate Authority. You can add these SSL settings before creating the SSL socket:
+
+```java
+System.setProperty("javax.net.ssl.trustStore", yourTrustStorePath);
+System.setProperty("javax.net.ssl.trustStorePassword", yourTrustStorePassword);
+...
+SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+...
+```
+But again, for production quality security you'd also want to validate that the server's hostname matches the certificate.
+
+Ensure you replace `localhost`, `443`, `yourTrustStorePath` and `yourTrustStorePassword` with your desired server, port number and paths. 
+
+Please note that for successful validation, your server should be configured to use SSL/TLS and to provide its certificate(s). If your server uses a self-signed certificate, you may need to import that to your truststore.

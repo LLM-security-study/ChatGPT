@@ -1,0 +1,41 @@
+Sure, here is a simple Java program that creates an SSL socket and establishes a secure connection with a remote server. We use Java's standard SSL (Secure Sockets Layer) APIs for implementation, which are available in javax.net.ssl package.
+
+Please replace "<server>" and "<port>" with appropriate values.
+
+Java:
+
+```Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        new Main().createSslSocket("<server>", "<port>");
+    }
+    
+    private void createSslSocket(String server, int port) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(server, port);
+
+            sslSocket.startHandshake();
+            System.out.println("SSL Socket successfully created and secure connection established");
+        } catch (IOException e) {
+            System.err.println("Problem creating SSL Socket");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates an SSLSocket object using a SSLSocketFactory instance. The factory creates a socket that is already connected to the specified server and port.
+
+The `startHandshake` method initiates an SSL handshake, which ensures the connection is secure before sending any data.
+
+In consideration of error handling, if there's an issue while creating the socket, it will catch an IOException and print the stack trace to help debug.
+
+Please ensure to handle your certificates correctly else there might be SSL handshake failure.
+
+Also remember, you need to import the SSL certificate of the server in your client's keystore if the certificate is self signed. This can be done using keytool utility of Java.

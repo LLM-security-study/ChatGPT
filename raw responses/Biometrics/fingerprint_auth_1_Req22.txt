@@ -1,0 +1,114 @@
+Firstly, you need to add the Fingerprint permission to your app's manifest file (AndroidManifest.xml)
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```
+
+The following Java code uses Android's FingerprintManager to authenticate the user. 
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Check if the Fingerprint sensor is available
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        if (!fingerprintManager.isHardwareDetected()) {
+            // Device doesn't support fingerprint authentication     
+            return;
+        }
+
+        // Checks if app has the USE_FINGERPRINT permission
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            // For this exercise it is assumed that the app already has the necessary permission
+            // In a real world application, prompt user for permission here
+        }
+
+        if (!fingerprintManager.hasEnrolledFingerprints()) {
+            // User hasn't registered any fingerprints to authenticate with 
+            return;
+        }
+
+        // Everything is ready for fingerprint authentication
+        startAuth(fingerprintManager, null);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    private void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+        FingerprintHandler helper = new FingerprintHandler(this);
+        helper.startAuth(manager, cryptoObject);
+    }
+}
+```
+
+You will also need to build a FingerprintHandler.java that handles the actual authentication process :
+
+```java
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
+
+@RequiresApi(api = Build.VERSION_CODES.M)
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private CancellationSignal cancellationSignal;
+    private Context appContext;
+
+    public FingerprintHandler(Context context) {
+        appContext = context;
+    }
+
+    public void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+
+        cancellationSignal = new CancellationSignal();
+        if (ActivityCompat.checkSelfPermission(appContext,
+                Manifest.permission.USE_FINGERPRINT) !=
+                PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        manager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+    }
+
+    @Override
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(appContext, "Authentication error\n" + errString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(appContext, "Authentication help\n" + helpString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        Toast.makeText(appContext, "Authentication failed. ", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        Toast.makeText(appContext, "Authentication succeeded!", Toast.LENGTH_LONG).show();
+    }
+}
+```
+
+Remember that FingerprintManager was deprecated in API level 28. Its functionality is now offered by the Biometric prompt, only allowing biometric authentication (like fingerprint, face, etc.).
+
+And as always with Android's security-sensitive APIs, test on real device, not on the simulator. Also, consider adding more user-friendly fallback options (like traditional login forms), in case fingerprint authentication fails or isn't available.

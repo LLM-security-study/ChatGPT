@@ -1,0 +1,51 @@
+Sure, here is a basic example of how to implement AES encryption in CBC mode in Java:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static final String AES_KEY = "0123456789012345"; // 16 bytes secret key
+    public static final String IV_STRING = "6789012345012345"; // 16 bytes IV string
+
+    public static void main(String[] args) {
+        String text = "Hello, World!";
+
+        byte[] cipherText = encrypt(text);
+
+        System.out.println("Original Text: " + text);
+        System.out.println("Encrypted Text: " + Base64.getEncoder().encodeToString(cipherText));
+    }
+
+    public static byte[] encrypt(String textToEncrypt) {
+        try {
+            // Create a SecretKeySpec object
+            SecretKey secretKey = new SecretKeySpec(AES_KEY.getBytes(StandardCharsets.UTF_8), "AES");
+
+            // Create an IvParameterSpec object
+            IvParameterSpec ivSpec = new IvParameterSpec(IV_STRING.getBytes(StandardCharsets.UTF_8));
+
+            // Get a Cipher instance
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+
+            // Initialize the Cipher
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec);
+
+            // Encrypt the data
+            return cipher.doFinal(textToEncrypt.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            throw new RuntimeException("Encryption failed.", e);
+        }
+    }
+}
+```
+This is a basic encryption example. It uses AES (Advanced Encryption Standard) in CBC mode (Cipher Block Chaining) with PKCS5 padding, which is standard padding scheme in symmetric encryption. It's important to note that the secret key and IV string (`AES_KEY` and `IV_STRING`, respectively) need to be 16 bytes long per configuration of this particular algorithm. The text message "Hello, World!" is encrypted, and the encrypted text is printed to the console.
+
+Please note that cryptographic IVs (Initialization Vector) should not be reused and should be generated cryptographically secure. This code is simply an example and may not be suitable for real life encryption needs. Also, note that storing keys in source code is a security risk.
+
+Block cipher works on blocks of fixed size, so the data to be encrypted must be of a size multiple of the block size, and therefore, padding is used. When choosing the algorithm, depending on the required level of security, it might be necessary to consider using more secure modes such as GCM, and also depending on the data size, it might be necessary to consider using streaming modes instead of block modes.

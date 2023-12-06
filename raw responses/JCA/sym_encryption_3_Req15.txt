@@ -1,0 +1,46 @@
+Symmetric cryptography are algorithms like DES, 3DES, AES, BLOWFISH etc. We can make a simple program to decrypt string using symmetric key using AES algorithm provided by Java Cryptography Extension (JCE).
+
+Here it is:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generate a symmetric key using KeyGenerator
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128);
+            SecretKey key = keyGenerator.generateKey();
+
+            // Encrypt the text
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            byte[] encryptedText = cipher.doFinal("Hello, World!".getBytes());
+
+            // Print encrypted text
+            String encodedEncryptedText = Base64.getEncoder().encodeToString(encryptedText);
+            System.out.println("Encrypted Text: " + encodedEncryptedText);
+            
+            //Now decrypt the text
+            //Note: In the real world scenario we will get key in Bytes. Hence we convert it into bytes
+            byte[] decodedKey = Base64.getDecoder().decode(Base64.getEncoder().encodeToString(key.getEncoded()));
+            SecretKey originalKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+            Cipher decipher = Cipher.getInstance("AES");
+            decipher.init(Cipher.DECRYPT_MODE, originalKey);
+            byte[] decryptedText = decipher.doFinal(encryptedText);
+
+            System.out.println("Decrypted Text: " + new String(decryptedText));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+In this program, we first generate a secret key using 'AES' algorithm. We use this key to encrypt the text "Hello, World!" using 'AES' cipher which is a symmetric encryption. The encrypted text is then printed out. We then convert our secret key back to bytes and use it to initialise our cipher for decryption. We finalize our decryption with 'doFinal' function and print out the original plaintext.
+
+Remember to handle the exceptions properly in production grade code.

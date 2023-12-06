@@ -1,0 +1,43 @@
+Sure, here's a simple example of password-based key derivation using Java's standard APIs (specifically the javax.crypto and javax.crypto.spec packages). This code uses the PBKDF2WithHmacSHA1 algorithm, which is widely used and considered secure.
+
+Please, note that the output key will be displayed as Base64 string.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String password = "YourPassword";
+        byte[] salt = new byte[16]; // Use a secure random salt in production code
+
+        SecretKeyFactory factory;
+        byte[] hash = new byte[0];
+
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+            hash = factory.generateSecret(spec).getEncoded();
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("Derived key: " + Base64.getEncoder().encodeToString(hash));
+    }
+}
+```
+
+This code generates a password-based key using PBKDF2WithHmacSHA1. Please replace "YourPassword" with your actual password.
+
+In this code, salt is a dummy byte array filled with zeroes. In a production environment, you should use a secure random salt.
+
+KeySpec is used to specify the password, salt, iteration count (the standard recommends at least 1,000), and the desired key length (in bits). The SecretKeyFactory processes this specification to generate the final key.
+
+Finally, the derived key is encoded to a Base64 string and printed.
+
+Please, remember to handle exceptions properly as per your application's needs. As of now, the demo code just prints the stack trace if any exception occurs.

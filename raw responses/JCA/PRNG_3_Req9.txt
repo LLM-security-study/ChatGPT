@@ -1,0 +1,30 @@
+Sure,Here is the code:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Creates a secure random number generator
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Get 16 random bytes for seed
+        byte[] seed = new byte[16];
+        secureRandom.nextBytes(seed);
+
+        // Use the seed to initialize another secure random number generator
+        SecureRandom secureRandomForGen = new SecureRandom(seed);
+
+        // Generate an integer
+        int randomInt = secureRandomForGen.nextInt();
+
+        System.out.println("Random Generated Integer : " + randomInt);
+    }
+}
+```
+
+Explanation: This program creates a SecureRandom instance which provides a cryptographically strong random number generator. We generate 16 random bytes and use these as a seed to initialize a new SecureRandom instance. Finally use this object to generate a random integer.
+
+Since the SecureRandom class provides a cryptographically strong random number generator, it is suitable for generating numbers or strings that may be used for cryptographic applications.
+
+Please install JDK and create new Java Project in any JAVA IDE like Eclipse, IntelliJ etc then paste it into Main class. Then, run the project.

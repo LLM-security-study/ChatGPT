@@ -1,0 +1,46 @@
+Here is an example of a Java program that signs and verifies messages using the `java.security` package. 
+
+```java
+import java.security.*;
+import java.util.Arrays;
+
+public class Main {
+
+    public static byte[] sign(String plainText, PrivateKey privateKey) throws Exception {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(plainText.getBytes("UTF-8"));
+        byte[] signature = privateSignature.sign();
+        return signature;
+    }
+
+    public static boolean verify(String plainText, byte[] signature, PublicKey publicKey) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(plainText.getBytes("UTF-8"));
+        return publicSignature.verify(signature);
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+
+        String plainText = "Hello, World!";
+
+        byte[] signature = sign(plainText, kp.getPrivate());
+
+        boolean isCorrect = verify(plainText, signature, kp.getPublic());
+
+        System.out.println("Signature correct: " + isCorrect);
+    }
+}
+```
+
+The `sign` function takes the plain text message and the Private Key as input, signs the message using 'SHA256withRSA' algorithm, and returns the signed message.
+
+The `verify` function takes the plain text message, the signed message, and the Public Key as input. It verifies the signed message based on the 'SHA256withRSA' algorithm and returns `true` if the signature is valid, else it returns `false`.
+
+In the `main` function, a `KeyPair` is generated using an instance of `KeyPairGenerator` with RSA algorithm and 2048 bits key size. The `sign` function is called with the plain text message and the Private Key from the `KeyPair` to sign the message. The `verify` function is then called with the plain text message, signed message, and the Public Key from the `KeyPair` to verify the signed message. The result is printed to the console.
+
+Note that in a real world application, the Private Key would be kept secret and only used to sign messages. The Public Key would be freely distributed and only used to verify signatures.

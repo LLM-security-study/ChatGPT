@@ -1,0 +1,50 @@
+Sure, you can use javax.net.ssl's package SSLSession as the main API for hostname verification implementation. Here is the general code structure:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        String host = "https://the_hostname_to_verify";
+        try {
+            URL url = new URL(host);
+            HttpsURLConnection httpsURLConnection = (HttpsURLConnection) url.openConnection();
+            httpsURLConnection.setHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession sslSession) {
+                    // go through your own hostname verification process
+                    // The most straightforward verification could be:
+                    if (hostname.equals(sslSession.getPeerHost())) {
+                        System.out.println("Hostname Verification Passed");
+                        return true;
+                    } else {
+                        System.out.println("Hostname Verification Failed");
+                        return false;
+                    }
+                }
+            });
+
+            httpsURLConnection.connect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program connects to the specified hostname and implements the verify() method of the HostnameVerifier interface.
+According to the specifications of this method, it should return true if the hostname is acceptable.
+In this case, we consider a hostname acceptable if it is equal to the peer host of the SSLSession, but usually, there can be more complex rules.
+
+Please replace "the_hostname_to_verify" with the real host you want to connect to.
+
+Notice that for a real production environment it is better to use the default HostnameVerifier of HttpsURLConnection or the one provided by a trusted library, because hostname verification is complex and a bad implementation could make the connection vulnerable to attacks.
+
+Also, the 'catch' block here is catching the general Exception in order to keep the example focused and simple, but in a real-world program, you should handle specific exceptions separately and add appropriate error-handling code.

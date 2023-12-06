@@ -1,0 +1,33 @@
+You can use below Java program to generate a secret key from a user password which uses Java's SecretKeySpec class.
+
+```java
+import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
+import java.util.Arrays;
+import javax.crypto.SecretKey;
+
+public class Main {
+    public static void main(String[] args) {
+        String password = "UserPassword";  // Replace with the user's password
+
+        try {
+            // Create MessageDigest instance for MD5
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            //Add password bytes to digest
+            md.update(password.getBytes());
+            //Get the hash's bytes 
+            byte[] bytes = md.digest();
+            //Create the secret key
+            SecretKey secretKey = new SecretKeySpec(bytes, "AES");
+
+            //Print the secret key
+            System.out.println(Arrays.toString(secretKey.getEncoded()));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program will generate a secret key using the AES (Advanced Encryption Standard) algorithm. Note that you need to replace "UserPassword" with actual user password.

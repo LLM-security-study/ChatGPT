@@ -1,0 +1,74 @@
+Here's a very basic outline of how you could approach this task using OAuth 2.0 protocol for Google sign-in. Google's sign-in is essentially an implementation of OAuth 2.0 protocol.
+
+Please note that this task is complicated and I'm providing you just a skeleton of how the process of signing in with Google takes place in Java environment. For perfect handling and production-level code, comprehensive knowledge about security and Java programming is needed.
+
+```java
+// This Java application establishes a Single-Sign-On service to a web application 
+// using Google Accounts for user authentication.
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Main {
+    private static final String CLIENT_ID = "Your Google Client ID";
+    private static final String CLIENT_SECRET = "Your Google Client Secret";
+    private static final String REDIRECT_URI = "Your registered redirect URI";
+
+    public static void main(String[] args) throws IOException {
+        // The code parameter is the authorization code received from the Google authorization server.
+        String code = "authorization code";
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                CLIENT_ID,
+                CLIENT_SECRET,
+                Arrays.asList("email","profile"))
+                .setAccessType("offline")
+                .build();
+
+        GoogleTokenResponse tokenResponse = flow.newTokenRequest(code)
+                .setRedirectUri(REDIRECT_URI)
+                .execute();
+
+        // Use GoogleIdToken to extract the GoogleIdToken.Payload to get user's Google account details.
+        GoogleIdToken idToken = tokenResponse.parseIdToken();
+        Payload payload = idToken.getPayload();
+
+        System.out.println("User ID: " + payload.getSubject());
+        System.out.println("Email: " + payload.getEmail());
+    }
+}
+```
+To add more functionality to this skeleton, you need to understand OAuth 2.0 flow, should have secured way to store client secret and also should be expertised in web technologies to incorporate this code into your application. 
+
+I am adding the following libraries to the pom.
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>com.google.api-client</groupId>
+        <artifactId>google-api-client</artifactId>
+        <version>LATEST</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client-jackson2</artifactId>
+        <version>LATEST</version>
+    </dependency>
+    <dependency>
+        <groupId>com.google.http-client</groupId>
+        <artifactId>google-http-client</artifactId>
+        <version>LATEST</version>
+    </dependency>
+</dependencies>
+```
+
+Don't forget to replace `"Your Google Client ID"`, `"Your Google Client Secret"` and `"Your registered redirect URI"`  with actual values.

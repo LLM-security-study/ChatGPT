@@ -1,0 +1,41 @@
+Here's an example of a Java program that uses SSL to verify a server's certificate. 
+
+The `java.net.ssl` package, in particular classes like `SSLSocket` and `SSLSocketFactory`, are the main APIs used for implementation. 
+
+```java
+import java.net.*;
+import javax.net.ssl.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String urlString = "https://example.com";
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+
+            // Create an SSLSocketFactory
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, null, null);
+            SSLSocketFactory sslSocketFactory = context.getSocketFactory();
+
+            // Set our connection to use this socket factory
+            urlConnection.setSSLSocketFactory(sslSocketFactory);
+            
+            // Verifying
+            urlConnection.connect();
+            if (urlConnection.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                System.out.println("Successfully connected to the server!");
+            } else {
+                System.out.println("Failed to connect to the server!");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This program makes an HTTPS connection to "https://example.com" by using the `HttpsURLConnection` class. It sets up the `SSLSocketFactory` it uses from the `SSLContext`'s default "TLS" instance.
+
+The given implementation is very simple and may not be suitable for all use-cases. To create a more robust solution, you would want to provide your own `TrustManager` that validates the certificate chain. That would involve creating a custom class that implements the `X509TrustManager` interface. This way, you can more finely control how the server's certificate is validated.

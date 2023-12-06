@@ -1,0 +1,48 @@
+Sure, we can use the Java Secure Socket Extension (JSSE) API to implement hostname verification for an SSL/TLS communication. Here's a simple example:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // For this example let's consider verification on google's domain
+        URL url = new URL("https://www.google.com");
+
+        // Create a new SSLContext with default settings
+        SSLContext context = SSLContext.getDefault();
+
+        // Get the default parameters
+        SSLParameters parameters = context.getDefaultSSLParameters();
+
+        // Set the hostname verification on the parameters
+        parameters.setEndpointIdentificationAlgorithm("HTTPS");
+
+        // Create a new connection
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+        // Use the parameters for this connection
+        connection.setSSLSocketFactory(context.getSocketFactory());
+        connection.setHostnameVerifier((hostname, session) -> {
+            if (hostname.equals("www.google.com")) {
+                return true;
+            }
+            return false;
+        });
+
+        // Open the connection and print the response code
+        connection.connect();
+        System.out.println(connection.getResponseCode());
+        connection.disconnect();
+    }
+}
+```
+
+In the above example, we defined the hostname verifier with a lambda function that only approve the connection if the hostname equals "www.google.com". HTTP response code is printed to verify the connection.
+
+In a real-world scenario, you will likely want to use a more complex verifier which checks the target hostname against the one presented in the server's certificate.
+
+Also, this example only covers a simple GET request. POST requests and handling of HTTP headers is not covered here, but can be easily added.

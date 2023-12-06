@@ -1,0 +1,58 @@
+Sure, here is a basic outline of a Java program that stores an SSL certificate in a keystore file. We're assuming that you have a certificate file (a .cer or .crt file), and we're going to store it into a Java KeyStore (a .jks file).
+
+While creating this program, you must have BouncyCastle provider in your classpath. If you are using maven, just add the dependency:
+
+```shell
+<dependency>
+    <groupId>org.bouncycastle</groupId>
+    <artifactId>bcprov-jdk15on</artifactId>
+    <version>1.61</version>
+</dependency>
+```
+
+Here is the Java code:
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Load the certificate
+            InputStream inStream = new FileInputStream("your_certificate.cer");
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate cert = cf.generateCertificate(inStream);
+            inStream.close();
+
+            // Store the certificate
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(null, null);
+            keyStore.setCertificateEntry("mycert", cert);
+
+            // Save the keystore
+            keyStore.store(new FileOutputStream("mykeystore.jks"), "mypassword".toCharArray());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Notes:
+
+1. Replace `'your_certificate.cer'` with the path to your actual certificate file. The same applies to 'mykeystore.jks'.
+2. `'mypassword'` should be replaced with the desired password to secure your keystore.
+3. The certificate is stored with an alias of 'mycert'. You can change this to a value that suits your needs.
+4. This code doesn't include proper error handling. This is the simplest form to explain how you can achieve your idea.
+   
+   Please remember to handle the exceptions in a manner that fits your needs.
+
+5. If the keystore need to be loaded from an existing file, replace `keyStore.load(null, null)` with `keyStore.load(new FileInputStream("your_keystore.jks"), "your_keystore_password".toCharArray())`.
+   
+   `your_keystore.jks` is path to your keystore file and `your_keystore_password` is password of keystore.

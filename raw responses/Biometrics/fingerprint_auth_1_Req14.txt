@@ -1,0 +1,70 @@
+Sure, here’s a simple example of how you could implement a Fingerprint authentication feature for an Android app in Java. This does not include error checks and other possible functions.
+
+```java
+import androidx.annotation.NonNull;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.core.os.CancellationSignal;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+public class Main extends AppCompatActivity {
+
+private FingerprintManagerCompat fingerprintManagerCompat;
+private CancellationSignal cancellationSignal;
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    fingerprintManagerCompat = FingerprintManagerCompat.from(this);
+
+    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+        return;
+    }
+    if (fingerprintManagerCompat.isHardwareDetected() && fingerprintManagerCompat.hasEnrolledFingerprints()){
+        startListeningForFingerprint();
+    }
+}
+
+private void startListeningForFingerprint() {
+    cancellationSignal = new CancellationSignal();
+    fingerprintManagerCompat.authenticate(null, 0, cancellationSignal, authenticationCallback, null);
+}
+
+FingerprintManagerCompat.AuthenticationCallback authenticationCallback = new FingerprintManagerCompat.AuthenticationCallback() {
+    @Override
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(Main.this, "Authentication error\n" + errString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(Main.this, "Authentication help\n" + helpString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManagerCompat.AuthenticationResult result) {
+        Toast.makeText(Main.this, "Authentication succeeded!", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        Toast.makeText(Main.this, "Authentication failed", Toast.LENGTH_LONG).show();
+    }
+};
+}
+```
+
+Remember to always ask and get the necessary permissions before attempting to use the fingerprint sensor. You will also need to handle various states such as: when the fingerprint sensor is not available, an attempt to authenticate with a wrong fingerprint, etc. which are not covered in this example.
+
+Please update your app's manifest file to include the necessary permissions:
+
+```java
+<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+```
+
+Note: This is a deprecated way to authenticate in Android, from version P (Android 9.0) onwards, the FingerprintManager class was deprecated in favor of the BiometricPrompt class. The above solution is only applicable to Android versions < P.

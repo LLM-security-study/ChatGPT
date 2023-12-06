@@ -1,0 +1,66 @@
+To verify the integrity of the Android device that the app is running on, we can use SafetyNet Attestation API provided by Google Play Services. The app sends a request to the servers containing a nonce (random number). The servers then produce an signed attestation of the device's software and hardware attributes, which you can then examine to determine whether or not you trust the device.
+
+Snapshot of a simple implementation would look like:
+
+```java
+import android.util.Log;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.annotation.NonNull;
+
+public class Main {
+
+    private static final String TAG = "SafetyNetSample";
+
+    public static void main(String[] args) {
+        sendSafetyNetRequest();
+    }
+
+    private static void sendSafetyNetRequest() {
+        long nonce = generateNonce(); // Implement this method to generate a nonce
+
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult() + "\n");
+                        boolean isValidSignature = verifySafetyNetResponse(response.getJwsResult()); 
+                        // You need to implement this method to verify the JWS message
+                        if (isValidSignature) {
+                            Log.d(TAG, "Signature is valid");
+                        } else {
+                            Log.e(TAG, "Signature is invalid");
+                        }
+                    }
+                })
+            .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error occurred when communicating with the service.
+                            ApiException apiException = (ApiException) e;
+                            Log.e(TAG, "SafetyNet ApiException " + apiException.getStatusCode() + ": " + apiException.getMessage());
+                        } else {
+                            // An error occurred while executing the API call even before initiating a call to the service.
+                            Log.e(TAG, "SafetyNet error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+}
+```
+
+Please note that the code above is a sample implementation and the `generateNonce()` method for nonce generation and the `verifySafetyNetResponse()` method for response verification need to be implemented based on your specific use case. 
+
+Also the `API_KEY` is assumed to be available as this variable must be your own API key. Be careful to protect your API key, it should not be made public. If your API key is exposed, it is recommended to regenerate it. 
+
+Additionally, `this` inside `getClient` call is assumed to be a valid context, you should replace `this` with a valid context.
+
+Please note that SafetyNet Attestation API is not a guarantee of the Android device's integrity. You should combine it with other signals (like your server-side checks) before making trust decisions.

@@ -1,0 +1,61 @@
+Here is a basic Java program outlining how you can implement Google Single-Sign-On (SSO) for user authentication in a web app using Google's OAuth 2.0 system. This program will not run on its own, but is intended to illustrate the structure of how Google SSO can be directly integrated.
+
+```java
+// This is a Java program to integrate Google Single-Sign-On for user authentication into a web application.
+// The purpose of this program is to focus exclusively on implementation of the authentication function.
+// Requirements such as designing of the user interface will not be covered.
+
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+
+public class Main {
+
+    private static final String REDIRECT_URI = "your_redirect_url";
+    private static final String CLIENT_ID = "your_client_id";
+    private static final String CLIENT_SECRET = "your_client_secret";
+    private static final String USER_ID = "user_id";
+
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleClientSecrets clientSecrets =
+        GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(new FileInputStream("client_secrets.json")));
+        
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+        HTTP_TRANSPORT, JSON_FACTORY, clientSecrets,
+        Collections.singletonList("https://www.googleapis.com/auth/userinfo.profile"))
+        .setAccessType("offline")
+        .setApprovalPrompt("force")
+        .build();
+
+        Credential credential = flow.loadCredential(USER_ID);
+        if (credential != null && credential.getAccessToken() != null) {
+        System.out.println("You are authenticated!");
+        } else {
+        System.out.println("You are not authenticated!");
+        }
+    }
+}
+```
+
+**Notes:**
+
+- You need to replace `your_redirect_url`, `your_client_id`,`your_client_secret`, and `'user_id'` with your actual Google API values.
+- This program assumes that you have the Google Client Library installed and set up in your project. 
+- The `'client_secrets.json'` should contain your OAuth 2.0 credentials (your `client_id` and `client_secret`).
+- You can get the Google Client Library from here: `https://developers.google.com/api-client-library/java/google-api-java-client/oauth2`
+- Make sure to handle exceptions appropriately for production use.
+
+The above code initiates the sign-in process with Google, then loads the signed-in user's credentials. If the credentials are null or not available, it prints "You are not authenticated", if credentials are available and valid, it prints "You are authenticated".

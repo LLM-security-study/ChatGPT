@@ -1,0 +1,53 @@
+Sure, here is a basic example of creating an SSLSocket in Java. The main API used here is the "javax.net.ssl.SSLSocketFactory" API:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+
+        int port = 1234; // Port to connect to
+        String host = "localhost"; // Host name or IP address
+
+        try {
+            // Get SSLSocketFactory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create an SSLSocket
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(host, port);
+
+            // Writer for sending request to the server
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sslSocket.getOutputStream())));
+
+            // Read response from the server
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            String message = "Hello Secure World!";
+            out.println(message);
+            out.flush();
+            System.out.println("Sent to server: " + message);
+
+            String response = in.readLine();
+            System.out.println("Received from server: " + response);
+
+            // Close connections
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            System.out.println("Error occurred : " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+Please replace "localhost" and the port number "1234" with your server's IP address and the port number.
+
+This program creates an SSL socket that connects to a specific port on a specified server. It uses the PrintWriter to send a string over this connection, and BufferedReader to read the server's response.
+
+As SSLSocket wraps the underlying network socket in an SSL layer, communication over this socket is encrypted and hence secure.
+
+NOTE: Kep in mind when using it in real world scenarios, you will need to properly handle the SSL handshaking process like validating server certificate etc. Also, this program assumes that the relevant SSL/TLS settings are already configured in the JVM.

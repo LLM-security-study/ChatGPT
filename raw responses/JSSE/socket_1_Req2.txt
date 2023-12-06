@@ -1,0 +1,49 @@
+The SSL Socket in Java can be implemented using the `javax.net.ssl` package API. It provides classes such as `SSLSocket` and `SSLSocketFactory` which can be used for secure communication with server for sending and receiving data.
+
+Here's a Java program illustrating an SSL Socket communication:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String host = "<HostName/IP>";
+        int port = <PortNumber>;
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+
+            // Begin handshake
+            socket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+
+            out.println("Hello Server");
+            out.println("QUIT");
+            out.flush();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+
+            out.close();
+            in.close();
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("IOException occured: " + e.getMessage());
+        }
+    }
+}
+```
+
+Please replace `<HostName/IP>` with your server host name or IP, and `<PortNumber>` with the port on which the server is running.
+
+This Java program creates an SSL socket to a specified host and port, sends "Hello Server" and "QUIT" messages to the server, then reads and displays the server's response.
+
+You may need to note that SSL handshaking must be manually initiated with `startHandshake()` for newly created SSLSockets to start the SSL handshake before data is written or read over the socket.
+
+Also, this example assumes that valid SSL/TLS certificates are in place at runtime.

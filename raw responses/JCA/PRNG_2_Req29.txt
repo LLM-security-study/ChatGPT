@@ -1,0 +1,28 @@
+Here is the Java program as per your requirement. It uses SecureRandom class from java.security package to generate pseudorandom numbers.
+
+```Java
+import java.security.SecureRandom;
+
+public class Main {
+    public static final int SALT_LENGTH = 16; // You can choose the length as per your requirement
+
+    public static void main(String[] args) {
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] salt = new byte[SALT_LENGTH];
+        secureRandom.nextBytes(salt); // This will generate salt
+
+        // Print salt by converting it to Hexadecimal form
+        StringBuilder saltInHex = new StringBuilder();
+        for(byte b: salt){
+            saltInHex.append(String.format("%02X", b));
+        }
+        System.out.println("Generated Salt in hex form: " + saltInHex.toString());
+    }
+}
+```
+
+Here, SecureRandom is a cryptographic class in Java that provides a cryptographically strong random number generator (RNG). Each new SecureRandom instance is seeded from the system-wide instance. Additionally, the SecureRandom.nextBytes() method generates random bytes that can be used as a salt for password hashing. 
+
+The above code generates the salt and prints it in hexadecimal form for readability purposes. Remember that a secure salt should be unique for every password and should be sufficiently long to avoid brute force and pre-computation attacks.
+
+Note: The generated hexadecimal salt will be double the length of the byte array (So, in this case, 32 characters long). If you require a shorter salt, you can reduce the salt length, but a shorter salt is less secure.

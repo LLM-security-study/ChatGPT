@@ -1,0 +1,66 @@
+Sure, here is a simple example of how you might do this using the java.security package:
+
+```java
+import java.security.*;
+
+public class Main {
+
+    private PrivateKey privateKey;
+    private PublicKey publicKey;
+
+    public static void main(String[] args) {
+        Main sig = new Main();
+        sig.generateKeyPair();
+        byte[] data = "Data to be signed".getBytes();
+
+        try {
+            byte[] signedData = sig.signData(data);
+            sig.verifySignature(data, signedData);
+        } catch (Exception e) {
+            System.out.println("Error signing data: " + e.getMessage());
+        }
+    }
+
+    public void generateKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA","SUN");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+
+            keyGen.initialize(1024, random);
+            KeyPair pair = keyGen.generateKeyPair();
+
+            this.privateKey = pair.getPrivate();
+            this.publicKey = pair.getPublic();
+        } catch (Exception e) {
+            System.out.println("Error generating key pair: " + e.getMessage());
+        }
+    }
+
+    public byte[] signData(byte[] data) throws Exception {
+        Signature dsa = Signature.getInstance("SHA256withDSA", "SUN");
+        dsa.initSign(this.privateKey);
+
+        dsa.update(data);
+        return dsa.sign();
+    }
+
+    public void verifySignature(byte[] data, byte[] signedData) throws Exception {
+        Signature sig = Signature.getInstance("SHA256withDSA", "SUN");
+        sig.initVerify(this.publicKey);
+        sig.update(data);
+
+        if (sig.verify(signedData)) {
+            System.out.println("Signature verified");
+        } else {
+            System.out.println("Signature failed");
+        }
+    }
+}
+```
+In this code:
+- The Main class contains the main function which creates an instance of the class, then generates a key pair.
+- The generateKeyPair() method uses a KeyPairGenerator from the java.security package to generate a pair of keys.
+- The signData() method uses this.privateKey to create a signature for the provided data.
+- The verifySignature() method then checks that this.publicKey can be used to verify the signature successfully.
+
+Please note that the code skips manual key exchange and uses the locally generated keys for simplicity. In a real scenario, you'd need to exchange public keys before verifying the signature.

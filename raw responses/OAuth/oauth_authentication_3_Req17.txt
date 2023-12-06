@@ -1,0 +1,45 @@
+Implementing a full Single sign-on flow would require a web server to handle callbacks from Google server, but since we are can't create a new web end-point in Java Main class, Let's make use of Google's OAuth 2.0 library for Java, which eases our work. Here is an example of how to start an OAuth flow from a Java server-side application.
+
+```java
+// This Java program will enable Single-Sign-On (SSO) using Google accounts for a web application.
+// The primary focus is solely on implementing the authentication functionality.
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+    private static final String CLIENT_ID = "your Client ID";
+    private static final String CLIENT_SECRET = "your Client SECRET";
+    private static final String REDIRECT_URI = "your Redirect URI";
+
+    private static GoogleAuthorizationCodeFlow flow;
+
+    public static void main(String[] args) {
+        flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                CLIENT_ID, 
+                CLIENT_SECRET, 
+                java.util.Collections.singleton("https://www.googleapis.com/auth/userinfo.profile"))
+                .setAccessType("offline")
+                .setApprovalPrompt("force")
+                .build();
+
+        // redirect to the login url.
+        System.out.println(getLoginUrl());
+    }
+
+    private static String getLoginUrl() {
+        final GoogleAuthorizationCodeRequestUrl url = flow.newAuthorizationUrl();
+        return url.setRedirectUri(REDIRECT_URI).setAccessType("offline").build();
+    }
+}
+```
+
+This Java program launched an OAuth2.0 authentication flow using Google's OAuth library. The program generated a unique URL that links to the Google sign-in page where users can sign in using their credentials. The 'getLoginUrl' function generates this URL. 
+
+Once users successfully sign in, they are redirected back to the redirect URI defined in the Google Developer Console. This URI (which has to be an actual live web endpoint in the real-world application) should be designed to handle the callback request and receive the authorization code, which can then be exchanged for access tokens and refresh tokens.
+
+Hence, this program will work in a server-side application which can handle redirection. If you're using a web framework, you'd use the framework's functionality to fire a redirect, instead of just printing the URL like in this console program.

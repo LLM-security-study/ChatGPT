@@ -1,0 +1,49 @@
+In Java, the Secure Sockets Layer(SSL) communication can be achieved using the `javax.net.ssl` package which is a Java Secure Socket Extension (JSSE). It includes functionalities like SSL and TLS protocols to ensure a securely encrypted communication between client and server.
+
+Here's a basic example of a Java SSL Client Socket which communicates with an SSL server.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+class Main {
+
+    private static final String HOST = "localhost";
+    private static final int PORT = 1234;
+
+    public static void main(String[] argv) {
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        try {
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(HOST, PORT);
+			
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            
+            String message = "Hello, Server!";
+            out.println(message);
+            out.flush();
+			
+            System.out.println("Message sent to server: " + message);
+			
+            System.out.printf("Response from server: " + in.readLine()); 
+			
+            // cleanup
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates an SSLSocket connection to a server (in this case, localhost on port 1234). It then sends a message to the server and awaits a response. Once response is received, it closes the input/output streams and the socket. 
+
+You should replace the HOST and PORT to fit your server's configuration. 
+
+Server must also be running an SSLServerSocket at that host and port and trusted certificates must be installed in the Java keystore for SSL handshake to be successful. 
+  
+This code does not handle SSL handshake errors, certificate verification etc for the sake of simplicity. Ensure to add proper error handling before using it in a production environment.

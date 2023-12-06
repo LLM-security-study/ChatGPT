@@ -1,0 +1,53 @@
+Sure, here is a Java program named "Main", which uses built-in Java APIs to calculate the file's hash value (MD5 hash in this example), and compares it with a given hash value to determine if the file's contents were altered.
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String filePath = "path-to-your-file"; // replace with your file path
+        String originalHash = "original-file-hash"; // replace with original file hash
+
+        try {
+            String computedHash = calculateFileHash(filePath);
+            System.out.println("Computed file hash: " + computedHash);
+            
+            if (originalHash.equals(computedHash)) {
+                System.out.println("File integrity confirmed, no alterations.");
+            } else {
+                System.out.println("File was altered!");
+            }
+        
+        } catch (IOException | NoSuchAlgorithmException e){
+            System.out.println("Error! " + e.getMessage());
+        }
+    }
+
+    public static String calculateFileHash(String filePath) 
+        throws IOException, NoSuchAlgorithmException {
+    
+         MessageDigest md = MessageDigest.getInstance("MD5");
+         FileInputStream fis = new FileInputStream(filePath);
+         DigestInputStream dis = new DigestInputStream(fis, md);
+        
+         byte[] buffer = new byte[1024];
+         while (dis.read(buffer) != -1) ;
+        
+         byte[] digest = md.digest();
+
+         fis.close();
+         dis.close();
+
+         return String.format("%032x", new BigInteger(1, digest));
+    }
+}
+```
+
+In this code sample, the main method compares the computed hash of the file with an original hash, and outputs if the file has been edited based on whether the hashes match. Remember to replace "path-to-your-file" and "original-file-hash" with your actual file path and file's original hash.
+
+Remember that detecting file alterations may not be accurate if the algorithm used to calculate the hash is not robust against collisions (different inputs producing the same hash). MD5, while fast, is not as resistant to collision as other more modern methods like SHA-256. For highly secure applications, consider using a more secure hash function.

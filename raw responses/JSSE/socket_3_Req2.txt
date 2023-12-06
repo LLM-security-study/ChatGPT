@@ -1,0 +1,51 @@
+Here is a basic example of how to create an SSL socket in Java using JSSE (Java Secure Socket Extension):
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Getting the SSL Socket Factory
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Creating an SSL socket
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("www.yoursite.com", 443);
+
+            // Preparing the Input / Output streams
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            // A simple request (for example)
+            out.println("GET / HTTP/1.0");
+            out.println();
+            out.flush();
+
+            // Reading response
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            // Closing the streams
+            in.close();
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In the example above:
+
+1. We are creating the "SSLSocketFactory". This factory creates SSL sockets.
+2. We create an "SSLSocket" using the factory. Here we specify the remote server's address (www.yoursite.com) and the port number (443 - standard HTTPS port).
+3. We prepare the Input and Output streams to send a request and get the server response.
+4. We send a sample GET request using the Output stream and then flush the stream.
+5. We read the server's response using the Input Stream and print it on the console.
+6. Finally, we close all the resources.
+
+Please ensure the server you're connecting to has a valid SSL certificate else you'll run into SSL exceptions. Replace the server URL and port as per your requirement. This is just a basic SSL socket connection example and does not contain any error handling or secure programming practices.

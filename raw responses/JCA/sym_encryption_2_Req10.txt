@@ -1,0 +1,54 @@
+Symmetric encryption uses the same key for encryption and decryption. In this example, I'll use the AES (Advanced Encryption Standard) algorithm for symmetric encryption provided in Java's Standard libraries.
+
+Please note that this program won't run in an online compiler as it requires external jar files known as `javax.crypto` that are not supported by online compilers.
+
+Here's a simple implementation in Java:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generate Key
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128); // Key size
+            SecretKey secretKey = keyGenerator.generateKey();
+
+            // Text to be encrypted
+            String plainText = "Hello, World!";
+
+            // Encryption
+            Cipher encryptCipher = Cipher.getInstance("AES");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedText = encryptCipher.doFinal(plainText.getBytes());
+
+            System.out.println("Encrypted Text: " + Base64.getEncoder().encodeToString(encryptedText));
+
+            // Decryption
+            SecretKeySpec originalKey = new SecretKeySpec(secretKey.getEncoded(), "AES");
+            Cipher decryptCipher = Cipher.getInstance("AES");
+            decryptCipher.init(Cipher.DECRYPT_MODE, originalKey);
+            byte[] decryptedText = decryptCipher.doFinal(encryptedText);
+
+            System.out.println("Decrypted Text: " + new String(decryptedText));
+        } catch (Exception e) {
+            System.out.println("There was an error during encryption/decryption");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This is a rather simple program:
+
+- It first generates a secret key using the KeyGenerator class.
+- Then it defines the text to be encrypted.
+- Then it encrypts that text using a Cipher object initialized in ENCRYPT_MODE.
+- The text is then encrypted using the `doFinal` method, and printed to the console.
+- To decrypt, a SecretKeySpec object is created from the original secret key and used to initialize a Cipher in DECRYPT_MODE.
+- The encrypted text is then decrypted using `doFinal` and printed to the console.

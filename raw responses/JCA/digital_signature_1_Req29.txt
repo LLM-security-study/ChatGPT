@@ -1,0 +1,54 @@
+Here's a simple practical and executable example of how you can do this with Java's Signature API:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // create a key pair generator
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+
+        // Initialize the key pair generator
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        keyGen.initialize(1024, random);
+
+        // Generate the Pair of Keys
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey priv = pair.getPrivate();
+        PublicKey pub = pair.getPublic();
+
+        byte[] message = "Hello, world!".getBytes();
+
+        byte[] signedMessage = signMessage(priv, message);
+        System.out.println(new String(signedMessage));
+
+        System.out.println(verifySignedMessage(pub, message, signedMessage));
+    }
+
+    public static byte[] signMessage(PrivateKey priv, byte[] message) throws Exception {
+        Signature dsa = Signature.getInstance("SHA1withDSA", "SUN"); 
+
+        dsa.initSign(priv);
+
+        dsa.update(message);
+
+        return dsa.sign();
+    }
+
+    public static boolean verifySignedMessage(PublicKey pub, byte[] message, byte[] signedMessage) throws Exception {
+        Signature sig = Signature.getInstance("SHA1withDSA", "SUN");
+        sig.initVerify(pub);
+
+        sig.update(message);
+
+        return sig.verify(signedMessage);
+    }
+}
+```
+
+In this program, the `Signature` class is used to perform signing and verification.
+
+You may need to add exception handling for better code modularity. Also, replace `"Hello, world!"` with the message you want to sign. Please note that generating keys is a time-consuming process and in a real application you would normally keep these in a secure store and use whenever needed.
+
+Make sure your environment has the necessary providers for "DSA" algorithm and "SHA1PRNG" SecureRandom algorithm. These should be available in most standard Java distributions.

@@ -1,0 +1,46 @@
+You can use the PrivateKey and PublicKey object in the java.security package to generate the private and public keys needed for the signature. For the hashing and signing, you can use the java.security.Signature object.
+
+Here's a simple Java program that implements a digital signature:
+
+```java
+import java.security.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // Data to sign
+        byte[] data = "DigitalSignatureExample".getBytes("UTF8");
+
+        // Generate key pair
+        KeyPair keyPair = generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Generate the signature
+        Signature signature = Signature.getInstance("SHA256WithRSA");
+        signature.initSign(privateKey);
+        signature.update(data);
+        byte[] digitalSignature = signature.sign();
+
+        // Verify the signature
+        boolean isVerified = verifySignature(publicKey, digitalSignature, data);
+        System.out.println("The digital signature was verified: " + isVerified);
+    }
+
+    public static KeyPair generateKeyPair() throws Exception{
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        return keyPairGenerator.generateKeyPair();
+    }
+
+    public static boolean verifySignature(PublicKey publicKey, byte[] digitalSignature, byte[] data) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256WithRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(data);
+        return publicSignature.verify(digitalSignature);
+    }
+}
+```
+
+This program first generates a pair of public and private keys using RSA algorithm. Then, it signs the 'data' using SHA256WithRSA algorithm and private key. The signature is verified at the end using public key. If the data was not tampered with, it will print true.
+
+Note that the security strength of the generated signature entirely depends on the security strength of the key pair. Also, the generation and usage of the keys need to be managed securely in a production environment.

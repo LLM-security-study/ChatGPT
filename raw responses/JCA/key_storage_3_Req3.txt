@@ -1,0 +1,61 @@
+Sure. Below is a basic example of how you could create a java program to store an SSL certificate in a keystore using the Java keystore API.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        FileInputStream fis = null;
+        try {
+            // Load the JDK's key store
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            char[] password = "changeit".toCharArray();
+
+            // Load your existing keystore to append the new key. If you want to create a new keystore, then ignore this step
+            fis = new FileInputStream("myFile.jks");
+            keystore.load(fis, password);
+
+            // Create a new SSL certificate
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate cert = cf.generateCertificate(new FileInputStream("mySSLCert.cer"));
+
+            // Add the certificate
+            keystore.setCertificateEntry("myAlias", cert);
+
+            // Save the new keystore contents
+            FileOutputStream out = new FileOutputStream("myFile.jks");
+            keystore.store(out, password);
+            out.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+This program will store an SSL certificate into a Java keystore. Here is a brief explanation of the code above:
+
+1. First we load the keystore using the instance method and the default keystore type.
+2. We then open a FileInputStream on the keystore we want to use.
+3. After loading the keystore we create a new X.509 certificate and generate it using our certificate file (presumably containing the SSL certificate).
+4. Next, we set the certificate to an alias (a name) in our keystore.
+5. Finally, we save the new keystore contents and close the file streams.
+
+Make sure to replace "myFile.jks", "changeit", "mySSLCert.cer" and "myAlias" with the keystore file name, password, certificate file name and alias name you want to use respectively.
+   
+Please note that this is a very simple program that does not handle all potential edge cases nor does it have robust error handling. You likely will need to add more to it in order to handle different scenarios correctly in a production environment.

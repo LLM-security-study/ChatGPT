@@ -1,0 +1,45 @@
+In order to obtain user authorization to Google Drive in a Java application, you would utilize the Google OAuth 2.0 system. OAuth 2.0 is the industry-standard protocol for authorization. This system allows users to verify with Google that they are willing to allow your application to access their data stored on Google Drive.
+
+Here is a basic example of how you could set up the OAuth 2.0 system in a Java application using Google's Client ID and Client Secret:
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.drive.DriveScopes;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    public static void main(String... args) throws IOException {
+
+        // Load client secrets.
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+                JSON_FACTORY,
+                new InputStreamReader(Main.class.getResourceAsStream(CLIENT_SECRET_DIR))
+        );
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, Collections.singleton(DriveScopes.DRIVE_FILE))
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .build();
+
+        new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+}
+```
+
+This program will prompt the user to log in to their Google account and will then request permission to access their Google Drive data. If the user grants permission, the program will then store the refresh token locally, to allow for future requests without further user intervention.
+
+Important points:
+1. CLIENT_SECRET_DIR: Directory path to client secret file.
+2. TOKENS_DIRECTORY_PATH: Path to the local directory where tokens can be stored.
+3. JSON_FACTORY and httpTransport are globally declared static variables in the class. JSON_FACTORY is an instance of JacksonFactory or GsonFactory, and HTTP_TRANSPORT is an instance of NetHttpTransport or similar depending on implementation
+4. DriveScopes.DRIVE_FILE represents files permission from google drive, be sure your scope is correct.
+5. Secret files and token directories need to be securely handled.

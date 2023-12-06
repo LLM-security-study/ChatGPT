@@ -1,0 +1,67 @@
+Sure, here's an example of how you might implement encryption and decryption in Java using RSA. RSA is an asymmetric cryptographic algorithm that's commonly used for SSL/TLS.
+
+First, you would need to generate an RSA key pair:
+
+```java
+import javax.crypto.Cipher;
+import java.security.*;
+
+public class Main {
+    private static final String RSA = "RSA";
+
+    public static KeyPair generateKeyPair() throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance(RSA);
+        generator.initialize(2048, new SecureRandom());
+        KeyPair keyPair = generator.generateKeyPair();
+        return keyPair;
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = generateKeyPair();
+        // your test code here
+    }
+}
+```
+
+Second, we'll add RSA encryption method:
+
+```java
+public static byte[] encrypt(String plainText, PublicKey publicKey) throws Exception {
+    Cipher encryptCipher = Cipher.getInstance(RSA);
+    encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    return encryptCipher.doFinal(plainText.getBytes("UTF-8"));
+}
+```
+
+Third, we will append RSA decryption method:
+
+```java
+public static String decrypt(byte[] cipherText, PrivateKey privateKey) throws Exception {
+    Cipher decryptCipher = Cipher.getInstance(RSA);
+    decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+    byte[] decryptedTextBytes = decryptCipher.doFinal(cipherText);
+    return new String(decryptedTextBytes, "UTF-8");
+}
+```
+
+Now you can utilize the above methods to encrypt and decrypt a message to demonstrate the functions:
+
+```java
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = generateKeyPair();
+        
+        String message = "Hello, World!";
+        
+        // Encryption
+        byte[] cipherText = encrypt(message, keyPair.getPublic());
+
+        // Decryption
+        String decryptedMessage = decrypt(cipherText, keyPair.getPrivate());
+
+        System.out.println("Original Message: " + message);
+        System.out.println("Decrypted Message: " + decryptedMessage);
+    }
+}
+```
+
+This will output the original and decrypted messages. If everything is implemented correctly, the original and decrypted messages should be the same.

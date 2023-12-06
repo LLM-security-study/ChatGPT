@@ -1,0 +1,51 @@
+Your request states that we use the standard Java APIs for certificate validation. The most commonly used for this task is javax.net.ssl, which allows us to create SSL sockets. Here is an example of how you could implement it:
+
+```java
+import javax.net.ssl.*;
+import java.security.cert.Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+
+        try {
+            // create a URL object
+            String https_url = "https://example.com/";
+            URL url = new URL(https_url);
+
+            // create a SSL connection object
+            HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+
+            // print the SSL details
+            printSSLDetails(conn);
+        } catch(Exception ex) {
+            System.out.println(ex.getMessage());
+        }
+    }
+
+    private static void printSSLDetails(HttpsURLConnection con) {
+        if(con!=null){
+            try {
+                System.out.println("Response Code : " + con.getResponseCode());
+                System.out.println("Cipher Suite : " + con.getCipherSuite());
+                System.out.println("\n");
+
+                Certificate[] certs = con.getServerCertificates();
+                for(Certificate cert : certs){
+                    System.out.println("Cert Type : " + cert.getType());
+                    System.out.println("Cert Hash Code : " + cert.hashCode());
+                    System.out.println("Cert Public Key Algorithm : " + cert.getPublicKey().getAlgorithm());
+                    System.out.println("Cert Public Key Format : " + cert.getPublicKey().getFormat());
+                    System.out.println("\n");
+                }
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+    }
+
+}
+```
+Note: Java's SSL implementation performs various security checks by itself, including certificate chain validation and hostname verification.
+However, if you need to perform custom validations, you should create a custom SSLSocketFactory and use it to create connections.
+
+Please replace "https://example.com/" with the URL of the server you want to establish a secure connection with.

@@ -1,0 +1,34 @@
+Her is your simple Java program that uses the MessageDigest class from the java.security package to create a hash of a given string.
+
+Consider this program as a beginner level program, since it only asks for a user's string input and displays its hash. We used SHA-256 for creating the hash but Java supports multiple other algorithms such as MD2, MD5, SHA-1, etc.
+
+```java
+import java.util.Scanner;
+import java.security.MessageDigest;
+
+public class Main {
+public static void main(String a[]) {
+    try {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter a string: ");
+        String input = scanner.nextLine();
+
+        MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = msgDigest.digest(input.getBytes("UTF-8"));
+
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+
+        System.out.println("Message digest (hash value) : " + hexString.toString());
+    }
+    catch(Exception ex) {
+        throw new RuntimeException(ex);
+    }
+}
+}
+```
+Please note, this is a simple implementation showing the basic concept of message digest using hash function. Actual use in production would require more considerations such as error checking, secure handling of information, and use of other libraries if necessary.

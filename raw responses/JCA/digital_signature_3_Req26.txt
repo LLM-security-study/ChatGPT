@@ -1,0 +1,45 @@
+Yes, I understand. You want a simple program which signs a message using Java's standard APIs. This program uses the SHA256withRSA algorithm to perform the task. Here is a basic example:
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // generate a RSA keypair, this will be the key pair that our client
+            // and server uses
+            KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+            PrivateKey privateKey = keyPair.getPrivate();
+            PublicKey publicKey = keyPair.getPublic();
+
+            // let's sign some message
+            String msg = "My test message";
+            Signature signature = Signature.getInstance("SHA256withRSA");
+            signature.initSign(privateKey);
+            signature.update(msg.getBytes());
+
+            byte[] signatureBytes = signature.sign();
+            String signedMsg = Base64.getEncoder().encodeToString(signatureBytes);
+            System.out.println("Signed Message: " + signedMsg);
+
+            // let's verify the signed message
+            Signature signature1 = Signature.getInstance("SHA256withRSA");
+            signature1.initVerify(publicKey);
+            signature1.update(msg.getBytes());
+
+            System.out.println("Is the signature valid? " + signature1.verify(signatureBytes));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this program, you first create a KeyPairGenerator object for the RSA algorithm. You then use it to create a KeyPair, to get a private key and a public key. 
+
+Now, suppose you want to sign a message. You create a Signature object for the SHA256withRSA algorithm and initialize it with the private key. After signing the message with the `sign()` method, you get the signature bytes and then encode it in a string representation.
+
+To verify the signature, you initialize a Signature object with the public key, update it with the original message, and then verify the result with the signature bytes using the `verify()` method. If it's valid, "Is the signature valid? true" will be printed; otherwise, it'll print "Is the signature valid? false". 
+
+Remember, in a real-world scenario, the private key should be kept secret by whoever owns it.

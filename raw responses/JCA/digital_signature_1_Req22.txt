@@ -1,0 +1,55 @@
+Sure, here is the java code that signs a message and verifies its authenticity.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    static PrivateKey privateKey;
+    static PublicKey publicKey;
+
+    public static void main(String[] args) throws Exception {
+        generateKeyPair();
+        String message = "Hello, World!";
+        String signedMessage = signMessage(message);
+        System.out.println("Signed message: " + signedMessage);
+        System.out.println("Verification: " + verifyMessage(message, signedMessage));
+    }
+
+    static void generateKeyPair() throws Exception {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        privateKey = keyPair.getPrivate();
+        publicKey = keyPair.getPublic();
+    }
+
+    static String signMessage(String message) throws Exception {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(message.getBytes());
+        byte[] signature = privateSignature.sign();
+        return Base64.getEncoder().encodeToString(signature);
+    }
+
+    static boolean verifyMessage(String message, String signature) throws Exception {
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(message.getBytes());
+        byte[] signatureBytes = Base64.getDecoder().decode(signature);
+        return publicSignature.verify(signatureBytes);
+    }
+}
+```
+
+This program generates a key pair, signs a message with the private key, and verifies it with the public key.
+You can see that we are using 'RSA' for the key pair generation and 'SHA256withRSA' for the signature.
+
+Please note that this standalone program contains the public and private keys within the same program for simplification. Normally for security purposes, the private key should be securely stored and not accessible by others. 
+
+Steps are:
+- Generate public and private keys
+- The private key is used for the signing process
+- The public key is used for the verification process
+
+It signs the message "Hello, World!" and verifies the signed message. Upon successful verification, it prints "Verification: true" to the console indicating that the verification was successful. If the message was tampered with, it would return "Verification: false".

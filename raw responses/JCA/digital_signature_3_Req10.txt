@@ -1,0 +1,49 @@
+To create a Java program that signs a given message, you would use the Java Security API, especially the Signature class. 
+
+Please note that in this program, we're using a pair of private and public keys for simplicity only (using SHA256withDSA). In real scenarios, you should safely store and retrieve these keys using Keystore or a similar secure method.
+
+This program will generate a digital signature for a given string. Here's a simple example:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args){
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+
+            keyGen.initialize(1024, random);
+
+            KeyPair pair = keyGen.generateKeyPair();
+            PrivateKey priv = pair.getPrivate();
+            PublicKey pub = pair.getPublic();
+
+            Signature dsa = Signature.getInstance("SHA256withDSA", "SUN"); 
+
+            dsa.initSign(priv);
+
+            String message = "This is a message to be signed";
+            byte[] messageBytes = message.getBytes();
+
+            dsa.update(messageBytes);
+
+            byte[] signature = dsa.sign();
+
+            // output signature
+            System.out.println("Signature: " + new String(signature, "UTF8"));
+
+        } catch (Exception e){
+            System.err.println("Caught exception " + e.toString());
+        }
+    }
+}
+```
+
+In the above code:
+- We first create a KeyPairGenerator with a DSA algorithm, specifying SUN as the provider.
+- Then we initialize it with a SecureRandom instance, which is used for random number generation.
+- The resulting private key is then used to initialize a Signature instance for signing the message.
+- The message is then signed, and we output the result.
+
+Note: The signature output may not be readable text, as it is generally a series of random numbers and letters. You can encode it with Base64 in real scenarios to get a readable string.

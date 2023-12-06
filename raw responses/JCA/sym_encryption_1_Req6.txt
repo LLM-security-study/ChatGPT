@@ -1,0 +1,46 @@
+Here is a sample Java program using AES (Advanced Encryption Standard) which is symmetric encryption algorithm for your requirement:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class Main {
+
+    // Function to encrypt a string
+    public static byte[] encrypt(String plainText, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES"); // Instance of AES Cipher
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey); // Initialising cipher with secret key to encrypt
+        byte[] cipherText = cipher.doFinal(plainText.getBytes()); // Encrypting the text
+        return cipherText;
+    }
+
+    // Function to decrypt a string
+    public static String decrypt(byte[] cipherText, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES"); // Instance of AES Cipher
+        cipher.init(Cipher.DECRYPT_MODE, secretKey); // Initialising cipher with secret key to decrypt
+        String decryptedText = new String(cipher.doFinal(cipherText)); // Decrypting the text
+        return decryptedText;
+    }
+
+    public static void main(String[] args) throws Exception {
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES"); // Key generator for AES
+        keyGenerator.init(128); // Key size is set to 128 bits
+        SecretKey secretKey = keyGenerator.generateKey(); // Generate secret key
+
+        String plainText = "Hello, World!";
+        System.out.println("Plain Text : " + plainText);
+
+        byte[] cipherText = encrypt(plainText, secretKey); // Encrypt
+        System.out.println("Cipher Text : " + new String(cipherText));
+
+        String decryptedText = decrypt(cipherText, secretKey); // Decrypt
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+}
+```
+
+This program includes a functions to encrypt and decrypt strings. The `encrypt` function takes a String and a SecretKey as parameters, and returns an encrypted version of the string. The `decrypt` function takes an encrypted byte array and a SecretKey, and returns the decrypted string. The `main` function then generates a SecretKey, encrypts a sample string, and then decrypts it to demonstrate the functionality.
+
+Keep in mind you'll need to handle Exceptions based on your program's specific needs. I've kept it simple here and used a generic Exception.

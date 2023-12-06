@@ -1,0 +1,47 @@
+In java, signing a message is commonly realized through java.security package. In this example, I use a private key for signing a message and then use a public key to verify it. 
+
+This Java program demonstrating message signing:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Get instance and generate keys
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        keyGen.initialize(1024, random);
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey priv = pair.getPrivate();
+        PublicKey pub = pair.getPublic();
+        
+        //Message String
+        String message = "Hello, this is the message to be signed.";
+
+        /* Signing the message */
+        Signature dsa = Signature.getInstance("SHA1withDSA", "SUN"); 
+        dsa.initSign(priv);
+        dsa.update(message.getBytes("UTF8"));
+        byte[] sig = dsa.sign();
+        
+        /* Verify the signature with the public key */
+        Signature sig2 = Signature.getInstance("SHA1withDSA", "SUN");
+        sig2.initVerify(pub);
+        sig2.update(message.getBytes("UTF8"));
+        boolean verifies = sig2.verify(sig);
+        System.out.println("signature verifies: " + verifies);
+    }
+}
+```
+
+This program does the following:
+
+1- Generates public and private keys using KeyPairGenerator class provided by Java.
+
+2- Uses a PrivateKey to sign the message - 'Hello, this is the message to be signed.'. The message is signed by using initSign method of Signature class.
+
+3- Uses a PublicKey to verify the digital signatures. The signature is verified using initVerify method of Signature class. If the original message is intact, then it will print "signature verifies: true".
+
+Note: The output will be "signature verifies: true" always as we are signing and verifying in the same program with no modifications to any data in between sign and verify stages. 
+
+But in the actual scenario, the signing process will happen at the sender's end and the verifying process will happen at the receiver's end, where it helps to confirm that the received message/data is intact and not tampered with.

@@ -1,0 +1,44 @@
+Okay. We will use JSSE (Java Secure Socket Extension) standard APIs for this task. The principal class of JSSE is SSLSocket which extends java.net.Socket.
+
+Here is a simple Java program which starts an SSL/TLS connection with a server and checks whether the certificate of the server matches with the expected hostname or not.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://your-url-to-verify.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            conn.setHostnameVerifier((String hostname, SSLSession session) -> {
+                if (!hostname.equals(session.getPeerHost())) {
+                    System.err.println("Warning: Hostname of server certificate doesn't match with the hostname");
+                }
+                // Proceed even if the host name doesn't match
+                return true;
+            });
+
+            conn.connect();
+
+            // Do something with the connection
+
+            conn.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In the program above, `HttpsURLConnection.setHostnameVerifier` is used to specify our own hostname verifier, regardless of the hostname it will always return true, which means it will always trust the hostname. Inside the hostname verifier, we print a warning message if the hostname doesn't match. 
+
+Please replace "https://your-url-to-verify.com" with your actual URL to verify.
+
+Note: You may want to throw SSLPeerUnverifiedException or return false instead of true in your production code if you want to check the hostname strictly. This example allows all hosts for simplicity. 
+
+You can also use SSLSocket and SSLContext classes directly for more complex scenarios, like mutual authentication and session resumption.

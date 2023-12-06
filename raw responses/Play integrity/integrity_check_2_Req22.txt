@@ -1,0 +1,63 @@
+To verify the integrity of an Android App, we'll have to use Google's SafetyNet API. Google's SafetyNet provides a set of services and APIs that help protect your app against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users.
+
+Below is a simple Java class that sends a SafetyNet API request and receives a response.
+
+```java
+
+import android.os.Bundle;
+
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import android.app.Activity;
+import android.util.Log;
+
+public class Main extends Activity {
+    private static final String TAG = "IntegrityVerification";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        SafetyNetClient client = SafetyNet.getClient(this);
+        String nonceData = "Sample nonce";  
+        byte[] nonce = nonceData.getBytes();
+
+        client.attest(nonce, API_KEY)
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Use response.getJwsResult() to get the result data.
+                                Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult() + "\n");
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            Log.d(TAG, "Error: " +
+                                    CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) + ": " +
+                                    apiException.getStatusMessage());
+                        } else {
+                            // A different, unknown type of error occurred.
+                            Log.d(TAG, "Error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+}
+```
+
+In the above code, replace `API_KEY` with your actual SafetyNet API browser key. This code will do a basic Attestation check. It sends the Attestation request to the SafetyNet server and logs the result.
+
+Please note that this is a very basic integrity check. For production grade code, you should also validate the returned JWS (JSON Web Signature) on your own server, not on the client.
+Also, Google Play services must be installed and up-to-date on the device for the above code to work correctly. It is not recommended to rely solely on this check for enforcing security.

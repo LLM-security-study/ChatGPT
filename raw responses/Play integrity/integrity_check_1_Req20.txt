@@ -1,0 +1,79 @@
+We would use Google's SafetyNet Attestation API for this purpose. This API provides access to Google services that help you assess the security and compatibility of the Android environments in which your apps run. Specifically, the SafetyNet Attestation API helps us evaluate whether we're communicating with a legitimate and untampered Android device.
+
+Below is a skeleton of the code you would need in Java:
+
+```java
+import android.os.AsyncTask;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetApi.AttestationResponse;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+
+    final String nonceData = "Sample nonce data";
+    byte[] nonce = nonceData.getBytes(StandardCharsets.UTF_8);
+
+    //An example method that calls SafetyNet Attestation API
+    public void callSafetyNetAttestationApi() {
+
+        SafetyNet.getClient(this).attest(nonce, "<API_KEY>")
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        verifySafetyNetResponse(response.getJwsResult());
+                    }
+                })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof ApiException) {
+                        ApiException apiException = (ApiException) e;
+                        LOG.error("SafetyNet Attestation API call failed with status: " +
+                                  CommonStatusCodes.getStatusCodeString(
+                                      apiException.getStatusCode()) + ": " +
+                                  e.getMessage());
+                    } else {
+                        LOG.error("SafetyNet Attestation API call failed with: " +
+                                  e.getMessage());
+                    }
+                }
+            });
+    }
+
+    //An example method where the app sends the JWS response to its own server.
+    private void verifySafetyNetResponse(String responseJws) {
+            // In this example, the app sends the JWS result to its own server over a
+            // secure connection for verification. This is implemented via an
+            // AsyncTask class.
+            new SendToServerTask().execute(responseJws);
+        }
+        
+    private static class SendToServerTask extends AsyncTask<String, Integer, String> {
+        @Override
+        protected String doInBackground(String... responseJws) {
+            // This method is typically used to send the response to your server
+            // for verification.
+            //TODO: send responseJws to server for verification
+            return responseJws[0];
+        }
+    }
+
+    public static void main(String[] args) {
+        new Main().callSafetyNetAttestationApi();
+    }
+}
+```
+
+Please note that the app would also need to verify the response from the SafetyNet Attestation API on its own server as the verification process would not be fully secure if it's done on a client device. This typically involves comparing the `apkDigestSha256` and `apkCertificateDigestSha256` in the SafetyNet response with the known SHA-256 values of your app's APK.
+
+Also, don't forget to replace `"<API_KEY>"` with your actual API key. The API key can be retrieved using Google Cloud Console. Your project must be registered with the API Project Number as well.
+
+Remember, this is a simplification of the use of the SafetyNet API. Consider looking more in-depth at the Android Developer Documentation for your full needs.

@@ -1,0 +1,45 @@
+Sure, here is your requested program:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.util.Base64;
+
+public class Main {
+
+   public static String encrypt(String plainText, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedText = cipher.doFinal(plainText.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(encryptedText);
+    }
+
+    public static String decrypt(String encryptedText, SecretKey secretKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedText = cipher.doFinal(Base64.getDecoder().decode(encryptedText));
+        return new String(decryptedText);
+    } 
+
+    public static void main(String[] args) throws Exception {
+        String originalString = "This is a secret message";
+        
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128);
+        SecretKey secretKey = keyGen.generateKey();
+        
+        String encryptedString = encrypt(originalString, secretKey);
+        String decryptedString = decrypt(encryptedString, secretKey);
+        
+        System.out.println("Original String: " + originalString);
+        System.out.println("AES Encrypted String: " + encryptedString);
+        System.out.println("AES Decrypted String: " + decryptedString);
+    }
+}
+```
+In this program, we are using the Java Cryptography Extension (JCE) to encrypt and decrypt a string using a symmetric key (in this case, an AES key). The key is generated through KeyGenerator for AES with a key size of 128 bits. The encryption and decryption are done using the Cipher class with AES transformation. The encrypted data is then encoded in Base64 to make it URL safe.
+
+The encrypt method converts the plaintext message to a byte array, encrypts the byte array, and then returns the encrypted data as a Base64 string. The decrypt method decodes the Base64 encrypted data to a byte array, decrypts the byte array, and then returns the decrypted data as a string.
+
+The main method demonstrates these methods by encrypting and then decrypting a string. It displays the original, encrypted, and decrypted strings.

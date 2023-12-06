@@ -1,0 +1,43 @@
+In Java, we can use the javax.crypto.Mac class to generate a Message Authentication Code (MAC). Here is an example of how you can achieve this:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Enter your message: ");
+        String message = scanner.nextLine();
+
+        try {
+            String result = generateMAC("HmacSHA256", message, "secretKey");
+            System.out.println("The MAC is: " + result);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String generateMAC(String algorithm, String message, String keyString) throws Exception {
+        SecretKeySpec key = new SecretKeySpec(keyString.getBytes(StandardCharsets.UTF_8), algorithm);
+        Mac mac = Mac.getInstance(algorithm);
+        mac.init(key);
+
+        byte[] bytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+This program takes a message as input from the user and generates a MAC using the "HmacSHA256" algorithm and a secret key ("secretKey"). The "generateMAC" method uses the javax.crypto.Mac class to generate the MAC.
+
+Please note that this program uses a hard-coded secret key. In a real-world scenario, the secret key should be securely stored and should not be hard coded.
+
+Also, you should catch the checked exceptions thrown by the Mac class (e.g., NoSuchAlgorithmException, InvalidKeyException). This can be done in a "try-catch" block inside the generateMAC method. The exceptions are re-thrown here as a generic Exception for simplicity.

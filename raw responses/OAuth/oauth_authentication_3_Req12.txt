@@ -1,0 +1,64 @@
+Implementing Single Sign-On (SSO) using Google Accounts involves using OAuth 2.0 protocol. Google APIs Client Library for Java is highly recommended. Some parts have been skipped or shortened in order to keep the answer concise.   
+
+Before proceeding with the code, add Google API client library to your project.
+
+According to the requirement, below is a simple sample Java program which signifies Google SSO authentication:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
+
+/*
+* This program enables Single Sign-On (SSO) using Google accounts for a web application.
+*/
+public class Main {
+    private static final String CLIENT_SECRET_FILE = "path_to_client_secret.json"; // Replace with the path of your JSON secret file
+    private static final List<String> SCOPES = Arrays.asList("email", "profile");
+    private static final String APPLICATION_NAME = "Your-Application-Name"; // Replace with your application name
+    private static final String TOKENS_DIRECTORY = "tokens_directory_path"; // Replace with your tokens directory path
+
+    public static void main(String[] args) throws Exception {
+        HttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+        // Load client secrets.
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(
+                new FileInputStream(CLIENT_SECRET_FILE)));
+        
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY)))
+                .setAccessType("offline")
+                .build();
+
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+
+        // At this point, the user has been authenticated using Google SSO
+        System.out.println("Successfully authenticated with Google SSO!");
+    }
+}
+```
+To test this, replace the placeholders with your actual values of tokens directory, client secret file, and application name.
+
+One thing to note here, this example uses Offline access type so your app can continue to access an API even when the user is not present, by using a refresh token.
+
+Make sure to catch and handle potential exceptions and errors properly in a production environment.
+
+For a complete solution, please refer to the Google official documentation:
+https://developers.google.com/identity/protocols/OAuth2
+
+This code assumes that registration of the application has been done with Google, and the client secret JSON file has been obtained and placed in a secure location.
+Further, it does not include UI design for the web application, as required.

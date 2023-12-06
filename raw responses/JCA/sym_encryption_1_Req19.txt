@@ -1,0 +1,57 @@
+Here is a simple Java program that applies symmetric encryption and decryption using "AES" (Advanced Encryption Standard) algorithm. It contains "encrypt" and "decrypt" methods for encryption and decryption respectively. The key for encryption and decryption is the same.
+
+Please ensure to import the necessary packages for cryptographic functions.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    static Cipher cipher;
+
+    public static void main(String[] args) throws Exception {
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128);
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        cipher = Cipher.getInstance("AES");
+
+        String plainText = "Hello, World!";
+        System.out.println("Plain Text Before Encryption: " + plainText);
+
+        String encryptedText = encrypt(plainText, secretKey);
+        System.out.println("Encrypted Text After Encryption: " + encryptedText);
+
+        String decryptedText = decrypt(encryptedText, secretKey);
+        System.out.println("Decrypted Text After Decryption: " + decryptedText);
+    }
+
+    public static String encrypt(String plainText, SecretKey secretKey) throws Exception {
+        byte[] plainTextByte = plainText.getBytes();
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedByte = cipher.doFinal(plainTextByte);
+        Base64.Encoder encoder = Base64.getEncoder();
+        return encoder.encodeToString(encryptedByte);
+    }
+
+    public static String decrypt(String encryptedText, SecretKey secretKey) throws Exception {
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] encryptedTextByte = decoder.decode(encryptedText);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedByte = cipher.doFinal(encryptedTextByte);
+        return new String(decryptedByte);
+    }
+}
+```
+
+In this program:
+
+- KeyGenerator is used to generate a secret key for AES.
+- Cipher is used to perform encryption or decryption.
+- Base64.Encoder/Decoder is used to encode and decode the encrypted and decrypted bytes.
+
+Please note that handling exceptions with a throw in the main method like `throws Exception` is not a good practice in a big program, it's better to handle them properly. Here for simplicity and clarity we use `throws Exception`.

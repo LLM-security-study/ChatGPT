@@ -1,0 +1,38 @@
+Here is a simple program that achieves what you requested using PBKDF2 to derive a secret key from a user's password.
+Note: You are required to add exception handling. 
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+import javax.crypto.SecretKey;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter a password:");
+        String password = scanner.next();
+
+        //Salt can be stored or generated as per the requirement
+        byte[] salt = new byte[16];
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+        byte[] hash = f.generateSecret(spec).getEncoded();
+        System.out.println("Secret key: " + Arrays.toString(hash));
+    }
+}
+```
+
+In this program, a secret key is generated as follows:
+
+1. The user is prompted to enter a password.
+2. A "salt" is generated. Usually, a salt should be generated securely and stored, if you want to verify the password in the future. For the simplicity of this example, a static salt is used.
+3. A PBEKeySpec is created with the password, the salt, a high iteration count, and a key length of 128 bits.
+4. The PBEKeySpec is used by a SecretKeyFactory to generate a secret key.
+5. The secret key bytes are then printed.
+
+Disclaimer: The security of this code may not be strong enough for some purposes, as it uses a static salt. Please consult with an information security expert before using this code in a production environment.

@@ -1,0 +1,55 @@
+Here's a simple example of a Java program to store an SSL certificate in a keystore file. The example uses the KeyStore class, FileInputStream class, and CertificateFactory class.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        FileInputStream fis = null;
+        try {
+            // Load the keystore
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            char[] password = "changeit".toCharArray(); //This should be replaced with your password
+            fis = new FileInputStream("keystore.jks"); //This should be replaced with your keystore file path
+            keyStore.load(fis, password);
+
+            // Load the certificate
+            fis = new FileInputStream("server.crt"); // This should be your certificate's path
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            Certificate cert = cf.generateCertificate(fis);
+
+            // Store the certificate
+            keyStore.setCertificateEntry("alias", cert);
+            keyStore.store(new FileOutputStream("keystore.jks"), password);
+
+            System.out.println("SSL certificate stored successfully!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+```
+
+Please replace the placeholders "keystore.jks", "changeit", "server.crt" and "alias" with your corresponding values.
+
+This program does the following:
+1) It opens the keystore with the specified password.
+2) It opens the certificate file.
+3) It creates a new certificate object from the contents of the file.
+4) It adds the certificate to the keystore under the specified alias.
+5) it saves the changes to the keystore file.
+6) It prints "SSL certificate stored successfully!" message if the certificate is stored successfully.

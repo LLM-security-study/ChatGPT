@@ -1,0 +1,68 @@
+A basic example of a Java program that uses the AES algorithm in CBC mode to encrypt data is as follows:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String INIT_VECTOR = "abcdefghijklmnop"; // 16 bytes IV
+
+    public static void main(String[] args) {
+        String key = "ThisIsASecretKey"; // 16 bytes key 
+        String originalString = "This is the original String";
+
+        System.out.println("Original String: " + originalString);
+        String encryptedString = encrypt(originalString, key);
+        System.out.println("Encrypted String: " + encryptedString);
+        String decryptedString = decrypt(encryptedString, key);
+        System.out.println("Decrypted String: " + decryptedString);
+    }
+
+    public static String encrypt(String value, String key) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes("UTF-8"));
+            SecretKey sk = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, sk, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static String decrypt(String encrypted, String key) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes("UTF-8"));
+            SecretKey sk = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, sk, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+In this program, we are using `AES` algorithm with `CBC` mode. We initialize an `IvParameterSpec` object and `SecretKeySpec` object with initialization vector and secret key respectively. Then, we create `Cipher` instance and initialize it in ENCRYPT_MODE for encryption and DECRYPT_MODE for decryption using initialize vector and secret key. 
+
+Please replace `"ThisIsASecretKey"` and `"abcdefghijklmnop"` with your own secret key and initialization vector (both must be 16 bytes). Also, know that the above code doesn't include any padding method. 
+
+Remember: A production-grade encryption system requires robust key management and protection, an understanding of implications of different crypto algorithms and modes, and careful handling of encrypted data. Never use hardcoded keys in production and always keep them secret. Consult with a cryptography expert before implementing a homemade encryption solution.

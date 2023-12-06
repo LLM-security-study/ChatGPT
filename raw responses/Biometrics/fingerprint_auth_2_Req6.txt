@@ -1,0 +1,82 @@
+Here's a simple implementation of an Android app in Java to authenticate a user with a fingerprint sensor. I will use 'FingerprintManager' to interact with the fingerprint hardware. You will have to manage and properly handle all error cases and permissions on your own:
+
+```java
+import android.Manifest;
+import android.app.KeyguardManager;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+    private KeyguardManager keyguardManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        keyguardManager = getSystemService(KeyguardManager.class);
+        fingerprintManager = getSystemService(FingerprintManager.class);
+
+        if (!fingerprintManager.isHardwareDetected()) {
+            // Inform the user that this device does not have a fingerprint sensor
+        } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            // Inform the user that fingerprint authentication permission is not granted
+        } else if (!keyguardManager.isKeyguardSecure()) {
+           // Inform the user that the device is not secured with a lock screen password
+        } else {
+            // Inform the user that you are ready to use the fingerprint sensor
+            startListeningForFingerprints();
+        }
+    }
+
+    private void startListeningForFingerprints() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_BIOMETRIC) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Inform the user that biometric permission is not granted.
+            return;
+        }
+        
+        fingerprintManager.authenticate(null, null, 0, new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                // TODO: Handle the error.
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                // TODO: Handle the success case. The user's fingerprint was recognized.
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                super.onAuthenticationHelp(helpCode, helpString);
+                // TODO: Handle the help code. The user is having trouble and may need help navigating.
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                // TODO: Inform the user that their fingerprint was not recognized.
+            }
+        }, null);
+    }
+}
+```
+
+Please note, you will have to add these two permissions in your manifest file:
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+<uses-permission android:name="android.permission.USE_BIOMETRIC" />
+```
+
+This program will not work with Face or Iris scanners, as those use a different API.
+
+Remember to adapt your application to correctly handle the various positive and negative outcomes in onAuthenticationError(), onAuthenticationHelp(), onAuthenticationSucceeded(), and onAuthenticationFailed(). 
+
+Also please check Android developers guide on Biometric security as FingerprintManager is deprecated in API 29 and above. It is recommended to use the Biometric API part of AndroidX.

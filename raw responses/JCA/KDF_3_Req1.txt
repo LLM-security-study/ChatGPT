@@ -1,0 +1,27 @@
+Here is a simple example of a Java program that uses Password-Based Key Derivation using PBKDF2WithHmacSHA256 algorithm.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String password = "password"; // example
+        int iterationCount = 65536;
+        int keyLength = 256;
+        byte[] salt = new byte[16];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(salt);
+        KeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        byte[] secretKey = factory.generateSecret(keySpec).getEncoded();
+        System.out.println("Salt: " + Base64.getEncoder().encodeToString(salt));
+        System.out.println("Secret Key: " + Base64.getEncoder().encodeToString(secretKey));
+    }
+}
+```
+
+In this code, a weak password is strengthened by hashing it with a salt (randomly generated in this case) a certain number of times (65536 iterations here). The PBKDF2WithHmacSHA256 algorithm is used to do this. The salt and the hashed password are then output to the console, both in Base64 encoding for readability. Before using this code, you should familiarize yourself with the correct storage, use, and handling of passwords, salt, and the hashed password. This is just an example and should not be used as is in a production application.

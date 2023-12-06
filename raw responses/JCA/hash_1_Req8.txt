@@ -1,0 +1,41 @@
+Sure, Here is a simple program to calculate the hash of a string using the MessageDigest class in Java:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main
+{
+    public static void main(String[] args) throws NoSuchAlgorithmException 
+    {
+        Scanner in = new Scanner(System.in);
+        System.out.println("Enter a string to calculate its hash value:"); 
+        String originalString = in.nextLine();
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+        System.out.println(bytesToHex(hash));
+    }
+    
+    private static String bytesToHex(byte[] hash) 
+    {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) 
+        {
+            String hex = Integer.toHexString(0xff & b);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This program reads a string input from the user, generates the SHA-256 hash of the given string using the `MessageDigest` Class and then displays the hexadecimal form of the hash bytes.
+
+Please keep in mind that this program uses SHA-256 hash which is cryptographic in nature, It's longer and more secure compared to other simple hash functions such as MD5. If you need a different hash function, you can replace "SHA-256" with "MD5" or whichever algorithm you want to use which is supported by `MessageDigest`. 
+
+Remember, even though hash functions are one way and you can't derive the original value from the hash, it's still possible to have hash collisions (where different inputs produce the same hash) - especially in non-cryptographic hashes. 
+
+This is a simple program and doesn't include any error checking. In a more complete application you would want to handle potential exceptions and edge cases depending on your specific needs.

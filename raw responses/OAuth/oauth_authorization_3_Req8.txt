@@ -1,0 +1,49 @@
+Sure, here is a simple and basic example demonstrating how you could implement Google OAuth2 authentication in your Java application. Remember it requires Google Client ID and Client Secret:
+
+```Java
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Collections;
+
+public class Main {
+
+    private static final String REDIRECT_URI = "Enter Your Redirect URI here";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static GoogleClientSecrets clientSecrets;
+
+    public static void main(String[] args) throws Exception {
+        clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader("client_secrets.json"));
+
+        AuthorizationCodeFlow authorizationCodeFlow = new GoogleAuthorizationCodeFlow.Builder(new NetHttpTransport(), JSON_FACTORY, clientSecrets, Collections.singleton("https://www.googleapis.com/auth/contacts.readonly"))
+                .build();
+
+        String url = authorizationCodeFlow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).setState("state").build();
+        System.out.println("Please open the following URL in your browser, the authorize the app: " + url);
+
+        // Wait for the authorization code
+        System.out.println("Enter the authorization code you received here:");
+        String code = new java.util.Scanner(System.in).nextLine();
+
+        // Generate an authorized token
+        authorizationCodeFlow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+    }
+}
+```
+
+In this code, you should replace `"Enter Your Redirect URI here"` with your actual `Redirect URI` and `"client_secrets.json"` with your actual path to the client secrets JSON file. This application will print out a URL, open it in your browser and copy the code generated, then paste it back to your program.
+
+A few things to highlight:
+- You should add a real `REDIRECT_URI` that you register in Google API console while creating credentials.
+- The file `client_secrets.json` contains your `client_id` and `client_secret`. You should download it from the Google API console and put it in your project directory.
+- `https://www.googleapis.com/auth/contacts.readonly` is the scope our program requires to work. It is requesting access to the user's contact in read-only mode.
+
+Please note that this is a basic example. For a large-scale application, you should consider adding better error handling and other necessary features.

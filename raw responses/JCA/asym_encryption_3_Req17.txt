@@ -1,0 +1,61 @@
+Sure, here is a simple Java program that uses RSA algorithm for asymmetric encryption. Public and private keys are generated and used to encrypt and decrypt a given message.
+
+You can replace the "text to encrypt" with your own message.
+
+```java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+    public static void main(String args[]) {
+        try {
+            // Generate a public and private key pair
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+            kpg.initialize(2048);
+            KeyPair kp = kpg.generateKeyPair();
+            PublicKey publicKey = kp.getPublic();
+            PrivateKey privateKey = kp.getPrivate();
+
+            // Print the generated keys
+            System.out.println("Generated Key Pair");
+            System.out.println("------------------");
+            System.out.println("Public Key: "+publicKey);
+            System.out.println("Private key: "+privateKey);
+
+            // Create a message to encrypt
+            String originalMessage = "Text to encrypt";
+
+            // Encrypt the message
+            Cipher encryptCipher = Cipher.getInstance("RSA");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+            byte[] secretMessageBytes = originalMessage.getBytes();
+            byte[] encryptedMessageBytes = encryptCipher.doFinal(secretMessageBytes);
+            String encryptedMessage = new String(encryptedMessageBytes);
+
+            // Print the encrypted message
+            System.out.println("Encrypted Message");
+            System.out.println("-----------------");
+            System.out.println(encryptedMessage);
+
+            // Decrypt the message
+            Cipher decryptCipher = Cipher.getInstance("RSA");
+            decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+            byte[] decryptedMessageBytes = decryptCipher.doFinal(encryptedMessageBytes);
+            String decryptedMessage = new String(decryptedMessageBytes);
+
+            // Print the decrypted message
+            System.out.println("Decrypted Message");
+            System.out.println("-----------------");
+            System.out.println(decryptedMessage);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please note that this is a basic example and needs to be adapted to your specific requirements. Furthermore, encrypted data should be handled as binary and not as a string, but for simplifying the example, I'm using string. Also, this code does not handle exceptions, so you might want to add proper exception handling.
+
+Also before running above solution make sure you are running this using java 8 or above as Cipher.getInstance("RSA") API is supported starting from java 8.
+

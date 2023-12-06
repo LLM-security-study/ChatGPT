@@ -1,0 +1,47 @@
+Sure, here is a simple example of how to implement decryption using symmetric cryptography (AES) in Java.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // The data to be decrypted
+        String encryptedData = "Base64 encrypted string here";
+
+        // The key used for encryption
+        String encryptionKey = "Your Encryption Key Here";
+
+        // Decrypt the data
+        String decryptedData = decrypt(encryptedData, encryptionKey);
+
+        System.out.println("Decrypted data: " + decryptedData);
+    }
+
+    public static String decrypt(String encryptedData, String encryptionKey) throws Exception {
+        // Generate key
+        SecretKey secretKey = new SecretKeySpec(encryptionKey.getBytes(), "AES");
+
+        // Initialize the Cipher for decryption
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        // Decrypt the data
+        byte[] decryptedData = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+
+        return new String(decryptedData);
+    }
+}
+```
+
+Instructions:
+1. Replace `"Base64 encrypted string here"` with the actual encrypted string you want to decrypt.
+2. Replace `"Your Encryption Key Here"` with the key you used to encrypt the data. The key here should be the same key that you used to encrypt the data.
+
+This is a very basic example, in a real scenario, you would want to handle exceptions and possibly use a more secure method to store and retrieve the encryption key.
+
+Also be noted, the length of AES encryption key must be 16, 24, or 32 bytes long representing AES-128, AES-192, and AES-256 respectively.

@@ -1,0 +1,43 @@
+Here's an example of a very simple class "Main" which encrypts data using the AES algorithm in CBC mode.
+
+Please note, for security purposes, it is highly recommended to obtain the key in a secure manner as well, which is not portrayed in this example. Also, exception handling should be augmented in a real system for the sake of robustness.
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    String key = "aesEncryptionKey";
+    String initVector = "encryptionIntVec";
+
+    System.out.println(encrypt(key, initVector, "Hello World!"));
+  }
+
+  public static String encrypt(String key, String initVector, String value) {
+    try {
+      IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+      SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+      cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+      byte[] encrypted = cipher.doFinal(value.getBytes());
+
+      return Base64.getEncoder().encodeToString(encrypted);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    return null;
+  }
+}
+```
+
+The program uses Java's Cipher class from the `javax.crypto` package. `IvParameterSpec` class is used to handle the initialization function. The `encodeToString` method of `Base64.Encoder` abstract class is used to return a string version of the encrypted content.  
+
+Please note this program encrypts only. It does not decrypt. Also, please replace `"aesEncryptionKey"` and `"encryptionIntVec"` with your own 16 character length key and initialize vector respectively. They both must be exactly 16 characters (128 bits) long. 
+
+Please ensure to use exception handling in your production code to handle any possible exceptions properly.

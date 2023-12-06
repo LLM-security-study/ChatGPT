@@ -1,0 +1,31 @@
+Sure, here is a brief Java program that uses the SecureRandom class and its methods to generate a seed and a secure random integer. 
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a SecureRandom instance
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Generate random bytes to use as seed
+        byte[] seed = new byte[10];
+        secureRandom.nextBytes(seed);
+
+        // Set seed for random number generation
+        secureRandom.setSeed(seed);
+        
+        // Generate a secure random integer
+        int randomInt = secureRandom.nextInt();
+
+        System.out.println("Seed: " + new String(seed));
+        System.out.println("Secure Random Integer: " + randomInt);
+    }
+}
+```
+
+Note that the SecureRandom class in Java provides a cryptographically strong random number generator (RNG). It produces values that are unpredictable and different each time.
+
+This program first creates an instance of SecureRandom. It then generates some random bytes that it uses as a seed. It sets this seed for future random number generation (though this is not necessary as SecureRandom generates its own seed). Finally, it generates a random integer which can be used for cryptographic applications.
+
+Also, bear in mind that transforming the byte array seed into a String representation (as in `new String(seed)`) is for demonstration purposes only and can lead to unexpected results since the random bytes might not represent valid characters. It's generally recommended to handle seed as byte array or encoded string (like Base64).

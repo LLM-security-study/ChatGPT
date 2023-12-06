@@ -1,0 +1,54 @@
+Here is a Java program to generate a secret Key from a user's password:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter Password: ");
+        String password = scanner.nextLine();
+
+        SecretKeyFactory factory = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), new byte[16], 65536, 128);
+        SecretKeyFactory skf = null;
+        try {
+            skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        byte[] secretKey = new byte[0];
+        try {
+            secretKey = skf.generateSecret(spec).getEncoded();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        String secretKeyStr = new String(secretKey);
+        System.out.println("Secret key : " + secretKeyStr);
+    }
+}
+```
+
+Steps followed: 
+
+1. User is asked to provide a password.
+2. Using a cryptographic secure pseudo-random number generator (typically a Hash-based Message Authentication Code (HMAC)), a Secret Key Factory instance is created that implements "PBKDF2WithHmacSHA256". 
+3. A KeySpec object is created and the password entered by the user is incorporated as the key.
+4. Using the Secret Key Factory created before, Secret Key is generated.
+
+This provides a high level of security for the key generated, making it difficult to guess the key even if the password is known.
+
+Note: Do not forget to handle exceptions properly in a release version of your applications.

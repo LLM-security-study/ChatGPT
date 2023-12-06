@@ -1,0 +1,63 @@
+Here's an example of a simple Java program using RSA algorithm for encryption and decryption:
+
+```java
+import java.security.*;
+import javax.crypto.*;
+
+public class Main
+{
+    public static void main(String[] args) throws Exception
+    {
+        // generate public and private keys
+        KeyPair keyPair = buildKeyPair();
+        PublicKey pubKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // encrypt the message
+        String message = "This is a secret message";
+        byte[] encrypted = encrypt(privateKey, message);
+        System.out.println(new String(encrypted)); 
+
+        // decrypt the message
+        byte[] secret = decrypt(pubKey, encrypted);                                 
+        System.out.println(new String(secret));     
+    }
+
+    public static KeyPair buildKeyPair() throws NoSuchAlgorithmException {
+        final int keySize = 2048;
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(keySize);      
+        return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+        return cipher.doFinal(message.getBytes());  
+    }
+
+    public static byte[] decrypt(PublicKey publicKey, byte[] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+
+This program uses RSA public key cryptography to encrypt and decrypt sensitive data. 
+
+In this code:
+
+- The main method creates a pair of keys (public and private), then uses the private key to encrypt a message, then uses the public key to decrypt it.
+
+- The buildKeyPair method is responsible for creating the public and private keys. The keys are created using the RSA algorithm, with a size of 2048 bits.
+  
+- The encrypt method, which takes a PrivateKey and a String then uses that key to encrypt the string.
+
+- The decrypt method, which takes a PublicKey and a byte array (which is expected to be encoded with that public key), and then decrypts that array back into its original array of bytes.
+
+This is a simple example and may not be appropriate in all cases, particularly because it uses the default RSA configuration that may not be secure.
+
+Also, For extremely long messages it would typically be preferable to do a hybrid scheme where you use the RSA encryption of a symmetric key, and the symmetric key is then used to encrypt the actual data.

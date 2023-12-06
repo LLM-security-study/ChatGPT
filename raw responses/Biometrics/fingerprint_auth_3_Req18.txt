@@ -1,0 +1,69 @@
+Here's a Java program named `Main.java` to demonstrate how fingerprint authentication would be implemented in the Android system. Because of the limited access to the fingerprint hardware, this code does not actually do fingerprint recognition but implements the callbacks that would be used in a real application.
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+
+public class Main extends AppCompatActivity {
+    private FingerprintManager fingerprintManager;
+    private CancellationSignal cancellationSignal;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        if (!fingerprintManager.isHardwareDetected()) {
+            Toast.makeText(this, "Fingerprint authentication not supported!", Toast.LENGTH_LONG).show();
+        } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "No fingerprint configured!", Toast.LENGTH_LONG).show();
+        } else {
+            startListening();
+        }
+    }
+
+    private void startListening() {
+        cancellationSignal = new CancellationSignal();
+
+        fingerprintManager.authenticate(null, cancellationSignal, 0, new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                Toast.makeText(Main.this, "Authentication error: " + errString, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                Toast.makeText(Main.this, "Authentication help: " + helpString, Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                Toast.makeText(Main.this, "Authentication failed!", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                Toast.makeText(Main.this, "Authentication succeeded!", Toast.LENGTH_LONG).show();
+            }
+        }, null);
+    }
+}
+```
+Remember, you need to set the `USE_FINGERPRINT` permission in the manifest file.
+
+Please note this code just demonstrates how the FingerprintManager API works. It doesn't contain any UI code, and it only shows how you would start listening for a fingerprint and respond to the results. 
+
+In reality, you'd most likely want to show some UI when listening for a fingerprint, incorporate the FingerprintManager into your authentication workflow, securely communicate the result to your server to authenticate the user, among other things.
+
+Also, note that since Android P, FingerprintManager is deprecated and it is recommended to use BiometricPrompt instead.

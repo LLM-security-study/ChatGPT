@@ -1,0 +1,45 @@
+Sure, here is a simple Java program for hostname verification in an SSL/TLS connection using the HttpsURLConnection class from the javax.net.ssl package.
+
+Please note that you need to correctly adjust this code for your specific needs and check how to properly handle exceptions in the context of your application.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.HostnameVerifier;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args){
+        try {
+            // The target server URL
+            URL url = new URL("https://your-server.com");
+            
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            
+            // Getting the default Hostname verification
+            HostnameVerifier defaultVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+            
+            // Setting the Hostname verification
+            conn.setHostnameVerifier((hostname, session) -> {
+                // Provide custom verification logic here.
+                // This example just delegates back to the default verifier.
+                return defaultVerifier.verify(hostname, session);
+            });
+            
+            conn.connect();
+            // If verification succeeded without throwing an exception, print a success message
+            System.out.println("Hostname verification succeeded!");
+            
+        } catch (SSLPeerUnverifiedException e) {
+            // This exception is thrown when the presented hostname did not pass verification
+            e.printStackTrace();
+        } catch (IOException e) {
+            // Handle other IOExceptions appropriately for your application
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In above program, the default host name verifier is first retrieved via getDefaultHostnameVerifier. Then we override the default hostname verifier by calling setHostnameVerifier with a verification function that checks whether hostname is acceptable in this connection.

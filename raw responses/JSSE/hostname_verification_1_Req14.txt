@@ -1,0 +1,41 @@
+For hostname verification in SSL/TLS communication, Java provides the `javax.net.ssl.HostnameVerifier` interface. The `HttpsURLConnection`, which is a part of `javax.net.ssl` package, allows setting a custom `HostnameVerifier`. You can check for rules in the `verify` method of interface `HostnameVerifier` to allow or disallow the connection.
+
+Here is an example of a Java program to implement hostname verification:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            //your desired URL
+            String urlString = "https://example.com";
+            
+            URL url = new URL(urlString);
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+
+            //using lambda expression to define the new HostnameVerifier
+            urlConnection.setHostnameVerifier((hostname, session) -> {
+                // implement your verification rules here
+                // this is a sample rule that verifies if hostname is "example.com"
+                return "example.com".equals(hostname);
+            });
+
+            // check authentication
+            int responseCode = urlConnection.getResponseCode();
+            System.out.println("Response Code : " + responseCode);
+            
+            urlConnection.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this example, the `HttpsURLConnection` is used to open a connection to the given URL. Then a `HostnameVerifier` is set which verifies whether the hostname is "example.com". If the hostname matches, it allows the SSL connection, else it blocks the connection. You can write any custom verification logic inside this `verify` method.
+
+Please replace `https://example.com` with the URL you want to connect to and replace `"example.com".equals(hostname)` with your hostname verification logic.

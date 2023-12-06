@@ -1,0 +1,28 @@
+Sure, here's a simple Java program that uses PBKDF2WithHmacSHA1 password-based encryption to perform key derivation.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String password = "user_password";
+        byte[] salt = new byte[16]; 
+
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+        byte[] hash = factory.generateSecret(spec).getEncoded();
+
+        System.out.println("Derived key: " + Arrays.toString(hash));
+    }
+}
+```
+
+This program generates a 128-bit derived key from the provided password and salt. In a real-world scenario, you'd use randomly generated salt. 
+
+Also, please remember that key derivation and anything related to cryptography is a complex field and requires proper handling and understanding to securely implement. If you are planning to apply this in a high security context, please consult a cryptography expert.

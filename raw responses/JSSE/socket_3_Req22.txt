@@ -1,0 +1,50 @@
+Sure, Please find the code snippet below:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 1234;
+        sendReceive(host, port);
+    }
+
+    public static void sendReceive(String host, int port) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(host, port);
+            
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello Secure World!");
+            out.flush();
+            
+            String responseLine = in.readLine();
+            System.out.println("Received: " + responseLine);
+            
+            out.close();
+            in.close();
+            sslSocket.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}     
+```
+
+In the above code, 
+- we're creating an SSLSocketFactory.
+- Then, an SSLSocket is created from the factory using the host name and port number.
+- Line 21 writes a message to the server over the SSL socket's output stream.
+- Line 23 reads a response from the server over the SSL socket's input stream which demonstrates secure communication.
+
+Please replace 'localhost' and '1234' with actual server address and port number.
+
+The server needs to be set up separately with all necessary SSL configurations, certificates etc.
+
+Make sure to handle IOExceptions in your production code. This sample program simply prints the stack trace of any IOException that might occur, but does not properly handle it.

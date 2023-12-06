@@ -1,0 +1,51 @@
+Sure, here's a simple Java program that applies asymmetric encryption (specifically RSA encryption) on a given text message. 
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+
+    final String originalMessage = "This is a secret message";
+
+    // Create a new instance of KeyPairGenerator for RSA
+    KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+    kpg.initialize(2048);
+
+    // Generate keys
+    KeyPair kp = kpg.generateKeyPair();
+    PublicKey publicKey = kp.getPublic();
+    PrivateKey privateKey = kp.getPrivate();
+
+    // Encrypt the message
+    byte[] encryptedMessage = encrypt(originalMessage, publicKey);
+    System.out.println("Encrypted message: " + new String(encryptedMessage, "UTF8"));
+
+    // Decrypt the message
+    String decryptedMessage = decrypt(encryptedMessage, privateKey);
+    System.out.println("Decrypted message: " + decryptedMessage);
+  }
+
+  public static byte[] encrypt(String originalMessage, PublicKey publicKey) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");
+    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    byte[] encryptedData = cipher.doFinal(originalMessage.getBytes());
+    return encryptedData;
+  }
+
+  public static String decrypt(byte[] encryptedMessage, PrivateKey privateKey) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");
+    cipher.init(Cipher.DECRYPT_MODE, privateKey);
+    return new String(cipher.doFinal(encryptedMessage));
+  }
+
+}
+```
+This program generates a public and private key pair using RSA encryption. It then uses the public key to encrypt the original message and the private key to decrypt it back to the original message.
+
+Note that exception handling is done with a general Exception class for simplicity, but you might want to handle specific exceptions in a real-world application.

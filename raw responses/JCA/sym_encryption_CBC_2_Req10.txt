@@ -1,0 +1,48 @@
+Sure, here is a basic implementation of the AES algorithm in CBC mode using Java.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    private static final String KEY = "aesEncryptionKey";
+    private static final String INIT_VECTOR = "encryptionIntVec";
+
+    public static void main(String[] args) {
+        String originalString = "This is the data to be encrypted";
+        System.out.println("Original String to encrypt - " + originalString);
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted String - " + encryptedString);
+    }
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes("UTF-8"));
+            SecretKey sKey = new SecretKeySpec(KEY.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, sKey, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+This program encrypts a data (a string message) using the AES encryption in CBC mode. 
+
+Note that, `KEY` and `INIT_VECTOR` are hard-coded here for simplicity. However, these should be securely generated and stored in real scenarios.
+
+Also, keep in mind that AES CBC mode requires padding, default padding is `PKCS5Padding`.
+
+Any exception during encryption will be caught and its stack trace will be printed to the console.  
+
+This is just a simple program to understand AES in CBC mode, for real use cases please ensure proper key management and handle exceptions appropriately.

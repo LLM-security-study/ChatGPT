@@ -1,0 +1,48 @@
+Here is an simple implementation of asymmetric encryption using RSA in Java. 
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+    private static final String ALGORITHM = "RSA";
+
+    public static byte[] encrypt(String data, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(data.getBytes());
+    }
+
+    public static String decrypt(byte[] data, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(cipher.doFinal(data));
+    }
+
+    public static void main(String[] args) {
+        try {
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
+            keyGen.initialize(2048);
+            final KeyPair key = keyGen.generateKeyPair();
+
+            String msg = "Hello, World!";
+            System.out.println("Original Message: "+msg);
+
+            byte[] encrypted = encrypt(msg, key.getPublic());
+
+            String decrypted = decrypt(encrypted, key.getPrivate());
+            System.out.println("Decrypted Message: "+decrypted);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please note that this is a basic example. In real-world applications, you need to manage keys and secure them properly. Also, for larger data, it is better to use symmetric keys for encryption and decryption, and just use asymmetric keys to exchange the symmetric key. RSA is not suitable for encrypting large amounts of data due to its performance. 
+
+Also, make sure to handle exceptions properly in your production code.

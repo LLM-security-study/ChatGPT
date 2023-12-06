@@ -1,0 +1,42 @@
+Sure, I will use the Java Secure Socket Extension (JSSE) API for SSL/TLS communications. Here is a basic implementation that uses a custom HostnameVerifier:
+
+```Java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // set the HostnameVerifier
+            conn.setHostnameVerifier(new CustomHostnameVerifier());
+
+            System.out.println("Response Code: " + conn.getResponseCode());
+            System.out.println("Cipher Suite: " + conn.getCipherSuite());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static class CustomHostnameVerifier implements HostnameVerifier {
+        public boolean verify(String hostname, SSLSession session) {
+            // Implement your own verification logic here
+            // Just as an example, we allow all hostnames
+            return true;
+        }
+    }
+}
+```
+This program connects to an example URL over HTTPS using HttpsURLConnection, a part of the JSSE package. Before making a connection, it sets a custom hostname verifier using the `setHostnameVerifier()` method.
+
+I've defined the custom hostname verifier `CustomHostnameVerifier` as a nested static class. The `verify()` method of this class will be used to check whether the host name specified in the URL matches the host name in the server's identification. In this sample program, `verify()` allows all host names by returning `true`.
+
+Please make sure to replace the `verify()` method with your own hostname verification logic. Be careful not to simply return `true` in practice, as it essentially disables hostname verification and makes your application vulnerable.
+
+Note: This code is a simple demonstration and may not cover all potential edge-cases or follow best-practices for a production-level application.

@@ -1,0 +1,53 @@
+Sure, for implementing certificate validation during SSL/TLS connection in Java, you would typically use the `javax.net.ssl` package. Here we would develop code using `SSLContext`, `TrustManager`, `X509Certificate`, and `SSLServerSocket` classes.
+
+Please consider that for simplicity we will accept all the certificates without proper validation - It is not recommended for the production environment as it may expose security risks, as the validation of the certificates guaranties that you are communicating to the legit endpoint.
+
+```java
+import javax.net.ssl.*;
+import java.io.*;
+import java.security.cert.X509Certificate;
+
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Create an SSLSocketFactory to use our TrustManager
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[]{new MyTrustManager()}, null);
+            SSLSocketFactory factory = context.getSocketFactory();
+
+            System.out.println("Connecting to the server...");
+            SSLSocket socket = (SSLSocket) factory.createSocket("localhost", 1234);
+            socket.startHandshake();
+
+            System.out.println("Starting writing and reading data...");
+
+            // Use socket.getOutputStream() and socket.getInputStream() for communication
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Custom class that implements TrustManager and handles validation of server certificates
+    public static class MyTrustManager implements X509TrustManager {
+
+        public void checkClientTrusted(X509Certificate[] chain, String authType) {
+            // Do nothing, we don't check client certificates.
+        }
+
+        public void checkServerTrusted(X509Certificate[] chain, String authType) {
+            // For now accept all server certificates
+
+            System.out.println("Server certificate received, chains number: " + chain.length);
+        }
+
+        public X509Certificate[] getAcceptedIssuers() {
+            return new X509Certificate[0];  // We don't check against any issuers
+        }
+    }
+}
+```
+
+This is very basic code just to demonstrate the flow. Production-grade code would need to check the certificate issuer, the certificate signature, and other properties to ensure that the server's certificate is valid and trusted.

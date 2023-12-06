@@ -1,0 +1,44 @@
+In this example, we'll use Java Cryptography Extension (JCE) to implement digital signature in Java. We're going to use a pair of keys (private and public) for the simulation. The sender will sign the data with their private key and the receiver will verify it using sender's public key.
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            //generate key pair
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            keyGen.initialize(1024, random);
+            KeyPair pair = keyGen.generateKeyPair();
+            PrivateKey privateKey = pair.getPrivate();
+            PublicKey publicKey = pair.getPublic();
+
+            //data to sign
+            byte[] data = "This message will be signed".getBytes("UTF8");
+
+            //signing data
+            Signature signer = Signature.getInstance("SHA1withDSA");
+            signer.initSign(privateKey);
+            signer.update(data);
+            byte[] signature = signer.sign();
+
+            //verify signature
+            signer.initVerify(publicKey);
+            signer.update(data);
+
+            System.out.println("Signature " + (signer.verify(signature) ? "verified" : "not verified"));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This is a simple Java program representing Digital Signature function where "This message will be signed" is the data we wish to sign.
+You can replace it with any data you want.
+
+Also, for simplicity, the public and private keys are generated in the same program. In real-world applications, you would have separate applications with their own set of keys.
+
+Remember this example simply produces console output. To make it useful in a real-world application, you would return values, handle erroneous situations gracefully, log information, and so on.

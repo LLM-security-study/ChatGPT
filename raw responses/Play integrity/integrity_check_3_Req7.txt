@@ -1,0 +1,66 @@
+To verify the integrity of an Android device, we can use SafetyNet Attestation API. This API helps to determine whether a device is CTS compatible. When a device passes the compatibility test, it successfully meets a detailed set of requirements. If a device is not CTS compatible, the API can reveal specific detail about why it does not pass compatibility.
+
+Here's a basic Java program that might be used for such integrity checking:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.common.api.ApiException;
+
+public class Main {
+    private static final String API_KEY = "your_api_key_here";
+    public static void main(String[] args) {
+        checkDeviceIntegrity();
+    }
+    private static void checkDeviceIntegrity() {
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+            .addOnSuccessListener(this,
+            new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                @Override
+                public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                    // Use response.getJwsResult() to get result, then further decode
+                    // this result to get the Verdict of the attestation
+                    String jwsResult = response.getJwsResult();
+                    // Here you can parse this JwsResult to obtain the verdict
+                }
+            })
+            .addOnFailureListener(this, new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // An error occurred while communicating with the service.
+                if (e instanceof ApiException) {
+                    // An error with the Google Play services API contains some
+                    // additional details.
+                    ApiException apiException = (ApiException) e;
+
+                    // You can retrieve the status code using the
+                    // apiException.getStatusCode() method.
+                } else {
+                    // A different, unknown type of error occurred.
+                    Log.e(TAG, "Error: " + e.getMessage());
+                }
+            }
+        });
+    }
+    private byte[] generateNonce() {
+      // This should be dynamically generated and should be unique for every call
+      byte[] nonce = new byte[32];
+      return nonce;
+    }
+}
+```
+
+Note: For simplicity, exception handling and actual JWT Token parsing from `getJwsResult()` is not implemented.
+
+Please replace `"your_api_key_here"` with actual API Key.
+Please remember to add Google Play Services to your project. 
+
+**Limitations:**
+The advice from Google is that this API gives you a hint about the integrity of the device. It's not 100% fool-proof and shouldn't be used as the only measure to protect sensitive operations in your app. It's also not a real-time check and so it cannot protect against attacks that occur later.
+Talk to a security professional about alternatives in addition to using the SafetyNet Attestation API, especially if you are protecting high-value transactions. 
+
+Also the app's design, the server's design, and how they interact will affect the system's overall robustness.
+  
+**Disclaimer:** State of security on Android is quite a complex matter, providing security or verifying integrity is far more complex than a small Java function asking Google about it. This method should be considered as part of your security plan, not the entire plan itself.

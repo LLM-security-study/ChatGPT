@@ -1,0 +1,49 @@
+Here's a sample program that shows how to use Java's Secure Socket Extension (JSSE) API to establish a secure SSL/TLS connection with a server. This program will help in certificate validation and ensure secure communication. 
+
+Please note, for the sake of simplicity and readability, exceptional handling is kept minimal in this example.
+
+```java
+import javax.net.ssl.*;
+import java.io.*;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            //set the trust store that has the server's public key
+            System.setProperty("javax.net.ssl.trustStore", "myTrustStore.jts");
+
+            URL url = new URL("https://securewebsite.com"); //Modify with your server URL
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            //Get certificate
+            connection.connect();
+            X509Certificate[] certs = (X509Certificate[]) connection.getServerCertificates();
+
+            //Print certificate information
+            for (X509Certificate cert : certs) {
+                System.out.println("Certificate is: " + cert);
+                System.out.println("The Public key is: " + cert.getPublicKey());
+            }
+
+            //Write certificate to the trust store for future connections.
+            try (FileOutputStream fos = new FileOutputStream("myTrustStore.jts")) {
+                for (X509Certificate cert : certs) {
+                    fos.write(cert.getEncoded());
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This simple Java program communicates with a server through a secure connection. It fetches the certificate of the server and saves it in a 'trustStore' file named 'myTrustStore.jts'. 
+
+Please note that in a true production environment, you would validate the certificate more comprehensively and handle exceptions carefully. The path for the trustStore should be a local path where your trustStore file is located. As it stands, you’d need a trustStore file established to handle this communication properly.
+
+You may need to replace "https://securewebsite.com" with the URL of your own server.

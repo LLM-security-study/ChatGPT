@@ -1,0 +1,50 @@
+The main API for this SSL/TLS communication will be javax.net.ssl.SSLSocket.
+
+This API provides secure communication with the server using a specific hostname and port number.
+
+Here is how you can use it in your java program:
+
+```Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket("yourServerHostname", 443);
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            out.println("GET / HTTP/1.0");
+            out.println();
+            out.flush();
+
+            if (out.checkError())
+                System.out.println("SSLSocketClient:  java.io.PrintWriter error");
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+
+            in.close();
+            out.close();
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Here, replace "yourServerHostname" with the server hostname you're trying to connect to. This program will open a connection to the server, send a simple "GET" HTTP request, and then read and print out the response.
+
+Please note that this is a basic SSL client implementation, in a production environment you would need to add more checks. For instance, to handle server certificate validation you would need to implement `javax.net.ssl.X509TrustManager` API. 
+
+Also, this utility will connect to HTTPS servers (port 443) but you might need to change it according to your requirements.

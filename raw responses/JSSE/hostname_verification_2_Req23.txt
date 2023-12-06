@@ -1,0 +1,38 @@
+To verify hostname in an SSL/TLS connection in Java, you can use HttpsURLConnection, which is a part of java.net package in Java standard APIs.
+
+A sample program could look something like this:
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+
+            conn.setHostnameVerifier((hostname, session) -> {
+                if (hostname.equals("www.example.com")) {
+                    return true;
+                }
+                return false;
+            });
+
+            conn.connect();
+
+            System.out.println("Connection successful!");
+
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("Host verification failed: "+e.getMessage());
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program will establish a HTTPS connection to "www.example.com". If the hostname does not match "www.example.com", the custom HostnameVerifier will fail and the connection will not be established. You can replace "www.example.com" with any hostname you like. Please note that while this approach will be helpful for learning and understanding, in production we generally use HTTPS certificate pinning or rely on the default hostname verifier implemented in HttpsURLConnection which validates the host name against the Common Name (CN) or Subject Alternative Name (SAN) field in Server's certificate for a secure connection.
+

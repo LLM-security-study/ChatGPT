@@ -1,0 +1,68 @@
+The given task requires interaction with the Google API, particularly the part responsible for authorizing the application to access a user's contacts. Google uses OAuth 2.0 to facilitate such interactions, and these are done in Java using the Google Authorization Services class. You may also require the Google People API to access the Google contacts.
+
+Let's outline the basic structure for the authorization:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.jackson2.JacksonFactory;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Social Networking Application";
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/" + APPLICATION_NAME);
+
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    
+    // This would typically include .profile and .email
+    // In this case, we just need access to the contacts
+    private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/contacts.readonly");
+    
+    public static void main(String[] args) throws IOException, GeneralSecurityException {
+        // Load client secrets.
+        Reader clientSecretReader = new InputStreamReader(Main.class.getResourceAsStream("/client_secret.json"));
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, clientSecretReader);
+
+        // Build the local server and bind the port.
+        LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setPort(9000).build();
+
+        // Start the authorization process.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                JSON_FACTORY,
+                clientSecrets,
+                SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(DATA_STORE_DIR))
+                .setAccessType("offline")
+                .build();
+
+        new AuthorizationCodeInstalledApp(flow, localReceiver).authorize("user");
+    }
+}
+
+```
+
+This basic program sets up the mechanism to retrieve authorization from a user to access their Google contacts. The class `Main` contains the entry point of the program, the `main` method, which performs the setup and starts the authorization process.
+
+Important points about code:
+
+1. CLIENT_SECRET_JSON_RESOURCE: The location of the client secret file. Replace "/client_secret.json" with your file's name and put the file in your project's resources folder.
+2. SCOPES: What information the application wants to access. In this case, only the Google contacts are required.
+
+Once authorized, the token is stored locally in a directory specified by the constant 'DATA_STORE_DIR'. The token is then reused until the user revokes it.
+
+You need to add 'google-oauth-client' and 'google-api-services-people' libraries to your project's classpath in order to use Google Authorization Services and People API respectively.
+
+Please note that there are no UI elements included in the above code as per the focus of the task is to implement authorization functionality, not a fully functional social networking application. You would need to expand upon this to create a full application.

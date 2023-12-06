@@ -1,0 +1,42 @@
+Sure, below is a simplified and basic Java program with `javax.net.ssl` package (Java standard library) SSL/TLS validation.
+
+```Java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().hostnameVerification();
+    }
+
+    public void hostnameVerification() {
+        try {
+            String urlStr = "https://yourdomain.com";
+            URL url = new URL(urlStr);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    if (hostname.equals("yourdomain.com"))  // Replace "yourdomain.com" with the actual domain you wish to allow.
+                        return true;
+                    return false;
+                }
+            });
+
+            conn.connect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace "yourdomain.com" with the actual hostname you are expecting. Also, don't forget to handle exceptions appropriately for your environment. 
+
+Just to clarify, the `javax.net.ssl` package is the standard java library that provides secure socket facilities. This includes classes for implementing hostname verification (javax.net.ssl.HostnameVerifier), SSL/TLS sessions and secure HTTP connections (javax.net.ssl.HttpsURLConnection). Hostname verification is used to ensure that the hostname in the URL matches with the of the server identity defined by its certificate. 
+
+In a practical scenerio, when working with hostname verification, a safer approach is to match the hostname with the Subject Alternative Name (SAN) extension of the certificate, this will generally require third party libraries such as BouncyCastle or you can read certificate from SSLSession and manually do the processing. It's important to note that default HostnameVerifier provided by java also validates against SAN extension. If validation fails due to mismatch, it throws exception and terminates connection.
+
+This example is only for understanding purpose, in real world, you should hardly need to write your own implementation. The JDK provides a good default one which should be used most of the time. This is discussed in details on official documentation - https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#HostnameVerifier

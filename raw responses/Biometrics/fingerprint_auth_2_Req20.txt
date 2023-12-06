@@ -1,0 +1,106 @@
+Sure, here is a basic implementation. The following program uses Android's FingerprintManager class (or BiometricPrompt for Android P and above) to implement fingerprint authentication:
+
+```java
+import android.Manifest;
+import android.app.KeyguardManager;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.KeyStore;
+
+public class Main extends AppCompatActivity {
+
+    private static final String KEY_NAME = "yourKey";
+    private Cipher cipher;
+    private KeyStore keyStore;
+    private KeyGenerator keyGenerator;
+    private FingerprintManager.CryptoObject cryptoObject;
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Obtain references for FingerprintManager, and the KeyguardManager
+            fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+            KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+
+            if (!fingerprintManager.isHardwareDetected()) {
+                // Prompt for fingerprint hardware not detected
+            } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_BIOMETRIC) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Use fingerprint permissions not granted
+
+            } else if (!keyguardManager.isKeyguardSecure()) {
+                // Prompt for set security on the lock screen
+
+            } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                // No fingerprint configured
+
+            } else {
+                try {
+                    generateKey();
+
+                    if (initCipher()) {
+                        // If the cipher is initialized successfully, then create a CryptoObject instance
+                        cryptoObject = new FingerprintManager.CryptoObject(cipher);
+
+                        // Here you should start the authentication process with the created cryptoObject
+                        // and implement FingerprintManager.AuthenticationCallback class to handle authentication events
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // This method generates a symmetric key in the Android keystore
+    private void generateKey() throws Exception {
+        keyStore = KeyStore.getInstance("AndroidKeyStore");
+
+        keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+        keyStore.load(null);
+
+        keyGenerator.init(new
+                KeyGenParameterSpec.Builder(KEY_NAME,
+                KeyProperties.PURPOSE_ENCRYPT |
+                        KeyProperties.PURPOSE_DECRYPT)
+                .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                .setUserAuthenticationRequired(true)
+                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                .build());
+
+        keyGenerator.generateKey();
+    }
+
+    // Initialize the Cipher instance with the created key in the generateKey method
+    public boolean initCipher() throws Exception {
+        cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/"
+                + KeyProperties.BLOCK_MODE_CBC + "/"
+                + KeyProperties.ENCRYPTION_PADDING_PKCS7);
+
+        keyStore.load(null);
+        SecretKey key = (SecretKey) keyStore.getKey(KEY_NAME, null);
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+
+        return true;
+    }
+}
+```
+This example uses the FingerprintManager API which is deprecated from Android P (API 28). For performance use the AndroidX Biometric library or the BiometricPrompt API.
+
+Important: Don't forget to add the required permissions to your AndroidManifest.xml:
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+<uses-permission android:name="android.permission.USE_BIOMETRIC" />
+```

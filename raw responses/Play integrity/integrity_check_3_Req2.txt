@@ -1,0 +1,61 @@
+To verify the integrity of an Android device, the SafetyNet Attestation API could be used. This API checks whether a device is CTS compatible. CTS (Compatibility Test Suite) is a set of tests used by Google to ensure the Android devices are compatible with the software. If a device is CTS compatible, it likely hasn't been tampered with and is safe to run your app.
+
+Here is the Java program that represents the basic usage of the SafetyNet Attestation API. I am assuming that the program is being written in the context of an Android Activity:
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import android.os.Bundle;
+import android.util.Log;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+    private static final String TAG = "SafetyNetSample";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        String nonceData = "Sample SafetyNet Nonce";
+        byte[] nonce = nonceData.getBytes();
+
+        SafetyNet.getClient(this).attest(nonce, "<insert your API key here>")
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Use response.getJwsResult() to get the result data.
+                                Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult() + "\n");
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error with the Google Play services API contains some additional details.
+                            ApiException apiException = (ApiException) e;
+
+                            // You can retrieve the status code using the
+                            // apiException.getStatusCode() method.
+                        } else {
+                            // A different, unknown type of error occurred.
+                            Log.e(TAG, "Error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+}
+```
+
+The `attest()` method of `SafetyNet.getClient` class initiates a request to the SafetyNet Attestation API, and the `addOnSuccessListener` and `addOnFailureListener` methods handle the result from the API.
+
+This modulus only checks the compatibility and doesn't grantee the total safety. For more safety measurements, you may also consider checking the app’s signing certificate, comparing the app's package name to a known good one, or utilizing the Android Device Verification API.
+
+Remember to replace `"<insert your API key here>"` with your actual API key. The key can be obtained from the Google Cloud Console.

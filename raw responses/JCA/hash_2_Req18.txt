@@ -1,0 +1,49 @@
+Sure, here is a simple example of how you could implement file integrity check in Java. In this code, it uses MessageDigest class to calculate the hash, and the hash algorithm is SHA-256. Replace this in the code to use a different hash algorithm.
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        String fileName = "/path/to/my/input/file.txt";
+        String originalHash = "Expected SHA-256 hash to verify";
+
+        try {
+            boolean isSame = checkFileIntegrity(fileName, originalHash);
+            System.out.println("File integrity check: " + (isSame ? "Unchanged" : "Modified"));
+        } catch (IOException | NoSuchAlgorithmException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static boolean checkFileIntegrity(String fileName, String originalHash) throws IOException, NoSuchAlgorithmException {
+        MessageDigest shaDigest = MessageDigest.getInstance("SHA-256");
+        FileInputStream fis = new FileInputStream(fileName);
+
+        byte[] buffer = new byte[1024];
+        DigestInputStream dis = new DigestInputStream(fis, shaDigest);
+        while (dis.read(buffer) != -1);
+        dis.close();
+
+        byte[] fileHash = shaDigest.digest();
+        return originalHash.equals(bytesToHex(fileHash));
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (byte hashByte : hash) {
+            String hex = Integer.toHexString(0xff & hashByte);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This program takes the file name and the expected SHA-256 hash as inputs. It reads the file and calculates its SHA-256 hash, and then compares the calculated hash with the expected hash. If they match, it returns true; otherwise, it returns false. Note the originalHash variable should be the expected SHA-256 hash value in hexadecimal form. You need to replace "/path/to/my/input/file.txt" with the actual path to your file. Please ensure you have proper error handling for better production quality code.

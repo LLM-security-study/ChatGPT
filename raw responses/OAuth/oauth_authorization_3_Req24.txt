@@ -1,0 +1,52 @@
+Below is the basic structure of the Java application:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.InputStreamReader;
+import java.util.Collections;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Social Networking Application";
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".store/contacts_sample");
+    private static FileDataStoreFactory dataStoreFactory;
+
+    public static void main(String[] args) {
+        try {
+            Credential credential = authorize();
+            //continue with application logic
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static Credential authorize() throws Exception {
+        // Load client secrets.
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(Main.class.getResourceAsStream("/client_secrets.json")));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets,
+                Collections.singleton("https://www.googleapis.com/auth/contacts.readonly"))
+                .setDataStoreFactory(dataStoreFactory)
+                .setAccessType("offline")
+                .build();
+
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        System.out.println("Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
+        return credential;
+    }
+}
+```
+
+This program does the following things:
+
+1. Loads the `client_secrets.json` file which contains your `Client ID` and `Client Secret`.
+2. Uses the `GoogleAuthorizationCodeFlow` class to authorize and store user credentials.
+3. Persists the credentials data to local storage, so the user needs to authorize the app only once.
+
+This program assumes that you have a `client_secrets.json` file stored in the resources of your project. You need to download this file from your Google Developers Console in the certain project.

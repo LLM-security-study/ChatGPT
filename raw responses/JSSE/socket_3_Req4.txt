@@ -1,0 +1,49 @@
+The main class should be named as "Main" and the main API that will be used for implementation is "javax.net.ssl" in the Java standard APIs. Here's a simple example:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String hostname = "hostname"; // put the hostname you want to connect to
+        int port = 443; // put the port number
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(hostname, port);
+
+            // Enable all the suites
+            String[] supported = sslSocket.getSupportedCipherSuites();
+            sslSocket.setEnabledCipherSuites(supported);
+            
+            // Establish the connection
+            OutputStream out = sslSocket.getOutputStream();
+            out.write("\nSSL Connection Established!".getBytes());
+            out.flush();
+            
+            // Reading data
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            String string;
+            while ((string = bufferedReader.readLine()) != null) {
+                System.out.println("Received data: " + string);
+            }
+
+            // Close the socket
+            out.close();
+            bufferedReader.close();
+            sslSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This code creates an SSL Socket with the specified hostname and port number. Then, it enables all the cipher suites supported by the JVM for this SSL Socket. It establishes the connection by sending a test string. After that, it reads any data received from the server and prints it to the console. Finally, it closes the streams and the socket.
+
+Please replace `'hostname'` and `'port'` with your actual server hostname and port.
+
+Note: Always handle exceptions properly in production code and do not enable all cipher suites in a real-world situation. Be aware of the server's enabled ciphers and match those.

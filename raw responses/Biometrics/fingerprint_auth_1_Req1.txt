@@ -1,0 +1,82 @@
+Here's an example of how you can implement Fingerprint Authentication in an Android application in Java. Please note that you would need to add permissions to use the Fingerprint manager and add the required dependencies in your manifest file.
+
+This code will require the following permissions in your AndroidManifest.xml file:
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```
+
+For using Biometric features, you need to add this dependency in your build.gradle file:
+
+```gradle
+dependencies {
+    implementation 'androidx.biometric:biometric:1.1.0'
+}
+```
+
+```java
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricPrompt;
+import androidx.core.content.ContextCompat;
+
+import android.os.Bundle;
+import android.widget.Toast;
+
+import java.util.concurrent.Executor;
+
+public class Main extends AppCompatActivity {
+    private Executor executor;
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(Main.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, 
+                                              CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login for my app")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Use account password")
+                .build();
+
+        Main.this.findViewById(R.id.authButton).setOnClickListener(view -> 
+                biometricPrompt.authenticate(promptInfo));
+    }
+}
+```
+
+In this code, we are creating an instance of the `BiometricPrompt` class which will handle the prompt UI for fingerprint authentication. We also have an executor to handle the background tasks and a `PromptInfo` object to handle the information presented in the prompt.
+
+This will display a prompt to the user to authenticate using their fingerprint when they click on the authentication button. The `onAuthenticationSucceeded`, `onAuthenticationFailed`, and `onAuthenticationError` methods are overridden to handle the respective situations.
+
+Please replace "R.id.authButton" with your authentication button's id.

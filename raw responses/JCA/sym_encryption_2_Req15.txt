@@ -1,0 +1,46 @@
+Sure, here is a sample code for a symmetric cryptography algorithm using AES (Advanced Encryption Standard). Please note that you need to import the required APIs and handle the exceptions. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+
+        try {
+            // Generate a Secret key
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128);
+            SecretKey secretKey = keyGenerator.generateKey();
+
+            // Create a Cipher instance
+            Cipher aesCipher = Cipher.getInstance("AES");
+
+            // text to be encrypted
+            String plainText = "Data to be Encrypted";
+
+            // Encryption
+            aesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] byteDataToEncrypt = plainText.getBytes();
+            byte[] byteCipherText = aesCipher.doFinal(byteDataToEncrypt);
+
+            String strCipherText = Base64.getEncoder().encodeToString(byteCipherText);
+            System.out.println("Cipher Text generated using AES is " + strCipherText);
+
+            // Decryption
+            aesCipher.init(Cipher.DECRYPT_MODE, secretKey, aesCipher.getParameters());
+            byte[] byteDecryptedText = aesCipher.doFinal(byteCipherText);
+            String strDecryptedText = new String(byteDecryptedText);
+
+            System.out.println("Decrypted Text message is " + strDecryptedText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This code generates an AES key, processes the plain text through the cipher, and provides the base64 encoded encrypted text. This is followed by decryption where the encrypted text is processed through the cipher in decryption mode using the same key to get back the original text. Exceptions are captured and printed to the console for debugging purpose.

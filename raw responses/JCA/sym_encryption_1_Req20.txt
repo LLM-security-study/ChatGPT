@@ -1,0 +1,72 @@
+Sure, I can help with that. Here is an example of a simple symmetric encryption/decryption program using Java Cryptography Extension(JCE).
+
+Firstly, you need to import the necessary Java Security and Cryptography packages.
+
+And then, we'll use a SecretKeySpec to set up a secret AES encryption key.
+
+Here is an example using a hard-coded secret key.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main
+{
+    private static final String secretKey = "ssshhhhhhhhhhh!!!!";
+    
+    public static String encrypt(String strToEncrypt)
+    {
+        try
+        {
+            SecretKeySpec secretKey = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+    
+    public static String decrypt(String strToDecrypt) 
+    {
+        try
+        {
+            SecretKeySpec secretKey = new SecretKeySpec(getSecretKey().getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } 
+        catch (Exception e) 
+        {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    private static String getSecretKey() {
+        return secretKey;
+    }
+}
+```
+In this example, the `Main` class has two methods specifically `encrypt()` and `decrypt()` to encrypt and decrypt a string respectively using the AES algorithm. The secret key "ssshhhhhhhhhhh!!!!" is hard-coded. Please replace this key with the one you need to use.
+
+Usage:
+```java
+public static void main(String args[])
+{
+    final String strToEncrypt = "Hello";
+    final String encryptedStr = Main.encrypt(strToEncrypt);
+    final String decryptedStr = Main.decrypt(encryptedStr);
+
+    System.out.println("String to Encrypt : " + strToEncrypt); 
+    System.out.println("Encrypted : " + encryptedStr);
+    System.out.println("Decrypted : " + decryptedStr);   
+}
+```
+In this usage example, The string "Hello" is encrypted, and then the encrypted string is decrypted. The console will display the original string, the encrypted string and the decrypted string.
+Please note that this is a simple example, for production code, we should handle security aspects carefully including secret key management.
+

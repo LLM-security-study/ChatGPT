@@ -1,0 +1,44 @@
+The main API you can use for establishing an SSL socket in Java is the `javax.net.ssl` package. Here is a general outline of how you might use it.
+
+```java
+
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String host = "www.yourserver.com";
+        int port = 1234; // example port
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(host, port);
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            // Send a message to the server
+            String messageToServer = "Hello, server!";
+            writer.write(messageToServer);
+            writer.newLine();
+            writer.flush();
+            
+            // Read the server's response
+            String response = reader.readLine();
+            System.out.println("Server response: " + response);
+
+            // Closing all resources
+            writer.close();
+            reader.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            System.out.println("Unable to establish SSL socket:");
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Note that this is a basic example, meant to demonstrate the creation of an SSL socket and the sending of a message. Real application should include proper error checking and handling, and would likely involve more complex communication than just sending a single string and reading a single response. 
+
+Also, make sure that your Java environment is correctly set up for SSL communication, including the relevant certificates.

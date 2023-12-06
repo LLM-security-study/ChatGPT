@@ -1,0 +1,56 @@
+Digital signatures are an essential part of many cryptographic protocols and are used extensively in network and Internet security. Here is a simple example of a Java program that implements a digital signature function using private and public keys.
+
+Firstly, create necessary classes to represent public and private keys, like the Java KeyPair class.
+
+The public and private keys will be generated using KeyPairGenerator. To verify the signature, use the Signature class.
+
+Here is a simple Java program:
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        String originalData = "Hello, world!"; 
+
+        KeyPair keyPair = generateKeyPair();
+
+        String signature = sign(originalData, keyPair.getPrivate());
+
+        System.out.println("Signature: " + signature);
+      
+        boolean isValid = verify(originalData, signature, keyPair.getPublic());
+
+        System.out.println("Signature is valid: " + isValid);
+    }
+
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        return keyGen.generateKeyPair();
+    }
+
+    public static String sign(String data, PrivateKey privateKey) throws Exception {
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initSign(privateKey);
+        signer.update(data.getBytes());
+        byte[] signature = signer.sign();
+        return Base64.getEncoder().encodeToString(signature);
+    }
+
+    public static boolean verify(String data, String signature, PublicKey publicKey) throws Exception {
+        Signature sig = Signature.getInstance("SHA256withRSA");
+        sig.initVerify(publicKey);
+        sig.update(data.getBytes());
+
+        byte[] signatureBytes = Base64.getDecoder().decode(signature);
+
+        return sig.verify(signatureBytes);
+    }
+}
+```
+This program generates a key pair (public key and private key). The sign method takes the data and the private key and returns a digital signature. The verify method takes the original data, the signature, and the public key and returns true if the signature is valid and false if the signature is invalid.
+
+Remember that if you plan to use this code for real-world applications, you should keep the keys in a secure location and never expose the private key.

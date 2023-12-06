@@ -1,0 +1,60 @@
+Sure, Here is a simple Java program using the RSA algorithm for encryption and decryption with a generated key pair.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+import javax.crypto.Cipher;
+
+public class Main {
+    
+  public static void main(String[] args) throws Exception {
+    // Generate key pair
+    KeyPair keyPair = buildKeyPair();
+    PublicKey pubKey = keyPair.getPublic();
+    PrivateKey privateKey = keyPair.getPrivate();
+
+    // original message
+    String message = "This is a secret message";
+
+    // lets encrypt
+    byte[] encrypted = encrypt(privateKey, message);                     
+    System.out.println(new String(encrypted));  // <<encrypted message>>  
+    
+    // now lets decrypt
+    byte[] secret = decrypt(pubKey, encrypted);                                 
+    System.out.println(new String(secret));     // This is a secret message
+  }
+
+  public static KeyPair buildKeyPair() throws Exception {
+    final int keySize = 2048;
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(keySize);      
+    return keyPairGenerator.genKeyPair();
+  }
+
+  public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");  
+    cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+    return cipher.doFinal(message.getBytes());  
+  }
+
+  public static byte[] decrypt(PublicKey publicKey, byte [] encrypted) throws Exception {
+    Cipher cipher = Cipher.getInstance("RSA");  
+    cipher.init(Cipher.DECRYPT_MODE, publicKey);
+    
+    return cipher.doFinal(encrypted);
+  }
+}
+```
+
+- First, we generate a key pair using the RSA algorithm with a key size of 2048 bits, which is considered safe for modern standards. And also to use this key pair for encryption and decryption.
+
+- Second, to encrypt and decrypt we create a Cipher instance with the RSA algorithm. Notice how we initialize the Cipher in ENCRYPT_MODE to encrypt, and in DECRYPT_MODE to decrypt using the public and private keys respectively.
+
+- In the Main function, we print out the encrypted version of the original message and then decrypt it back to its original form for verification.
+
+Please note: In an actual use case, do NOT use private key for encryption and public key for decryption. The private key MUST remain private.

@@ -1,0 +1,42 @@
+Sure, I've created the simple SSL/TLS hostname verification program using Java Secure Socket Extension (JSSE) APIs.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.URL;
+import java.io.IOException;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        String urlString = "https://www.yourwebsite.com";
+
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // enable hostname verification
+            connection.setHostnameVerifier(HttpsURLConnection.getDefaultHostnameVerifier());
+
+            // Check if hostname verification is successful
+            connection.connect();
+            int responseCode = connection.getResponseCode();
+            if(responseCode == HttpsURLConnection.HTTP_OK){
+                System.out.println("Hostname verification passed.");
+            } else {
+                System.out.println("Hostname verification failed. Response Code: " + responseCode);
+            }
+
+            connection.disconnect();
+        } catch(IOException ex) {
+            System.out.println("Exception: " + ex.getMessage());
+        }
+    }
+}
+```
+In the code above, it's demonstrated how to enable hostname verification when making a secure connection to a particular url.
+
+Note: Replace `"https://www.yourwebsite.com"` with the target URL you want to verify. Before running this on your production environment, make sure to handle SSLHandshakeException or any other potential exceptions effectively to prevent your application from crashing. Also, consider following any specific certificate loading mechanisms if they are required by your environment.

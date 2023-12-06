@@ -1,0 +1,57 @@
+Sure, To accomplish Certificate validation in Java, we use a Java API named JSSE (Java Secure Socket Extension). It offers secure communications over the network by implementing SSL (Secure Sockets Layer) and TLS (Transport Layer Security) protocols. 
+
+Below is a simple implementation of certificate validation using JSSE.
+
+```java
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.security.cert.X509Certificate;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {     
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() { 
+                        return null;
+                    } 
+                    public void checkClientTrusted( 
+                        java.security.cert.X509Certificate[] certs, String authType) {
+                    } 
+                    public void checkServerTrusted( 
+                        java.security.cert.X509Certificate[] certs, String authType) {
+                    }
+                }
+            }; 
+
+            SSLContext sc = SSLContext.getInstance("SSL"); 
+            sc.init(null, trustAllCerts, new java.security.SecureRandom()); 
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            URL url = new URL("https://yourdesiredurl.com"); 
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            conn.setRequestMethod("POST");
+            conn.getResponseCode(); 
+
+            conn.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Notes:
+This approach does not verify the HTTPS certificate of a web server, because it accepts all certificates (self-signatures and expired certificates too). You should use it for testing purposes only. 
+
+For production-grade certificate validation, it's better to use Java KeyStore or Public Key Infrastructure (PKI), where that digests the certificate thoroughly for the intended purpose. 
+Here, The TrustedManager essentially contains the trusted certificate authorities, which is used to validate the certificate chain from the server. I've given a handmade trust manager that trusts all certificates. 
+
+Replace `https://yourdesiredurl.com` with the URL of your server.
+
+The response code can be saved in a variable and be used for further conditions.

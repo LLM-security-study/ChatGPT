@@ -1,0 +1,67 @@
+Sure, here is the code for storing an access token in a keystore using Java. Please follow the inline comments for understanding the flow of the program. This program also assumes that you already have a keystore file. 
+
+You'll need to replace values of tokenToStore, ksFileName, ksPassword, and alias with your own values.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableEntryException;
+import java.security.cert.CertificateException;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        // You should replace these values with your all values.
+        String tokenToStore = "YourToken";
+        String ksFileName = "keystore.ks"; // Path to your keystore file
+        String ksPassword = "YourKSPassword"; // Keystore password
+        String alias = "YourAlias"; // The alias under you want to store the token
+
+        try {
+            // Load the keystore
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            java.io.FileInputStream fis = null;
+            try {
+                fis = new java.io.FileInputStream(ksFileName);
+                keyStore.load(fis, ksPassword.toCharArray());
+            } finally {
+                if (fis != null) {
+                    fis.close();
+                }
+            }
+            
+            // Convert the token to a Key
+            javax.crypto.spec.SecretKeySpec key = new javax.crypto.spec.SecretKeySpec(tokenToStore.getBytes(), "AES");
+      
+            // Store the key in the keystore
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(key);
+            keyStore.setEntry(alias, skEntry, new KeyStore.PasswordProtection(ksPassword.toCharArray()));
+
+            // Save the keystore
+            FileOutputStream fos = null;
+            try {
+                fos = new FileOutputStream(ksFileName);
+                keyStore.store(fos, ksPassword.toCharArray());
+            } finally {
+                if (fos != null) {
+                    fos.close();
+                }
+            }
+
+            System.out.println("Token stored successfully.");
+
+        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableEntryException e) {
+            // Log the exception or print the stack trace
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program stores the token as a key inside your keystore file. The program first loads the keystore, then it stores the token in the keystore and finally it saves the keystore. If any operation fails it will print the stack trace. 
+
+IMPORTANT: KeyStore handling is a sensitive topic from a security perspective and this code must be executed in a secure and trusted environment.

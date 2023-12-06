@@ -1,0 +1,53 @@
+Sure, please take note that integrating Single-Sign-On (SSO) service with web applications usually involves intercommunication between server-side and client-side codes. For example: redirecting users to the Google's sign-in page. This requires both front end work (e.g., redirecting to Google) and back end work (e.g., handling the response of Google). However, your requirement is only focusing on the back-end part.
+
+Here's a simplified implementation in Java for Google SSO:
+
+```java
+// This project aims to set up the authentication function of a web application 
+// using Google Single Sign On (SSO) service.
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+
+    private static final String CLIENT_ID = "your-google-client-id";
+    private static final NetHttpTransport TRANSPORT = new NetHttpTransport();
+
+    public static void main(String[] args) {
+        String idTokenString = "id-token-string-obtained-from-client";
+
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(TRANSPORT, new JacksonFactory())
+                .setAudience(Collections.singletonList(CLIENT_ID))
+                .build();
+
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                System.out.println("User ID: " + payload.getSubject());
+            } else {
+                System.out.println("Invalid ID token.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this code:
+
+- We use `GoogleIdTokenVerifier` from the `com.google.api.client.googleapis.auth.oauth2` package to verify the ID token returned by Google sign-in.
+
+- The `idTokenString` in this example represents an ID token returned by the Google Sign-In, which would be obtained on the client side and sent to this server program.
+
+- We print the user's ID obtained from the payload if the ID token is verified, otherwise, we print that the ID token is invalid.
+
+- The ID token is expected to be sent from the client to the server in a secure HTTPS connection, not hard-coded in server side.
+
+Please note that this is a very basic implementation example and doesn't cover the case when token is missing, the token expired, as well as catching specific exceptions and error handling. For production usage please make sure to keep these considerations in mind.

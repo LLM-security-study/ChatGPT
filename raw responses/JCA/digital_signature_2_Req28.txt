@@ -1,0 +1,42 @@
+Sure, here's a simple implementation of a digital signature using the RSA algorithm. 
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    String data = "Sign this data";
+
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(2048);
+
+    KeyPair pair = keyGen.generateKeyPair();
+    PrivateKey privateKey = pair.getPrivate();
+    PublicKey publicKey = pair.getPublic();
+
+    Signature signature = Signature.getInstance("SHA256withRSA");
+    signature.initSign(privateKey);
+    signature.update(data.getBytes());
+
+    byte[] digitalSignature = signature.sign();
+
+    // sends publicKey, data, digitalSignature to the receiver
+
+    // receiver verifies the signature with the sender's public key
+    Signature verification = Signature.getInstance("SHA256withRSA");
+    verification.initVerify(publicKey);
+    verification.update(data.getBytes());
+
+    if(verification.verify(digitalSignature)) {
+        System.out.println("Signature is verified");
+    } else {
+        System.out.println("Signature not verified");
+    }
+  }
+}
+```
+The provided Java code generates a key pair (private and public key), then using the private key it signs the data. The signature, public key and the original data are sent to the receiver. The receiver then verifies the signature using the sent public key. If the signature is verified the output will be "Signature is verified", otherwise "Signature not verified". In the real world you'd send these over network or write to file, this is just a simplified example all in one function.

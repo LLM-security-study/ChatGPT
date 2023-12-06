@@ -1,0 +1,20 @@
+In Android, there are no direct APIs to verify the integrity of an app. However, Google provides a service known as "SafetyNet Attestation" that can check the device's compatibility and integrity. 
+
+In this case, SafetyNet Attestation API service can be used to verify the integrity of an Android app. The SafetyNet Attestation API helps you assess the security and compatibility of the Android environments in which your apps run.
+
+You can use this API to analyze devices that have installed your app. 
+
+You can imagine whatever dependencies/API keys required are required according to your assumptions. However, Google does not provide a proper Java SDK for it, because it's designed to work with Android applications, in Kotlin or Java Android, it's not just plain Java.
+
+In an abstract way, this is the function calling flow to verify app integrity from the server:
+
+1. From your app, you request the generation of a nonce, along with the APK name and version, from your server.
+2. Your server generates and returns a nonce.
+3. Your app retrieves a SafetyNet Attestation response.
+4. Your app sends the entire, unaltered response, along with the nonce, to your server.
+5. Your server verifies the response and nonce.
+6. If the response includes the APK information you originally provided and the nonce your server created, your server can trust the integrity of the APK that's installed on the device.
+
+That's said, this is not a topic that can be addressed with a simple, single Java Class.
+
+It could be better to refer to the Google SafetyNet official documentation: https://developers.google.com/android/reference/com/google/android/gms/safetynet/package-summary.

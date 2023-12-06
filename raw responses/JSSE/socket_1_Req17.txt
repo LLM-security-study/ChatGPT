@@ -1,0 +1,48 @@
+Here is a simple example of how to create a Java program that uses SSL Sockets for secure communication. This program will connect to a server on a specified port and send a request message.
+
+The main APIs used here are from the javax.net.ssl package of the Java standard libraries.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String host = "your_server.com";
+        int port = 1234;
+        try {
+            // create SSL socket and connect it to the remote server
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket)sslSocketFactory.createSocket(host, port);
+            
+            // create input and output streams
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            
+            // send request to the server
+            out.println("Your request here...");
+            out.flush();
+            
+            // read response from the server
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println("Received: " + line);
+            }
+
+            // clean up
+            in.close();
+            out.close();
+            sslSocket.close();
+        } catch (IOException ioexception) {
+            ioexception.printStackTrace();
+        }
+    }
+}
+```
+
+Replace "your_server.com" and 1234 with the address and the port of your server. Also, replace "Your request here..." with the actual request message you want to send.
+
+This is a simple implementation that doesn't involve any kind of authentication or certificate management. In a production environment, you would probably need to use keystore and truststore files to establish a trusted SSL connection with the server. This goes beyond the scope of this simple example.
+
+Disclaimer: As with any networking code, you should not run this against servers you do not own or have permission to test against.

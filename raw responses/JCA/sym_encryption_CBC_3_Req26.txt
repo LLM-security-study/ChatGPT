@@ -1,0 +1,45 @@
+Sure, Here is a Java program to implement decryption using AES algorithm in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    // predefined AES key
+    static String key = "0123456789abcdef"; 
+    // initial vector
+    static String initVector = "abcdef9876543210"; 
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Decrypted: " + decrypt("encrypted-data")); // replace "encrypted-data" with your actual encrypted data
+    }
+}
+```
+
+This program initializes an `IvParameterSpec` and a `SecretKeySpec` with a given AES key and an initial vector, then creates a `Cipher` for AES/CBC/PKCS5PADDING. The `Cipher` is then used to decrypt the given encrypted data.
+
+You will need to replace `"encrypted-data"` with your actual data that you want to decrypt. Also you need to replace `key` and `initVector` with the actual AES key and initial vector. 
+
+Note: AES key should be of length 16, 24, or 32 bytes. 'initVector' is required to be 16 bytes long for AES. Remember, you should never hard-code passwords in a real-world scenario, especially not in plain text as displayed here. This is just a basic overview to get you started. You'd need to set up a secure way to store these credentials.
+
+This program assumes that the data has been previously encrypted using the corresponding AES encryption process and it's in Base64 format.

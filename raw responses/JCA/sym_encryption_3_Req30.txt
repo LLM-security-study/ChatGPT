@@ -1,0 +1,41 @@
+Sure, I will provide you with an example of a Java program using the AES (Advanced Encryption Standard) symmetric algorithm for decryption. This decryption uses the same key that was used during the process of encryption.
+
+```Java
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        //Same key was used for encryption
+        String secretKey = "aRandomGeneratedOrUserDefinedKey";
+        
+        // Encrypted data
+        String encryptedData = "Hcp30T8A+SpUSfGZku7+qg==";
+
+        String decryptedData = decryptData(encryptedData, secretKey);
+
+        System.out.println("Decrypted Data: " + decryptedData);
+    }
+
+    public static String decryptData(String encryptedData, String secretKey) throws Exception {
+        SecretKey key = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+
+        byte[] decodedValue = Base64.getDecoder().decode(encryptedData);
+        byte[] decryptedVal = cipher.doFinal(decodedValue);
+        return new String(decryptedVal);
+    }
+}
+```
+In this example, 'decryptData' is a function that decrypts the encrypted data with the provided secret key using the AES algorithm.
+
+First, it converts the provided secret key into a SecretKey object. It then gets an instance of a Cipher for the AES algorithm and initializes it for DECRYPT_MODE with the SecretKey. The encrypted data is decoded from Base64 and then decrypted with the Cipher, and finally, converted into a String and returned.
+
+Please, do remember to generate and input your own AES key here.
+
+Note: Error handling is not included in this example, which means that exceptions may lead to a crash. In a full program, error handling should always be included.

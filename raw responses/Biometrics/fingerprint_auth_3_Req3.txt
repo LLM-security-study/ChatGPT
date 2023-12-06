@@ -1,0 +1,74 @@
+Here is a simplified example of a fingerprint authentication method on an android app using the FingerprintManager class in Java:
+
+```Java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.Bundle;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import android.widget.Toast;
+
+@RequiresApi(api = Build.VERSION_CODES.M)
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Fingerprint Authentication permission not enabled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (!fingerprintManager.isHardwareDetected()) {
+            Toast.makeText(this, "No fingerprint scanner detected", Toast.LENGTH_SHORT).show();
+        } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "Register at least one fingerprint", Toast.LENGTH_SHORT).show();
+        } else {
+            startFingerPrintAuthentication();
+        }
+    }
+
+    private void startFingerPrintAuthentication() {
+        FingerprintManager.CryptoObject cryptoObject = getCryptoObject();
+        fingerprintManager.authenticate(cryptoObject, new CancellationSignal(), 0, new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                // fingerprint auth is successful
+                // add your functionality here
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                // fingerprint auth failed
+                // you can block the user
+            }
+        }, null);
+    }
+
+    private FingerprintManager.CryptoObject getCryptoObject() {
+        // Add your implementation to create a CryptoObject
+        // This can be based on a Cipher, Signature or Mac. This depends on your use case.
+        // Here we just return null for brevity.
+        return null;
+    }
+
+}
+```
+Note that the code uses the `CryptoObject` class for additional security measures when authenticating. It represents a cryptographic operation to be used during authentication.
+
+In this sample, the `CryptoObject` creation implementation is left out. It's typically recommended using the `Cipher` object for encryption and decryption operations.
+
+Also note, Android's newer biometric security features, such as the `BiometricPrompt` class, are recommended over `FingerprintManager`, as they provide a standardized UI across all devices and support more biometric types (Face, Iris, etc). The above example only focuses on using `FingerprintManager`. 
+
+In addition to this, good security practice implies not keeping permissions inside the code itself (like `Manifest.permission.USE_FINGERPRINT`). It would be better to ask the user for permissions at runtime. For large applications, it should be handled appropriately as it concerns user privacy.

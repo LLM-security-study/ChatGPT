@@ -1,0 +1,44 @@
+For this task, we're going to use Google Play's SafetyNet Attestation API. This API helps confirm that the software running on a device is in a known state, potentially not modified and the binary is the one recognized by Google Play. The SafetyNet Attestation API is used to assess the security and compatibility of the Android environment in which your app is running.
+
+Here is a skeleton for you to use:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetApi.AttestationResponse;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String nonceData = "Sample Nonce Data";  //Should be at least 16 bytes in length
+        byte[] nonce = nonceData.getBytes();
+        
+        Task<SafetyNetApi.AttestationResponse> task = SafetyNet.getClient(context)
+        .attest(nonce, "<YOUR_API_KEY>")                                   // replace "<YOUR_API_KEY>" with your actual API key provided by Google Cloud Console
+        .addOnSuccessListener(new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+            @Override
+            public void onSuccess(AttestationResponse response) {
+                // Indicates communication with the service was successful.
+                // Use response.getJwsResult() to get the result data.
+            }
+        })
+        .addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                // An error occurred while communicating with the service.
+            }
+        });
+    }
+}
+```
+
+Note: This is a skeleton code, you can't directly run this as it's not a complete code, this merely gives you an idea how you can use SafetyNet Attestation API to determine if the current software running on the device is in the known state.
+
+For getting the API Key please follow the below link:
+https://cloud.google.com/docs/authentication/getting-started
+
+Disclaimer:
+SafetyNet should not be used as the primary method to implement or protect against security sensitive functionality of your app. Different devices, even from the same manufacturer, may have a different list of certified apps. Always use secure server to server communication to validate the response.

@@ -1,0 +1,34 @@
+Here is a simple example of establishing an SSL socket with a remote server in Java. The javax.net.ssl package provides the necessary classes for establishing a SSL connection.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String remoteServer = "server.domain.com"; // replace with your server address
+        int port = 443; // replace with your port number
+
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(remoteServer, port);
+
+            // create reader for reading server responses
+            InputStreamReader inputStreamReader = new InputStreamReader(sslSocket.getInputStream());
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+            }
+            
+            bufferedReader.close();
+            sslSocket.close();
+        } catch (IOException e) {
+            System.out.println("Error establishing SSL socket connection: " + e.getMessage());
+        }
+    }
+}
+```
+Remember to replace "server.domain.com" and the port number with your actual server address and port. This code establishes a SSL socket connection with the server and reads the server responses line by line, printing each line to the console. If there are any IOExceptions during this process, they are caught and a error message is printed to the console.

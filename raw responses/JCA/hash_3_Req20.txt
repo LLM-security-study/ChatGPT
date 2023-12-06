@@ -1,0 +1,39 @@
+Below is a simple implementation of a message digest using the SHA-256 hash function.
+
+```java
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+class Main {
+    static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+    public static void main(String[] args) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(
+                  "Hello, World!".getBytes(StandardCharsets.UTF_8));
+            System.out.println(bytesToHex(encodedhash));
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("Error creating MessageDigest: " + e.getMessage());
+        }
+    }
+}
+```
+In the above program, you can replace "Hello, World!" with your intended message. This program will print the SHA-256 hash of that message.
+
+Here are the steps the code follows:
+ 1. It calls MessageDigest.getInstance("SHA-256") to create a MessageDigest object implementing the SHA-256 algorithm.
+ 2. It calls digest.digest() to calculate the hash of the input message.
+ 3. It calls bytesToHex() to convert the byte array returned by digest.digest() to a hex string.
+ 4. It prints the resulting SHA-256 hash.
+
+Note: If a problem occurs creating the MessageDigest instance (e.g., the "SHA-256" algorithm isn't available), a NoSuchAlgorithmException will be thrown.

@@ -1,0 +1,53 @@
+Alright, SSL/TLS certificate validation is a complex and security-critical task. We could use default Java's SSL implementation for this. Here is a simple example of how you can validate SSL certificates using Java's JSSE (Java Secure Socket Extension) API:
+
+Please note, validating certificate properly requires deeper understanding of certificate signature, hostname verification, revocation check etc. This is a very basic example:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {}
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) {}
+                }
+        };
+
+        // Install the all-trusting trust manager
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+
+        // Create all-trusting host name verifier
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // All set up, let's open a connection
+        URL url = new URL("https://your_url");
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+        
+        // This example doesn't actually check any certificates, which is not secure.
+        // Your verification code should be here.
+        
+        System.out.println("Successfully connected");
+
+        urlConnection.disconnect();
+    }
+}
+```
+This program ignores all the SSL certificate validation and successfully makes the SSL handshake (It's what makes it insecure). This is because we've created a dummy TrustManager that does nothing. 
+
+However, in reality we need a TrustManager that makes sure the remote server is trustworthy by checking the certificate chain, certificate expiration, issuer and subject etc. So, this example should be used as a base, and you need to provide your own implementation of TrustManager that effectively checks server certificate's validity. 
+
+Also, don't forget to handle exceptions properly in production code.
+
+Please do remember, checking hostname, certificate revocation status is also crucial during SSL handshake.

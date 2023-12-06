@@ -1,0 +1,64 @@
+Sure thing! Here is an outline of your program with the 'Main' class. However, it is worth noting that implementing the actual service without manual intervention from end users poses severe security concerns.
+
+Firstly, we import the necessary classes for our program.
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.FileContent;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.InputStreamReader;
+```
+
+Then, we declare the 'Main' class.
+
+```java
+public class Main {
+    private static String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
+    private static JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    public static void main(String[] args) {
+        try {
+            GoogleClientSecrets clientSecrets = 
+                GoogleClientSecrets.load(
+                    JSON_FACTORY, 
+                    new InputStreamReader(Main.class.getResourceAsStream("/client_secrets.json")) );
+
+            GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(), 
+                JSON_FACTORY, 
+                clientSecrets, 
+                Collections.singletonList("https://www.googleapis.com/auth/contacts.readonly"))
+                .setAccessType("offline").setApprovalPrompt("force").build();
+
+            String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+            System.out.println("Please open the following URL in a web browser then type the authorization code:\n" + url);
+
+            // Read code typed by user.
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.print("Enter code: ");
+            String code = reader.readLine();
+
+            // Generate Credential using retrieved code.
+            GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+            GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
+
+            // Use a credential to access the API.
+            // Example: Use the credential to access the Google People API
+            // The specific code to call the API is out of scope for this implementation.
+
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+}
+```
+Remember to replace `client_secrets.json` with the actual path of a file containing your client secrets.
+
+Also, for this program to run, you need the `google-api-java-client`, and `google-oauth-client` libraries in your classpath. You can add these dependencies using a build automation tool like Maven or Gradle. 
+
+Note also, this just covers the part where you receive the refresh token for offline access, for subsequent use you need to store this token and use it to generate credentials for accessing APIs.

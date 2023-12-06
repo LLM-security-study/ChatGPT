@@ -1,0 +1,44 @@
+Here's a starter code or an example of how you can build a Java Program takes an input string and applies MD5 hash function to it.
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the message:");
+        String message = sc.nextLine();
+
+        try {
+
+            // Create an instance of MessageDigest for MD5 hash function
+            MessageDigest md = MessageDigest.getInstance("MD5");
+
+            // Run the hash function
+            md.update(message.getBytes());
+
+            // Get the resulting hash value
+            byte[] digest = md.digest();
+
+            // Convert it into hexadecimal
+            StringBuffer hexadecimal = new StringBuffer();
+            for (int i = 0; i < digest.length; i++) {
+                hexadecimal.append(Integer.toHexString(0xFF & digest[i]));
+            }
+
+            // Print the result
+            System.out.println("Hash value is: " + hexadecimal.toString());
+
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        sc.close();
+    }
+}
+```
+
+Just run this Java program, type the input text and press return. The hash value of the input data will be printed on the console. Make sure to handle possible `NoSuchAlgorithmException` as this is a checked exception.

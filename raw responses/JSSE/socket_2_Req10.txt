@@ -1,0 +1,36 @@
+To establish an SSL socket in Java, you would use the Java Secure Socket Extension (JSSE) which is a set of packages that support and provide the implementation of SSL and TLS protocols. Here's a simplified example:
+
+```Java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket("localhost", 443);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello from SSL Socket");
+
+            String response = in.readLine();
+            System.out.println("Response from server: " + response);
+
+            sslSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This simplistic example creates an SSL socket on a certain address (“localhost”, on port 443 in our case), sends a message to the server ("Hello from SSL Socket") and waits for the server response. After receiving the response, it prints it to the console. Do note that this example lacks error handling / management and it's for only educational purposes.
+
+Also, to enable Java security, it’s necessary to provide a KeyStore and TrustStore which contains the public or private certificate to run this program. Java run-time environment (JRE) provides a default certificate to run SSL programming. 
+
+If you want to use the custom security certificate, generate the KeyStore and TrustStore using the java keytool command and use the javax.net.ssl.KeyStore and javax.net.ssl.TrustStore properties to provide the KeyStore and TrustStore path.
+
+This program would ideally run in an environment with pre-configured security settings, like a local development environment or a properly prepared docker container.

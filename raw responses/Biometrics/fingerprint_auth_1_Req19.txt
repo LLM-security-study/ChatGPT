@@ -1,0 +1,75 @@
+Your request involves a variety of complex implementations which cannot be fully explained in a single code example. However, to help you get started, here's a simplified version of what your request might look like using the Android's Biometric API (available starting from Android 9 (API level 28))
+
+Ensure you have already requested the USE_BIOMETRIC permission in the Android app manifest.
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+```
+
+Now let's see a basic class which promts the user to authenticate using the biometric information(fingerprint).
+```java
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.biometric.BiometricManager;
+import androidx.biometric.BiometricPrompt;
+
+import java.util.concurrent.Executor;
+
+public class Main extends AppCompatActivity {
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Executor executor = ContextCompat.getMainExecutor(this);
+
+        biometricPrompt = new BiometricPrompt(Main.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric login for my app")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Use account password")
+                .build();
+
+        //Trigger the BiometricPrompt dialog, when suitable (e.g, button press)
+        biometricPrompt.authenticate(promptInfo);
+    }
+}
+```
+This basic implementation will prompt the user for Biometric authentication when your activity launches. Be sure to encapsulate the last line inside an onClickListener or similar to trigger at the appropriate time.
+
+This code is written in a way that assumes that biometric hardware is present and has been configured. You should add checks to ensure the hardware is present and biometric data has been enrolled. Review the Android Biometric docs for detailed implementation: https://developer.android.com/training/sign-in/biometric-auth

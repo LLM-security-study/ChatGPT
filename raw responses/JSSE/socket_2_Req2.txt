@@ -1,0 +1,55 @@
+To establish an SSL socket to facilitate communication with a remote server, in Java, typically the SSLSocket and SSLSocketFactory classes from the javax.net.ssl package are used.
+
+Here's a simple Java program that establishes this:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory =
+                    (SSLSocketFactory)SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = 
+                    (SSLSocket)factory.createSocket("YourRemoteServer.com", 1234);
+
+            // Enable all the suites
+            String[] supported = sslSocket.getSupportedCipherSuites();
+            sslSocket.setEnabledCipherSuites(supported);
+
+            Writer out = 
+                    new OutputStreamWriter(sslSocket.getOutputStream());
+            out.write("GET HTTP/1.0\r\n");
+            out.write("\r\n");
+            out.flush();
+
+            // Read and print the response
+            BufferedReader in = 
+                    new BufferedReader(
+                            new InputStreamReader(sslSocket.getInputStream()));
+
+            String line;
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            out.close();
+            in.close();
+            sslSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please note:
+1. Replace "YourRemoteServer.com" and 1234 with your server's address and port.
+
+2. This is a basic introduction and doesn't include best practices for error handling and resource management.
+
+3. Most importantly, SSL communication requires certificate setup in server and client sides for mutual trust. This would need setup in real case scenarios.
+
+Remember, actual implementation of this depends greatly on specific requirements. This is only a simple example.

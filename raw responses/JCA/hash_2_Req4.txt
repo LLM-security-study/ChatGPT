@@ -1,0 +1,64 @@
+Sure, here's a very basic implementation:
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.err.println("Usage: java Main <file> <expected-hash>");
+            System.exit(1);
+        }
+        String filePath = args[0];
+        String expectedHash = args[1];
+
+        try {
+            String actualHash = calculateHash(filePath);
+
+            if (expectedHash.equals(actualHash)) {
+                System.out.println("File integrity check passed");
+            } else {
+                System.out.println("File integrity check failed");
+            }
+        } catch (IOException | NoSuchAlgorithmException e) {
+            System.err.println("Error occurred during file integrity check: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
+    public static String calculateHash(String filePath) throws IOException, NoSuchAlgorithmException {
+        Path path = Paths.get(filePath);
+
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        DigestInputStream dis = new DigestInputStream(Files.newInputStream(path), md);
+
+        while (dis.read() != -1); //empty loop to clear the data
+        dis.close();
+
+        byte[] digest = md.digest();
+        
+        // Convert the byte to hex format
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < digest.length; i++) {
+            sb.append(Integer.toString((digest[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        
+        return sb.toString();
+    }
+}
+```
+
+Please note that Java doesn't come with any built-in functionalities to calculate the hash of a file, so we have to use a `MessageDigest` to manually calculate it. This is still part of the standard Java APIs, not any third-party library. Also, this program uses SHA-256 to hash the file.
+
+The `main` function accepts two arguments: the file path and the expected hash. It calculates the actual hash of the file then compares it to the expected hash. If the hashes match, it prints "File integrity check passed". If not, it prints "File integrity check failed". If any error occurs, the error message will be printed and the program will exit with status code 1.
+
+The `calculateHash` function opens a file and hashes its contents, and then returns the calculated hash.

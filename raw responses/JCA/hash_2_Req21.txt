@@ -1,0 +1,43 @@
+Sure, here is a simple Java program using MessageDigest class of Java to calculate the hash value of a given file. The class "Main" calculates the hash value of a file and the method "checkFileIntegrity" is used to compare the calculated hash value with the given hash value. Note that, you need to provide your file path and initial hash flow to have a proper check.
+
+```java
+import java.nio.file.*;
+import java.security.*;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String filePath = "<file_path>"; //replace with your file path
+        String initialHash = "<initial_hash_value>"; //replace with the hash value you have
+
+        try {
+            boolean isSame = checkFileIntegrity(filePath, initialHash);
+            if (isSame) {
+                System.out.println("The file is not modified.");
+            } else {
+                System.out.println("The file is modified.");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+    }
+
+    public static boolean checkFileIntegrity(String filePath, String initialHash) throws Exception {
+        byte[] buffer = Files.readAllBytes(Paths.get(filePath));
+        MessageDigest shaDigest = MessageDigest.getInstance("SHA-256");
+        byte[] fileHash = shaDigest.digest(buffer);
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : fileHash) {
+            sb.append(String.format("%02x", b));
+        }
+        String calculatedHash = sb.toString();
+
+        return calculatedHash.equals(initialHash);
+    }
+}
+```
+
+Note: SHA-256 is used as the hash algorithm in this example. You can replace it with other algorithms such as MD5 or SHA-1 according to your requirements. Make sure the initial hash provided matches with the respective algorithm used.

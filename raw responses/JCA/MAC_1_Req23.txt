@@ -1,0 +1,50 @@
+Sure, below is a simple Java program that uses the javax.crypto.Mac class to generate a Message Authentication Code (MAC):
+
+```java
+import java.util.Scanner;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your message: ");
+
+        String message = scanner.nextLine();
+
+        try {
+            // Generating a secret key for HMAC-MD5
+            String secret = "secretkey";
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacMD5");
+
+            // Get an instance of the HMAC-MD5
+            Mac mac = Mac.getInstance("HmacMD5");
+            mac.init(secretKey);
+
+            // Compute the MAC of input message
+            byte[] bytes = mac.doFinal(message.getBytes());
+
+            // Convert to base64
+            String macBase64 = Base64.getEncoder().encodeToString(bytes);
+
+            System.out.println("The MAC is: " + macBase64);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Here's a brief explanation of the program:
+
+1. We use java's Scanner class to take message input from user.
+2. We generate a "secretkey" and convert it into "SecretKeySpec"; an implementation of a secret key interface.
+3. We use Mac class to get an instance of "HmacMD5".
+4. Then, the secret key is used to initialize the Mac instance.
+5. Once the Mac instance is initialized, we use it to compute the MAC of our input message.
+6. We then convert the bytes of the MAC to base64 format for easier readability.
+7. Finally, we print the MAC.
+
+Note: Please be aware of that for the sake of simplicity a static secret key is used in this program, but in real applications, you should keep your secret keys in a secure location such as Java KeyStore.

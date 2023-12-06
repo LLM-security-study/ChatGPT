@@ -1,0 +1,64 @@
+Below is the Java program to illustrate encryption and decryption using RSA (Rivest-Shamir-Adleman) algorithm. RSA is one of the first public-key cryptosystems and is widely used for secure data transmission.
+
+```java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+
+    // function to encrypt a plain text
+    public static byte[] encrypt(String text, PublicKey key) {
+        byte[] cipherText = null;
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            cipherText = cipher.doFinal(text.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cipherText;
+    }
+
+    // function to decrypt a cipher text
+    public static String decrypt(byte[] text, PrivateKey key) {
+        byte[] dectyptedText = null;
+        try {
+            Cipher cipher = Cipher.getInstance("RSA");
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            dectyptedText = cipher.doFinal(text);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new String(dectyptedText);
+    }
+
+    public static void main(String[] args) {
+        try {
+            // generating public and private keys
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048); // key size
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            PublicKey publicKey = keyPair.getPublic();
+            PrivateKey privateKey = keyPair.getPrivate();
+
+            // the plain text we want to encrypt
+            String plainText = "Text to be encrypted";
+
+            //Encrypt the plain text using public key
+            byte[] cipherText = encrypt(plainText,publicKey);
+
+            System.out.println("cipher: " + new String(cipherText, "UTF8"));
+
+            //Decrypt the text using private key
+            String dectyptedText = decrypt(cipherText,privateKey);
+
+            System.out.println("plain : " + dectyptedText);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program will print the encrypted and decrypted text. If decryption is successful it should print the original text. Please note that RSA works with byte array, so ideally the encrypted array should be of bytes. However, for the purpose of representation, it has been converted to String. In a real-world scenario, the byte array should be used. Also, the byteArrayToString method is for testing purpose only and not needed in real applications.

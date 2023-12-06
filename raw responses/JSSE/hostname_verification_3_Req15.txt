@@ -1,0 +1,35 @@
+Here is a simple Java program that verifies the server hostname in an SSL/TLS communication:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://your-hostname-to-verify.com");
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            urlConnection.setHostnameVerifier((hostname, session) -> hostname.equals(session.getPeerHost()));
+
+            urlConnection.connect();
+
+            System.out.println("Connected to server with IP address: " + urlConnection.getInetAddress());
+
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("SSL peer not verified. Connection is not safe.");
+        } catch (Exception e) {
+            System.out.println("Error occurred: " + e.getMessage());
+        }
+    }
+}
+```
+
+In this code:
+- We use the 'java.net' and 'javax.net.ssl' packages, which are standard Java APIs for networking and SSL/TLS operations.
+- The `HttpsURLConnection` class is the main class used for SSL/TLS based connections.
+- A `HostnameVerifier` is set for the `HttpsURLConnection` to override the existing default hostname verification mechanism.
+- If the hostname in the URL and the server's identification hostname match, we connect to the URL. If not, the verification fails and the connection will not be established.
+- Note that this verifier is not suitable for production-quality systems; this is a simple verifier for illustrative purposes only.
+- Replace "https://your-hostname-to-verify.com" with the actual server hostname that you need to verify.
+- The 'InetAddress' returned by 'getInetAddress' from the `HttpsUrlConnection` instance represents the Internet Protocol (IP) address of the server to which the socket is connected.

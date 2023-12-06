@@ -1,0 +1,45 @@
+Here is your simple Java program to calculate the hash value of a file. It is a simple implementation where everything is in the main method. It uses the hash computing functionality available in Java.security.MessageDigest class.
+
+Please note: This code does not include the comparing hash part for the additional hash that you mentioned. This code will only compute the hash of a file.
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        if (args.length != 1) {
+            System.out.println("Usage: java Main <filepath>");
+        } else {
+            String filePath = args[0];
+            try {
+                MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+                try (DigestInputStream dis = new DigestInputStream(new FileInputStream(filePath), md)) {
+                    while (dis.read() != -1) ;   //empty loop to clear the data
+                    md = dis.getMessageDigest();
+                }
+
+                //convert the byte to hex format
+                StringBuilder result = new StringBuilder();
+                for (byte b : md.digest()) {
+                    result.append(String.format("%02x", b));
+                }
+                System.out.println("Checksum value for the file is : " + result);
+            } catch (NoSuchAlgorithmException | IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+How to run: 
+1. Save the file as Main.java.
+2. Compile it using `javac Main.java`.
+3. Run the program using `java Main file.txt` where file.txt is the file for which you want to calculate the hash. 
+
+Note: The above program depends on the Java SE runtime environment and standard libraries. If you don't have access to FileInputStream and DigestInputStream classes on your system, you'll need to update your Java Development Kit (JDK).

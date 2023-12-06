@@ -1,0 +1,75 @@
+To verify the integrity of an Android app, we can use the SafetyNet Attestation API provided by Google. This API helps us understand whether our app is running on a secure device or not.
+
+Here's the Java code to use this API in an Android app.
+
+```Java
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    private static final String TAG = "MainActivity";
+    protected String mResult;
+
+    public void verifyAppIntegrity() {
+        if (isGooglePlayServicesAvailable()) {
+            SafetyNet.getClient(this).attest("nonce".getBytes(), "API_KEY")
+                        .addOnSuccessListener(this,
+                            new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                                @Override
+                                public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                    // Indicates communication with the service was successful.
+                                    // Use response.getJwsResult() to get the result data.
+                                    mResult = response.getJwsResult();
+                                    Log.d(TAG, "Success! SafetyNet result:\n" + mResult + "\n");
+                                }
+                            })
+                            .addOnFailureListener(this, new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    // An error occurred while communicating with the service.
+                                    if (e instanceof ApiException) {
+                                        ApiException apiException = (ApiException) e;
+                                        Log.d(TAG, "Error: " +
+                                                    CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) + ": " +
+                                                    apiException.getStatusMessage());
+                                    } else {
+                                        // A different, unknown type of error occurred.
+                                        Log.d(TAG, "Error: " + e.getMessage());
+                                    }
+                                }
+                            });
+        }
+    }
+
+    private boolean isGooglePlayServicesAvailable() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        ConnectionResult result = apiAvailability.isGooglePlayServicesAvailable(this);
+        if (result.isSuccess()) {
+            return true;
+        } else if (apiAvailability.isUserResolvableError(result)) {
+            showErrorDialog(result.getErrorCode());
+        } else {
+            Log.d(TAG, "Google Play Services is not available.");
+        }
+        return false;
+    }
+
+    private void showErrorDialog(int errorCode) {
+        // Show an error dialog that Google Play Services is not available.
+        // This is only called if isUserResolvableError returned true.
+    }
+}
+```
+
+Please replace `"API_KEY"` with your actual API key.
+
+Please note that method `addOnSuccessListener` and `addOnFailureListener` is used to handle the response from the SafetyNet API. In the case of success, `response.getJwsResult()` would contain a JSON Web Signature (JWS) that needs to be further processed to extract the response data. 
+
+Also, this is just the initial code to call the API. You would need to further process the response and make appropriate decisions based on it.
+
+Note: This code won't run on a Java runtime. It is meant for Android platform and it should be integrated as part of an Android project.

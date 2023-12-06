@@ -1,0 +1,41 @@
+Sure, here's a simple Java program to illustrate the use of digital signature using a public and private key pair:
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String args[]) throws Exception {
+
+        // Initialize the key pair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
+        KeyPair keyPair = keyGen.genKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // generating a signature
+        String data = "This is data to be signed";
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(data.getBytes());
+        byte[] digitalSignature = signature.sign();
+        System.out.println("Digital Signature: " + Base64.getEncoder().encodeToString(digitalSignature));
+
+        // Verifying a signature
+        data = "This is data to be verified";
+        signature.initVerify(publicKey);
+        signature.update(data.getBytes());
+        if (signature.verify(digitalSignature))
+            System.out.println("Digital Signature Verification: Success!");
+        else
+            System.out.println("Digital Signature Verification: Failed!");
+    }
+}
+```
+
+Note that this is a simple demonstration. In reality, the private key should not be accessible within your code directly (consider reading them in from secure sources or using secure key providers). Key length should also be chosen depending upon the security requirement.
+
+This program does not provide any kind of security for the keys, which is not secure in a real-world application. You would need to handle the keys with more care, storing private keys in secure storage and ensuring public keys are properly distributed. 
+
+The error handling in this demonstration is also rudimentary. In a real-world application, you would want to add more detailed exception handling and possibly handle the different types of exceptions that can be thrown in a more granular way.

@@ -1,0 +1,45 @@
+Sure, below is a simple program to do SSL/TLS certificate validation using the standard Java APIs javax.net.ssl.
+
+```java
+import javax.net.ssl.*;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(args[0], Integer.parseInt(args[1]));
+
+            socket.startHandshake();
+
+            SSLSession session = socket.getSession();
+            X509Certificate certificate = null;
+
+            java.security.cert.Certificate[] serverCerts = session.getPeerCertificates();
+            if (serverCerts.length == 1) {
+                certificate = (X509Certificate) serverCerts[0];
+            } 
+
+            certificate.checkValidity();
+            System.out.println("Certificate is valid.");
+
+            socket.close();
+        } catch (IOException e) {
+            System.out.println("IOException: " + e.getMessage());
+        } catch (CertificateException e) {
+            System.out.println("CertificateException: " + e.getMessage());
+        }
+    }
+}
+```
+
+To run this program, you'll need the server name and port number as command line arguments. This program creates a SSL/TLS socket with the given server. Then, it starts a SSL/TLS handshake. If the server is configured correctly and the client trust store contains all the necessary public keys, the handshake will be successful. 
+
+After handshake, the client also checks the server certificate's validity. If the certificate is valid, it prints "Certificate is valid." on the console.
+
+Please note that, while this program does basic certificate validation, real-world programs may need more sophisticated certificate validation, for examples, checking whether certificate's Common Name (CN) matches server's hostname, whether certificate is revoked, etc.

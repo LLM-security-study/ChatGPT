@@ -1,0 +1,36 @@
+Here's an example of a simple Java program that calculates a Message Authentication Code (MAC) for a given message, using the HMAC-SHA256 algorithm:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    // Secret key - don't share this in a real application!
+    private static final String SECRET_KEY = "some-secret-key";
+
+    public static void main(String[] args) {
+        String message = "The quick brown fox jumps over the lazy dog";
+        try {
+            String mac = calculateHMAC(message, SECRET_KEY);
+            System.out.println("MAC: " + mac);
+        } catch(Exception e) {
+            System.err.println("Failed to calculate HMAC: " + e.getMessage());
+        }
+    }
+
+    private static String calculateHMAC(String data, String key) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(secretKeySpec);
+        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(rawHmac);
+    }
+}
+```
+
+This program uses Java's built-in `javax.crypto.Mac` class to calculate the HMAC. The `calculateHMAC` method takes a `data` string and a `key` string, and returns the HMAC of the `data` string using `HmacSHA256` with the given key.
+
+Note that the `SECRET_KEY` variable in this example is not a good practice in a real application. In a real application, you'd want to store this in a secure way (e.g. a secure vault, config files, environment variable or use KeyStore).

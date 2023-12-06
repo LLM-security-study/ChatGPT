@@ -1,0 +1,46 @@
+Here is your Java program:
+```java
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generate a Key
+            KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+            SecretKey secretKey = keyGen.generateKey();
+
+            // Create a Mac instance
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKey);
+
+            // Take message as input
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter a message: ");
+            String msg = sc.nextLine();
+
+            // Compute the MAC
+            byte[] macBytes = mac.doFinal(msg.getBytes(StandardCharsets.UTF_8));
+            StringBuilder sb = new StringBuilder(macBytes.length * 2);
+
+            // Convert the MAC into hexadecimal
+            for(byte b : macBytes) {
+                sb.append(String.format("%02x", b&0xff));
+            }
+
+            System.out.println("The MAC is: " + sb.toString());
+        } catch (Exception ex) {
+            System.out.println("Error generating MAC: " + ex.getMessage());
+        }
+    }
+}
+```
+
+Before running this program, make sure your JDK version supports SHA-256 for MAC and also supports HMAC key generator. In this program, the user is asked to input a message. This message is then used to generate a MAC (Message Authentication Code) using the HMAC-SHA256 algorithm. The resulting MAC is then printed to the console.
+
+This program uses Java's standard API to provide cryptographic services. KeyGenerator is used to generate a secret key for HMAC-SHA256. Mac is used to get a Mac object implementing HMAC-SHA256. 
+
+Please note that the secret key generated here is a one-time use key and would be different on every run.

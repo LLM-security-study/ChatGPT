@@ -1,0 +1,70 @@
+Here's a basic example of a Java program that could be developed for setting up Google SSO. Note that a full-fledged implementation of this program would involve multiple files, complex interactions with Google's API, and careful handling of user data.
+
+```java
+// Program to enable Single-Sign-On (SSO) using Google accounts for a web application.
+
+// Need to include dependency for Google API Client and Google OAUTH Client
+// Example using Maven:
+/*
+<dependencies>
+  <dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.23.0</version>
+  </dependency>
+  <dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client-jetty</artifactId>
+    <version>1.23.0</version>
+  </dependency>
+</dependencies>
+*/
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.InputStreamReader;
+import java.util.Collections;
+
+public class Main {
+    
+    private static final String REDIRECT_URI = "INSERT REDIRECT URI HERE";
+    private static final String CLIENT_ID = "INSERT CLIENT ID HERE";
+    private static final String CLIENT_SECRET = "INSERT CLIENT SECRET HERE";
+    
+    public static void main(String[] args) {
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets();
+        clientSecrets.getWeb()
+            .setClientId(CLIENT_ID)
+            .setClientSecret(CLIENT_SECRET)
+            .setRedirectUris(Collections.singletonList(REDIRECT_URI));
+        
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            new NetHttpTransport(), 
+            JacksonFactory.getDefaultInstance(), 
+            clientSecrets, 
+            Collections.singletonList("openid")
+        ).setAccessType("offline").setApprovalPrompt("force").build();
+        
+        // Show authorization URL to user ...
+        // Example:
+        // String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        // System.out.println("Please open the following URL in your browser: " + url);
+        
+        // Get authorization code from redirect URL ...
+        // Example:
+        // String code = ... // code from redirect URL
+        // GoogleTokenResponse tokenResponse = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+        
+        // Use token to access user's Google account.
+    }
+}
+```
+
+This is a basic outline. The actual authentication process will be done between client(browser) and Google servers. You will need to extract authorization code from redirect URL and then exchange it for access and refresh tokens. 
+
+Moreover, this solution is using OAuth 2.0 protocol for Google APIs to authenticate users.
+
+Please replace the placeholders "INSERT REDIRECT URI HERE", "INSERT CLIENT ID HERE", and "INSERT CLIENT SECRET HERE" with your actual credentials.

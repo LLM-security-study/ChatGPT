@@ -1,0 +1,46 @@
+Sure, here's a simple Java program that tries to achieve this.
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.Security;
+import java.util.Scanner;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.util.encoders.Hex;
+
+public class Main {
+    public static void main(String args[]) {
+        Security.addProvider(new BouncyCastleProvider());
+        print("BouncyCastle provider added.");
+
+        print("Data to hash: ");
+        hashData("Test Data");
+    }
+
+    private static void print(Object text) {
+        System.out.println(String.valueOf(text));
+    }
+
+    private static void hashData(String data) {
+        try {
+            MessageDigest msgDigest = MessageDigest.getInstance("SHA-256");
+            byte[] dataBytes = data.getBytes();
+            msgDigest.update(dataBytes);
+
+            byte[] mdbytes = msgDigest.digest();
+            print("Digest in hex format : " + Hex.toHexString(mdbytes));
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This Java code, which uses the BouncyCastle library, creates a cryptographically secure hash of a given string using the SHA-256 algorithm. 
+
+Note: You need to add the BouncyCastle library to your classpath to use it. It can be downloaded from https://www.bouncycastle.org/latest_releases.html.
+
+To use other hash functions just replace `"SHA-256"` in getInstance method with your desired hash function name. For example, "MD5", "SHA-1", etc. 
+
+Remember, this is a sensitive process though, and managing the generated hashes safely should be done with great care.

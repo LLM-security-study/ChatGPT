@@ -1,0 +1,54 @@
+Here is a basic Java program example for storing an SSL certificate in a Keystore:
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+
+    private static final String SSL_CERT_PATH = "test.cer";
+    private static final String KEYSTORE_PATH = "keystore.jks";
+    private static final String KEYSTORE_PASSWORD = "password"; // Replace with your keystore password
+    private static final String ALIAS = "alias"; // Replace with your alias
+
+    public static void main(String[] args) {
+        try {
+            // Create a CertificateFactory
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+
+            // Instantiate FileInputStream for the SSL certificate
+            FileInputStream fis = new FileInputStream(SSL_CERT_PATH);
+
+            // Generate a Certificate
+            Certificate cert = cf.generateCertificate(fis);
+
+            // Generate a keystore of type JKS
+            KeyStore ks = KeyStore.getInstance("JKS");
+
+            // Load the keystore
+            ks.load(null, KEYSTORE_PASSWORD.toCharArray());
+
+            // Store the certificate into the keystore
+            ks.setCertificateEntry(ALIAS, cert);
+
+            // Write the Keystore to a file
+            FileOutputStream fos = new FileOutputStream(KEYSTORE_PATH);
+            ks.store(fos, KEYSTORE_PASSWORD.toCharArray());
+
+            fis.close();
+            fos.close();
+            System.out.println("SSL certificate has been stored in the Keystore successfully.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+You have to replace the "SSL_CERT_PATH", "KEYSTORE_PATH", "KEYSTORE_PASSWORD", and "ALIAS" to the values you want to use.
+
+Before running this code, ensure to have your certificate (.cer, .crt) in the specified SSL_CERT_PATH. Also take note, you should handle exceptions in more advance way which is more suitable to your application.

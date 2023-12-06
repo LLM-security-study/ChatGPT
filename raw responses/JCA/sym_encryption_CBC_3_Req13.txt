@@ -1,0 +1,44 @@
+Sure, here is the Java code for how to decrypt with AES in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+     
+        String key = "1234567812345678";
+        String initVector = "RandomInitVector"; 
+        String encrypted = "aH473xGcma3ms7gx"; 
+
+        System.out.println(decrypt(key, initVector, encrypted));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+Replace the `key`, `initVector` and `encrypted` with your actual encrypted text, key, and initialization vector for the actual decryption. Note that this is a simple example and may not work with all data, as encryption can be complex and may depend on how the data were originally encrypted.
+
+Keep in mind that the `key` should be of a proper length for AES encryption. For AES encryption, the key length should be 16 bytes (128 bits), 24 bytes (192 bits) or 32 bytes (256 bits). In this case, it is 16 bytes, which means this is AES-128. The `initVector` should be 16 bytes.
+
+Also please keep in mind that `aH473xGcma3ms7gx` is the encoded cipher byte array to a string form that might differ for your case. You will use your own encrypted data there.

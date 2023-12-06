@@ -1,0 +1,75 @@
+First, you need to import SSL related classes and others that will be necessaries.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+```
+
+Create a new class with name "SSLClient":
+
+```java
+public class SSLClient {
+
+    private InetAddress address;
+    private int port;
+
+    public SSLClient(InetAddress address, int port) {
+        this.address = address;
+        this.port = port;
+    }
+
+    public void connectWithServer() throws Exception {
+        
+        // Create an SSL socket and connect it to the server.
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        try (SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(this.address, this.port)) {
+
+            // Create PrintWriter for sending data to server.
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+
+            // Create a BufferedReader for reading server response.
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            // Sending request to the server.
+            out.println("Hello Server!");
+
+            // Reading server response.
+            System.out.println("Response from server: " + in.readLine());
+            
+        } catch (Exception ex) {
+            throw new Exception("Error connecting with server: " + ex.getMessage());
+        }
+    }
+    
+}
+```
+This "SSLClient" class creates a simple SSL socket and tries to connect it to the specified server.
+
+Now, configure the main class, named "Main", to make use of the "SSLClient" class:
+
+```java
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Creating SSLClient instance. Here, it's connecting with localhost at port 1234
+            SSLClient sslClient = new SSLClient(InetAddress.getLocalHost(), 1234);
+
+            // Start communication with the server
+            sslClient.connectWithServer();
+            
+        } catch (Exception ex) {
+            System.out.println("Error: " + ex.getMessage());
+        }
+    }
+    
+}
+```
+
+The main method of the "Main" class initializes the SSLClient to connect to the server and starts the communication.
+
+Please note: This example is simplified, in a production-level application, you should handle errors and cases more thoroughly. Also, remember to replace the InetAddress and port with your actual server details. SSL certificates might be required when dealing with SSL Sockets.

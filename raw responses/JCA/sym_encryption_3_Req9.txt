@@ -1,0 +1,42 @@
+Here's a basic implementation of a Symmetric Cryptography algorithm using Java's standard API (Java Cryptography Extension (JCE)). This example uses the Advanced Encryption Standard (AES).
+
+``` java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    private static final String secretKey = "1234567890123456"; // 16 chars = 128 bit
+
+    public static void main(String[] args){
+        String cipherText = "I3fK6r+Vt5yGAa+K7gR8Hg=="; // your encrypted string(text)
+        String decryptedText = decrypt(cipherText, secretKey);
+
+        System.out.println("Decrypted text: " + decryptedText);
+    }
+
+    public static String decrypt(String cipherText, String secretKey) {
+        String decryptedText = null;
+
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5PADDING");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+            byte[] decode = java.util.Base64.getDecoder().decode(cipherText);
+            decryptedText = new String(cipher.doFinal(decode));
+
+        } catch (Exception e) {
+           e.printStackTrace();
+        }
+
+        return decryptedText;
+    }
+}
+```
+
+Please note the following points about this code:
+- It uses Advanced Encryption Standard (AES) with a 128-bit secret key. The secret key is provided as a constant string. In a normal scenario, you would not expose the secret key in the code. Also, for AES, the key size must be either 16, 24, or 32 bytes.
+- The `decrypt` method takes two parameters: the cipher text (encrypted text) that we want to decrypt, and the secret key. The cipher text is Base64 decoded and then decrypted using a Cipher object initialized with AES/ECB/PKCS5Padding.
+- The decrypted byte array is then converted to a string and returned.
+- The encrypted string here is an example. Please replace "I3fK6r+Vt5yGAa+K7gR8Hg==" with the correct encrypted string you want to decrypt.
+
+Finally, don't forget to handle Java's checked exceptions properly. For simplicity, this example uses `e.printStackTrace()`, but in a production environment, consider using a logging framework.

@@ -1,0 +1,52 @@
+Sure, you can use Java's Secure Socket Extension (JSSE) APIs to work with SSL and TLS protocols. Below is a simple Java program to implement certificate validation:
+
+```java
+import javax.net.ssl.*;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Create a trust manager that does not validate certificate chains
+            TrustManager[] trustAllCerts = new TrustManager[] {
+                new X509TrustManager() {
+                    public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                    }
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                        try {
+                            certs[0].checkValidity();
+                        } catch (Exception e) {
+                            throw new CertificateException("Certificate not valid or trusted.");
+                        }
+                    }
+                }
+            };
+
+            // Install the all-trusting trust manager
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            // Now you can access an https URL without having the certificate in the truststore
+            // try opening the URL 
+            URL url = new URL("https://www.google.com");
+            URLConnection urlConnection = url.openConnection();
+            urlConnection.getContent();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Please note that this code bypasses all SSL certificate validation and accepts all certificates, regardless of whether they are trusted by the JVM or not. `checkServerTrusted` method is overridden to check the validity of the certificates obtained from the server only for their date.
+
+However, in production environments, this is a significant security hole and must not be used. This code snippet is only for learning purposes and demonstrates how easy it is to turn off all certificate checks.
+
+If you want to implement proper certificate validation, you need to use real TrustManager implementation to check the server's certificate using a list of trusted certificates (typically loaded from a trust store).

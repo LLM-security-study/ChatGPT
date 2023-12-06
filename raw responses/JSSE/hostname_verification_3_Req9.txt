@@ -1,0 +1,34 @@
+Sure, Here's a basic example of how you can accomplish this:
+
+```java
+import java.io.IOException;
+import java.net.Socket;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLContext context = SSLContext.getDefault();
+            SSLSocketFactory factory = context.getSocketFactory();
+            SSLSocket socket = (SSLSocket) factory.createSocket("ServerName", 443);  //replace ServerName with your server name
+            
+            socket.startHandshake();
+            SSLSession session = socket.getSession();
+
+            if (!session.getPeerHost().equals("ServerName")) {  //replace ServerName with your server name
+             System.out.println("Warning: the host name does not match the certificate.");
+            } else {
+              System.out.println("The host name matches the certificate.");
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace "ServerName" with the actual server you want to connect.
+
+This program uses SSLContext and SSLSocketFactory from the javax.net.ssl package. It attempts to establish an SSL connection to your specified server, and then verifies the host name for the server you specified matches with the host name on the server's certificate. If it does, it prints out that the host name matches the certificate; otherwise, it prints out a warning.
+
+Note: For this program to work, the server must have a public certification that has hostname information and the server name you are connecting to must match the hostname on the server. This might not work for servers with self-signed certificates.

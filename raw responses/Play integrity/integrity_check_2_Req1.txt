@@ -1,0 +1,69 @@
+The Android Package Manager Service is the principal API we'll use to verify the integrity of Android apps. This service allows us to retrieve various kinds of information related to the application packages installed on the device.
+
+Here's a simple program outline:
+
+```java
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageInfo;
+import android.content.pm.Signature;
+import java.security.MessageDigest;
+
+public class Main extends Activity {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        final String packageName = "com.example.yourapp";  //replace with the package name of the app you are checking
+
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            
+            // NOTE: If multiple signatures, just pick the first one
+            Signature signature = packageInfo.signatures[0];
+            MessageDigest md;
+            md = MessageDigest.getInstance("SHA");
+            md.update(signature.toByteArray());
+            String appSignature = toHexString(md.digest());
+
+            // compare signatures
+            if (appSignature.equals(yourOriginalSignature)) {
+                // it is your app, matches with your signature
+            } else {
+                // it is NOT your app and may be a repackaged clone
+            }
+        } catch (Exception e) {
+            // handle error
+        }
+    }
+
+    private static String toHexString(byte[] block) {
+        StringBuilder buf = new StringBuilder();
+        int len = block.length;
+        for (int i = 0; i < len; i++) {
+            byte2hex(block[i], buf);
+            if (i < len-1) {
+                buf.append(":");
+            }
+        }
+        return buf.toString();
+    }
+
+    private static void byte2hex(byte b, StringBuilder buf) {
+        char[] hexChars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', 
+            '9', 'A', 'B', 'C', 'D', 'E','F' };
+        int high = ((b & 0xf0) >> 4);
+        int low = (b & 0x0f);
+        buf.append(hexChars[high]);
+        buf.append(hexChars[low]);
+    }
+}
+```
+Replace `'com.example.yourapp'` with the package name of the app you're validating, and `'yourOriginalSignature'` with the app's original signature. You can usually obtain the app's original signature from the Android Keystore.
+
+Remember that the signature may differ between the debug and release versions of the app. Always use the release version's signature for verification.
+
+This code must run on an Android device or emulator, as it attempts to access the Android system's package manager which is not available in a traditional desktop or web environment. As such, the code above isn't executable in a conventional sense and won't produce output like a console program. 
+
+Make sure you are familiar with setting up a basic Android app and understand the Android lifecycle before trying to run it. Most likely you'll need to integrate this code into an existing Android app or a new app project.

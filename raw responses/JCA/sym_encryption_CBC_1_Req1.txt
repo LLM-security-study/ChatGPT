@@ -1,0 +1,51 @@
+Sure, here is a basic Java program using Java's standard Cryptography API for AES encryption and decryption in CBC mode ("Cipher Block Chaining").
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String SECRET_KEY = "1234567890123456"; // 16 chars = 128 bit
+    private static final String IV_STRING = "1234567890123456"; // IV should be 16 bytes
+
+    public static void main(String[] args) throws Exception {
+        String originalString = "Hello, World!";
+
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted string: " + encryptedString);
+
+        String decryptedString = decrypt(encryptedString);
+        System.out.println("Decrypted string: " + decryptedString);
+    }
+
+    public static String encrypt(String strToEncrypt) throws Exception {
+        IvParameterSpec ivspec = new IvParameterSpec(IV_STRING.getBytes());
+        SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivspec);
+        return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public static String decrypt(String strToDecrypt) throws Exception {
+        IvParameterSpec ivspec = new IvParameterSpec(IV_STRING.getBytes());
+        SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivspec);
+        return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+    }
+}
+```
+
+This is a simple way to implement the AES encryption and decryption in CBC mode. "SECRET_KEY" is the encryption key and "IV_STRING" is the Initialization Vector (IV). Please replace "1234567890123456" with your own secret key and initialization vector.
+
+Please remember that the key must be 16 characters (128 bits), 24 characters (192 bits) or 32 characters (256 bits) long to be compatible with the AES standard. The IV should be 16 bytes for AES.
+
+Also note, if you are planning to use a key greater than 128 bits, you may need to download and install "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" according to your Java version. This is due to the default policy having some restrictions on key size for security reasons.
+
+**This code is intended for learning purposes and not for production use.** Please make sure to follow best security practices for key management and storage when working with a real-world application. For example, never hard-code a key as shown in this example and instead securely generate and store them using a secure random number generator and a secure storage system.

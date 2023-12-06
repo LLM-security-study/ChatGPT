@@ -1,0 +1,52 @@
+Sure, here is a simple example:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+  public static void main(String[] args) {
+    String key = "aesEncryptionKey";
+    String initVector = "encryptionIntVec";
+    String encryptedData = "zKwYhgVUG+sHZAH/0D7TIg=="; // this is just an example
+
+    System.out.println(decrypt(key, initVector, encryptedData));
+  }
+
+  public static String decrypt(String key, String initVector, String encrypted) {
+    try {
+      IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+      SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+      Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+      cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+      byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+      return new String(original);
+    } catch (Exception ex) {
+      ex.printStackTrace();
+    }
+
+    return null;
+  }
+}
+```
+
+* In the given program, we first initialize `IvParameterSpec` and `SecretKeySpec` with the initialization vector and secret key respectively. Both `IvParameterSpec` and `SecretKeySpec` are classes provided by the Java Cryptography Extension (JCE).
+
+* `Cipher` is a class provided by JCE for encryption and decryption. In this case, we are initializing the cipher in DECRYPT_MODE along with the secret key and the initialization vector.
+
+* We then finally decrypt the encrypted data using the `doFinal` method of the `Cipher` class. The `doFinal` completes the decryption operation.
+
+* The encrypted data should be in Base64 encoded form.
+
+* "aesEncryptionKey" and "encryptionIntVec" are placeholders. Basis on your real use case, you can replace these with the actual 16-characters-long AES encryption key and initialization vector.
+
+* Also, Exception handling here is basic and done by simply printing stack trace. In a real-world scenario, you should handle exceptions gracefully.
+
+* This is a basic code snippet for demo. For professional use, you will need to consider more security factors, such as protecting the key and IV, and you may want to get the encryption key and initialization vector from a safer place, like a vault, instead of hard-coding.

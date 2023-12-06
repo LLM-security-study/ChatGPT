@@ -1,0 +1,46 @@
+Sure! Here is a simple demonstration of using RSA asymmetric encryption and decryption scheme to a specific text message using Java:
+
+```Java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+    public static void main(String args[]) throws Exception{
+    
+        // Creating the key pairs
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+    
+        // Getting text to encrypt
+        String text = "This is the text to be encrypted";
+    
+        // Encrypting the text
+        byte[] cipherText = encrypt(text, keyPair.getPublic());
+
+        // Decrypting the text
+        String decryptedText = decrypt(cipherText, keyPair.getPrivate());
+    
+        System.out.println("Original Text: " + text);
+        System.out.println("Encrypted Text: " + new String(cipherText, "UTF8"));
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+  
+    public static byte[] encrypt(String msg, PublicKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        return cipher.doFinal(msg.getBytes());
+    }
+  
+    public static String decrypt(byte[] msg, PrivateKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return new String(cipher.doFinal(msg));
+    }
+}
+```
+This is a simple program in which a KeyPairGenerator is used to generate a pair of keys (public and private). The generated public key is used to encrypt and the private key is used to decrypt a text message. The original, encrypted and decrypted texts are printed out to the console.
+
+Note: Encrypting a text with a public key and decrypting it with the corresponding private key is only one usage of asymmetric encryption and is usually used to ensure confidentiality. A reverse procedure (i.e., encrypting with the private key and decrypting with the public key) can be used to provide authenticity (digital signature).
+
+Please replace "This is the text to be encrypted" with the text you want to be encrypted. Mind that the main factor determining the maximum size of the data you can encrypt is the key size. For RSA, it's common to use 2048 bit or 4096 bit keys nowadays.

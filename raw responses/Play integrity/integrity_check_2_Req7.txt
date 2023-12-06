@@ -1,0 +1,80 @@
+To verify the integrity of an Android app, we would generally use Google's SafetyNet Attestation API. The safety net API provides a set of services and APIs that help protect your app against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users. 
+
+To start, an internet permission is needed, add the following to your app's manifest file if not already added.
+
+```XML
+<uses-permission android:name="android.permission.INTERNET" />
+```
+
+Then, add Google Play Services to your app-level build.gradle 
+
+```gradle
+dependencies {
+    implementation 'com.google.android.gms:play-services-safetynet:17.0.0'
+}
+```
+
+Here is the Java program to achieve this:
+
+```java
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends AppCompatActivity {
+    private static final String TAG = "AppIntegrity";
+    private static final String API_KEY = "<YOUR-API-KEY>";  // replace with your actual API key
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        Button checkIntegrityButton = findViewById(R.id.check_integrity_button);
+        final TextView resultTextView = findViewById(R.id.result_text_view);
+
+        checkIntegrityButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                SafetyNet.getClient(getApplicationContext()).attest(API_KEY, TAG).addOnSuccessListener(Main.this,
+                    new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                        @Override
+                        public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                            // Indicate communication with the service was successful.
+                            // Use response.getJwsResult() to get the result data.
+                            resultTextView.setText("Success! JWS Result: " + response.getJwsResult());
+                        }
+                    }).addOnFailureListener(Main.this, new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            // An error occurred while communicating with the service.
+                            if (e instanceof ApiException) {
+                                ApiException apiException = (ApiException) e;
+                                Log.d(TAG, "Error: " + apiException.getStatus().getErrorDetails());
+                            } else {
+                                // A different, unknown type of error occurred. 
+                                Log.d(TAG, "Error: " + e.getMessage());
+                            }
+                        }
+                    });
+            }
+        });
+    }
+}
+```
+
+The code does the following:
+
+1. Defines a button that when clicked will initiate the verification process using SafetyNet.
+2. Ensures when the verification process is finished,  the result is displayed on the UI thread.
+
+Note: The code will prompt Security Exception if the signature of the APK used to make the attestation request (signing key for your app) does not match the API key. In real-world applications, we'd analyze the JWS (JSON Web Signature) result in the server, not in the client app.

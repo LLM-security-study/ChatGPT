@@ -1,0 +1,45 @@
+Here is the sample Java program with the "Main" class. 
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String secretKey = "secretkey";
+            String message = "Hello, World!";
+
+            byte[] macResult = computeMAC(secretKey, message);
+
+            System.out.println(Arrays.toString(macResult));
+        } catch (Exception ex) {
+            System.out.println("Error occurred while computing MAC: " + ex.getMessage());
+        }
+    }
+
+    private static byte[] computeMAC(String secretKey, String message) throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(
+                secretKey.getBytes(StandardCharsets.UTF_8),
+                "HmacSHA256");
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(keySpec);
+
+        return mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+    }
+}
+```
+
+This program performs the following tasks:
+
+1. It defines a secret key and a message to be used for the Message Authentication Code (MAC) computation.
+2. It passes the secret key and message to the `computeMAC` function.
+3. The `computeMAC` function converts the secret key into a `SecretKeySpec` for the "HmacSHA256" algorithm.
+4. It generates a `Mac` instance for the "HmacSHA256" algorithm and initializes it with the secret key.
+5. Mac's `doFinal` function receives the message bytes and goes on to compute and return the MAC.
+6. Eventually, the MAC result is then printed to the standard console output.
+
+Remember to handle the catch block according to your own error handling strategy. Here, it simply prints the error message and is left as it is for the sake of simplicity. The key values used here are for illustrative purposes only. In real world programming, you ought to use robust, secure strategies for key generation and storage.

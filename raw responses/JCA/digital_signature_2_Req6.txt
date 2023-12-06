@@ -1,0 +1,48 @@
+Sure, Here's a simple example of how you might go about implementing this in Java using a sample text and self-generated private and public keys. 
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // Generate key pair
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        KeyPair kp = kpg.generateKeyPair();
+        PublicKey publicKey = kp.getPublic();
+        PrivateKey privateKey = kp.getPrivate();
+
+        String msg = "Text message for digital signature.";
+        byte[] data = msg.getBytes();
+
+        // Perform signing
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initSign(privateKey);
+        signer.update(data);
+        byte[] digitalSignature = signer.sign();
+
+        // Perform verification
+        Signature verifier = Signature.getInstance("SHA256withRSA");
+        verifier.initVerify(publicKey);
+        verifier.update(data);
+
+        if (verifier.verify(digitalSignature)) {
+            System.out.println("Signature is verified.");
+        } else {
+            System.out.println("Signature not verified.");
+        }
+    }
+
+}
+```
+Please keep following things in mind:
+
+1. The main intent of a sign is to ensure that the sender of the message can be verified.
+2. This process assumes that the receiver already has the public key of the sender to verify the signature. 
+3. In real-world applications, key pairs are typically generated and stored in secure hardware modules.
+
+This program doesn't include error checking and exception handling for the sake of clarity. You should add it according to your use case. Also, ensure to handle the private key carefully as it needs to be kept secret.

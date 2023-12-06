@@ -1,0 +1,41 @@
+In Java, secure communication over network can be achieved using Secure Socket Layer (SSL) or Transport Layer Security (TLS). SSL and TLS are cryptographic protocols designed to provide secure communication between client-server applications. The JSSE (Java Secure Socket Extension) API allows users to leverage these protocols in their applications.
+
+In this script, I'll show you an example of an SSL socket client that validates certificates from an SSL server:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] arstring) {
+        try {
+            SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslsocket = (SSLSocket) sslsocketfactory.createSocket("YourServer.com", 443);
+
+            InputStream inputstream = sslsocket.getInputStream();
+            InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
+            BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
+
+            String string = null;
+            while ((string = bufferedreader.readLine()) != null) {
+                System.out.println(string);
+                System.out.flush();
+            }
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+}
+```
+
+In this program, an SSLSocketFactory is created by calling the getDefault() method, which returns a default SSL socket factory. The createSocket() method is then called on this factory to create an SSL socket. 
+
+Please note:
+1. You need to replace "YourServer.com" with your actual server address.
+2. Modify the port number "443" if your server is listening on a different port for secure connections.
+3. JSSE is bundled with JDK 1.4 and later. If you are using an earlier JDK, JSSE needs to be downloaded separately and added to the classpath.
+4. The provided Java program doesn't validate certificates manually, but it leverages JSSE's automatic certificate validation.
+
+If you want to perform manual certificate validation, you may need to define your own TrustManager and override the checkServerTrusted method. This process is considerably more complex and requires an understanding of how SSL certificates work. Manual validation is an advanced topic and beyond the scope of this simple SSL client program.

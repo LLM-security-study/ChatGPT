@@ -1,0 +1,52 @@
+In order to verify the integrity of an Android app, the SafetyNet Attestation API from Google Play Services will be used. This API helps assess the security and compatibility of the Android environment in which the app is running.
+
+Given this requirement, consider the below solution:
+
+```java
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnCompleteListener;
+import android.util.Log;
+import android.support.annotation.NonNull;
+import android.app.Activity;
+
+public class Main extends Activity {
+    private final String API_KEY = "your_api_key_here";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        sendSafetyNetRequest();
+    }
+
+    private void sendSafetyNetRequest() {
+        SafetyNet.getClient(this).attest("nonce value".getBytes(), API_KEY)
+                .addOnCompleteListener(new OnCompleteListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SafetyNetApi.AttestationResponse> task) {
+                        if (task.isSuccessful()) {
+                            SafetyNetApi.AttestationResponse result = task.getResult();
+                            String attestationResult = result.getJwsResult();
+                            // Now verify the attestation result
+                            Log.i("SafetyNet Sample", "Result is " + attestationResult);
+                        } else {
+                            // An error occurred while communicating with the SafetyNet API
+                            Log.e("SafetyNet Sample", "Error occurred while communicating with API " + task.getException());
+                        }
+                    }
+                });
+    }
+}
+```
+This is an implementation of a main activity that uses the SafetyNet Attestation API. It sends a SafetyNet Attestation API request from your app, then SafetyNet service examines the runtime environment of the app and returns a signed attestation, verifying the device status and its profile.
+
+This code assumes that you have Google Play Services available and have obtained an API key for the SafetyNet Attestation API.
+
+Note: The nonce data should be at least 16 bytes in length and should be generated using a cryptographically-secure random number generator.
+
+The returned `attestationResult` as a JWS message, you should verify this JWS message on your server using the SafetyNet online verification API, or using an offline verification if you choose to trust the APK information inside the JWS's payload. In real-world scenarios you should send this attestationResult to your backend server and check its validity there.
+

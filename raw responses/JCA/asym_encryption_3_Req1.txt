@@ -1,0 +1,51 @@
+Sure, here is a basic demonstration of how you can implement asymmetric encryption (RSA) using Java:
+
+```java
+import javax.crypto.Cipher;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Generating key pair
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(1024);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+            PublicKey publicKey = keyPair.getPublic();
+            PrivateKey privateKey = keyPair.getPrivate();
+
+            // Simple message text
+            String plainText = "Hello, World";
+
+            // Encrypting the message
+            byte[] cipherText = encrypt(plainText, publicKey);
+            System.out.println("Encrypted Text: " + new String(cipherText));
+
+            // Decrypting the message
+            String decryptedText = decrypt(cipherText, privateKey);
+            System.out.println("Decrypted Text: " + decryptedText);
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static byte[] encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return cipher.doFinal(plainText.getBytes());
+    }
+
+    private static String decrypt(byte[] text, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(cipher.doFinal(text));
+    }
+}
+```
+
+This program generates an RSA key pair (public and private key). It then encrypts a simple message ("Hello, World") with the public key, and immediately decrypts it with the private key.
+
+Please note that this is a very simple explanation and usage of RSA in a real world you need to consider stronger key sizes and different padding which does not expose your data to attacks as much.

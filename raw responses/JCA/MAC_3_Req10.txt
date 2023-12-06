@@ -1,0 +1,47 @@
+Sure, I'll implement an example using HMACSHA256.
+
+```java
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    private static final String algorithm = "HmacSHA256";
+
+    public static void main(String[] args) {
+        String message = "This is a secret message";
+        String secret = "secretKey";
+        String computedMAC = computeMAC(message, secret);
+        System.out.println("Computed MAC: " + computedMAC);
+    }
+
+    private static String computeMAC(String message, String secret) {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), algorithm);
+        Mac mac;
+        try {
+            mac = Mac.getInstance(algorithm);
+            mac.init(secretKeySpec);
+            byte[] rawHmac = mac.doFinal(message.getBytes());
+            return Base64.getEncoder().encodeToString(rawHmac);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException("Failed to calculate hmac", e);
+        }
+    }
+}
+```
+
+Please replace `message` and `secret` with actual values. 
+
+The sample function `computeMAC` takes a `message` and a `secret` and returns the calculated MAC using HMAC and SHA256.
+
+Mac getInstance method is used to provide an object that implements the specified MAC algorithm. It throws NoSuchAlgorithmException if the algorithm is not available in the caller's environment.
+
+Base64 encoding is used while returning the calculated hmac to make sure it's displayed correctly as some bytes may not correspond to valid characters.
+
+This sample code works with a secret key that is not more than 64 bytes after being converted to bytes following the UTF-8 standard. If you have a longer secret key, you need to hash it first before using it for the SecretKeySpec.
+
+This is a simple example and in a production environment, you would need to use a secure, randomly generated secret, preferably using strong APIs such as `java.security.SecureRandom`.
+
+Please ask, if you have any questions.

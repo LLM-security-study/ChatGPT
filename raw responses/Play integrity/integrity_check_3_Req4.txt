@@ -1,0 +1,56 @@
+Verifying the integrity of an Android device involves checking if the device's system has been compromised - such as being rooted or running a custom ROM. While Google SafetyNet API can be used to perform this check, the drawback is that SafetyNet requires Google Play Services, and every usage of the API counts toward your quota.
+
+In order to properly interface with the SafetyNet API, we will need to familiarize ourselves with the SafetyNet Attestation API. Let's assume that we have a valid API key to use.
+
+Here's an example of a simple Java program written for an Android device:
+
+```java
+import android.util.Log;
+import android.app.Activity;
+import android.os.Bundle;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.safetynet.SafetyNetClient;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends Activity {
+    private static final String TAG = "MainActivity";
+    
+    private static final String API_KEY = "Place Your API Key Here";
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SafetyNetClient client = SafetyNet.getClient(this);
+        
+        client.attest("Sample Nonce".getBytes(), API_KEY)
+            .addOnSuccessListener(this, new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                @Override
+                public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                    // Indicates communication with the service was successful.
+                    // Use response.getJwsResult() to get Result.
+                    Log.d(TAG, "Success! SafetyNet result:\n" + response.getJwsResult());
+                }
+            })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the service.
+                    if (e instanceof ApiException) {
+                        ApiException apiException = (ApiException) e;
+                        Log.d(TAG, "SafetyNet Error: " + CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) );
+                    } else {
+                        Log.d(TAG, "Unknown SafetyNet Error: " + e.getMessage());
+                    }
+                }
+            });
+    }
+}
+```
+This is a very basic implementation, which sends a simple request to the SafetyNet Attestation API. 
+
+Note: Don't forget to add necessary permissions and dependencies in the AndroidManifest.xml and build.gradle file respectively. You have to also handle the API key securely in an actual application, do not put the API key directly in the code. For simplification of this example, an empty string is kept.

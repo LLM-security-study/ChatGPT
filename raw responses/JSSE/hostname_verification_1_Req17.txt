@@ -1,0 +1,46 @@
+Sure, below is a simple example of how to implement hostname verification for SSL/TLS communication in Java.
+
+Here we use HttpsURLConnection and SSLSession APIs for the implementation. In a real-world scenario, you may need to handle the errors and exceptions properly.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // URL of the host
+        String urlString = "https://www.example.com";
+        
+        URL url = new URL(urlString);
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+
+        // Set Hostname verification
+        urlConnection.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                if (hostname.equals("www.example.com")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+        
+        try {
+            // Do connection operations (Send/Receive data)
+            // ...
+        } finally {
+            // Close connection
+            urlConnection.disconnect();
+        }
+    }
+}
+```
+
+In the above code, HostnameVerifier interface is used for endpoint identification / hostname verification. You need to provide a URL for which you want to establish a SSL/TLS Communication. And `verify(String hostname, SSLSession session)` method is where you need to code your verification logic, here for simplicity, we are just checking if the hostname is "www.example.com" or not. 
+
+An important point to remember here is that, HttpsURLConnection uses SSL to secure the connection, if you want to use SSL/TLS for other kind of connections (like socket level), you may need to use SSLSocket and SSLServerSocket classes. 
+
+And also this is a pretty basic code, you might want to extend this based on what you really want to achieve with SSL/TLS communication.

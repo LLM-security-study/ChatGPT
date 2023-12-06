@@ -1,0 +1,43 @@
+Below is a Java program to create a program that decrypts data using the AES algorithm in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String key = "AESEncryptionKey"; // 16 chars = 128 bit
+        String initVector = "EncryptionIntVec"; // 16 chars = 128 bit
+
+        String encrypted = "vDVnvl5CDM8NfNfyIXAdtg=="; // Sample encrypted string
+
+        System.out.println(decrypt(key, initVector, encrypted));
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+This program uses "AES/CBC/PKCS5PADDING" as a transformation string for the Cipher class to specify an AES algorithm in CBC mode. Your key and initialization vector (initVector) must be exactly 16 characters long as this is the block size for AES. For the PKCS5PADDING padding scheme, any extra bytes are filled with the number representing how many extra bytes there are. When the data is decrypted, the extra bytes are cut off based on the last byte.
+
+You can substitute the "encrypted" variable with your data that you want to decrypt. This program simply prints out the decrypted string.
+
+Please note that this is simply a demonstration of how you could decrypt with AES/CBC mode. In a real-world application, there are many more considerations like key management, error handling etc.

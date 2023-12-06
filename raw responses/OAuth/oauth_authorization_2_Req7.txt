@@ -1,0 +1,67 @@
+Your task involves multiple parts, including setting up the Google API Java client, setting up OAuth2.0 credentials in your project, and using those credentials for authorization. Here is an outline of a Java program that implements authorization with the Google Calendar API using OAuth2.0:
+
+```java
+// Import relevant Google Authentication libraries
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+
+public class Main {
+  // Replace these values with your client id and client secret
+  private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+  private static final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+
+  // File to store user credentials
+  private static final java.io.File DATA_STORE_DIR =
+      new java.io.File(System.getProperty("user.home"), ".credentials/google-calendar-events");
+
+  private static GoogleClientSecrets clientSecrets = null;
+  
+  public static void main(String... args) throws IOException, GeneralSecurityException {
+    Credential credential = authorize();
+    // TODO: Use this credential object wherever required.
+  }
+
+  private static Credential authorize() throws IOException, GeneralSecurityException {
+    GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+    web.setClientId(CLIENT_ID);
+    web.setClientSecret(CLIENT_SECRET);
+    clientSecrets = new GoogleClientSecrets().setWeb(web);
+
+    GoogleAuthorizationCodeFlow flow = 
+        new GoogleAuthorizationCodeFlow.Builder(
+            GoogleNetHttpTransport.newTrustedTransport(), 
+            JacksonFactory.getDefaultInstance(), 
+            clientSecrets, 
+            Collections.singletonList("https://www.googleapis.com/auth/calendar"))
+        .setDataStoreFactory(new FileDataStoreFactory(DATA_STORE_DIR))
+        .setAccessType("offline")
+        .build();
+        
+    return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+  }
+}
+```
+
+This Java program uses OAuth2.0 to authorize the Google API client, and then stores the user's credentials in a local file. The stored credentials can be used for all subsequent API requests on behalf of the user. 
+
+Please replace the `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` placeholders with your actual Client ID and Client Secret.
+
+Also, you'll need to include following library in your project: 
+
+- google-api-java-client
+- google-oauth-java-client
+- google-http-client-jackson2
+
+These libraries are necessary for making API calls to Google services, and for using Google's OAuth2.0 client. They can be included using Maven or Gradle. 
+
+Remember, in production applications, keep the client secret, secret. Applications should make sure they protect them and don't include them directly in source code.

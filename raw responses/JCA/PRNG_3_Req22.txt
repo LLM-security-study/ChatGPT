@@ -1,0 +1,28 @@
+Sure, following is the program:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // SecureRandom instance provides a cryptographically strong random number generator
+        SecureRandom secureRandom = new SecureRandom();
+        
+        // Generate a 20-byte seed
+        byte[] seed = new byte[20];
+        secureRandom.nextBytes(seed);
+        
+        // Initialize the cipher with the generated seed
+        SecureRandom secureRandomForCipher = new SecureRandom(seed);
+        
+        // Generate a random integer
+        int randomInteger = secureRandomForCipher.nextInt();
+        System.out.println("Random Integer for Cryptographic Applications: " + randomInteger);
+    }
+}
+```
+Here, we have used SecureRandom which provides a cryptographically strong random number generator that generates a random number uniformly across its entire range.
+
+The `nextBytes(byte[] seed)` function generates a user specified byte array. After generating the seed, we are initializing the SecureRandom instance which will be used for cryptographic applications with this seed.
+
+In the end, we are generating a random integer using the `nextInt()` function and printing that integer.

@@ -1,0 +1,40 @@
+Sure, we can utilize `javax.net.ssl` package which provides classes for the secure socket package.
+
+Following is a simple example of how to connect to a server using SSL Socket:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            String serverName = "YourServer";     //Replace with your Server's Name 
+            int serverPort = YourPortNumber;      //Replace with your Server's Port Number
+
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(serverName, serverPort);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello Server");
+            String serverResponse = in.readLine();
+            System.out.println("Server Response: " + serverResponse);
+
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This example opens a connection to a server on a specified port using SSLSocket. Once the connection is successfully established, it sends a message to the server "Hello Server" and prints the server's response via SSL Socket.
+
+Note: To run this code in a real scenario, you need to replace `'YourServer'` with your actual server's name that supports SSL connection and `'YourPortNumber'` with the actual port number. Also, SSL connection requires certificate details which is not covered in the example. Thus, you might need to add SSL certificate handling code as well.

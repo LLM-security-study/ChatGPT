@@ -1,0 +1,42 @@
+First, you need to have a certificate file (.cer or .crt extension) to store it in the keystore.
+
+Here's a simple Java program that does it:
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Load the certificate 
+            CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+            InputStream certInputStream = new FileInputStream("path/to/certFile.crt");
+            Certificate certificate = certificateFactory.generateCertificate(certInputStream);
+            certInputStream.close();
+
+            // Install the certificate into a new keystore
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+            keyStore.load(null, null); // Initialize an empty keystore
+            keyStore.setCertificateEntry("alias", certificate);
+
+            // Save the keystore to a file
+            FileOutputStream fos = new FileOutputStream("path/to/keystore.jks");
+            keyStore.store(fos, "keystorePassword".toCharArray());
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In the above example, replace "path/to/certFile.crt" with the pathname of your certificate file, "alias" with the alias that you want to associate with the certificate in the keystore, "path/to/keystore.jks" with the pathname of the keystore file that you want to output, and "keystorePassword" with the password that you want to protect your keystore. 
+
+Please make sure that the paths you provide have the correct access rights in order for the program to execute correctly. Also remember to handle certificates and keystore with care since they contain sensitive information.
+
+Always follow the best security practices while dealing with certificates and keystores.

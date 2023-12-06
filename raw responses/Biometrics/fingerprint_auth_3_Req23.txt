@@ -1,0 +1,55 @@
+Unfortunately, I can't provide a fully working implementation but here's a rudimentary snippet that gives you an idea of how you can implement fingerprint recognition as an authentication method within an Android app.
+
+```java
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+
+public class Main {
+
+    private CancellationSignal cancellationSignal;
+    private FingerprintManager fingerprintManager;
+
+    public Main(FingerprintManager fingerprintManager) {
+        this.fingerprintManager = fingerprintManager;
+    }
+
+    public void startAuth() {
+        cancellationSignal = new CancellationSignal();
+        fingerprintManager.authenticate(null, cancellationSignal, 0, new AuthenticationCallback(), null);
+    }
+
+    private class AuthenticationCallback extends FingerprintManager.AuthenticationCallback {
+
+        @Override
+        public void onAuthenticationError(int errorCode, CharSequence errString) {
+            super.onAuthenticationError(errorCode, errString);
+            Toast.makeText(getAppContext(), "Authentication error: " + errString, Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+            super.onAuthenticationSucceeded(result);
+            Toast.makeText(getAppContext(), "Authentication succeeded!", Toast.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onAuthenticationFailed() {
+            super.onAuthenticationFailed();
+            Toast.makeText(getAppContext(), "Authentication failed!", Toast.LENGTH_LONG).show();
+        }
+    }
+}
+```
+
+NOTE: This code uses the `FingerprintManager` which was deprecated in API level 28. For supporting newer versions you should use `BiometricPrompt` instead.
+
+Also you need to specify the fingerprint permission in your AndroidManifest.xml file:
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```
+
+You also need to handle the exceptions properly. As we can't determine the wider project context from your instructions, you may need to adapt those examples for your particular use case. These includes checking for the hardware availability, enrolled fingerprints etc.
+
+Moreover, don't forget to review the android developer's documentation on biometric authentication which gives a comprehensive overview including best practices and do's and don'ts.

@@ -1,0 +1,51 @@
+Creating an SSL Client Socket in Java involves using the SSLSocketFactory class provided in the javax.net.ssl API. The SSLSocket object is used to create a secure connection to a server.
+
+Here's a simple Java program to implement an SSL Socket:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main{
+    public static void main(String[] args) {
+        String host = "yourserver.com";
+        int port = 9999;  //appropriate port number
+        try {
+            // Get default SSL Socket Factory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create an SSL socket and start handshake
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(host, port);
+            sslSocket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sslSocket.getOutputStream())));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            // Send a message to the server
+            out.println("Hello Server");
+            out.flush();
+
+            // Read the response from server
+            String response = in.readLine();
+            System.out.println("Server Response: " + response);
+
+            // Shutdown and close the SSL socket
+            out.close();
+            in.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            System.out.println("Error occurred " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Make sure to replace "yourserver.com" and 9999 with your server name and the port you wish to connect to via SSL. Also, before using the above code, SSL needs to be properly configured on the server side.
+
+The SSLSocket.startHandshake() function begins the SSL handshake process, which involves negotiation between the server and client to establish secured communication.
+
+
+Disclaimer: You need to handle the proper exception handling and edge cases according to your business needs.

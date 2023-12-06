@@ -1,0 +1,41 @@
+Sure, I can help you with that. Here's a basic Java program for calculating a MAC (Message Authentication Code) using HMAC with the SHA256 hashing algorithm. 
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
+    private static final String secretKey = "YourSecretKey";
+
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        try {
+            System.out.println("MAC: " + calculateHMAC(message, secretKey));
+        } catch (Exception e) {
+            System.out.println("Error generating HMAC: " + e.getMessage());
+        }
+    }
+
+    private static String calculateHMAC(String data, String key) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_SHA256_ALGORITHM);
+        Mac mac = Mac.getInstance(HMAC_SHA256_ALGORITHM);
+        mac.init(secretKeySpec);
+        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(rawHmac);
+    }
+}
+```
+
+This program will generate an HMAC for the string "Hello, World!". The secret key for creating the HMAC is defined as "YourSecretKey". 
+
+It would be best to replace "YourSecretKey" with your own secret key. Remember to keep your secret key secret!
+
+The HMAC generated is in Base64 format. Ensure you have the appropriate dependencies added to your project. 
+
+Please, handle the exceptions properly according to your project requirements. 
+
+Note that the security of your HMAC depends on the security of your secret key.

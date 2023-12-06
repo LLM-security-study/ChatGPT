@@ -1,0 +1,48 @@
+In Java, the Java Secure Socket Extension (JSSE) APIs can be employed to provide secure communication via SSL/TLS protocols. The SSLSocket class in JSSE can be utilized to create an SSL Socket. The following is a simple implementation:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    private static final String SERVER = "localhost";
+    private static final int PORT = 1234;
+
+    public static void main(String[] args) {
+
+        try {
+            // Get SSLSocketFactory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            // Create SSLSocket
+            SSLSocket socket = (SSLSocket) factory.createSocket(SERVER, PORT);
+
+            // Start handshake
+            socket.startHandshake();
+
+            // Get writer to send data
+            PrintWriter writer = new PrintWriter(socket.getOutputStream(), true);
+            writer.println("Hello Server!");
+
+            // Get reader to read response
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("Response from server: " + reader.readLine());
+
+            // Cleaning up the streams and the socket
+            writer.close();
+            reader.close();
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println("Error occurred during communication: " + e.getMessage());
+        }
+    }
+}
+```
+
+Please note:
+- This program connects to a server located at "localhost" and port number 1234 (as per specified in SERVER and PORT variables)
+- You should replace "localhost" and 1234 with your server name / IP address and port.
+- This code assumes that the server you are connecting to has SSL enabled and is waiting for SSL handshake at the specified IP and port.
+- Also, please ensure that the client is running on a JVM that trusts the server's certificate (i.e., the server's certificate is added to the client's Java truststore)
+

@@ -1,0 +1,41 @@
+Sure, Here's a simple implementation of a message digest using the SHA-256 hash function in Java:
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        byte[] hashedMessage = hashWithSHA256(message);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        for (byte b : hashedMessage) {
+            stringBuilder.append(String.format("%02X ", b));
+        }
+
+        System.out.println("Original message: " + message);
+        System.out.println("Hashed message: " + stringBuilder.toString());
+    }
+
+    private static byte[] hashWithSHA256(String input) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return digest.digest(input.getBytes());
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+In the program above:
+
+1.  We first initialize a message that we want to hash. 
+
+2.  Then, we hash the message using the SHA-256 hash function using the `hashWithSHA256` method.
+
+3.  After hashing the message, we represent the hashed message in hexadecimal form for display purposes.
+
+4. Finally, we print the original and the hashed message.
+
+Please note that this program uses the SHA-256 hash function. If you want to use another hash function, replace `"SHA-256"` with the name of the hash function you want to use (e.g., `"MD5"`, `"SHA-1"` etc.)

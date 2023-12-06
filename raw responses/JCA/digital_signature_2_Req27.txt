@@ -1,0 +1,46 @@
+Below is a basic implementation of a digital signature in Java using the Signature and KeyPairGenerator classes:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Creating KeyPair generator object
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048);
+
+        // Generate the pair of keys
+        KeyPair pair = keyPairGen.generateKeyPair();
+
+        // Getting the public key from the key pair
+        PublicKey publicKey = pair.getPublic();
+        PrivateKey privateKey = pair.getPrivate(); 
+
+        // Creating a Signature object
+        Signature sign = Signature.getInstance("SHA256withRSA");
+
+        // Initialize the signature
+        sign.initSign(privateKey);
+
+        byte[] bytes = "Hello, welcome to Java programming!".getBytes();
+
+        // Add data to the signature
+        sign.update(bytes);
+
+        // Compute the signature
+        byte[] signature = sign.sign();
+
+        // Initialize the same signature object with the public key
+        sign.initVerify(publicKey);
+
+        // Supply the Signature Object With the Data to be verified
+        sign.update(bytes);
+
+        // Verify the signature
+        boolean valid = sign.verify(signature);
+        System.out.println("Signature valid: " + valid);
+    }
+}
+```
+
+This program generates a public-private key pair, signs a simple string data with the private key, and then verifies the signature with the public key. Note that the use of the RSA algorithm for key pair generation and the SHA256withRSA for the signature is an example, and others algorithms can be adopted as necessary. This program assumes the receiver already has the public key for verifying the signature. If this key must be shared, adequate secure measures should be undertaken to prevent unauthorized access or tampering.

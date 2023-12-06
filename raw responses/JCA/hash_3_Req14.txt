@@ -1,0 +1,47 @@
+Here is a simple example of a Java program that uses standard libraries to compute a Message Digest (specifically using SHA-256):
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String originalString = "Hello, World!";
+        
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+            String hashedString = bytesToHex(encodedhash);
+            System.out.println(hashedString);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This program accomplishes the following steps:
+1. Creates a MessageDigest object for the algorithm SHA-256
+2. Convert the string to be hashed into bytes (assuming the string is UTF-8)
+3. Runs the digital digest algorithm on that byte array
+4. Converts the resulting byte array into a string of hexadecimal digits
+5. Prints the resulting string
+
+In this program, `originalString` represents the input string for which we are generating the digest. The static function `MessageDigest.getInstance` returns a MessageDigest object that implements the specified digest algorithm (in this case, SHA-256). The `digest` method takes a byte array as input and returns a byte array that represents the hash. The `bytesToHex` method is used to convert this byte array into a hexadecimal string format.
+
+The final print statement will output the hashed string to the console.

@@ -1,0 +1,45 @@
+Sure, below is a basic example of how you could use `KeyStore` to store a cryptographic key. You will need the `java.security` package, which is part of the standard Java API.
+
+```java
+import java.security.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception{
+        // Get the password for the key store
+        char[] password = "password".toCharArray();
+
+        // Generate a new key pair
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(2048, new SecureRandom());
+        KeyPair pair = generator.generateKeyPair();
+        PrivateKey privateKey = pair.getPrivate();
+
+        // Generate certificate.
+        Certificate[] chain = {generateCertificate("alias", pair, 365, "SHA256withRSA")};
+
+        // Store the key and the certificate chain in the key store
+        KeyStore keyStore = KeyStore.getInstance("JKS");
+        keyStore.load(null, password);
+        keyStore.setKeyEntry("alias", privateKey, password, chain);
+
+        // Store the key store
+        try (FileOutputStream fos = new FileOutputStream("keystore.jks")) {
+            keyStore.store(fos, password);
+        }
+    }
+    
+    private static Certificate generateCertificate(String dn, KeyPair pair, int days, String algorithm)
+        throws GeneralSecurityException, IOException
+    {
+        // Some of this code has been omitted because it's not relevant to the original question. 
+        // Generation of certificates normally involves a certificate authority, and should not be done in a simplistic manner in a live environment.
+    }
+}
+```
+
+This program creates a new KeyPair with the RSA algorithm and a key size of 2048 bits. It's then storing this key in a KeyStore, together with a certificate chain.
+
+Please keep in mind that this code is not complete - generating a certificate is a complex task that requires several details to be specified (like who is issuing the certificate, what is it for, etc.) and it normally involves the use of a certificate authority. The `generateCertificate` method in this example is just a placeholder to convey the idea.
+
+Also, please note: Don't use hardcoded passwords or store them in plaintext in a real-world scenario. This example is oversimplified for educational purposes. In a real system, sensitive data like this must be protected.

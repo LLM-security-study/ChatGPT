@@ -1,0 +1,41 @@
+Sure, here's a basic example of a Message Authentication Code (MAC) using the Java standard APIs:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Key and Data to be encrypted
+            String secret = "secret-key";
+            String message = "Hello, World!";
+            
+            // Create a MAC instance
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            mac.init(secretKey);
+            
+            // Perform MAC operation on the given message
+            byte[] bytes = mac.doFinal(message.getBytes());
+            
+            // Convert byte array to hex format
+            StringBuilder hash = new StringBuilder();
+            for (byte b : bytes) {
+                hash.append(String.format("%02x", b));
+            }
+            System.out.println("Message Authentication Code: " + hash.toString());
+            
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            // Handle exceptions appropriately for your application
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates a HMAC (Hash-based Message Authentication Code) using the SHA256 algorithm and a sample secret. The HMAC operation is applied to the message "Hello, World!" and the result is converted to hexadecimal format and printed.
+
+This is a simple example used for illustrative purposes. Please adjust the program and handle exceptions according your application's specific requirements.

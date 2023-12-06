@@ -1,0 +1,46 @@
+Sure, I will provide you a general idea about how to develop a Java program that applies asymmetric encryption (RSA) to a given text message.
+
+You can implement the asymmetric encryption in Java through the following step-by-step process in detail:
+
+```java
+import javax.crypto.Cipher;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.PrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate an RSA keypair
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048); // You can use a different value here
+        KeyPair kp = kpg.generateKeyPair();
+
+        // The original message
+        String message = "Hello, World!";
+
+        // Encrypt the message
+        String encryptedMessage = encrypt(message, kp.getPublic());
+
+        // Display the encrypted message
+        System.out.println(encryptedMessage);
+    }
+
+    public static String encrypt(String plainText, PublicKey publicKey ) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes());
+
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+}
+```
+
+This program uses RSA public key to encrypt a plaintext message. The Base64 class is used to encode the bytes, because RSA will encrypt the data into bytes and the output might contain special and non-printable characters. By encoding the bytes to a Base64 string, the output is made safe for printing or transmission over network.
+
+Please, make sure to have necessary libraries for javax.crypto and java.security in your classpath.

@@ -1,0 +1,58 @@
+Sure, you can use Java Secure Socket Extension (JSSE) which is a standard Java API for SSL communication.
+
+Here's a basic example of how you can set up an SSL Socket. This is a basic example and might not be applicable in all scenarios. You need to modify it as per your needs.
+
+Note: you need to import following packages
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+```
+
+Implementation:
+```java
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket("localhost", 443);
+
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.println("GET / HTTP/1.1");
+            output.println();
+            output.flush();
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            String line;
+            while ((line = input.readLine()) != null) {
+                System.out.println(line);
+            }
+
+            input.close();
+            output.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This example assumes that there is an SSL-enabled server listening on port 443 of localhost.
+
+This creation of an SSL socket and communication to a server includes several steps:
+
+1. Use the getDefault() static method of the javax.net.ssl.SSLSocketFactory class to obtain an instance of SSLSocketFactory.
+
+2. Use the createSocket() method of SSLSocketFactory to create an SSLSocket. This method takes a hostname and port number as input.
+
+3. After the SSL socket is set up, communication proceeds like communication over any other socket. You can get InputStream and OutputStream instances to communicate with the server.
+
+4. When finished communicating, close the socket.
+
+This is a very simple example and does not include several important things such as handling exceptions, authenticating the server, client-side authentication etc. But it does give a start on how to set up an SSL connection.
+
+Also note that in a real-world application, you should not print received data directly to the console because it might contain sensitive information.
+
+Please refer to JSSE Reference Guide for more detailed information.

@@ -1,0 +1,49 @@
+Here is a simple Java program using symmetric key (AES) for encryption and decryption:
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.SecureRandom;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        // Generate a secret key (AES)
+        KeyGenerator generator = KeyGenerator.getInstance("AES");
+        generator.init(new SecureRandom());
+        SecretKey secretKey = generator.generateKey();
+        
+        String originalMessage = "Hello, World";
+
+        // Encrypt the message
+        String encryptedMessage = encryptWithAESKey(originalMessage, secretKey);
+        System.out.println("Encrypted: " + encryptedMessage);
+
+        // Decrypt the message
+        String decryptedMessage = decryptWithAESKey(encryptedMessage, secretKey);
+        System.out.println("Decrypted: " + decryptedMessage);
+    }
+
+    public static String encryptWithAESKey(String msg, SecretKey secretKey) throws Exception {
+        Cipher aesCipher = Cipher.getInstance("AES");
+        aesCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] byteCipherText = aesCipher.doFinal(msg.getBytes());
+        return new String(byteCipherText);
+    }
+
+    public static String decryptWithAESKey(String msg, SecretKey secretKey) throws Exception {
+        Cipher aesCipher = Cipher.getInstance("AES");
+        byte[] byteEncryptedText = msg.getBytes();
+        aesCipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] bytePlainText = aesCipher.doFinal(byteEncryptedText);
+        return new String(bytePlainText);
+    }
+}
+```
+
+Please note that when you run this program you might get a strange output because the encrypted string could be in non-readable format.
+
+Also, be aware that the encryption and decryption functions use a Key object, you cannot simply use a string as the key. It must be an object of SecretKey or its subclass. This key is generated using a KeyGenerator for AES (Advanced Encryption Standard). The same key is used for both encryption and decryption as it's a symmetric algorithm.
+
+Remember that the Java Cryptography Extension (JCE) provides cryptographic operations and syntax for more advanced operations.

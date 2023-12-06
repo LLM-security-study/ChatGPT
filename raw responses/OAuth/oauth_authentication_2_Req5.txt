@@ -1,0 +1,64 @@
+Creating a Single-Sign-On service for a web application with Google OAuth2.0 involves using Google's authorization API. There are two main steps in this process:
+
+1. Redirect users to Google's oauth2.0 API to obtain the user's permission and acquire the authorization code.
+
+2. Exchange the authorization code for an access token and ID token.
+
+Here is the bare minimum of a Java solution which can achieve this:
+
+```java
+// Main.java
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Collections;
+
+public class Main {
+    // Client ID and Client Secret should be filled, they are available from the Google Developer Console.
+    private static final String CLIENT_ID = "your-client-id";
+    private static final String CLIENT_SECRET = "your-client-secret";
+    private static final String REDIRECT_URI = "your-redirect-uri";
+
+    private static GoogleAuthorizationCodeFlow flow;
+
+    public Main() throws IOException {
+        GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+        web.setClientId(CLIENT_ID);
+        web.setClientSecret(CLIENT_SECRET);
+        web.setRedirectUris(Collections.singletonList(REDIRECT_URI));
+
+        flow = new GoogleAuthorizationCodeFlow.Builder(
+            new NetHttpTransport(), JacksonFactory.getDefaultInstance(), web, Collections.singleton("profile"))
+            .build();
+    }
+
+    public String getAuthorizationUrl() {
+        return flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+    }
+
+    public GoogleIdToken.TokenInfo authenticate(String authorizationCode) {
+        try {
+            String token = flow.newTokenRequest(authorizationCode)
+                .setRedirectUri(REDIRECT_URI).execute().getAccessToken();
+
+            GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(), token);
+            return idToken.getPayload();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+```
+
+The above-bare minimum code does the task of implementing Google SSO but doesn't involve any web requests/responses handling. Also, it does not handle exceptions thoroughly. For a robust and secure implementation, more mature libraries such as Spring Security should be used, also SSL/TLS should be enforced. Moreover, don't forget to handle user sessions in your web application. A user's session begins after they're successfully authenticated. 
+
+Please understand that implementing proper authentication/security measures for a web application is a complex topic and should be handled with a great deal of care. This code is a simplistic demonstration and should not be used as it is in any production environment. 
+
+You would also need to add the appropriate dependencies, such as google-oauth-client, google-http-client, etc. Ensure you revise your application according to your requirement and test thoroughly before deploying.

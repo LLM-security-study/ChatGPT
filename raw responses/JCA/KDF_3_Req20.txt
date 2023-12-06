@@ -1,0 +1,42 @@
+Sure, here is a simple Java program that utilizes the PBKDF2WithHmacSHA256 function from Java's standard API to derive a key from a password:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter password: ");
+        String password = sc.nextLine();
+        System.out.print("Enter salt: ");
+        String salt = sc.nextLine();
+
+        try {
+            byte[] btSalt = salt.getBytes();
+            int iterations = 10000;
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), btSalt, iterations, 128);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] hash = factory.generateSecret(spec).getEncoded();
+            System.out.println("Derived key: " + toHex(hash));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String toHex(byte[] array) {
+        return DatatypeConverter.printHexBinary(array);
+    }
+}
+```
+
+Note: This program takes a password and a salt as input, and prints the derived key as output. The salt is also commonly a randomly-generated value and should be stored alongside the hashed password. A salt is used to prevent rainbow table attacks on the password hashes. 
+
+This means that even if two users have the same password, they will have different password hashes (assuming the salt is not the same). 
+
+Disclaimer: This program is a basic illustration of password-based key derivation for educational purposes only. In a real-world application, additional steps, and security considerations are necessary. Always consider getting expert guidance when dealing with security-critical tasks.

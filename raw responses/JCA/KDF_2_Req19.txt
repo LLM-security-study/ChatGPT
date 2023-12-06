@@ -1,0 +1,45 @@
+Sure, here is a basic Java program that generates a Secret Key from a user's password. This program uses Java standard SecureRandom and SecretKeySpec APIs.
+
+```java
+import java.security.*;
+import java.util.Scanner;
+import javax.crypto.*;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter your password:");
+
+        String password = scanner.nextLine();
+        SecretKey secretKey = generateSecretKey(password);
+
+        System.out.println("The generated secret key is:");
+        System.out.println(Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+    }
+
+    public static SecretKey generateSecretKey(String password) {
+        try {
+            byte[] passwordInBytes = password.getBytes("UTF-8");
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
+
+            byte[] key = sha.digest(passwordInBytes);
+            key = Arrays.copyOf(key, 16); // AES keys should be of length 16
+
+            return new SecretKeySpec(key, "AES");
+        } catch (Exception e) {
+            System.out.println("Error while generating the secret key: " + e.toString());
+            return null;
+        }
+    }
+}
+```
+
+In this program, we first take the user's password as input. We then make use of the "generateSecretKey" function which uses "SHA-256" Message Digest to generate a hash of the password. "SHA-256" generates a 256 bit or 32 byte hash. 
+
+AES uses keys of length 16, so we trim the hash to keep only the first 16 bytes and generate the SecretKeySpec using "AES". 
+
+Finally, we print the Base64 encoded string of the generated Secret Key for the user to see. 
+
+This is a basic way of generating a Secret Key using a password. For more secure applications, you might want to add a salt and perform multiple iterations of the hash function.

@@ -1,0 +1,49 @@
+Sure, here is a basic implementation of how you can achieve this:
+
+```Java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+  private static String alias = "accessTokenAlias";
+  private static char[] keyStorePassword = "secretpassword".toCharArray();
+  private static char[] keyPassword = "keypassword".toCharArray();
+
+  private static String accessToken = "1234567890abcdef";
+
+  public static void main(String[] args) throws Exception {
+
+    KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+    CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+
+    // Load the keystore
+    FileInputStream keyStoreData = new FileInputStream("keystore.jks");
+    keyStore.load(keyStoreData, keyStorePassword);
+    keyStoreData.close();
+
+    // Store Access Token
+    KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(
+            new javax.crypto.spec.SecretKeySpec(accessToken.getBytes(), "RAW"));
+    KeyStore.ProtectionParameter entryPassword =
+            new KeyStore.PasswordProtection(keyPassword);
+    keyStore.setEntry(alias, secretKeyEntry, entryPassword);
+
+    // Save the keystore
+    FileOutputStream keyStoreOutputStream = new FileOutputStream("keystore.jks");
+    keyStore.store(keyStoreOutputStream, keyStorePassword);
+    keyStoreOutputStream.close();
+  }
+}
+```
+
+This program generates a new keystore of the default type (JKS), and stores a secret key (which represents the access token) in it. The access token is stored as a `javax.crypto.SecretKey` object, which is created using the call to `SecretKeySpec`. 
+
+The program then sets the secret key entry under the specified alias, and saves the keystore to the file system.
+
+Please replace "keystore.jks", "secretpassword", "1234567890abcdef" with your real keystore file path, password, and access token. 
+    
+
+Note: Make sure to handle exceptions correctly in your production code. Also, remember not to expose sensitive information such as passwords and access tokens in your program.

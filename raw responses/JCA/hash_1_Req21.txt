@@ -1,0 +1,38 @@
+Sure, here is a simple Java program to calculate the hash value of a string using Java's standard MessageDigest class. It uses the SHA-256 algorithm. 
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+    public static String calculateHash(String text) {
+        try {
+            // Create a SHA-256 digest
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(text.getBytes("UTF-8"));
+            
+            StringBuilder hexString = new StringBuilder();
+            for (int i = 0; i < encodedhash.length; i++) {
+                String hex = Integer.toHexString(0xff & encodedhash[i]);
+                if(hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch(Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter a string:");
+        String text = scanner.nextLine();
+        
+        String hash = calculateHash(text);
+        System.out.println("The SHA-256 hash of " + text + " is: " + hash);
+    }
+}
+```
+
+This program reads a string from the standard input, calculates its SHA-256 hash and prints it. The `calculateHash` method does the actual calculation. It creates a `MessageDigest` for the SHA-256 algorithm, updates it with the bytes from the string and then finalizes the digest calculation with the `digest` method. The resulting byte array is converted to hexadecimal string with the help of `Integer.toHexString` method. Please ensure to catch exceptions appropriately in the production-level code.

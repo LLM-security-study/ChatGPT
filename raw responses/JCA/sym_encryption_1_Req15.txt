@@ -1,0 +1,54 @@
+Here is a simple Java program that fulfills your request:
+
+```java
+import java.util.Base64;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    
+    private static final String key = "aesEncryptionKey";
+    private static final String initVector = "encryptionIntVec";
+
+    public static String encrypt(String value) {
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec);
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String secretString = "Hello World!";
+        String encryptedString = encrypt(secretString);
+        System.out.println("Encrypted Text : " + encryptedString);
+        System.out.println("Decrypted Text : " + decrypt(encryptedString));
+    }
+}
+```
+
+Please note that in above code, the function `encrypt` is used to encrypt a plain string and `decrypt` is used to decrypt the encrypted string.
+
+The key which is used for encryption and decryption is "aesEncryptionKey". The same key is used for both encryption and decryption in AES (symmetric-key algorithm).
+
+We use AES/CBC/PKCS5PADDING algorithm instance for encryption and decryption. We are passing the key to SecretKeySpec and getting the Cipher instance from the SecretKeySpec and the algorithm.
+
+This is a very simple program and the key is hard-coded, make sure to use a secure way of storing and retrieving keys in a production application.

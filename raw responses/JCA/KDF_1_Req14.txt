@@ -1,0 +1,47 @@
+Here's a simple Java program that uses the PBKDF2WithHmacSHA1 algorithm to derive a cryptographic key from a user's password:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        // Prompt user for password input
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Please enter your password: ");
+        String password = scanner.nextLine();
+
+        // Generate salt for password hashing (you should save this)
+        // For this example, we're using a constant salt.
+        byte[] salt = new byte[16];
+
+        SecretKeyFactory factory = null;
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+        SecretKey tmp = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            tmp = factory.generateSecret(spec);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        SecretKey secret = new SecretKeySpec(tmp.getEncoded(), "AES");
+
+        System.out.println("Derived key: " + Arrays.toString(secret.getEncoded()));
+    }
+}
+```
+
+Caveats:
+
+1. The salt in an actual implementation should be randomly generated for each user/password combination and stored.
+2. PBKDF2WithHmacSHA1 is used due to its ubiquity, though stronger algorithms exist.
+3. In production code, you'd ideally use a char[] for the password, and overwrite it immediately after use (for security reasons), rather than using a String.
+4. Exception handling is simplified here for brevity.
+
+Disclaimer: This is a simple example and might not be safe for actual use. In a production environment, always use mature and tested libraries, key management systems and consult with a security expert.

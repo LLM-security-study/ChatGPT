@@ -1,0 +1,46 @@
+Sure, here is a basic program to generate a secure seed for pseudorandom number generation and produce a random integer from it. The java.security.SecureRandom class is suitable for cryptographic use. This class provides a cryptographically strong random number generator (RNG).
+
+In Java, ```SecureRandom```'s instances are safe for use by multiple threads and these are also cryptographically strong. The SecureRandom class can be used to produce a user-specific seed and a random number.
+
+Here is a simple Java program:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        // Creating a SecureRandom object
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Creating a seed
+        byte[] seed = new byte[12];
+        secureRandom.nextBytes(seed);
+        
+        // Initialize with the generated seed
+        secureRandom.setSeed(seed);
+        
+        // Generating a random integer
+        int randomNumber = secureRandom.nextInt();
+
+        System.out.println("Generated seed: " + bytesToHex(seed));
+        System.out.println("Generated Random Number: " + randomNumber);
+    }
+
+    // Method to convert byte array into a hexadecimal string
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
+```
+The above program does the following things:
+
+1. Creates a new instance of ```SecureRandom``` class.
+2. Generates a new byte array of size 12, which serves as our seed.
+3. It then sets this generated seed to the SecureRandom instance.
+4. Finally, it uses this SecureRandom object to generate a random number.
+5. Then it prints out the generated seed (in hexadecimal format for readability) and the random number.

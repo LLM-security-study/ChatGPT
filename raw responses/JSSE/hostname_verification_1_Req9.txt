@@ -1,0 +1,49 @@
+Sure, you can use Java's `HttpURLConnection` to connect to a server over SSL/TLS and manually perform hostname verification. The following is a basic Java program that uses `HttpsURLConnection` and a custom `HostnameVerifier`.
+
+```java
+import java.io.IOException;
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main {
+ 
+    public static void main(String[] args) {
+        new Main().run();
+    }
+  
+    private void run() {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+  
+            // Set your hostname verifier
+            conn.setHostnameVerifier(new CustomHostnameVerifier());
+  
+            // Get response code to initiate SSL handshake
+            System.out.println(conn.getResponseCode()); 
+  
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+	
+	private class CustomHostnameVerifier implements HostnameVerifier {
+		public boolean verify(String hostname, SSLSession session) {
+			// Implement your hostname verification logic here
+			// This example just allows anything, DO NOT use it in production
+			return true;
+		}
+	}
+
+}
+```
+
+In the code above, the `CustomHostnameVerifier` class implements a custom logic for hostname verification. It now allows any hostname to pass the verification, which is not secure and it just for demonstration purposes. 
+
+In your actual production code, the `verify` method in `CustomHostnameVerifier` should perform actual verification of the hostname against your rules and return `true` only for valid hostnames.
+
+Please consider that the hostname verification is a critical part of SSL/TLS communication and it should be performed thoroughly to prevent various types of SSL/TLS attacks such as Man-in-the-Middle (MITM) attack.
+
+Also, use standard hostname verifier provided by SSL library in your production code for better security as implementing your own may have security risks. This standard hostname verifier could be HttpsURLConnection.getDefaultHostnameVerifier() for Java 8 and above.

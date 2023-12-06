@@ -1,0 +1,46 @@
+Sure, Here is a basic example of creating an SSL socket in Java using the Java Secure Socket Extension (JSSE) API:
+
+Please replace "host" and "port" with the actual host and the port number of the server you're going to connect.
+
+```java
+import javax.net.ssl.*;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket("host", port);
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // you can write and read from the socket as per the server's protocol
+            out.println("Hello Server");
+            out.flush();
+
+            String response = in.readLine();
+            System.out.println("Server response: " + response);
+
+            // close the streams and socket
+            in.close();
+            out.close();
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println("Failed to create SSL socket.");
+            e.printStackTrace();
+        }
+    }
+}
+```
+Note: 
+
+1. This is a very basic example of an SSL socket client. For production code you would need to handle errors more gracefully and perform the necessary cleanup in a finally block.
+
+2. This assumes that your Java environment trusts the SSL certificate presented by the server. If the server uses a self-signed certificate not known to your Java environment, you'll need to import that certificate into your Java truststore.
+
+3. Always close your resources in a finally block or use try-with-resources to avoid resource leaks. In this sample, closing is done after operation without finally. 
+
+4. Also, many servers will require some sort of authentication. This could be as simple as sending a user name and password after establishing the connection. It could also involve a more complex handshake process. Check with your server documentation.

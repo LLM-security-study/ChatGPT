@@ -1,0 +1,55 @@
+Sure, here's a basic example of how you can encrypt data using the AES algorithm in CBC mode. This program simply encrypts an input String.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String ALGORITHM = "AES/CBC/PKCS5Padding";
+    private static final String AES = "AES";
+    private static final byte[] keyValue = new byte[]{'T', 'h', 'i', 's', 'I', 's', 'A', 'S', 'e', 'c', 'r', 'e', 't', 'K', 'e', 'y'};
+
+    public static void main(String[] args) throws Exception {
+
+        String valueToEnc = "TheDataToEncrypt";
+        String encryptedValue = encrypt(valueToEnc);
+        System.out.println("Encrypted value: " + encryptedValue);
+
+    }
+
+    public static String encrypt(String valueToEnc) throws Exception {
+
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] iv = new byte[16];
+        secureRandom.nextBytes(iv);
+
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(keyValue, AES);
+
+        Cipher c = Cipher.getInstance(ALGORITHM);
+        c.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivParameterSpec);
+        byte[] encValue = c.doFinal(valueToEnc.getBytes());
+        byte[] finalCiphertext = new byte[iv.length + encValue.length];
+
+        System.arraycopy(iv, 0, finalCiphertext, 0, iv.length);
+        System.arraycopy(encValue, 0, finalCiphertext, iv.length, encValue.length);
+
+        return Base64.getEncoder().encodeToString(finalCiphertext);
+    }
+
+}
+```
+In this code:
+- 'ALGORITHM' specifies the transformation i.e. the encryption algorithm (AES), mode of operation (CBC), and padding scheme (PKCS5Padding).
+- 'keyValue' is the secret key. For AES it must be 16 bytes.
+- We're creating a random IV using SecureRandom, and prepending it to the encrypted data.
+- The 'encrypt' method carries out the actual encryption.
+- The encrypted output (including the IV) is encoded using Base64 to make it safe for text transmission/storage.
+
+Make sure to handle the exceptions properly in your production-level code.
+
+And remember, it's not safe to use the hardcoded secret key as done in the example. It is strongly recommended to avoid storing it in the code. You may want to store it securely in a place like a vault.

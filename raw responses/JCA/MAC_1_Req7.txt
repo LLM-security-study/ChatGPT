@@ -1,0 +1,39 @@
+Here's a simple Java program that accepts an input message and generates a Message Authentication Code (MAC) using the HMAC-SHA256 algorithm. It uses the javax.crypto package from the Java Cryptography Extension (JCE).
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter a message:");
+        String message = scanner.nextLine();
+
+        try {
+            String secretKey = "secret";
+            Mac mac = Mac.getInstance("HmacSHA256");
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            mac.init(secretKeySpec);
+
+            byte[] messageHMAC = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            String encodedHMAC = Base64.getEncoder().encodeToString(messageHMAC);
+
+            System.out.println("The HMAC for the message is:");
+            System.out.println(encodedHMAC);
+        } catch (Exception e) {
+            System.out.println("Error generating HMAC: " + e.getMessage());
+        }
+    }
+}
+```
+
+In the above code:
+1. We first accept an input message from the user. 
+2. We then use the MAC instance in the java.crypto package to generate a MAC (HMAC-SHA256) for the input message using a secret key ('secret' in this case). 
+3. The generated HMAC is a byte array, so we encode it to a Base64 String for readability.
+4. If there are any exceptions (like NoSuchAlgorithmException or InvalidKeyException), it will be displayed to the user.

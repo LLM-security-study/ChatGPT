@@ -1,0 +1,98 @@
+Here's a simple Java example of how you can authorize an application to access Google Contacts. This program uses OAuth 2.0 Client Library to make it easier to interact with Google's OAuth 2.0 server.
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+
+    private static final String APPLICATION_NAME = "Google Contacts API Java";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String CREDENTIALS_FOLDER = "credentials"; // Directory to store user credentials.
+
+    /**
+     * This method requests a set of scopes which indicate the permissions that your application wants to be granted.
+     * For the purpose of this task, we need to use the `https://www.googleapis.com/auth/contacts.readonly`
+     * readonly scope.
+     */
+    private static final List<String> SCOPES = Collections.singletonList("https://www.googleapis.com/auth/contacts.readonly");
+
+    /**
+     * The `LoadClientSecrets` method attempts to load a set of client secrets from a file located in
+     * your project's resources directory.
+     */
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FOLDER + "/credentials.json");
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FOLDER + "/credentials.json");
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        // Build authorization flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
+            .setAccessType("offline")
+            .build();
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credentials = getCredentials(HTTP_TRANSPORT);
+
+        //The program prints the credential's access token, just to verify everything works as expected.
+        System.out.println("Credentials saved to " + "tokens" + " directory");
+        System.out.println("Access Token: " + credentials.getAccessToken());
+    }
+}
+```
+This program will attempt to open a new window or tab in your default web browser. It is initiating an authorization request. Login into your Google Account to view the authorization request. The authorization flow will return an authorization code in the browser. If the Desktop is not available (for example, running on a server), this program will still run by displaying the URL of the page and you can browse to it manually to authorize access.
+
+Make sure to replace `credentials.json` with your own Google API's client secret JSON file. You can replace the SCOPES if you want to request access to other Google APIs.
+
+To run this program, these dependencies should be included in your `pom.xml` if you are using Maven project.
+```xml
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.31.5</version>
+</dependency>
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client-jetty</artifactId>
+    <version>1.31.5</version>
+</dependency>
+<dependency>
+    <groupId>com.google.http-client</groupId>
+    <artifactId>google-http-client-jackson2</artifactId>
+    <version>1.39.2</version>
+</dependency>
+<dependency>
+    <groupId>com.google.apis</groupId>
+    <artifactId>google-api-services-people</artifactId>
+    <version>v1-rev296-1.25.0</version>
+</dependency>
+```
+The Google People API is needed for accessing contacts. 
+
+In Java, the `com.google.api.client.auth.oauth2` package is typically used for OAuth2.0 authorization. The `GoogleAuthorizationCodeFlow` is an implementation of the OAuth 2.0 protocol, which allows users to sign in to a web server by presenting tokens rather than passwords. The `GoogleClientSecrets` loads the client secrets from a Stream or Reader. 
+
+Please make sure to take steps for securing the "Client Secret" as it needs to be kept secret. If you accidentally reveal your client secret, then the security of your app will be compromised. You can then revoke that client ID and generate a new one from your Google API Console.

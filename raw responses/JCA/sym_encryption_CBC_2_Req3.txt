@@ -1,0 +1,50 @@
+Below is a sample Java code for encryption using the AES algorithm in CBC mode:
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static String initVector = "randomInitVector"; // 16 bytes IV
+    private static String key = "encryptionKey123"; // 128 bit key
+
+    public static void main(String[] args) {
+        
+        String original = "Important Message";
+        System.out.println("Original message: " + original);
+
+        try {
+            String encrypted = encrypt(key, initVector, original);
+            System.out.println("Encrypted message: " + encrypted);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String encrypt(String key, String initVector, String value) throws Exception{
+        IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+        SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+        cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+        byte[] encrypted = cipher.doFinal(value.getBytes());
+
+        return Base64.getEncoder().encodeToString(encrypted);
+    }
+}
+```
+
+In this code, initially, we define an `initVector` and a `key` for the AES encryption. Both should be of 16 bytes (128 bit). 
+
+In the main method, we call the `encrypt` method to encrypt a message.
+
+The cipher instance is created by specifying the algorithm as "AES", mode as "CBC", and padding as "PKCS5". 
+
+Please replace `"randomInitVector"` and `"encryptionKey123"` according to your requirement. It's just for test purpose and it's always recommended to use randomly generated keys and IV. 
+
+The exception handling is also kept very basic in this program. In production quality code, the exception handling should be improved.

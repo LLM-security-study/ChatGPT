@@ -1,0 +1,44 @@
+Sure, here is a high-level skeleton of a program. Note that you will need to handle "client id", "client secret", "redirect URI" and the "Google API Java Client" libraries to setup and run the operation properly. 
+
+First, we should import the necessary libraries from the Google API Java client.
+
+```java
+/**
+ * The main class to establish a Single-Sign-On service for a web application.
+ * It uses Google accounts for user authentication via Google OAuth2 service.
+ */
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+class Main {
+
+    private static final String CLIENT_ID = "<YOUR_CLIENT_ID>";
+    private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/userinfo.profile"); //Specify the scope
+    private static final String CALLBACK_URI = "<YOUR_CALLBACK_URI>";
+    
+    private static GoogleAuthorizationCodeFlow flow;
+
+    public static void main(String arg[]) {
+        flow = new GoogleAuthorizationCodeFlow.Builder(new NetHttpTransport(),
+                                                        JacksonFactory.getDefaultInstance(),
+                                                        CLIENT_ID,
+                                                        "<YOUR_CLIENT_SECRET>",
+                                                        SCOPES)
+                                                        .setAccessType("online") 
+                                                        .setApprovalPrompt("auto").build();
+        // Redirect user to login and authorize
+        GoogleAuthorizationCodeRequestUrl url = flow.newAuthorizationUrl();
+        url.setRedirectUri(CALLBACK_URI);
+        String authorize_url = url.build();
+        // open in your browser the authorize_url
+    }
+}
+```
+
+This code will give an authorization URL to which the user should be directed to log in and authorize your app. The next step would be to handle the response from Google and verify the token to get user details. Since this requires setting up an endpoint in your app to receive the callback with authorization code, it might not be feasible to create that in a console-based Java program.
+
+Google has very detailed documentation to set up SSO using Google accounts, where you can handle the authorization token and further process it. Detailed information can be found for the complete setup here: https://developers.google.com/identity/protocols/oauth2/web-server.

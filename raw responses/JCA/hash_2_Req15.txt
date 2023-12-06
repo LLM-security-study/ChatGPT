@@ -1,0 +1,37 @@
+Here is a simple Java program that does a file integrity check by calculating the hash value of a file and then comparing it with a provided hash value.
+
+Please be aware that this program assumes you have the file path and the expected hash value. 
+
+```java
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.util.Arrays;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // Set these variables to your file and hash
+    Path file = Paths.get("path_to_your_file");
+    byte[] expectedHash = new byte[] {-85, -85, -85}; // Your hash here
+
+    MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+    byte[] fileBytes = Files.readAllBytes(file);
+
+    byte[] hashBytes = md.digest(fileBytes);
+
+    if (Arrays.equals(expectedHash, hashBytes)) {
+      System.out.println("File is intact.");
+    } else {
+      System.out.println("File was modified.");
+    }
+  }
+}
+```
+
+This code reads the file specified by the `file` path into a byte array, then uses the `MessageDigest` instance to calculate the SHA-256 hash of the file. It then compares the calculated hash with the expected hash. If the hashes match, it prints "File is intact", otherwise, it prints "File was modified".
+
+Remember to change the "path_to_your_file" and the expected hash's value. Also you can change SHA-256 to different hash algorithm based on your requirements.
+
+Note: You should catch and handle the exceptions properly in production level code.

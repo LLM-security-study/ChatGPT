@@ -1,0 +1,47 @@
+Sure, here is a simple implementation of a hash function in Java using Java's Secure Hash Algorithm (SHA-256) as part of its MessageDigest class in java.security package.
+
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String original = "Hello, World!";
+
+        try {
+           MessageDigest md = MessageDigest.getInstance("SHA-256");
+           byte[] digest = md.digest(original.getBytes());
+        
+           String hashed = toHexString(digest);
+        
+           System.out.println("Original string: " + original);
+           System.out.println("Hashed string: " + hashed);
+        
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String toHexString(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1)
+                hexString.append('0');
+            hexString.append(hex);
+        }
+
+        return hexString.toString();
+    }
+}
+```
+This Java program takes a string input (`original`), generates a message digest of that string using SHA-256, then outputs it as a hexadecimal string.
+
+One of the most important things to note about this implementation is the use of `MessageDigest.getInstance("SHA-256")`, where "SHA-256" is the specific algorithm requested. There are other possibilities, like MD5 and SHA-1, but these are now considered relatively weak and not recommended for new systems.
+
+Also, the `toHexString` method is needed to convert the hashed bytes into human-readable format. The hashing process results in an array of bytes, not a typical string of characters, and thus requires conversion. 
+
+Furthermore, this simple program doesn't handle any input or file reading. Depending on your specific needs you might need to adjust it accordingly. For instance, if you want to handle different inputs you could implement command line arguments, GUI, or read from a file or database. 
+
+Remember that Exceptions must be handled effectively. The `NoSuchAlgorithmException` is a checked exception thrown by `MessageDigest.getInstance()` when it is called with an argument naming an algorithm that is not available in the environment. In more complex programs, you may want to handle this exception more gracefully, perhaps by providing fallback options or better error messages for users.

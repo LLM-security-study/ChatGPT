@@ -1,0 +1,58 @@
+Sure. Here's a simple Java program that uses the AES symmetric encryption algorithm to encrypt and decrypt data. It's a command-line application where the user gives the input data.
+
+This Java code uses AES (Advanced Encryption Standard) which is a symmetric encryption algorithm. The SecretKeyFactory object generates the AES key from the given password.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Arrays;
+import java.io.Console;
+import java.security.spec.KeySpec;
+
+public class Main {
+    private static final String secretKey = "secret!";
+
+    public static SecretKey getAESKey() throws Exception {
+        char[] password = secretKey.toCharArray();
+        byte[] salt = new byte[8]; 
+        
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        KeySpec spec = new PBEKeySpec(password, Arrays.copyOf(salt, salt.length), 65536, 128);
+        SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
+        return secret;
+    }
+
+    public static String encrypt(String plainText, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        return new String(cipher.doFinal(plainText.getBytes("UTF-8")));
+    }
+
+    public static String decrypt(String encryptedText, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return new String(cipher.doFinal(encryptedText.getBytes()), "UTF-8");
+    }
+
+    public static void main(String[] args) throws Exception {
+        Console console = System.console();
+        if(console == null) {
+            System.out.println("Couldn't get Console instance");
+            System.exit(0);
+        }
+        
+        String plainText = console.readLine("Enter the text: ");
+        SecretKey aesKey = getAESKey();
+        String encryptedText = encrypt(plainText, aesKey);
+        System.out.println("Encrypted Text : " + encryptedText);
+        String decryptedText = decrypt(encryptedText, aesKey);
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+}
+```
+
+This program asks the user for the text to be encrypted, then it prints both the encrypted text and the decrypted text.
+Please note: This program is a simple demonstration and is not suitable for actual encryption use, as it has not been designed to be secure against an actual attack. For example, the key is kept as a constant string, and therefore, it is not secure. This could be replaced with a more secure method of key management in a real-world application.

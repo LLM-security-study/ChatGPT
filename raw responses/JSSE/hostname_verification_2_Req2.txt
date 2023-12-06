@@ -1,0 +1,47 @@
+In Java, `javax.net.ssl` is the main API package to create SSL/TLS secure network protocol connection.
+
+Here is a simple code example for hostname verification in the SSL/TLS connection. The main class name is 'Main.'
+
+I'm using `javax.net.ssl.HostnameVerifier` and `javax.net.ssl.HttpsURLConnection` for implementation.
+
+```java
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import java.net.URL;
+
+class Main {
+    public static void main(String[] args) throws Exception {
+
+        String hostname = "your-hostname.com";
+        URL url = new URL("https://" + hostname);
+
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+        conn.setHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String givenHostname, SSLSession session) {
+                if (givenHostname.equals(hostname)) {
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        conn.connect();
+        
+        if(conn.getResponseCode() == 200){
+            System.out.println("Connected sucessfully and hostname is verified!");
+        }else{
+            System.out.println("Failed to connect!");
+        }
+        conn.disconnect();
+    }
+}
+```
+Replace `'your-hostname.com'` with the actual hostname you want to connect and verify.
+
+This program opens HTTPS connection on the given host. The HostnameVerifier is set to a simple implementation that only verifies the hostname against the expected hostname.
+
+This is simple code snippet, It will simply check the hostname is equal to the given hostname. You should use more advanced and secure ways to check the certificate's common name (CN) in production level code. This could be TLS certificate pinning or using a trusted third party library like OkHttp's CertificatePinner.

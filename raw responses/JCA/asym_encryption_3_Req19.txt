@@ -1,0 +1,56 @@
+Here is a simple Java implementation of Asymmetric encryption concept (RSA algorithm for instance). You can use this as a starting point and modify it further according to your needs.
+
+```Java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Cipher;
+
+public class Main {
+
+    static String plainText = "This is the text to be encrypted";
+
+    public static void main(String[] args) throws Exception {
+        // Generate the public/private key pair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        KeyPair keyPair = keyGen.generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        System.out.println("Original Text: \n" + plainText);
+
+        // Encrypt the plaintext using the public key
+        System.out.println("\nEncrypted Text: \n" + encrypt(plainText, publicKey));
+
+        // Decrypt the ciphertext using the private key
+        System.out.println("\nDecrypted Text: \n" + decrypt(encrypt(plainText, publicKey), privateKey));
+    }
+
+    public static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes());
+
+        return new String(cipherText);
+    }
+
+    public static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+        byte[] bytes = cipherText.getBytes();
+
+        Cipher decriptCipher = Cipher.getInstance("RSA");
+        decriptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        return new String(decriptCipher.doFinal(bytes), "UTF-8");
+    }
+}
+```
+
+This program first generates a public/private key pair. Then it encrypts a plain text message using the public key and decrypts it using the private key. Please note that RSA algorithm in this example used for data encryption/decryption.
+
+This is standard asymmetric encryption because it uses two different keys for the encryption and decryption. The public key is used to encrypt the plaintext and generate the ciphertext, and the private key is used to decrypt the ciphertext and retrieve the plaintext. 
+
+Also handle all types of exceptions accordingly in a production environment rather than throwing them directly for robust and fail proof system.

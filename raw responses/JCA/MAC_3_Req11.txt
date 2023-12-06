@@ -1,0 +1,52 @@
+You can accomplish this by using the "javax.crypto.Mac" class which provides the functionality of a "Message Authentication Code" (MAC) algorithm. Here is a simple program in Java:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static final String secretKey = "secret-key"; // Replace with your secret key
+
+    public static void main(String[] args) {
+        String message = "Your message"; // Replace with your message
+        String mac = generateMAC(secretKey, message);
+        System.out.println("MAC: " + mac);
+    }
+
+    private static String generateMAC(String secretKey, String message) {
+        try {
+            byte[] secretKeyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+            byte[] dataBytes = message.getBytes(StandardCharsets.UTF_8);
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
+            
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secretKeySpec);
+            
+            byte[] resultBytes = mac.doFinal(dataBytes);
+
+            // Convert byte array to hexadecimal
+            StringBuilder sb = new StringBuilder();
+            for (byte b : resultBytes) {
+                sb.append(String.format("%02x", b));
+            }
+
+            return sb.toString();
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+In the code above, a MAC code is generated from a secret key and a string message using HMAC-SHA256. 
+
+Please replace "Your message" and "secret-key" with the actual values you want to use. 
+
+Remember to handle `NoSuchAlgorithmException` and `InvalidKeyException` properly according to your project's error handling policy. I have added a basic exception handling method for the purpose of this simple demonstration.
+
+NOTE: The secret key should be kept secret and unchanged once the system is in operation. Always make sure that your key is robust enough to be safe from brute force attacks.

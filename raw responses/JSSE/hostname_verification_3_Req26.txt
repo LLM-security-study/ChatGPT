@@ -1,0 +1,35 @@
+Here is a simple version of Java program using the standard SSL APIs:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.google.com");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            connection.connect();
+
+            if (!connection.getURL().getHost().equals(connection.getPeerPrincipal().getName().split(",")[0].split("=")[1])) {
+                System.out.println("Hostname verification failed");
+            } else {
+                System.out.println("Hostname verification successful");
+            }
+
+            connection.disconnect();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This small program connects to the `https://www.google.com` URL and reads the peer information from the SSL session. It compares the hostname of the URL with the common name(CN) that is in the certificate the server sent. 
+
+Please replace `"https://www.google.com"` with the URL of the server you want to check hostname verification.
+
+Bear in mind that this approach is pretty simple: in the actual production environment, the verification process must be much more complex and meticulous. It's crucial to apply a robust hostname verifier provided by well-tested libraries instead of creating your own. This program is only a base that further enhancements should be applied to ensure comprehensive security checkpoints.

@@ -1,0 +1,47 @@
+Sure. Here is a basic Java program that uses Java Secure Socket Extension (JSSE) to create an SSL socket and connect to a remote server. 
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        int port = 443; // default https port
+        String server = "www.example.com"; // replace with your server 
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(server, port);
+            socket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            out.println("GET / HTTP/1.0");
+            out.println();
+            out.flush();
+
+            if (out.checkError())
+                System.out.println(
+                        "SSLSocketClient:  java.io.PrintWriter error");
+
+            /* read response */
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+            out.close();
+            in.close();
+            socket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+To run this code, replace "www.example.com" with the remote server you want to connect to. This program makes a simple HTTP GET request to the server and then reads and displays the response. This code assumes that the remote server is listening on port 443, which is the default port for HTTPS. If your server is listening on a different port, you'll need to change the port number.
+
+Please note that this is a basic example and might not include all the error handling and safety measures that should be present in production code. For instance, creating an SSL socket doesn't mean your data is completely secure - you also need to verify the identity of the server to prevent man-in-the-middle attacks, which is not included in this example. Finally, it is a good practice to close all I/O streams and sockets in a finally block or use try-with-resources statement to ensure they are properly closed even if an exception is thrown.

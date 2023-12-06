@@ -1,0 +1,43 @@
+Sure, here is a simple implementation of AES decryption in CBC mode using Java's standard APIs:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String encryptedData = "YOUR_ENCRYPTED_DATA";
+        String secretKey = "YOUR_SECRET_KEY";
+        String initializationVector = "YOUR_INITIALIZATION_VECTOR"; //Must be 16 bytes 
+
+        try {
+            byte[] encryptedBytes = Base64.getDecoder().decode(encryptedData);
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+            IvParameterSpec ivSpec = new IvParameterSpec(initializationVector.getBytes("UTF-8"));
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+            byte[] originalBytes = cipher.doFinal(encryptedBytes);
+            String originalData = new String(originalBytes);
+
+            System.out.println("Original data: " + originalData);
+        } catch (Exception e) {
+            System.out.println("Decryption error: " + e.toString());
+        }
+    }
+}
+```
+
+NOTE:
+- Replace "YOUR_ENCRYPTED_DATA", "YOUR_SECRET_KEY", and "YOUR_INITIALIZATION_VECTOR" with your encrypted data, AES secret key, and initialization vector respectively.
+
+- Initialization vector (IV) must be 16 bytes because we are using AES which works on blocks of 16 bytes. The IV is used to randomize the encryption so that repeated encryptions of the same plaintext will generate different ciphertexts.
+
+- Secret key must match the requirements of AES encryption. It should be 16, 24, or 32 bytes long.
+
+- This program uses the AES (Advanced Encryption Standard) algorithm in CBC (Cipher Block Chaining) mode. It uses the PKCS5 padding scheme (which is effectively the same as PKCS7 for byte-oriented protocols like AES).
+
+- This program also uses UTF-8 encoding. It's important that the same encoding is used for encryption and decryption; otherwise, the decryption will fail.
+
+- The doFinal method actually performs the decryption operation, returning the decrypted data as a byte array. This byte array is then converted to a string to print the decrypted data.

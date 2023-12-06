@@ -1,0 +1,52 @@
+Android provides a Package Manager class that is used to retrieve all sorts of information related to the application packages that are currently installed on an Android device.
+
+Below is the Java Android program that retrieves and prints the package names with their respective signatures to verify their integrity. 
+
+Mainly, we're using `PackageManager` to get package details and `Signature` for retrieving signing information.
+
+```java
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main extends Activity {
+
+    private final static String TAG = "AppIntegrity";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        try {
+            checkAppIntegrity();
+        } catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException e) {
+            Log.e(TAG, "Error occurred when checking integrity", e);
+        }
+    }
+
+    private void checkAppIntegrity() throws PackageManager.NameNotFoundException, NoSuchAlgorithmException {
+        Signature[] signatures = this.getPackageManager()
+                .getPackageInfo(this.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
+        for (Signature signature : signatures) {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            md.update(signature.toByteArray());
+            Log.d(TAG, "App Signature: " + Base64.encodeToString(md.digest(), Base64.DEFAULT));
+        }
+    }
+}
+```
+
+This will print a base64 encoded SHA-256 signature of your app. This message digest will only stay the same as long as you sign your app with the same keystore. If someone tries to spoof your app with the same package name, they would not be able to sign it with your keys, hence the message digest would be different.
+
+Please note that this solution requires your Android app to have a minimum SDK level of 9 (Android 2.3, Gingerbread) due to the use of Base64 for encoding.
+
+In a different context, for instance, if you're dealing with Google Play's licensing, you would be looking at their License Verification Library (LVL) and Server-side Licensing.
+
+This example is a very basic integrity check. In a production application, it is advisable to do these types of checks in native code or implement other security protocols.
+
+Remember: This does not prevent reverse-engineering of your app, but it enables a way to check if the app's signature has been altered.

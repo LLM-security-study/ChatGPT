@@ -1,0 +1,55 @@
+Creating a complete fingerprint recognition system in a Java program is beyond the scope of this platform, but I will provide a basic code snippet to give an insight on how to start the implementation on Android using Android built-in functionalities.
+
+Please make sure to declare the necessary permissions and write the permission requests in the AndroidManifest.xml and in your activity respectively.
+
+Here's a simplified code sample:
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+
+public class Main {
+
+    private CancellationSignal cancellationSignal;
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void authenticateUser(FingerprintManager fingerprintManager) {
+        cancellationSignal = new CancellationSignal();
+
+        if (ActivityCompat.checkSelfPermission(Main.this, Manifest.permission.USE_BIOMETRIC) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+
+        fingerprintManager.authenticate(null, cancellationSignal, 0, new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(Main.this, "Authentication was successful", Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(Main.this, "Authentication failed", Toast.LENGTH_LONG).show();
+            }
+        }, null);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.M)
+    public void stopListening() {
+        cancellationSignal.cancel();
+    }
+}
+```
+This is a simplified demonstration of how you may utilize the FingerprintManager AuthenticationCallback. You would start the authentication process with the `authenticateUser()` function and stop it with `stopListening()` function. Make sure your application has the required fingerprint permissions.
+
+Be aware that `FingerprintManager` is deprecated since API 28 and has been replaced by `BiometricPrompt` which has more functionalities and improved security. The above code won't work beyond API 28 without modifications. 
+
+Also, remember to handle the exceptions and errors properly in the real scenario.

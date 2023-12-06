@@ -1,0 +1,48 @@
+Sure, here is a basic Java program which takes a message as an input and generates a MAC using the HmacSHA256 algorithm.
+
+Please remember that you need a secret key to generate a MAC.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Reading message from user
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter your message:");
+            String message = scanner.nextLine();
+
+            // Secret Key
+            final String secretKey = "Thisisasamplekey";
+
+            Mac sha256HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec keySpec = new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256HMAC.init(keySpec);
+
+            // Generating MAC
+            byte[] macData = sha256HMAC.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // Generating hexadecimal MAC
+            StringBuilder result = new StringBuilder();
+            for (final byte element : macData) {
+                result.append(Integer.toHexString((element & 0xff) | 0x100), 1, 3);
+            }
+
+            System.out.println("MAC: " + result.toString());
+
+        } catch (Exception e){
+            System.out.println("Error while generating MAC: " + e.getMessage());
+        }
+    }
+}
+```
+
+In this program, the user is asked to enter a message. Then the program generates a MAC for that message using 'Thisisasamplekey' as the secret key. It uses HmacSHA256 for generating the MAC which is then displayed to the user. If an exception occurs while generating the MAC (like invalid key specification or algorithm not available), it will catch the exception and print the error message.
+
+Remember, the key used for the MAC generation should be kept secret. In this code, its hard-coded but in real-world applications, it should be securely stored and retrieved when needed. 
+
+Also, this implementation requires `javax.crypto.*` which is a part of Java Cryptography Extension (JCE). The support for this may vary based on your Java version or platform specifications. Please do check for the required libraries accordingly.

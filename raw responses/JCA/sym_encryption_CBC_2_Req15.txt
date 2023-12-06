@@ -1,0 +1,51 @@
+Sure, here is a Java program for AES encryption in CBC mode. You will need to include the following in your pom.xml:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk15on</artifactId>
+        <version>1.68</version>
+    </dependency>
+</dependencies>
+```
+
+This is a very basic program for demonstration purposes:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate a new AES key
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        SecretKey secretKey = keyGen.generateKey();
+
+        // Generate a new initialization vector (IV)
+        byte[] iv = new byte[16];
+        SecureRandom random = new SecureRandom();
+        random.nextBytes(iv);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+
+        // Initialize the cipher for encryption
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivParameterSpec);
+
+        // Encrypt the plaintext
+        String plaintext = "This is a test.";
+        byte[] ciphertext = cipher.doFinal(plaintext.getBytes());
+
+        // Print the ciphertext
+        System.out.println(new String(ciphertext));
+    }
+}
+```
+
+Please note that the resulting byte array from `cipher.doFinal(plaintext.getBytes());` is your ciphertext. Avoid directly converting your encrypted cipher-text to a string as I did here for simplicity because it can produce unexpected results due to some bytes cannot be represented as a String.
+
+Crypto operations are complex and should preferably be dealt by crypto libraries than coding them manually. Also, everything is in the `main` method for simplicity but it is wise to encapsulate this logic within a helper method or object in a real-world program.

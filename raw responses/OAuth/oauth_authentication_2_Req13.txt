@@ -1,0 +1,75 @@
+Here's a introduction to some basic code in Java for Google single sign-on. Please refer to the exact Google APIs documentations for precise implementations.
+
+For the purpose of comprehension, the client secret is being passed as a string. However, in a production environment, it should be obtained securesly.
+
+Create a Maven Project and add the following dependencies in POM.xml:
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.30.10</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client-jetty</artifactId>
+    <version>1.31.0</version>
+</dependency>
+```
+
+Then enter the following the Java code:
+
+```java
+/*
+   This program is developed to establish a Single-Sign-On (SSO) service for a web application, 
+   using Google accounts for user authentication. 
+   The primary goal is to only implement the authentication functionality. 
+*/
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class Main {
+
+    private static final String REDIRECT_URI = "insert your redirect URI here";
+    private static final String CLIENT_ID = "insert your client ID here";
+    private static final String CLIENT_SECRET = "insert your client secret here";
+
+    public static void main(String[] args) throws IOException {
+
+        GoogleClientSecrets.Details web = new GoogleClientSecrets.Details();
+        web.setClientId(CLIENT_ID);
+        web.setClientSecret(CLIENT_SECRET);
+        web.setRedirectUris(Arrays.asList(REDIRECT_URI));
+
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets().setWeb(web);
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                clientSecrets,
+                Arrays.asList("insert your scope here")
+        ).build();
+
+        new AuthorizationCodeInstalledApp(
+            flow,
+            new LocalServerReceiver()
+        ).authorize("user");
+
+      }
+}
+```
+Please replace the placeholders with your actual client ID, client secret, redirect URI, and scope.
+
+Please note that, for this purpose, we are using Google Authorization code flow for installed apps which is suitable for command-line applications, installed applications, devices and development testing. However, in a real-world application, depending on the type of your application, you might need to choose another type of OAuth 2.0 flow. Please refer to Google API documentation for more information.

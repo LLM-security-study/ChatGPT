@@ -1,0 +1,69 @@
+Here is a Java program that uses AES in CBC mode for symmetric encryption and decryption. 
+
+This program uses Java Cryptography Extension (JCE) to encrypt and decrypt data. "javax.crypto.Cipher" is used for encryption and decryption. AES, DES, etc. are algorithms used by Cipher. 
+
+The utility functions toEncrypt() and toDecrypt() are created as per your request.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    private static final String initVector = "encryptionIntVec"; // 16 bytes IV
+
+    public static void main(String[] args) {
+        String originalString = "Hello, World!";
+        System.out.println("Original String: " + originalString);
+
+        try {
+            String encrypt = toEncrypt("mysecretpassword", originalString);
+            System.out.println("Encrypted String: " + encrypt);
+
+            String decrypt = toDecrypt("mysecretpassword", encrypt);
+            System.out.println("Decrypted String: " + decrypt);
+        } catch (Exception e) {
+            System.out.println("Error while encrypting/decrypting");
+            e.printStackTrace();
+        }
+    }
+
+    public static String toEncrypt(String key, String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String toDecrypt(String key, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+This is a basic implementation and for more secure designs, you may want to review best practices for generating and storing keys, initializing vectors, and handling exceptions. Also consider that it's crucial not to disclose the encryption key and initialization vector (IV).

@@ -1,0 +1,48 @@
+Here is a simple example using Java's built-in APIs Signature, KeyPairGenerator, and SecureRandom.
+
+```java
+import java.security.*;
+
+public class Main {
+
+    // Function to sign a given message
+    static byte[] sign(byte[] message, PrivateKey privateKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(message);
+        return signature.sign();
+    }
+
+    // Function to verify the authenticity and integrity of a signed message
+    static boolean verify(byte[] message, byte[] signMessage, PublicKey publicKey) throws Exception {
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initVerify(publicKey);
+        signature.update(message);
+        return signature.verify(signMessage);
+    }
+
+    public static void main(String[] args) throws Exception {
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048, new SecureRandom());
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+
+        byte[] message = "Hello, World!".getBytes();
+        byte[] signedMessage = sign(message, keyPair.getPrivate());
+
+        System.out.println("Verification: "
+                + verify(message, signedMessage, keyPair.getPublic()));
+    }
+}
+```
+
+Details:
+
+This program signs a message ("Hello, World!") and then verifies the signed message to check its authenticity.
+
+In this program, we first generate a pair of keys (private and public) using RSA algorithm.
+`sign` function: It signs a given message. RSA algorithm with SHA256 hash function is used for generating the digital signature.
+`verify` function: It verifies the digital signature of a message. If the verification process is successful, it implies that the message was not altered in transit and it is actually from the sender it claims to be from.
+
+Execute this program, the console will print `Verification: true` if the message is successfully verified.
+
+Please note: Handling cryptographic keys need secure coding practices beyond the scope of this simple example. The keys should not be accessible or viewable by unauthorized personnel. For a production level application, always consult with a security expert when dealing with cryptography.

@@ -1,0 +1,69 @@
+To implement Single Sign-On (SSO) using Google account in a Java web application, we can use Google's OAuth 2.0 API. Since each application will encompass security handling, direct code isn't really straightforward to provide. 
+
+However, here is a simplified, general step-by-step process using the Google API client library and Google Authorization Server:
+
+```java
+// Main.java
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+
+    private static final String CALLBACK_URI = "http://localhost:8080/callback";
+    private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/userinfo.profile");
+    
+    private static GoogleClientSecrets clientSecrets;
+    private static GoogleAuthorizationCodeFlow flow;
+    private static Credential credential;
+
+    public static void main(String[] args) {
+      
+      try {
+        // load client secrets
+        InputStream in = Main.class.getResourceAsStream("/client_secrets.json");
+        clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new InputStreamReader(in));
+        
+        // set up authorization code flow
+        flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(), JacksonFactory.getDefaultInstance(), clientSecrets, SCOPES)
+                .build();
+
+        // trigger user authorization request
+        AuthorizationCodeRequestUrl authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URI);
+        System.out.println("Go to the following link in your browser:");
+        System.out.println(authorizationUrl);
+       
+    
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+
+    }
+
+}
+
+```
+
+Note that:
+
+1. This code uses `/client_secrets.json` which contains your client ID and secret and is available in the Google API Console. You will need to replace this file with your own.
+
+2. The `CALLBACK_URI` and `SCOPES` would be adjusted as per your application setup.
+
+3. The code provided above just generates the OAuth URL which the user needs to authorize. After the user authorizes from this URL, Google will redirect it to the `CALLBACK_URI` configured in your application.
+
+4. The part which handles the callback and exchanges the code for token is not included. Handling that would require setting up an HTTP server and framework like Spring Boot. 
+
+As this is a standard OAuth2 flow, a lot of information available online about OAuth, Google's API Documentation on authorization, and Authorization Code Flow can help you in understanding different parts.

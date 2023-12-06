@@ -1,0 +1,34 @@
+Here is a simple program in Java for generating a secret key from a user's password. This program uses PBKDF2 (Password-Based Key Derivation Function 2) with HMAC-SHA1 as the PRF (PseudoRandom Function) to generate a secret key from the password. The resultant secret key will be 256-bit.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
+import java.security.spec.*;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String password = "Your Password"; //replace with user provided password
+        byte[] salt = new byte[16]; //replace with a secure randomly generated salt
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256); // AES-256
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+        SecretKey secret = new SecretKeySpec(factory.generateSecret(spec).getEncoded(), "AES");
+        System.out.println("Generated Secret Key : " + bytesToHex(secret.getEncoded()));
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+
+}
+```
+
+Please note: You should replace the "Your Password" string with the actual user password and for the byte array "salt", you should replace that with a securely randomly generated salt. The salt should be securely stored, because if you lose it, you will not be able to reproduce the secret key. It's much better to store a salt (which doesn't need to be protected) and a hash (which can't be used directly to authenticate) than to store a password (which can be used directly to authenticate).

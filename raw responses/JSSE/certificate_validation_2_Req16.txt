@@ -1,0 +1,43 @@
+Implementing a Java program to validate the certificate in an SSL/TLS connection could be a bit complex as it involves dealing with network operations as well as cryptographic APIs. However, here's a basic example of how we can get it started: 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().checkCertificate("https://www.google.com");
+    }
+
+    public void checkCertificate(String httpsUrl) {
+        try {
+            URL url = new URL(httpsUrl);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+
+            Certificate[] certificates = connection.getServerCertificates();
+
+            for(Certificate cert : certificates){
+                System.out.println("Certificate is: " + cert);
+                System.out.println("Cert Public Key Algorithm: " + cert.getPublicKey().getAlgorithm());
+                System.out.println("Cert Public Key Format: " + cert.getPublicKey().getFormat());
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+The program creates a secure connection to a specified HTTPS URL (in this case it is Google). After a secure connection is established, the server's certificates can be fetched. `getServerCertificates()` returns an array of certificates that the server sent to the client.
+
+Note: 
+1. This program doesn't thoroughly validate if the certificate is trustable or not, its main purpose is to fetch and display the server's certificates.
+2. Java truststore (located in `JAVA_HOME\lib\security`) needs to contain root or intermediate certificates of the relevant SSL certificate chain. If not, you'll receive `SSLHandshakeException`.
+3. Always catch `SSLPeerUnverifiedException` to handle scenarios when peer's identity has not been verified.
+
+To properly validate a certificate, we must check its timestamp (valid from, valid to), check if the certificate public key is signed by a trusted Certificate Authority (CA) etc. Java has standard APIs to perform these operations. Please adapt it based on your requirements.

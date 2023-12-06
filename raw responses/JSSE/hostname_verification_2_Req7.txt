@@ -1,0 +1,53 @@
+The below Java program implements the hostname verification in an SSL/TLS connection using standard Java libraries. Here, we are using 'HttpsURLConnection' API for the secure connection and the 'SSLContext' to setup the secure socket layer for the connection.
+
+```Java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Setting up the URL
+        String urlString = "https://www.example.com";
+
+        // Creating SSL Context
+        SSLContext context = SSLContext.getInstance("TLS");
+
+        // Initializing it
+        context.init(null, null, null);
+
+        // Getting SSL Parameters
+        SSLParameters params = context.getSupportedSSLParameters();
+
+        // Disabling support for unencrypted http
+        params.setEndpointIdentificationAlgorithm("HTTPS");
+
+        // Open HTTPS connection
+        URL url = new URL(urlString);
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+        // Setting SSL parameters and properties
+        conn.setDoOutput(false);
+        conn.setSSLSocketFactory(context.getSocketFactory());
+
+        // Reading response if all the SSL negotiation succeeds
+        int responseCode = conn.getResponseCode();
+        System.out.println("Response Code : " + responseCode);
+
+        // Output hostname verification result
+        if (HttpsURLConnection.getDefaultHostnameVerifier().
+            verify("www.example.com", conn.getSSLSession())) {
+            System.out.println("Hostname is verified");
+        } else {
+            System.out.println("Hostname is not verified");
+        }
+
+        conn.disconnect();
+    }
+}
+```
+
+Replace 'www.example.com' with the actual host you try to validate.
+
+This program tries to setup a secure SSL/TLS connection to a provided URL in order to verify the server's hostname. The SSLParameters.setEndpointIdentificationAlgorithm() method is used to set the hostname verification algorithm. If the setup succeeds and the hostname is verified, it simply prints "Hostname is verified" on the console, otherwise it prints "Hostname is not verified".

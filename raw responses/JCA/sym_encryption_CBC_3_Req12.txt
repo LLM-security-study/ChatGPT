@@ -1,0 +1,46 @@
+Here is a Java implementation for decrypting data using AES algorithm in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static String decrypt(String key, String initVector, String encrypted) { 
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String key = "Bar12345Bar12345";    // 128 bit key
+        String initVector = "RandomInitVector"; // 16 bytes IV
+
+        // Example usage:
+        String decrypted= decrypt(key, initVector, "Put the encrypted string here");
+        System.out.println("Decrypted string: " + decrypted);
+    }
+}
+```
+Please, replace "Put the encrypted string here" with your encrypted string.
+
+This is a basic example, in a production environment you shouldn't hardcode the key and initialization vector, it should be stored securely and additionally, the key must be generated in a secure manner. For real purposes, use java secure random or similar to generate secure initialization vector.
+
+Moreover, error handling in this example is minimal. It would be a good idea to add more comprehensive error handling for a production environment. 
+
+Ensure that Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files are correctly installed when you are using AES with key longer than 128 bit.

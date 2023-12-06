@@ -1,0 +1,128 @@
+Sure, here's a simple Java code example for fingerprint recognition in Android. I'll assume you're using Android 6.0 (API level 23) and above since fingerprint authentication is only available from this version. 
+
+In this code, I will create a class "MainActivity" firstly, then I'll define a method called "startAuth". 
+
+This code only focuses on fingerprint recognition and doesn't handle all Android app functionality comprehensively. You should professionally develop and customize this code according to your app requirements and objectives.
+
+```java
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final String KEY_NAME = "yourKey";
+    private Cipher cipher;
+    private KeyStore keyStore;
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            //Get an instance of FingerprintManager//
+            fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+            //Check whether the user has granted your app permission to use the fingerprint sensor//
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+
+                // If your app doesn't have this permission, then display the following text//
+                Toast.makeText(MainActivity.this, "Please enable the fingerprint permission", Toast.LENGTH_LONG).show();
+
+            }
+
+            //Check that the user has registered at least one fingerprint//
+            if (!fingerprintManager.hasEnrolledFingerprints()) {
+
+                // If the user hasn’t configured any fingerprints, then display the following message//
+                Toast.makeText(MainActivity.this, "No fingerprint configured. Please register at least one fingerprint in your device's Settings", Toast.LENGTH_LONG).show();
+
+            }
+
+            //Check that the lockscreen is secured//
+            if (!keyguardManager.isKeyguardSecure()) {
+
+                // If the user hasn’t secured their lockscreen with a PIN password or pattern, then display the following text//
+                Toast.makeText(MainActivity.this, "Please enable lockscreen security in your device's Settings", Toast.LENGTH_LONG).show();
+
+            } else {
+                try {
+
+                    //Get the instance of the KeyStore//
+                    keyStore = KeyStore.getInstance("AndroidKeyStore");
+
+                    //Initialize the KeyGenerator//
+                    keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+
+                    //Initialize the Cipher//
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        cipher = Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES+"/"+ KeyProperties.BLOCK_MODE_CBC+"/"+ KeyProperties.ENCRYPTION_PADDING_PKCS7);
+                    }
+
+                    generateKey();
+
+                    //If the cipher is initialized successfully, then create a CryptoObject instance//
+                    if (initCipher(cipher, KEY_NAME)) {
+
+                        //Here, I’m initializing the Cipher for encryption//
+                        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+                        //Creating a new CryptoObject instance//
+                        cryptoObject = new FingerprintManager.CryptoObject(cipher);
+
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    //Create a new method that we’ll use to initialize our cipher//
+    private void generateKey() {
+        try {
+
+            // Obtain a reference to the Keystore using the standard Android keystore container identifier ("AndroidKeystore")//
+            keyStore.load(null);
+
+            //Generate the key//
+            keyGenerator.init(new KeyGenParameterSpec.Builder(KEY_NAME, KeyProperties.PURPOSE_ENCRYPT |
+            KeyProperties.PURPOSE_DECRYPT).setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+
+                //Configure this key so that the user has to confirm their identity with a fingerprint each time they want to use it//
+                .setUserAuthenticationRequired(true).setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7).build());
+
+            //Generate the key//
+            keyGenerator.generateKey();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //Cipher initialization.
+    public boolean initCipher(Cipher cipher, String keyName) {
+        try {
+            keyStore.load(null);
+            SecretKey key = (SecretKey) keyStore.getKey(keyName, null);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}
+
+```
+The code is for reference, make sure it suits for your need before using it.
+
+Please note that Android platform 10.0 has deprecated FingerprintManager and now encourages to use BiometricPrompt.

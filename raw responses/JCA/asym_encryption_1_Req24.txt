@@ -1,0 +1,41 @@
+Sure, here is a basic example of a Java program with two methods one for encryption and the other one for decryption using RSA which is an asymmetric cryptographic algorithm. The process of encryption and decryption will be performed using a public and private key pair.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+        PublicKey publicKey = kp.getPublic();
+        PrivateKey privateKey = kp.getPrivate();
+
+        String plainText = "Hello, world!";
+        
+        byte[] encryptedText = encrypt(publicKey, plainText);
+        System.out.println("Encrypted Text: " + new String(encryptedText));
+        
+        String decryptedText = decrypt(privateKey, encryptedText);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+   
+    public static byte[] encrypt(PublicKey key, String text) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        return cipher.doFinal(text.getBytes());
+    }
+   
+    public static String decrypt(PrivateKey key, byte[] text) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return new String(cipher.doFinal(text));
+    }
+}
+```
+Please note that for a real use-case, never display keys or encrypted data in a console or save them without proper secure storage. Also, usually the keys would be securely stored and accessed or exchanged instead of being generated at run-time, and the private key would be located on a different system or portion of the system from the area that does the encryption.
+

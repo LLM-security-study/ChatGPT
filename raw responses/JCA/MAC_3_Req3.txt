@@ -1,0 +1,43 @@
+Sure, Here is a simple Java program that uses Java Cryptography Extension (JCE) API to generate a Message Authentication Code (MAC) for a given message. This code uses HMACSHA256 algorithm to generate MAC. You can replace HMACSHA256 with any other MAC algorithm that you wish to use. Please also ensure that you have the required cryptographic libraries in your Classpath.
+
+```java
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    private static final String HMAC_SHA256 = "HmacSHA256";
+
+    public static void main(String[] args) {
+        String key = "secret_key"; 
+        String message = "Hello World";
+
+        try {
+            System.out.println(calculateHMAC(message, key));
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String calculateHMAC(String data, String key) throws NoSuchAlgorithmException, InvalidKeyException {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), HMAC_SHA256);
+        Mac mac = Mac.getInstance(HMAC_SHA256);
+        mac.init(secretKeySpec);
+        byte[] rawHmac = mac.doFinal(data.getBytes());
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : rawHmac) {
+            sb.append(String.format("%02x", b));
+        }
+
+        return sb.toString();
+    }
+}
+```
+
+Here, "secret_key" is the secret key that only the sender and receiver know. "Hello World" is the message for which you want to generate the MAC.
+
+Please be informed that for the security of a MAC, it is necessary to keep the key secret. In a real-world scenario, you should safely generate and store these keys. Also, Please handle the exceptions appropriately in your production level code.
+
+Note: The length of a MAC output (also called digest) is dependent on the MAC algorithm.

@@ -1,0 +1,78 @@
+For implementing Single Sign-On (SSO) feature in your Java web application using Google accounts, you need to utilize Google's OAuth 2.0. The method below also requires use of Google's client libraries.
+
+This is a high-level description on how you can do:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.oauth2.Oauth2;
+import com.google.api.services.oauth2.model.Tokeninfo;
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
+/**
+ * This Java program is to enable Single-Sign-On (SSO) 
+ * using Google accounts for a web application.
+ */
+public class Main{
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    /**
+     * Initialize a flow to administrative OAuth2 scopes.
+     */
+    public static GoogleAuthorizationCodeFlow initializeFlow() throws IOException, GeneralSecurityException {
+        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader("client_secret.json"));
+        return new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(DATA_STORE_FACTORY)
+                .setAccessType("offline")
+                .build();
+    }
+
+    /**
+     * Method to validate the user's token.
+     */
+    public static void processUserToken(String idTokenString) throws IOException, GeneralSecurityException {
+        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final Oauth2 oauth2 = new Oauth2.Builder(HTTP_TRANSPORT, JSON_FACTORY, null)
+                .setApplicationName("Your Application Name")
+                .build();
+        Tokeninfo tokenInfo = oauth2.tokeninfo().setIdToken(idTokenString).execute();
+
+        if(!clientSecrets.getDetails().getClientId().equals(tokenInfo.getIssuedTo())) {
+            throw new IllegalArgumentException("The token's client ID does not match the app's.");
+        }
+    }
+}
+```
+
+This is a simplified solution. In real world scenario, you have to secure your client secret file and also handle the interruptions gracefully such as failures in network connection to Google's server.
+
+In order to run the aforementioned code, you need Google's OAuth 2.0 Client Libraries. If you are using Maven, you can add the following dependencies in your pom.xml.
+
+```xml
+<dependency>
+  <groupId>com.google.api-client</groupId>
+  <artifactId>google-api-client</artifactId>
+  <version>1.31.3</version>
+</dependency>
+<dependency>
+  <groupId>com.google.oauth-client</groupId>
+  <artifactId>google-oauth-client-jetty</artifactId>
+  <version>1.31.5</version>
+</dependency>
+<dependency>
+  <groupId>com.google.apis</groupId>
+  <artifactId>google-api-services-oauth2</artifactId>
+  <version>v2-rev173-1.25.0</version>
+</dependency>
+```
+
+To learn more about setting up OAuth 2.0 and step-by-step instructions, you can visit Google's official documentation.

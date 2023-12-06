@@ -1,0 +1,41 @@
+Here is a basic Java program to perform a Message Integrity Check with MAC (Message Authentication Code) using Java's standard APIs. This program uses the HmacSHA256 MAC algorithm which requires a secret key to encrypt data.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String secretKey = "your-very-secure-and-inaccessible-key";
+
+    public static void main(String[] args) {
+        String message = "Hello, this is a secret message!";
+        String macResult = calculateHMAC(message, secretKey);
+        System.out.println("MAC result: " + macResult);
+    }
+
+    private static String calculateHMAC(String data, String key) {
+        try {
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256_HMAC.init(secretKey);
+
+            byte[] rawHmac = sha256_HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(rawHmac);
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+```
+
+This code contains a `calculateHMAC` function that generates the MAC using the `HmacSHA256` algorithm. `SecretKeySpec` is used for holding the secret key.
+
+The `doFinal()` function finally generates the MAC. 
+
+Remember this is a simple example, the secret key should be securely stored and accessed, not hardcoded like in this example, as this would pose a security risk in a real-world application.

@@ -1,0 +1,48 @@
+Here is a basic example of how you would store an access token in a keystore file using Java's standard APIs, please make sure to replace `password`, `alias` and `your_token` with real data:
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // initialize KeyStore
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+
+            // load the existing keystore file with the given password if it exists, or create a new one
+            keyStore.load(null, null);
+
+            // Generate secret key for the access token
+            byte[] tokenBytes = "your_token".getBytes("UTF-8");
+            SecretKeySpec secretKey = new SecretKeySpec(tokenBytes, "AES");
+
+            // Store secret key to keystore
+            KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(secretKey);
+            KeyStore.ProtectionParameter entryPassword = 
+            new KeyStore.PasswordProtection("password".toCharArray());
+            keyStore.setEntry("alias", secretKeyEntry, entryPassword);
+
+            // save the keystore to a file
+            try (FileOutputStream fileOutputStream = new FileOutputStream("keystore.jks")) {
+                keyStore.store(fileOutputStream, "password".toCharArray());
+            }
+            System.out.println("Access token stored successfully in keystore file.");
+
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException | InvalidKeySpecException e) {
+            System.err.println("Error while dealing with keystore: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program uses AES as the symmetric encryption algorithm to store your access token as a secret key in the keystore.
+
+If your access token, password, or alias contain sensitive information, be sure to handle and store them securely according to best practices, such as retrieving them from environment variables instead of hardcoding them directly into your program.

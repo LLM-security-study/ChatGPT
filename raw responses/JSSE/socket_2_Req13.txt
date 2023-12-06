@@ -1,0 +1,49 @@
+Sure, I will create an example using the Java standard API with the SSLSocketFactory. This API allows us to create an SSL socket which begins handshaking as soon as it is established.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+public class Main {
+  private static final String HOST_NAME = "YourHost.com";
+  private static final int PORT = 1234;
+
+  public static void main(String[] args) {
+    try {
+      // Get the SSLSocketFactory
+      SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+      // SSL handshake
+      SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(HOST_NAME, PORT);
+
+      // Create reader/writer
+      PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+      BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+      // Write data to the server
+      out.println("Hello Server!");
+
+      // Read data from the server
+      String response = in.readLine();
+      System.out.println("Server response: " + response);
+
+      // Close the connection
+      in.close();
+      out.close();
+      sslSocket.close();
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+}
+```
+Please replace 'YourHost.com' and '1234' with your host name and port, respectively.
+
+This program creates an SSL socket to a host on a specified port and writes 'Hello Server!' to this server. The response from the server is then read back and printed. After that, the resources are appropriately closed.
+
+Please note that for the SSL handshake process to work, the remote server needs to have a valid SSL certificate. If the certificate is not trusted by the Java runtime, an SSLHandshakeException will occur. You may need to import the server’s SSL certificate into the Java Keystore to avoid this exception.

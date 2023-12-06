@@ -1,0 +1,62 @@
+Sure, here's a very simple program in Java that uses Google's OAuth 2.0 API to authenticate users. This is just a simulation because true authentication needs a server and SSL encryption.
+
+```java
+// This Java program establishes a Single-Sign-On (SSO) service for a web application
+// It uses Google accounts for user authentication 
+
+import java.awt.Desktop;
+import java.net.URI;
+import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+    private static final String CLIENT_ID = "Your Client ID";
+    private static final String CLIENT_SECRET = "Your Client Secret";
+    private static final String REDIRECT_URI = "Your Redirect URI";
+
+    public static void main(String[] args) {
+        // Create a new Google Authorization Code Flow
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                CLIENT_ID,
+                CLIENT_SECRET,
+                Arrays.asList("openid", "email"))
+                .setAccessType("offline")
+                .setApprovalPrompt("force")
+                .build();
+
+        // Get the authorization URL and launch it in the default web browser
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Desktop.getDesktop().browse(new URI(url));
+        }
+
+        // Wait for the authorization code
+        System.out.println("Enter the authorization code:");
+        String code = new Scanner(System.in).nextLine();
+
+        // Exchange the authorization code for tokens
+        GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+
+        // Print the access and refresh tokens
+        System.out.println("Access token: " + response.getAccessToken());
+        System.out.println("Refresh token: " + response.getRefreshToken());
+    }
+}
+```
+Make sure to replace "Your Client ID", "Your Client Secret", and "Your Redirect URI" with your actual client ID, client secret, and redirect URI.
+
+Note: to run this program properly, you need the google-oauth-client library. You can add it to your project using the following Maven dependency:
+
+```xml
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client</artifactId>
+    <version>1.31.5</version>
+</dependency>
+```
+
+In a real-world scenario, you would handle the tokens and user information securely, likely within a server-side application, and not print them directly to the console. This outline is a very simplified example of how the OAuth2 process works with Google.

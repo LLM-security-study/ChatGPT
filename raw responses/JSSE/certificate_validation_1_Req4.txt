@@ -1,0 +1,47 @@
+Sure, here is an example of a simple SSL certificate validation program using Java Secure Socket Extension (JSSE) API. This program attempts to connect to a server, and if the certificates are valid, a secure connection is established, else, an exception is thrown.
+
+Please note that this is a very basic version of certificate validation. In a real-world application, more thorough checks like checking if issuer is trusted, if the certificate is expired, etc., should be performed.
+
+```Java 
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.KeyStore;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Specify the keystore details (keystore.jks) and password for ssl certificate validation
+        String keystoreFile = "path/to/keystore.jks";
+        String password = "password";
+
+        // Load the JDK's cacerts keystore file
+        FileInputStream is = new FileInputStream(keystoreFile);
+        KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keystore.load(is, password.toCharArray());
+
+        // Create a TrustManager that trusts the CAs in our KeyStore
+        String tmfAlgorithm = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(tmfAlgorithm);
+        tmf.init(keystore);
+
+        // Create an SSLContext that uses our TrustManager
+        SSLContext context = SSLContext.getInstance("TLS");
+        context.init(null, tmf.getTrustManagers(), null);
+
+        // Tell the URLConnection to use a SocketFactory from our SSLContext
+        URL url = new URL("https://www.securewebsite.com");
+        HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+        urlConnection.setSSLSocketFactory(context.getSocketFactory());
+
+        InputStream in = urlConnection.getInputStream();
+        // ... read from 'in' and close it when done
+        in.close();
+    }
+}
+```
+
+This program reads a keystore file (replace `"path/to/keystore.jks"` and `"password"` with your actual keystore file path and password), which stores the server certificates to verify with. It then connects to a specified server (`"https://www.securewebsite.com"`), checking its certificates against those in the keystore, and then tries to establish a secure (HTTPS) connection.
+
+You need to replace these placeholders with your actual values. Also, error handling is not included in this example for the sake of simplicity, you can add try-catch blocks as per your requirements.

@@ -1,0 +1,67 @@
+We will use a BiometricPrompt to handle user verification with fingerprints in our Android application. Below is a simplified version of the code with comments for the better understanding:
+
+```java
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.biometric.BiometricPrompt;
+import android.os.Bundle;
+import android.widget.Toast;
+import java.util.concurrent.Executor;
+  
+public class Main extends AppCompatActivity {
+  
+    private BiometricPrompt biometricPrompt;
+    private BiometricPrompt.PromptInfo promptInfo;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Executor executor = ContextCompat.getMainExecutor(this);
+
+        biometricPrompt = new BiometricPrompt(Main.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(
+                    BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                Toast.makeText(getApplicationContext(),
+                        "Authentication succeeded!", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                        Toast.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+        promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                .setTitle("Biometric Authentication")
+                .setSubtitle("Log in using your biometric credential")
+                .setNegativeButtonText("Cancel")
+                .build();
+
+        // Prompt appears when user clicks "Log in".
+        // Consider integrating with the create account and sign in processes for a complete solution.
+        biometricPrompt.authenticate(promptInfo);
+    }
+}
+```
+
+The above java class is a basic implementation of the BiometricPrompt for fingerprint recognition as authentication. 
+
+Please note that due to some limitations in directly testing on emulators or devices, proper exception handling is necessary for real app development. It's also essential to keep in mind that the handling of cancelled or failed authentication and its implications must be implemented to provide a seamless user experience.
+
+Also, this is an oversimplified implementation, and in a real-world scenario, you would want to integrate this with your existing user authentication flow. Please refer to the Android Developer Documentation for complete integration: `https://developer.android.com/training/sign-in/biometric-auth`

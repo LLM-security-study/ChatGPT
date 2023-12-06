@@ -1,0 +1,40 @@
+Sure, here is a simple Java program that creates and stores an access token in a keystore file. Remember to replace 'mySecretKey' and 'myAlias' with your desired secret key and alias.
+
+```java
+import java.io.FileOutputStream;
+import java.security.Key;
+import java.security.KeyStore;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Create a key and store it in a new keystore
+            byte[] keyValue = "mySecretKey".getBytes("UTF-8"); // replace 'mySecretKey' with your desired secret key
+            Key key = new SecretKeySpec(keyValue, "AES");
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            keyStore.load(null, null);
+            KeyStore.PasswordProtection keyStorePP = new KeyStore.PasswordProtection("password".toCharArray()); 
+            
+            KeyStore.SecretKeyEntry keyStoreSKE = new KeyStore.SecretKeyEntry((javax.crypto.SecretKey) key);
+            keyStore.setEntry("myAlias", keyStoreSKE, keyStorePP); // replace 'myAlias' with your alias
+
+            // Save the keystore to a file
+            try (FileOutputStream fos = new FileOutputStream("myKeystore.jceks")) {
+                keyStore.store(fos, "password".toCharArray());
+            }
+            
+            System.out.println("Keystore file created successfully.");
+        } catch (Exception ex) {
+            System.out.println("Error creating keystore: " + ex);
+        }
+    }
+}
+```
+
+This program creates a new Java Cryptography Extension KeyStore (JCEKS) and stores an AES key inside it. The keystore password is "password". Then, it saves the keystore to a file named "myKeystore.jceks".
+
+Make sure to handle the key and password securely in your production environment.
+
+NB: Here the access token is generated as 'mySecretKey' for the sake of demonstration. In an actual use case, you would use a proper way to generate an access token based on your requirements. Be sure to use secure methods for generating, storing, and accessing your secrets.

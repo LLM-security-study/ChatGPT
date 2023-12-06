@@ -1,0 +1,41 @@
+Sure, We can use Java's Secure Socket Extension (JSSE), a set of Java APIs which are focused on secure communication. Here's a sample code that demonstrates a one-way SSL communication where a client communicates securely with a server.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        int port = 8443; // port should be the same as the server 
+        String server = "localhost"; // server can be ip address or domain name.
+        
+        System.setProperty("javax.net.ssl.trustStore", "keystore.jks");
+        System.setProperty("javax.net.ssl.trustStorePassword", "password");
+
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(server, port);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader( new InputStreamReader(sslSocket.getInputStream()));
+
+            String userInput;
+            while ((userInput = in.readLine()) != null) {
+                System.out.println("Echo from server: " + userInput);
+            }
+
+            sslSocket.close();
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
+    }
+}
+```
+This program attempts to open a secure socket to the server by specifying the host and port. System properties 'javax.net.ssl.trustStore' and 'javax.net.ssl.trustStorePassword' should be configured for the SSL handshake to take place.
+
+Note that you need to replace "keystore.jks" and "password" with your actual keystore file and its password. "keystore.jks" file contains certificates that are required for SSL Communication.
+
+The server sends data to the client via SSL and the client reads it and echoes it on the console. The server code is not included.
+
+Please be aware that the proper management and protection of the keys and certificates is critical to the security of the communication.

@@ -1,0 +1,48 @@
+Sure, here is a simple example of a Java program which creates an SSL Socket using Java Secure Socket Extension (JSSE) Standard API.
+
+This program initializes an SSLSocket and enables secure communication by sending a text message "Hello Server" to a remote server.
+
+```java 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    private static final String REMOTE_HOST = "localhost";
+    private static final int REMOTE_PORT = 1234;
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(REMOTE_HOST, REMOTE_PORT);
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sslSocket.getOutputStream())));
+            out.println("Hello Server");
+            out.flush();
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+            String response = in.readLine();
+            System.out.println("Received: " + response);
+
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+In this example:
+
+1. We are creating `SSLSocketFactory` instance which is the factory for SSLSocket. We use `getDefault()` method to get the default implementation of the SSLSocketFactory.
+
+2. After the `SSLSocketFactory` instance is created, we use it to create an instance of `SSLSocket` which connects to the specified remote host and port. 
+
+3. We use `getOutputStream()` method to send data to the remote server and use `getInputStream()` method to receive data from the remote server.
+
+4. Finally, we close all the resources which includes input stream, output stream and the socket.
+
+Please note that to make this program work, you would need to use the actual values of the remote host and port. Also, you need to have SSL/TLS setup in your server and client applications.

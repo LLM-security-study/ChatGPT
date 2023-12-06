@@ -1,0 +1,45 @@
+Sure, here is an example of a Java program that uses the javax.crypto.Mac class to generate a Message Authentication Code (MAC) for an input message.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your message: ");
+        String message = scanner.nextLine();
+
+        try {
+            // Get an instance of the HMAC-SHA256 MAC algorithm.
+            Mac mac = Mac.getInstance("HmacSHA256");
+
+            // Initialize the MAC with a secret key.
+            byte[] secretKeyBytes = "YourSecretKey".getBytes(StandardCharsets.UTF_8);
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKeyBytes, "HmacSHA256");
+            mac.init(secretKeySpec);
+
+            // Compute the MAC.
+            byte[] macBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // Convert the MAC bytes to hexadecimal.
+            StringBuilder sb = new StringBuilder(macBytes.length * 2);
+            for (byte b : macBytes) {
+                sb.append(String.format("%02x", b));
+            }
+            String macHex = sb.toString();
+
+            System.out.println("MAC: " + macHex);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program uses the HMAC-SHA256 algorithm to compute the MAC of the input message, with a predefined secret key. It then prints the MAC in hexadecimal format. Please replace "YourSecretKey" with your own secret key.
+
+This program assumes the secret key is a string, which may not be the case in a real application. Also, the secret key is hardcoded in the code for simplicity, but you should store it securely in a real application, not in plaintext in your code.
+
+Please note that the secret key should be kept confidential. If an attacker obtains your secret key, they can generate valid MACs for arbitrary messages, which defeats the purpose of MACs.

@@ -1,0 +1,45 @@
+Sure, here's a simple implementation of what you're asking for. The program will encrypt a plain text string using AES in CBC mode. This program also uses a hardcoded key and IV, but in real applications, you should securely generate and store these. 
+
+Here's the code:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        final String key = "aesEncryptionKey";
+        final String initVector = "encryptionIntVec";
+
+        String plaintext = "Hello, World!";
+
+        String res = encrypt(key, initVector, plaintext);
+        System.out.println("Encrypted text: " + res);
+    }
+
+    public static String encrypt(String key, String initVector, String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+A note on encryption: The "AES/CBC/PKCS5PADDING" string is what's known as a transformation. It describes the encryption algorithm to use (AES), the mode to use the cipher in (CBC, or Cipher Block Chaining), and the padding scheme to employ (PKCS5). 
+
+The encrypt() function uses these specifications to initialize a Cipher object for encryption. The function then generates a byte[] array of encrypted data from the input plaintext string, which it then returns as a base64 encoded string.

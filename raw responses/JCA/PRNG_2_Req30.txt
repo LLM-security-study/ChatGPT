@@ -1,0 +1,44 @@
+Sure, here's a simple Java program that generates a seed to initialize a PRNG and then uses PRNG to generate a salt for password hashing:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a SecureRandom instance.
+        SecureRandom sr = new SecureRandom();
+
+        // Generate a seed for PRNG.
+        byte[] seed = sr.generateSeed(20); // 20 is just an arbitrary number. You can use any number you want.
+        sr.setSeed(seed);
+
+        // Now let's generate a salt for password hashing.
+        byte[] salt = new byte[16]; // Creating a byte array for salt. 16 is a popular choice for salt size.
+
+        // Use the SecureRandom instance to fill our salt byte array with random numbers.
+        sr.nextBytes(salt);
+
+        // Print out the salt
+        System.out.println(bytesToHex(salt));
+    }
+
+
+    // Method to convert byte array to hexadecimal
+    public static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+This program first generates a seed using the SecureRandom.generateSeed() method. The generated seed is then used to seed the PRNG using the setSeed() method.
+
+Then, a salt for password hashing is generated using the SecureRandom.nextBytes() method. This method generates random bytes and places them into a byte array. The size of the byte array hence determines the length of the generated salt.
+
+Finally, the salt is converted to a hexadecimal string and printed out.
+
+Please note that the size of the seed and the salt can vary depending on the specific requirements of your program. The sizes used in this code (20 for the seed and 16 for the salt) are arbitrary and common, but they are not the only possible choices.
+

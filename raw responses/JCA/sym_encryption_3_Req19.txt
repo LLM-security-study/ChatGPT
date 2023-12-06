@@ -1,0 +1,39 @@
+Here is an example of a very simple symmetric decryption code using AES algorithm in Java:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+class Main {
+    private static final String AES = "AES";
+
+    public static void main(String args[]) {
+        try {
+            String secretKey = "ssdkF$HUiy77#js";
+            String encryptedString = "5UJiFctbmgbDoLXmpL12mkno8HT4Lv8dlat8FxR2GOc=";
+
+            String decryptedString = decrypt(encryptedString, secretKey);
+            System.out.println("Decrypted string: " + decryptedString);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String decrypt(String strToDecrypt, String secret) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), AES);
+            Cipher cipher = Cipher.getInstance(AES);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } catch (Exception e) {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+}
+```
+
+Required libraries are imported at the beginning. They are used to provide cryptography capabilities. The main method defines a secret key and an encrypted string which is encrypted by the same key. Then it attempts to decrypt the encrypted data and print the result. The decrypt method generates a key spec from the given secret key, intializes the cipher for decryption and decrypts the given data in encoded form.
+
+Please note that the input strings are hardcoded here, you might need to adjust this according to your requirements. Also, do not forget that this is a very basic and not secure example of encryption/decryption, because the key is a simple string and stored in the source code. It is recommended to use more advanced and secure methods of encryption in practical applications.

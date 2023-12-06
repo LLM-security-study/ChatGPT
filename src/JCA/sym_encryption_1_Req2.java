@@ -1,0 +1,39 @@
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class sym_encryption_1_Req2 {
+    private static byte[] key = "mySymmetricKey!".getBytes();
+
+    public static void main(String [] args){
+        String originalString = "This is the text to be encrypted";
+        String encrypted = encrypt(originalString);
+        System.out.println("Encrypted string: " + encrypted);
+        String decrypted = decrypt(encrypted);
+        System.out.println("Decrypted string: " + decrypted);
+    }
+
+    public static String encrypt(String strToEncrypt){
+        try{
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            return Base64.getEncoder().encodeToString(cipher.doFinal(strToEncrypt.getBytes("UTF-8")));
+        }catch(Exception e){
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static String decrypt(String strToDecrypt){
+        try{
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKey = new SecretKeySpec(key, "AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        }catch(Exception e){
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+}

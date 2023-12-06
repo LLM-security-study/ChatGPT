@@ -1,0 +1,54 @@
+Here is a simple implementation of your program. It uses the "MessageDigest" class to calculate the SHA-256 hash of the file, then converts it to a hex string to compare with the expected hash.
+
+Import the necessary packages:
+
+```java
+import java.security.MessageDigest;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import javax.xml.bind.DatatypeConverter;
+```
+
+Create the class:
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        try {
+            String filePath = args[0];
+            String expectedHash = args[1];
+
+            boolean result = isFileIntegrityValid(filePath, expectedHash);
+
+            System.out.println("File integrity check result: " + (result ? "Valid" : "Invalid"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    static boolean isFileIntegrityValid(String filePath, String expectedHash) throws Exception {
+        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+        byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+
+        byte[] fileHashBytes = messageDigest.digest(fileBytes);
+        
+        // convert the byte to hex format
+        String fileHash = toHex(fileHashBytes);
+
+        return expectedHash.equals(fileHash);
+    }
+
+    private static String toHex(byte[] bytes) {
+        return DatatypeConverter.printHexBinary(bytes).toLowerCase();
+    }
+}
+```
+This program is using command line arguments, read the file content and calculate its SHA-256 hash. After that, it compares the calculated hash with the provided hash (expectedHash). It returns "Valid" if the hashes match otherwise "Invalid". Remember to catch any exception that might occur during reading file or calculating hash.
+
+The above code includes a helper function toHex() to convert a byte array to a hex string. It's using the DatatypeConverter class from javax.xml.bind which is provided by Java to do this conversion.
+
+You could run the program with command like `java Main <file_path> <expected_hash>`. Replace `<file_path>` and `<expected_hash>` with your actual values.
+
+Remember the hash string is case sensitive thus you need to make sure the provided hash string (expectedHash) and the calculated hash string are in the same format (both are either in lower case or upper case).
+
+Disclaimer: This program doesn't handle all edge cases and is not thoroughly tested, but it should serve as a good starting point for your assignment. Make sure to thoroughly test your program with various inputs and handle exceptions properly.

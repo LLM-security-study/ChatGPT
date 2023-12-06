@@ -1,0 +1,46 @@
+Sure, below is a simple Java program that uses the PBKDF2WithHmacSHA1 algorithm to generate a SecretKeySpec object from a user's password.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
+import java.security.spec.*;
+import java.util.*;
+
+public class Main {
+    public static void main(String[] args) {
+        // Get password
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        // Generate secret key
+        SecretKey key = generateSecretKey(password);
+        System.out.println("Your secret key: " + Base64.getEncoder().encodeToString(key.getEncoded()));
+    }
+
+    public static SecretKey generateSecretKey(String password) {
+        try {
+            int iterationCount = 65536; // number of iterations
+            int keyLength = 256; // key length in bits
+            byte[] salt = new byte[8]; // salt length. (must be atleast 8 bytes according to PKCS#5 standard)
+
+            // Generate a random salt
+            SecureRandom random = new SecureRandom();
+            random.nextBytes(salt);
+
+            // Generate SecretKey factory 
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+
+            SecretKey secretKey = factory.generateSecret(spec);
+            return new SecretKeySpec(secretKey.getEncoded(), "AES");
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+Please note that this program stores secretKey in memory which can be risky from a security point of view. Please make sure that you clear (overwrite) the arrays/sensitive data as soon as possible once it is no longer needed.

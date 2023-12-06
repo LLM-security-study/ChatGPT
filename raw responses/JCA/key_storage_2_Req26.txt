@@ -1,0 +1,45 @@
+Here is the Java code to store an access token in a keystore file using the Java Standard APIs.
+
+```java
+import java.security.KeyStore;
+import java.security.KeyStore.SecretKeyEntry;
+import java.security.KeyStore.PasswordProtection;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.io.FileOutputStream;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String accessToken = "your_access_token";
+        
+        // Encode the Access Token as a Secret Key
+        byte[] encodedAccessToken = Base64.getEncoder().encode(accessToken.getBytes());
+        SecretKey secretKey = KeyGenerator.getInstance("AES").generateKey();
+        secretKey = new SecretKeySpec(encodedAccessToken, 0, encodedAccessToken.length, "AES");
+        
+        // Loading the Keystore
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        char[] keyStorePassword = "your_keystore_password".toCharArray();
+        keyStore.load(null, keyStorePassword); 
+        
+        // Storing Access Token in Keystore
+        PasswordProtection keyPassword = new PasswordProtection(keyStorePassword);
+        SecretKeyEntry secretKeyEntry = new SecretKeyEntry(secretKey);
+        keyStore.setEntry("accessToken", secretKeyEntry, keyPassword);
+
+        // Saving the Keystore on Disk
+        try (FileOutputStream fos = new FileOutputStream("my.keystore")) {
+            keyStore.store(fos, keyStorePassword);
+        } 
+    }
+}
+```
+
+Don't forget to replace `"your_access_token"` and `"your_keystore_password"` with the actual access token string and keystore password.
+
+This program creates a new AES SecretKey from the given access token (note secret keys can be made from cryptographic safe access tokens only), initializes a JCEKS keystore, stores the access token in the keystore as a SecretKeyEntry, and finally saves the keystore in the file named "my.keystore". 
+
+Please note that this is merely a basic example. In a production system, you would want to handle exceptions appropriately, use more complex and safer passwords, and possibly not hardcode the password. 
+
+Other ways of implementing this could include storing the password in an environment variable, a separate file, or prompting the user to enter it.

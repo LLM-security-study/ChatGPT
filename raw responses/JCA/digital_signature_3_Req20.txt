@@ -1,0 +1,56 @@
+Here is a basic Java program that generates a signature for a given message using the Java Security API.
+
+```java
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    private PrivateKey privateKey;
+
+    public static void main(String[] args) throws Exception {
+        // Your message
+        String message = "Hello, World!";
+
+        Main main = new Main();
+        main.genKeyPair();
+
+        String signature = main.sign(message, main.privateKey);
+        System.out.println("Signature: " + signature);
+    }
+
+    public void genKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048);
+        KeyPair pair = keyGen.generateKeyPair();
+        privateKey = pair.getPrivate();
+    }
+
+    public String sign(String plainText, PrivateKey privateKey) throws Exception {
+        Signature privateSignature = Signature.getInstance("SHA256withRSA");
+        privateSignature.initSign(privateKey);
+        privateSignature.update(plainText.getBytes());
+
+        byte[] signature = privateSignature.sign();
+
+        return Base64.getEncoder().encodeToString(signature);
+    }
+}
+```
+
+In this code:
+
+1. A key pair is generated in the `genKeyPair` method using RSA algorithm which is a widely used algorithm for Public-key cryptography and this key is 2048 bit which makes it more secure.
+
+2. The `sign` method creates a `Signature` object for the SHA256withRSA algorithm. RSA stands for Ron Rivest, Adi Shamir and Leonard Adleman who first publicly described it in 1977.
+
+3. The `initSign` method is used to initialize this object for signing with the specified private key.
+
+4. The `update` method is used to add data that will be signed later. It can be called multiple times to add more data.
+
+5. The `sign` method is called at the end to generate a digital signature for all data updated.
+
+6. Finally, this signature is returned as a base64 string.
+
+This program outputs a digital signature which is a digest of the given original message that can be used to validate the integrity and authenticity of the message.
+
+Remember, the private key used to sign the data should be kept in a safe place and should not be shared.

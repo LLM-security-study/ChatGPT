@@ -1,0 +1,43 @@
+Here is a Java program that calculates the Message Authentication Code (MAC) of a message using HMAC-SHA256. Consider that java key management system is complex and the key should be stored securely which is not covered in this simple example.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        String secretKey = "your_secret_key";
+        String message = "Your message";
+        
+        try {
+            String macResult = calculateHMAC(secretKey, message);
+            System.out.println("MAC result: " + macResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static String calculateHMAC(String secret, String message) throws Exception {
+        byte[] secretBytes = secret.getBytes(StandardCharsets.UTF_8);
+        
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretBytes, "HmacSHA256");
+        
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(secretKeySpec);
+        
+        byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+        byte[] resultBytes = mac.doFinal(messageBytes);
+        
+        return Base64.getEncoder().encodeToString(resultBytes);
+    }
+}
+```
+
+This program first defines a secret key and a message. It then calculates the HMAC of the message using the defined secret key and prints the result. Remember to replace "your_secret_key" and "Your message" with your own secret key and message. 
+
+The `calculateHMAC` method takes two parameters: the secret key and the message. It first converts the secret key into bytes and creates a `SecretKeySpec` from the secret key bytes. It then obtains an instance of `Mac` for the "HmacSHA256" algorithm and initializes it with the secret key spec. After that, it converts the message into bytes and computes the MAC of these bytes. It finally encodes the MAC result bytes into a string using Base64 and returns this string.
+
+Please note that this is a simple program and does not include any error handling or security measures you should include in a real-world program. For the secure handling of keys, you might want to use Java's KeyStore or similar.

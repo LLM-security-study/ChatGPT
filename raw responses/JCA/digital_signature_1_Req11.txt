@@ -1,0 +1,48 @@
+Here is a simple Java program with two methods: `signMessage` which signs a given plain text message and `verifyMessage` which verifies the authenticity and integrity of a signed message. This demo uses Java's Signature Class to create Digital Signatures using RSA algorithm.
+
+```java
+import java.security.*;
+
+public class Main {
+    private static Signature sign;
+    private static PublicKey publicKey;
+    private static PrivateKey privateKey;
+
+    public static void main(String[] args) throws Exception {
+        KeyPair keyPair = generateKeyPair();
+        publicKey = keyPair.getPublic();
+        privateKey = keyPair.getPrivate();
+
+        byte[] signature = signMessage("Hello, World!", privateKey);
+        boolean isVerified = verifyMessage("Hello, World!", signature, publicKey);
+
+        System.out.println("Is the signature verified? : " + isVerified);
+    }
+
+    public static byte[] signMessage(String message, PrivateKey privateKey) throws Exception {
+        sign = Signature.getInstance("SHA256withRSA");
+        sign.initSign(privateKey);
+        sign.update(message.getBytes());
+
+        return sign.sign();
+    }
+
+    public static boolean verifyMessage(String message, byte[] signature, PublicKey publicKey) throws Exception {
+        sign = Signature.getInstance("SHA256withRSA");
+        sign.initVerify(publicKey);
+        sign.update(message.getBytes());
+
+        return sign.verify(signature);
+    }
+
+    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        
+        return keyPairGenerator.genKeyPair();
+    }
+}
+```
+This program first generates a RSA key pair, signs a message, then verifies it. Boolean `isVerified` gets "true" when the signature is verified.
+
+Please note: For Signature Algorithms and generating KeyPair in a real-life, production environment, it is better to use more secure methods or key management systems to generate, store, and access your keys securely.

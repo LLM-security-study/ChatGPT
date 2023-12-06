@@ -1,0 +1,50 @@
+In this case, the SSL context and SSL socket are the main APIs used from the javax.net.ssl package.
+
+Below is a basic Java Program to demonstrate how to validate a certificate to communicate securely with a server.
+
+```java
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        //Create an SSLSocketFactory
+        SSLSocketFactory ssf = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+        //Create an SSLSocket indicating the SSL server host, port
+        SSLSocket sslSocket = (SSLSocket) ssf.createSocket("ServerIPAdress", 443);
+
+        //Initialize the streams for communication with the server
+        PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+        SSLSession session = sslSocket.getSession();
+
+        //Printing SSLSession info:
+        System.out.println("PeerHost = " + session.getPeerHost());
+        System.out.println("Cipher suite = " + session.getCipherSuite());
+
+        //Sending message to server
+        out.println("Hello Server!");
+
+        //Checking server response
+        System.out.println("Server said: " + in.readLine());
+
+        //closing the streams and the socket
+        out.close();
+        in.close();
+        sslSocket.close();
+    }
+}
+```
+
+Please replace `"ServerIPAdress"` with the IP address or hostname of the server you are trying to communicate with. Port `443` is a standard HTTPS port, replace it if your server is running on a different port.
+
+Remember that in a real-world scenario, you'll have to manage exceptions properly. Here, for simplicity, it throws all exceptions and expects the caller to handle them.
+
+Also, ensure that the SSL certificate of the requested site is trusted on the java client machine. If it's not trusted, you might want to add it to the Java keystore to make it trusted. Secure socket communication can't be established without trusting certificates. 
+Note: The sample code provided here will work in a normal trust store environment. If you need to do additional things like checking certificate revocation, it may require additional implementation.

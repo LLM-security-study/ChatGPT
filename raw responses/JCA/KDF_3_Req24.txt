@@ -1,0 +1,49 @@
+Sure, here is a simple implementation of Password-based Key Derivation using Java Cryptography Architecture(JCA) APIs. This program uses PBKDF2WithHmacSHA256 to derive a key from the given password.
+
+```
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.util.Base64;
+
+public class Main {
+  
+    public static void main(String[] args) {
+        // password
+        char[] password = "password".toCharArray();
+  
+        // salt should be securely generated and stored
+        byte[] salt = new byte[16];
+  
+        // Iteration count
+        int iterationCount = 65536;
+  
+        // Key length
+        int keyLength = 256;
+  
+        SecretKeyFactory secretKeyFactory = null;
+        byte[] hashedPassword = null;
+  
+        try {
+            secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec specs = new PBEKeySpec(password, salt, iterationCount, keyLength);
+            hashedPassword = secretKeyFactory.generateSecret(specs).getEncoded();
+  
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+  
+        System.out.println("Derived key (base64) : "+Base64.getEncoder().encodeToString(hashedPassword));
+    }
+}
+```
+
+This program generates a hashed password by using PBKDF2WithHmacSHA256. Please make sure that you replace `'password'` with your own password and also replace `'salt'` with a securely generated random value.
+
+The base64 encoding of the derived key is printed. Be careful with the derived key, it needs to be securely stored too. Without the derived key and the salt, you can't derive the password.
+
+Note: Never hardcode the password, salt or key like I did in this example, this is just to demonstrate how to use PBKDF2. Always obtain password from the user in a secure and safe manner, generate salt randomly and store them securely.

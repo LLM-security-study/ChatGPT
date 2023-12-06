@@ -1,0 +1,45 @@
+Sure, Here is a basic example of a symmetric cryptography algorithm in Java using AES (Advanced Encryption Standard) that encrypts and then decrypts a string input. The key used for encryption and decryption is the same and is specified in the program. Java's `javax.crypto` package is used in this example which provides the functionality of a cryptographic cipher for encryption and decryption. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate key
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128);
+        SecretKey key = keyGenerator.generateKey();
+
+        // Generate Cipher
+        Cipher aesCipher = Cipher.getInstance("AES");
+
+        // Initial input text
+        String plainText = "This is a symmetric cryptography example";
+
+        // Encrypt the text
+        aesCipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] byteCipherText = aesCipher.doFinal(plainText.getBytes());
+        System.out.println("Cipher Text: " + new String(byteCipherText));
+
+        // Decrypt the text
+        aesCipher.init(Cipher.DECRYPT_MODE, key, aesCipher.getParameters());
+        byte[] byteDecryptedText = aesCipher.doFinal(byteCipherText);
+        System.out.println("Decrypted Text: " + new String(byteDecryptedText));
+    }
+}
+```
+
+In the above program:
+
+- A secret key is first generated using `KeyGenerator`.
+- A Cipher object is then created using `Cipher.getInstance("AES")`.
+- The original plaintext is encrypted using `doFinal()`.
+- The ciphertext is then decrypted back to its original format using `doFinal()` again.
+
+Remember, always secure the SecretKey in secure storage and never reveal it to the public. 
+
+This uses AES encryption, which is a symmetric encryption algorithm. When a SecretKey is generated, it uses a secure random function to produce a high amount of entropy, making for a very secure key.
+This code will print the encrypted form of "This is a symmetric cryptography example" and then the decrypted form, which should match the original input.

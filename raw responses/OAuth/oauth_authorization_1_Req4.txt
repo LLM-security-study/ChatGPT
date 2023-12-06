@@ -1,0 +1,82 @@
+Here is a simple Java program to get permission from users for saving files on Google Drive. It implements the OAuth 2.0 flow to achieve this:
+
+``` java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google Drive API Java Program";
+    private static final java.io.File DATA_STORE_DIR = new java.io.File(System.getProperty("user.home"), ".credentials/drive-java-quickstart");
+    private static FileDataStoreFactory DATA_STORE_FACTORY;
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static HttpTransport HTTP_TRANSPORT;
+  
+    static {
+        try {
+            HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+            DATA_STORE_FACTORY = new FileDataStoreFactory(DATA_STORE_DIR);
+        } catch (Throwable t) {
+            t.printStackTrace();
+            System.exit(1);
+        }
+    }
+  
+    public static Credential authorize() throws IOException {
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(new FileInputStream("client_secret.json")));
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, Arrays.asList("https://www.googleapis.com/auth/drive"))
+            .setDataStoreFactory(DATA_STORE_FACTORY)
+            .setAccessType("offline")
+            .build();
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+        System.out.println("Credentials saved to " + DATA_STORE_DIR.getAbsolutePath());
+        return credential;
+    }
+  
+    public static void main(String[] args) throws IOException {
+        authorize();
+    }
+}
+```
+
+Important Information:
+1) Replace "client_secret.json" with the path to your actual client_secret.json file which you would have downloaded when you created your credentials on the Google Cloud Console.
+2) When the program runs, it will try to open a window in the user's default browser and ask the user to grant permission for accessing their Google Drive. If they agree, the program will save a token in `.credentials/drive-java-quickstart/StoredCredential`.
+3) The scope 'https://www.googleapis.com/auth/drive' asks for a complete access to the Drive. You may adjust this as per your need.
+
+Add the following Maven dependencies for Google Drive API and OAuth:
+
+```xml
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.30.11</version>
+</dependency>
+
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client-jetty</artifactId>
+    <version>1.30.5</version>
+</dependency>
+
+<dependency>
+    <groupId>com.google.apis</groupId>
+    <artifactId>google-api-services-drive</artifactId>
+    <version>v3-rev110-1.25.0</version>
+</dependency>
+```
+Update the versions if required.
+
+Make sure you have set up OAuth credentials properly with your preferred redirect uri.

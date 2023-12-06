@@ -1,0 +1,35 @@
+Sure, here's a simple Java program that generates a cryptographic secure pseudorandom seed for initializing a pseudorandom number generator (PRNG), then generates an Initialization Vector (IV) using this PRNG. Here we use SecureRandom class for PRNG and create an IV of size 16 Bytes.
+
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+public class Main {
+  public static void main(String[] args) throws NoSuchAlgorithmException {
+    // Generate a seed for initializing a PRNG
+    SecureRandom seeder = new SecureRandom();
+    byte[] seed = new byte[20];
+    seeder.nextBytes(seed);
+    
+    // Initialize PRNG with the generated seed.
+    SecureRandom prng = SecureRandom.getInstance("SHA1PRNG");
+    prng.setSeed(seed);
+    
+    // Generate IV for encryption of size 16 Bytes (commonly used size for AES)
+    byte[] iv = new byte[16];
+    prng.nextBytes(iv);
+    
+    // Print IV in hexadecimal form
+    StringBuilder hexString = new StringBuilder();
+    for (int i = 0; i < iv.length; i++) {
+      hexString.append(Integer.toHexString(0xFF & iv[i]));
+    }
+    System.out.println("Generated IV: " + hexString.toString());
+  }
+}
+```
+
+This program generates an IV using a cryptographically secure PRNG. Note that the PRNG is seeded using another SecureRandom instance, which uses its own default method for providing entropy (often derived from system parameters, such as current time). The generated IV is then printed out in hexadecimal form. 
+
+Please remember to handle exceptions properly in your production code. The code above doesn't do that to keep it simple and focused on the main topic.

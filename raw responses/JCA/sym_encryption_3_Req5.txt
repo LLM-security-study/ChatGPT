@@ -1,0 +1,58 @@
+Sure, below is a simple Java program using the symmetric AES (Advanced Encryption Standard) algorithm within the Java Cryptography Extension (JCE) for data decryption:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // sample clear text data
+        String cipherText = "encryptedText";
+
+        // key used for encryption/decryption
+        String key = "myEncryptionKey";
+        try {
+            // encrypt the text
+            String decryptedText = decryptText(cipherText, key);
+
+            System.out.println("Decrypted Text: " + decryptedText);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public static String decryptText(String cipherText, String key)
+            throws Exception {
+
+        SecretKeySpec secretKey = new SecretKeySpec(key.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+
+        //set to decrypt mode
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+
+        byte[] cipherTextBytes = Base64.getDecoder().decode(cipherText.getBytes(StandardCharsets.UTF_8));
+
+        byte[] decryptedByteValue = cipher.doFinal(cipherTextBytes);
+
+        String decryptedText = new String(decryptedByteValue, StandardCharsets.UTF_8);
+
+        return decryptedText;
+    }
+}
+```
+
+Please note that the input to the `decryptText()` should be encrypted text, but in the example I've set a string as "encryptedText" due to the absence of relevant encrypted data.
+
+Also, a key of length 16 is used for AES encryption for simplicity. Normally we should generate keys using the KeyGenerator class.
+
+Important: The Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files need to be replaced in your JRE, if you encounter any restriction-related issues. 
+
+This above code is just a simple demonstration and for production use, key management, secure random number generation, and other security topics need to be considered. 
+
+Disclaimer: Encryption and decryption involves responsibilities and legal regulations regarding data handling and should be used carefully and wisely.

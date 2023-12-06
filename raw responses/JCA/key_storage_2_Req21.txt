@@ -1,0 +1,44 @@
+Sure. Here's a basic implementation to store an access token to a Java Keystore:
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.KeyStore.PasswordProtection;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create an instance of keystore of type JCEKS
+            KeyStore keyStore = KeyStore.getInstance("JCEKS");
+            
+            // For a keystore that is not loaded from disk, you need to load it
+            // and specify it's not been saved yet, by setting a null InputStream
+            keyStore.load(null, null);
+            
+            // Create an access token secret
+            KeyStore.PasswordProtection keySecret = 
+              new KeyStore.PasswordProtection("your_token".toCharArray());
+
+            // Set the access token in keystore
+            keyStore.setEntry(
+             "access_token", 
+             new KeyStore.SecretKeyEntry(keySecret.getPasswordProtection()), 
+             keySecret);
+            
+            // Save the keystore to a file
+            try (FileOutputStream fos = 
+                new FileOutputStream("accessToken.keystore")) {
+             keyStore.store(fos, "keystore_password".toCharArray());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Replace `your_token` with your actual access token, also replace `access_token` and `keystore_password` with your actual entry name and keystore password respectively. Make sure these sensitive data are protected and not exposed.
+
+This will create a keystore file named `accessToken.keystore` in the same directory of the java program. The keystore file is secured with a password, and it has one Entry with alias as `access_token`, which stores the password (as the access token).
+
+Note: Use caution when using `printStackTrace()` in a try-catch, as it may expose sensitive system information. In any production or enterprise code, consider utilizing a logging service.

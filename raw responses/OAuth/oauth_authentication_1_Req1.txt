@@ -1,0 +1,65 @@
+Sure, here is a basic example of how you might structure this code in Java. Please note that these steps are just the part of backend handling. The actual SSO process involves more steps like setting up Consent Screen, OAuth2 on Google API & Console, etc.
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Main {
+
+    // Client ID
+    private static final String CLIENT_ID = "<insert your client id here>";
+
+    // Client Secret
+    private static final String CLIENT_SECRET = "<insert your client secret here>";
+
+    // Redirect URI
+    private static final String REDIRECT_URI = "<insert your redirect uri here>";
+
+    // Access Type
+    private static final String ACCESS_TYPE = "offline";
+
+    // Scope
+    private static final String SCOPE = "profile";
+
+    public static void main(String[] args) {
+        try {
+            GoogleTokenResponse tokenResponse = new GoogleAuthorizationCodeTokenRequest(
+                    new NetHttpTransport(), JacksonFactory.getDefaultInstance(),
+                    "https://oauth2.googleapis.com/token",
+                    CLIENT_ID, CLIENT_SECRET, "<insert your authorization code here>", REDIRECT_URI)
+                    .execute();
+
+            System.out.println("Access token: " + tokenResponse.getAccessToken());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static GoogleAuthorizationCodeRequestUrl getAuthenticationUrl() {
+        GoogleAuthorizationCodeRequestUrl url = new GoogleAuthorizationCodeRequestUrl(
+                CLIENT_ID,
+                REDIRECT_URI,
+                Arrays.asList(SCOPE)
+        );
+        url.setAccessType(ACCESS_TYPE);
+        return url;
+    }
+
+}
+```
+
+Note: This program has to be integrated as part of an HTTP server, with the endpoints for processing Google's OAuth2 redirects.
+
+Here are steps that are not covered:
+1. When a user tries to login using their Google Account, call the `getAuthenticationUrl()` method which will return a URL. Redirect the user to this URL.
+2. The user will then authenticate and authorize your application with Google.
+3. Upon success, Google will redirect the user to your Redirect URI, with a "code" query parameter. Capture this code.
+4. Pass this code in the GoogleAuthorizationCodeTokenRequest in the main method to obtain a token response. You can get the access token and other user info from this token response.
+5. Always remember to handle any exceptions that might occur.
+6. Always secure all sensitive information like client id, client secret. 
+
+This code will not run as it is when you copy and paste it in your IDE. It’s just a sample and a broad piece of backend handling for better understanding.

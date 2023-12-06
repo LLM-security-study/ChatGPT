@@ -1,0 +1,40 @@
+Sure, here is a basic Java program structure to decrypt data using AES algorithm in CBC mode. Please note that it uses `javax.crypto.*` and `java.security.*` Java standard APIs for implementation and error handling is quite basic as it's just a simple example:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.GeneralSecurityException;
+import java.util.Base64;
+
+public class Main {
+  public static void main(String[] args) {
+    String data = "Encrypted data goes here";
+    String key = "your-key-goes-here";
+    String initVector = "init-vector-here"; // should be 16 bytes
+    
+    try {
+      String decryptedData = decrypt(key, initVector, data);
+      System.out.println("Decrypted data: " + decryptedData);
+    } catch (GeneralSecurityException e) {
+      System.out.println("Decryption error: " + e.getMessage());
+    }
+  }
+
+  public static String decrypt(String key, String initVector, String encrypted) throws GeneralSecurityException {
+    IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+    SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+    cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+    byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+    return new String(original);
+  }
+}
+```
+
+Please remember to replace `"_Encrypted data goes here_"`, `"your-key-goes-here"` and `"init-vector-here"` with your actual encrypted data, key, and initial vector. Your key should be 16 bytes (128 bits), 24 bytes (192 bits) or 32 bytes (256 bits). The initial vector should be 16 bytes.
+
+Add necessary exception handling as suitable for your application. Also remember that dealing with encryption in a secure way involves more than just calling the right library functions, like using a secure source of random numbers, preventing leaking of data through exceptions, and keeping keys secure.

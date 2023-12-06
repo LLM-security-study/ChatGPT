@@ -1,0 +1,41 @@
+The Android system provides APIs for determining the installation source of apps. The PackageInfo class will be used to verify the integrity. In this case, we will assume that the expected installation source should be Google Play store. But it can be easily configured to reflect the actual expected source in a real-life situation. 
+
+Consider the following Java class:
+
+```java
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+
+public class Main {
+
+    private static final String GOOGLE_PLAY_STORE_PACKAGE_NAME = "com.android.vending";
+
+    public static void main(String[] args) {
+        Context context = getApplicationContext();
+        boolean isRealApp = isAppInstalledFromPlayStore(context);
+        System.out.println(isRealApp ? "The app is installed from Google Play Store" : "The app is not installed from the Google Play Store");
+    }
+
+    private static boolean isAppInstalledFromPlayStore(Context context) {
+        String installer = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+        return GOOGLE_PLAY_STORE_PACKAGE_NAME.equals(installer);
+    }
+
+    private static Context getApplicationContext() {
+        // This method is supposed to be replaced with actual Android application context.
+        throw new UnsupportedOperationException("Not supported yet."); 
+    }
+}
+```
+
+NOTE: This code will not work on desktop Java applications. It requires an Android runtime environment (ART) to run because Android has its own unique Java API.
+
+NOTE: Remember that you will need to handle the PackageManager.NameNotFoundException in a real application.
+  
+NOTE: Android doesn't allow to run long operations on the main thread, so in real applications, you should run this in a separate Thread or in the background like inside AsyncTask or a background service.
+  
+NOTE: Please replace the getApplicationContext() method with a real Context instance when you implement this procedural concept in the real Android application. If you are inside Activity, just use 'this' instead of getApplicationContext().
+
+CAUTION: Checking the app installation source can improve the app integrity but cannot guarantee it because the system call getInstallerPackageName() may return null in some cases even if an app was installed from Google Play. For the better protection of your app, consider implementing additional security measures.

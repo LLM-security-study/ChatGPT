@@ -1,0 +1,68 @@
+Sure, here is a simple Java program implementation of symmetric encryption and decryption using AES algorithm in CBC mode:
+
+```Java
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static String secret = "aesEncryptionKey";
+    private static String initVector = "encryptionIntVec";
+
+    public static void main(String[] args) {
+        String originalString = "My secret message";
+        System.out.println("Original string: " + originalString);
+
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted string: " + encryptedString);
+
+        String decryptedString = decrypt(encryptedString);
+        System.out.println("Decrypted string: " + decryptedString);
+    }
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+This program has a main method that defines a string `originalString`, which is then encrypted using AES in the CBC mode. The encrypted string is then decrypted back into the original form.
+
+The `encrypt` function takes an input string, creates an AES cipher in CBC mode with PKCS5Padding, encrypts the input string using this cipher and returns the Base64 encoded version of the encrypted data.
+
+The `decrypt` function uses the same process, but initializes the cipher in DECRYPT_MODE and takes a Base64 encoded string, decodes it, and then decrypts it using the cipher.
+
+Please replace the `"aesEncryptionKey"` and `"encryptionIntVec"` with your 16 characters secret key and initialization vector for security purpose while running this code in production.
+
+I trust this helps! Should you need modifications, feel free to ask!

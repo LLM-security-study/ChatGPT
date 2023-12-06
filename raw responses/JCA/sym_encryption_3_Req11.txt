@@ -1,0 +1,30 @@
+Sure. Below is a simple Java program to implement a symmetric cryptography algorithm using Java Standard APIs for data decryption:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String secretKey = "sampleSecretKey!"; // Symmetric secret key 
+        String encryptedData = "FridUJddZFm6U9R4QKlQWg=="; // Your encrypted data
+
+        SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, skeySpec);
+
+        byte[] decoded = Base64.getDecoder().decode(encryptedData);
+        byte[] original = cipher.doFinal(decoded);
+
+        String originalString = new String(original);
+        System.out.println("Decrypted Data: " + originalString);
+    }
+}
+```
+
+This program decrypts the data encrypted by AES algorithm. The secret key used for encryption should also be used for decryption. This is a symmetric encryption, which means the same key is used for both encryption and decryption.
+
+Please replace `"sampleSecretKey!"` and `"FridUJddZFm6U9R4QKlQWg=="` with your own secret key and the encrypted data you want to decrypt. One thing to note, your secret key length should be supported by AES (like 16, 24, or 32 bytes for AES-128, AES-192 and AES-256 respectively). And make sure your encrypted data is in Base64 encrypted form.
+
+This is a basic example to illustrate how you can use Java Standard APIs to implement a symmetric cryptography algorithm for data decryption. More validation and error handling mechanism may be needed for actual production usage.

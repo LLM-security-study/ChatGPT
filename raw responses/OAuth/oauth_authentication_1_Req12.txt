@@ -1,0 +1,51 @@
+Sure! Here is a sample Java program that uses the Google's OAuth 2.0 API for user authentication. We'll be using the `google-auth-library-oauth2-http` and `google-auth-library-credentials` libraries for this process. Ensure the relevant libraries have been added to the project.
+
+```java
+// Java program to integrate Google Single-Sign-On (SSO) for user authentication into a web application.
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+    private static final String CLIENT_ID = "Your-Client-ID";
+
+    public static void main(String[] args) {
+        String idTokenString = "Id-Token-Received-From-Client";
+
+        JsonFactory jsonFactory = new JacksonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), jsonFactory)
+                .setAudience(Collections.singletonList(CLIENT_ID))
+                // Consider adding 'setIssuer' if not provided in the 'setAudience'.
+                .build();
+
+        GoogleIdToken idToken = null;
+        try {
+            idToken = verifier.verify(idTokenString);
+        } catch (GeneralSecurityException e) {
+            System.out.println("Security Exception: " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("IO Exception: " + e.getMessage());
+        }
+
+        if (idToken != null) {
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            // User is verified, you can get user details like user id - payload.getUserId()
+            System.out.println("User ID: " + payload.getUserId());
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+    }
+
+}
+```
+
+Remember to replace `"Your-Client-ID"` and `"Id-Token-Received-From-Client"` with the actual Client ID and the ID Token you receive from the client.
+
+The verifier in the above program verifies the ID token in three parts: header, payload, and signature. When you get an ID token from the client, you need to parse, decode and verify it to authenticate the sign-in user. The Client ID is used to verify that the ID token is received from the very same application that requests it.
+
+Note: This example is a simple standalone Java application. In a real-world web app, you'd typically obtain the ID token from the HTTP request header and the logic would reside on your backend server.

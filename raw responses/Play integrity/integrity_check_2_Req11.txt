@@ -1,0 +1,55 @@
+The primary library that we are going to use for verifying the integrity of an Android app is the SafetyNet library available under Google Play Services. The SafetyNet Attestation API helps us assess the security and compatibility of the Android environment in which our app is running.
+
+Here's a simple Java implementation for this purpose:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import android.util.Log;
+
+public class Main{
+
+    private static final String TAG = "MainActivity";
+
+    public func verifyIntegrity() {
+        //This is a placeholder API Key, Replace it with your actual API Key
+        String MY_API_KEY = "YOUR_API_KEY";
+
+        SafetyNet.getClient(this).attest(nonce, MY_API_KEY)
+                .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicate communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        String jwsResult = response.getJwsResult();
+                        Log.d(TAG, "Result JWS: " + jwsResult);
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        // An error occurred while communicating with the service.
+                        if (e instanceof ApiException) {
+                            // An error occurred with the verification process
+                            Log.w(TAG, "Error while call to SafetyNet API: " + e);
+                        } else {
+                            // A different, usually network related, error occurred
+                            Log.w(TAG, "Unknown error occurred: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    // Call somewhere in your main logic
+    public static void main(String[] args) {
+        verifyIntegrity();
+    }
+}
+```
+This example would trigger a SafetyNet API call to Google's servers and check whether the environment the app is running on is safe and hasn't been potentially altered (It's used to detect things like Root, Custom Roms or even Emulators).
+
+Note: You need to replace `"YOUR_API_KEY"` with your actual API Key.
+
+Also, keep in mind that while using SafetyNet you are actually making an API call so network operation is happening and addition of relevant permissions in manifest file and taking care of network operations in your logic is necessary.
+
+Code does not include the nonce generation logic and assumes that the `nonce` variable is available. It's a simple byte array that should contain data that associates the attestation to the current session and should be unpredictable.

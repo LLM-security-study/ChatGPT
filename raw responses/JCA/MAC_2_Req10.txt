@@ -1,0 +1,39 @@
+Here is a simple Java program that uses HMAC-SHA256, which is a type of Message Authentication Code (MAC), to perform a message integrity check. The program takes a string message and a secret key to generate a HMAC. If you run the program with exactly the same inputs, you will get exactly the same output.
+
+```java
+import java.util.Base64;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+  public static void main(String[] args) {
+    String message = "This is a test message";
+    String secret = "secret-key";
+
+    String hash = calculateHMAC(message, secret);
+    System.out.println("The HMAC for the message is: " + hash);
+  }
+
+  public static String calculateHMAC(String data, String key) {
+    String result = "";
+    try {
+      SecretKeySpec secretKey = new SecretKeySpec(key.getBytes("UTF-8"), "HmacSHA256");
+      Mac mac = Mac.getInstance("HmacSHA256");
+      mac.init(secretKey);
+      byte[] hmacData = mac.doFinal(data.getBytes("UTF-8"));
+      result = Base64.getEncoder().encodeToString(hmacData);
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to calculate hmac", e);
+    }
+    return result;
+  }
+}
+```
+
+Please replace the `message` and `secret` variables with your actual message and the secret key. The program will print the HMAC for the provided message. 
+
+In this code, we are using the java.crypto package to create a SecretKeySpec from a user-defined secret key and the HMAC-SHA256 algorithm. We then create a Mac instance and initialize it with the SecretKeySpec. Finally, we calculate the MAC for a user-defined message and print the Base64 encoded string of the MAC. 
+
+Do note this example takes a simplistic view of generating a secret key. For secure systems, proper key management systems would be utilized. 
+
+Also do note, to check the message integrity, you'll need to generate a new MAC with the same key on the receiver side and compare it with the received MAC. If they're the same, the message hasn't been tampered with, otherwise, it's not the same message that was sent.

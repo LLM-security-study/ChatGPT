@@ -1,0 +1,48 @@
+Actually writing a complete Java program for fingerprint recognition might be too extensive for this platform. However, here is an overview of how you could design your fingerprint recognition aspects using Android’s FingerprintManager API in your Java code.
+
+This code will typically be described inside the overridden `onCreate` method of the "Main" class inside your Android activity class:
+
+```java
+import androidx.core.app.ActivityCompat;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+
+public class Main extends AppCompatActivity {
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager = getSystemService(FingerprintManager.class);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[] {Manifest.permission.USE_FINGERPRINT}, 1);
+            } else if (fingerprintManager.isHardwareDetected() && fingerprintManager.hasEnrolledFingerprints()) {
+                FingerprintManager.AuthenticationCallback callback = new FingerprintManager.AuthenticationCallback() {
+                    @Override
+                    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                        super.onAuthenticationSucceeded(result);
+                        // Authentication success, you can grant the user access now.
+                    }
+
+                    @Override
+                    public void onAuthenticationFailed() {
+                        super.onAuthenticationFailed();
+                        // Authentication failed, inform the user.
+                    }
+                };
+
+                FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(null);
+                fingerprintManager.authenticate(cryptoObject, null, 0, callback, null);
+            }
+        }
+    }
+}
+```
+The FingerprintManager API provides functionalities for fingerprint authentication which includes checking if the user has registered fingerprints on their device and beginning a fingerprint authentication process.
+
+This code demonstrates how you can check if the user has fingerprint scanning hardware and if they've enrolled at least one fingerprint. After both these conditions are satisfied, we can start listening for a fingerprint to be scanned offering callbacks to handle authentication success and failure.
+
+The actual authentication is performed by calling `fingerprintManager.authenticate()`, here we pass an instance of `FingerprintManager.CryptoObject()` showing what should be authenticated (a cryptographic object or null to accept all fingerprints). Also, we specify an instance of `FingerprintManager.AuthenticationCallback()` that should receive the events about the ongoing authentication operation.

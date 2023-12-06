@@ -1,0 +1,70 @@
+Developing a complete SSO service in Java usually involves working on both the server-side and client-side. Hence, here is an example of server-side code that uses Google's OAuth 2.0 API to authenticate a user.
+
+Please note that security is a delicate matter, and this is a simplified illustration to get started. For a production environment, you should use established libraries for handling OAuth, such as Spring Security OAuth or Google's own libraries, to protect against potential security vulnerabilities.
+
+First, add the dependency for Google API Client library in your pom.xml file:
+
+```xml
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.23.0</version>
+</dependency>
+```
+
+Here's the 'Main' class:
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+/*
+ * A Java program to establish a Single-Sign-On (SSO) service for a web application,
+ * using Google accounts for user authentication. The primary goal is to only implement
+ * the authentication functionality, and other operations, such as designing user interface,
+ * are not within the scope of this task.
+ */
+public class Main {
+  
+  public static boolean authenticate(String idTokenString, String clientID) {
+    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+        .setAudience(Collections.singletonList(clientID))
+        // If you retrieved the token on Android using the Play Services 8.3 API or newer, set
+        // the issuer to "https://accounts.google.com". Otherwise, set the issuer to
+        // "accounts.google.com". If you need to verify tokens from multiple sources, build
+        // a GoogleIdTokenVerifier for each issuer and try them both.
+        .setIssuer("https://accounts.google.com")
+        .build();
+
+    GoogleIdToken idToken = null;
+    try {
+      idToken = verifier.verify(idTokenString);
+      if (idToken != null) {
+        Payload payload = idToken.getPayload();
+
+        System.out.println("User ID: " + payload.getSubject());  // Use this value as a key to identify a user. Do not use userName/email without hashing for privacy.
+        return true;
+      } else {
+        System.out.println("Invalid ID token.");
+        return false;
+      }
+    } catch (Exception e) {
+      // This is often because the Audience (client-id) claim does not match the client-id
+      // in the ID token's header.
+      e.printStackTrace();
+      return false;
+    }
+  }
+}
+```
+
+Note that, the function `authenticate` is supposed to be called with the ID Token received from Google API in the client side after the user's identity has been verified. This function validates the ID Token and extracts the user-id from it. 
+
+To integrate the function in your web application, you need to call it in an appropriate place where it fits in your application flow (for example, in the handler function for the route where Google redirects after user login on Google page).
+
+This example does not attempt to manage sessions, which would be required in most real applications. It just validates the token and prints the user id (make sure to use an appropriate method for managing user identifiers according to your privacy policy).

@@ -1,0 +1,45 @@
+Sure, here is the basic example of a Java program that decrypts data using the AES algorithm in CBC mode.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String key = "aesEncryptionKey";
+        String initVector = "encryptionIntVec";
+        String encryptedData = "encryptedData";
+
+        System.out.println(decrypt(key, initVector, encryptedData));
+    }
+
+    public static String decrypt(String key, String initVector, String encryptedData) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encryptedData));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+In the main() function, several strings are defined: 'key' (the secret key string for decryption), 'initVector' (the initialization vector for decryption), 'encryptedData' (input encrypted data in base64). We then print the result of the decryption process.
+
+The decrypt() method generates IvParameterSpec and SecretKeySpec objects using input strings, initializes a Cipher object for decryption (Cipher.DECRYPT_MODE), and then decrypts the input encrypted data.
+
+Notice:
+1. The key and initialization vector (initVector) should ideally not be hard-coded strings, they should be securely generated and stored. This is just a demonstration.
+2. The encrypted data is supposed to be in base64 form. You should replace the "encryptedData" string with your actual base64 encoded encrypted data.
+3. Error handling in this example is minimal for brevity and readability.

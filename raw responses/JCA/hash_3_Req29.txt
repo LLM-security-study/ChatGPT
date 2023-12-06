@@ -1,0 +1,37 @@
+Here is a simple Java program that uses Secure Hash Algorithm (SHA-256). This algorithm generates an almost unique, fixed size 256-bit (32-byte) hash. 
+
+This program will take a string as input and generate its corresponding hash code.
+
+```java
+import java.security.MessageDigest;
+import java.util.Scanner;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+
+    public static void main(String args[]) throws NoSuchAlgorithmException {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the message: ");
+        String message = scanner.nextLine();
+        
+        System.out.println("Hash code for given message is : " + computeSHA256(message));
+    }
+
+    private static String computeSHA256(String message) throws NoSuchAlgorithmException{
+        // Creating MessageDigest instance for SHA-256
+        MessageDigest md = MessageDigest.getInstance("SHA-256"); 
+
+        // Digesting the message and returns byte array
+        byte[] messageDigest = md.digest(message.getBytes());
+
+        // Converting byte array into HexString format
+        StringBuilder sb = new StringBuilder();
+        for (byte b : messageDigest) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+You can run this program, then when prompted to Enter the message, you can pass any string value, and the program will generate and print the hash code for the provided string.

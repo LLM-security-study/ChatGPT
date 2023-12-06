@@ -1,0 +1,30 @@
+Here is a Java program that generates a seed to initialize the internal state of a pseudorandom number generator and then produces a random integer intended for cryptographic applications.
+
+```Java
+// Import required packages
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args){
+        // Create a SecureRandom instance
+        SecureRandom random = new SecureRandom();
+    
+        // Generate seed bytes
+        byte[] seed = new byte[20];
+        random.nextBytes(seed);
+    
+        // Use the seed to initialize SecureRandom instance
+        random.setSeed(seed);
+    
+        // Generate a random integer
+        int secureInt = random.nextInt();
+    
+        // Output the generated random integer
+        System.out.println("Secure random integer: " + secureInt);
+    }
+}
+```
+
+In this program, we first create an instance of `SecureRandom`. The `SecureRandom` class provides a cryptographically strong random number generator (RNG). It is better to use this over `java.util.Random` for cryptographic applications.
+
+We then generate 20 random bytes and use them to seed the `SecureRandom` instance. Finally, we generate a random integer by calling `random.nextInt()` and print this out.

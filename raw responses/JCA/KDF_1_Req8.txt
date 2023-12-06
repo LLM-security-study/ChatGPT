@@ -1,0 +1,45 @@
+Sure, here's a simple example of a program that uses password-based encryption (PBE) to generate a cryptographic key from a user-provided password in Java. This program uses the "PBKDF2WithHmacSHA1" algorithm provided by Java's standard APIs.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.PBEParameterSpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+
+public class Main {
+    private static final String PASSWORD = "UserPassword";
+
+    public static void main(String[] args) {
+        try {
+            // Create PBEKeySpec
+            PBEKeySpec keySpec = new PBEKeySpec(PASSWORD.toCharArray());
+
+            // Create secret key factory
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+            // Create a secret key
+            SecretKey secretKey = keyFactory.generateSecret(keySpec);
+
+            System.out.println("Generated Secret Key : " + bytesToHex(secretKey.getEncoded()));
+            
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte b : bytes) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+
+In this program, the main() method creates an instance of PBEKeySpec with the user's password. Then it creates a SecretKeyFactory that generates secret keys according to the specified algorithm "PBKDF2WithHmacSHA1". The generateSecret() method is then called on the key factory with the PBEKeySpec to generate the SecretKey.
+
+Finally, the getEncoded() method returns the key in its primary encoding format, and the bytesToHex() method is used to convert these bytes into a hexadecimal string which is printed on the console.
+
+Note: In production-level code, a salt and iteration count would be used along with the password during the key generation process for added security.

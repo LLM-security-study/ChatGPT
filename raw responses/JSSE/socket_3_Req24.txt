@@ -1,0 +1,35 @@
+Sure, here is a simple example of a program that creates an SSL Socket using `javax.net.ssl` API:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String args[]) throws Exception {
+        SSLContext sc = SSLContext.getDefault();
+        SSLSocketFactory ssf = sc.getSocketFactory();
+
+        //Replace "localhost" and '9999' with your server's hostname and port
+        SSLSocket s = (SSLSocket) ssf.createSocket("localhost", 9999);
+        
+        PrintWriter writer = new PrintWriter(s.getOutputStream());
+        BufferedReader reader = new BufferedReader(new InputStreamReader(s.getInputStream()));
+
+        //Replace this with the actual data you want to send
+        writer.println("Hello, server!");
+        writer.flush();
+
+        System.out.println("Server replied: " + reader.readLine());
+
+        writer.close();
+        reader.close();
+        s.close();
+    }
+}
+```
+
+This Java program will establish a secure SSL socket connection with a remote server on the specified hostname and port. It will then send a "Hello, server!" message and print out the server's response.
+
+Please replace "localhost" and '9999' with your server's hostname and port. Also, replace "Hello, server!" with the actual data you want to send. 
+
+Make sure that your server is configured to support SSL/TLS connections on the specific port. And, if your server uses self-signed certificate or a certificate from a non-trusted Certificate Authority, you may need to add it to your JDK's truststore.

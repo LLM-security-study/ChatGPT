@@ -1,0 +1,50 @@
+Here's a basic implementation of hostname verification using Java's HttpsURLConnection standard API. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            HttpsURLConnection.setDefaultHostnameVerifier(new CustomHostnameVerifier());
+            
+            URL url = new URL("https://example.com");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            
+            System.out.println("Response Code: " + connection.getResponseCode());
+            connection.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+}
+
+class CustomHostnameVerifier implements HostnameVerifier {
+    public boolean verify(String hostname, SSLSession session) {
+        // Implement your verification logic here
+        try {
+            String serverCertHost = session.getPeerHost();
+            System.out.println("Server Certificate Host: " + serverCertHost);
+
+            return hostname.equals(serverCertHost);
+
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        }
+
+        // return false if verification fails
+        return false;
+    }
+}
+```
+
+In this program, we set our custom hostname verifier (CustomHostnameVerifier) to be the default hostname verifier for HttpsURLConnections. Upon making a connection in the main function, our custom verifier is called under the hood to verify the hostname. 
+
+The CustomHostnameVerifier's verify method is where verification actually takes place. It retrieves the hostname from the SSLSession's peer's certificate and compares it with the expected hostname. 
+
+You can modify the `verify` method to meet your specific hostname verification requirements. If the method returns false, then the HttpsURLConnection will be rejected.

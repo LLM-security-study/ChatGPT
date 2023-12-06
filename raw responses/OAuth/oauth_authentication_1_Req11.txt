@@ -1,0 +1,91 @@
+Due to the length of the code and the fact that it needs to be split up across several files, the following is a general guideline on how you can implement Google Single Sign-On in Java in the "Main" class. 
+
+Below is the basic code snippet showing how to use Google's OAuth client:
+
+First of all, include the following dependencies in your pom.xml:
+```xml
+<dependencies>
+   <dependency>
+      <groupId>com.google.api-client</groupId>
+      <artifactId>google-api-client</artifactId>
+      <version>1.23.0</version>
+   </dependency>
+   <dependency>
+      <groupId>com.google.oauth-client</groupId>
+      <artifactId>google-oauth-client-jetty</artifactId>
+      <version>1.23.0</version>
+   </dependency>
+   <dependency>
+      <groupId>com.google.apis</groupId>
+      <artifactId>google-api-services-oauth2</artifactId>
+      <version>v2-rev131-1.23.0</version>
+   </dependency>
+</dependencies>
+```
+
+In your Java class "Main":
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.InputStreamReader;
+import java.util.Collections;
+
+public class Main {
+ public static void main(String[] args) throws Exception {
+
+ GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+      JacksonFactory.getDefaultInstance(),
+      new InputStreamReader(Main.class.getResourceAsStream("/client_secrets.json")));
+ 
+  GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+      new NetHttpTransport(),
+      JacksonFactory.getDefaultInstance(), 
+      clientSecrets, 
+      Collections.singleton("https://www.googleapis.com/auth/userinfo.profile"))
+      .setAccessType("offline") 
+      .setApprovalPrompt("auto").build();
+
+  String authorizationUrl = flow.newAuthorizationUrl()
+      .setRedirectUri(clientSecrets.getDetails().getRedirectUris().get(0))
+      .build();
+
+  System.out.println("Please open the following URL in your browser then type the authorization code:");
+  System.out.println("  " + authorizationUrl);
+
+  // Read user input authorization code
+  BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+  String code = br.readLine();
+
+  // Generate Token
+  GoogleTokenResponse response = flow.newTokenRequest(code)
+      .setRedirectUri(clientSecrets.getDetails().getRedirectUris().get(0))
+      .execute();
+        
+  // Use access token to call API
+  String accessToken = response.getAccessToken();
+        
+  // Now you can use this access token to access Google APIs on behalf of the user
+ }
+}
+```
+
+Save client ID & client secret to a JSON file named "client_secrets.json" located in the resources directory:
+
+```json
+{
+  "installed": {
+    "client_id": "YOUR_CLIENT_ID",
+    "client_secret": "YOUR_CLIENT_SECRET",
+    "redirect_uris": ["YOUR_REDIRECT_URI"],
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://accounts.google.com/o/oauth2/token"
+  }
+}
+```
+
+This is a basic way to implement Google Single-Sign-On in Java, it will not cover all use cases. Make sure to handle exceptions appropriately and modify according to your needs.

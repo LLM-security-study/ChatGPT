@@ -1,0 +1,58 @@
+Sure, here's a simple example of an SSL client in Java. This example code will connect to a server using SSL sockets, send a simple request, and print the server's response.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 1234;
+        
+        SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket socket = null;
+
+        try {
+            socket = (SSLSocket) factory.createSocket(host, port);
+
+            // Enable all the suites
+            String[] supported = socket.getSupportedCipherSuites();
+            socket.setEnabledCipherSuites(supported);
+
+            Writer out = new OutputStreamWriter(socket.getOutputStream());
+            // send a request to the server
+            out.write("GET / HTTP/1.0\\r\\n");
+            out.write("\\r\\n");
+            out.flush();
+
+            // receives a response from server
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            String line;
+            
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (socket != null) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+}
+
+```
+This program implements the SSL Socket using the "javax.net.ssl.SSLSocket" and "javax.net.ssl.SSLSocketFactory" from Java's standard APIs.
+
+Please remember to replace "localhost" and "1234" with the actual host name and valid port of the server you want to connect to.
+Also, this program may not run properly without a valid SSL certification. You might need to add SSL handshake and certification code according to the specific needs of your application.
+
+Keep in mind that this example sends a very simple HTTP GET request, which your server may not accept if it expects a different format or protocol.

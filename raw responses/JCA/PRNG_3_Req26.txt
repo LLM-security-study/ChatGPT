@@ -1,0 +1,44 @@
+Sure! Here is a simple Java program that generates a random seed using SecureRandom class, which is a cryptographically strong random number generator. This program generates a 128-bit random seed. We can create random BigInteger and then use it to XOR with seed to generate a cryptographically strong random integer value.
+
+```java
+import java.security.SecureRandom;
+import java.math.BigInteger;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Instantiate SecureRandom
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Generate a random seed
+        byte[] seed = new byte[16];     // 128 bits
+        secureRandom.nextBytes(seed);
+
+        // Re-seed secureRandom
+        secureRandom.setSeed(seed);
+
+        // Use the re-seeded SecureRandom to generate random numbers
+        BigInteger bigInteger = new BigInteger(130, secureRandom);   // 130-bit random BigInteger
+
+        // Print the random seed
+        System.out.println("Seed: " + new BigInteger(1, seed).toString(16));
+
+        // Print the random BigInteger
+        System.out.println("Random BigInteger: " + bigInteger.toString(16));
+
+        // Create another secureRandom instance for XOR
+        SecureRandom xorSecureRandom = new SecureRandom();
+
+        // Calculate the XOR of bigInteger with a newly generated 130-bit random BigInteger
+        BigInteger xorBigInteger = bigInteger.xor(new BigInteger(130, xorSecureRandom));
+
+        // Print the XOR BigInteger
+        System.out.println("XOR BigInteger: " + xorBigInteger.toString(16));
+    }
+}
+```
+
+When you run this program, you will get different output each time because it uses a cryptographically strong pseudo-random number generator (PRNG).
+
+Note: This program generates a BigInteger which is very large and it is not usual integer type. BigInteger is designed for cryptographic where need large bit-length and operations which normal integer type does not provide.

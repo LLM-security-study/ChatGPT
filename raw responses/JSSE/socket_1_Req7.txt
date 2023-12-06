@@ -1,0 +1,41 @@
+Creating a secure communication interface between a client and a server in Java can be done with Java's Secure Socket Extension (JSSE) available in javax.net.ssl package. 
+
+Below is a simple program in Java demonstrating an SSL socket server that you can use as a starting point.
+
+```Java
+
+import javax.net.ssl.*;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        int port = 8080;
+        try {
+            SSLServerSocketFactory ssf = (SSLServerSocketFactory) SSLServerSocketFactory.getDefault();
+            SSLServerSocket s = (SSLServerSocket) ssf.createServerSocket(port);
+            System.out.println("Server ready....");
+            SSLSocket c = (SSLSocket) s.accept();
+
+            Writer w = new OutputStreamWriter(c.getOutputStream());
+            w.write("HTTP/1.0 200");
+            w.write("\r\n");
+            w.write("Content-Type: text/plain");
+            w.write("\r\n");
+            w.write("\r\n");
+            w.write("Hello, World");
+            w.flush();
+            w.close();
+            c.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program creates an SSL server socket on port 8080, accepts a client connection, sends some HTTP response headers to the client, followed by a "Hello, World" message, and then closes the connection.
+
+Please note: SSL requires a certificate to establish the trust factor. To get it really working, you will need a valid SSL certificate or you can create a self-signed certificate. But remember, the client will have to trust your self-signed certificate to establish the connection.
+
+Lastly, this just creates an SSLServerSocket. Connecting to this server using an SSLSocket would need a similar process using `SSLSocketFactory`. Consult Java's `javax.net.ssl` documentation for more details about using SSL Sockets.

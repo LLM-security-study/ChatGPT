@@ -1,0 +1,24 @@
+Sure, here's a simple implementation of a class that meets your requirements.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom sr = new SecureRandom();
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+        System.out.println("Generated Salt: " + saltStr);
+    }
+}
+```
+
+This Java program creates a new `SecureRandom` instance, which provides a cryptographically strong random number generator. 
+
+We then initialize a byte array of size 16 (it's good practice to use at least 16 bytes for password salts). After that, we generate random bytes into the salt array via `nextBytes` method. 
+
+The resulting randomized byte array is then encoded into a string using Base64 encoding for easier storage and manipulation.
+
+When you run this program, it will print out a generated salt which you can then use for password hashing purposes. This code doesn't handle the actual password hashing; this is only meant to generate a new salt. If you want to hash a password with this salt, you might need to use a library like Bcrypt or a built-in Java functionality like `MessageDigest`.

@@ -1,0 +1,38 @@
+Of course, here you go:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        String password = "password";
+        byte[] salt = new byte[16]; // ideally this should be securely random and stored with the password
+
+        SecretKeyFactory factory = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+        byte[] hash = new byte[0];
+        try {
+            hash = factory.generateSecret(spec).getEncoded();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+        System.out.println(Arrays.toString(hash));
+    }
+}
+```
+
+This program generates a derived key from a password using the Password-Based Key Derivation Function 2 (PBKDF2) with HmacSHA256 as the pseudo-random function. It applies the function 65536 times (for added security against brute-force attacks) and generates a 128-bit key.
+
+The salt should be securely random and stored alongside the derived key. In a real implementation, you would also securely erase the generated key from memory once it's no longer needed.
+
+Please revise and update code to your own context, especially salt generation and exception handling. Remember to catch and handle exceptions in a way that is appropriate for your application.

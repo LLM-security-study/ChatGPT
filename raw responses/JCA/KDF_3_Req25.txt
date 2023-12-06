@@ -1,0 +1,32 @@
+Sure, below is a basic example of a password-based key derivation in Java. You should replace "YOUR_SALT" with your own Salt and "passwordToHash" with the password you want to hash. 
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+    
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+      
+        String passwordToHash = "123456";
+        String salt = "YOUR_SALT";
+        
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        KeySpec spec = new PBEKeySpec(passwordToHash.toCharArray(), salt.getBytes(), 65536, 256);
+        byte[] hash = factory.generateSecret(spec).getEncoded();
+        System.out.println(Arrays.toString(hash));
+    }
+}
+```
+
+Note: You must have Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files installed to use 256-bit keys with PBKDF2WithHmacSHA256.
+
+Important: Be careful with the salt. It's usually necessary to store the salt somewhere because without the salt, you can't check passwords against the hash. 
+
+In a real-world scenario, you'll want to generate a unique salt for each user rather than using a hard-coded one. You can do this using a strong random function - SecureRandom can provide this functionality in Java. 
+
+You should also adjust the iteration count to the highest value you can tolerate the way your system can currently handle (at least 10,000 is recommended these days). The iteration count is the 65536 value in the example.

@@ -1,0 +1,44 @@
+Sure, here is a sample Java program to decrypt data using AES in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String KEY = "{your AES key here}";
+    private static final String INITIALIZATION_VECTOR = "{your initialization vector here}";
+
+    public static void main(String[] args) {
+        String cipherText = "{insert the cipher text here}";
+        System.out.println(decrypt(cipherText));
+    }
+
+    private static String decrypt(String cipherText) {
+        try {
+            SecretKeySpec keySpec = new SecretKeySpec(Base64.getDecoder().decode(KEY), "AES");
+            IvParameterSpec ivSpec = new IvParameterSpec(Base64.getDecoder().decode(INITIALIZATION_VECTOR));
+            
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            cipher.init(Cipher.DECRYPT_MODE, keySpec, ivSpec);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+}
+```
+
+This program will decrypt the provided cipher text using AES in CBC mode. Please replace "{your AES key here}", "{your initialization vector here}", and "{insert the cipher text here}" with your actual data.
+
+Some notes:
+
+1. This is just a sample program. In a real use case, it's not recommended to directly store your keys and initialization vector in the code for security reasons. There are other more secure ways to manage and store encryption keys.
+2. The key length must be according to the AES specification (128, 192, or 256 bits). The initialization vector (IV) for AES in CBC mode must be 16 bytes long.
+3. The cipher text must be a base64-encoded string in this example. If your encrypted data is in another format, it might need to be converted first.
+4. This program uses PKCS5Padding as padding. If your encryption data uses any other type of padding, you should change it accordingly.

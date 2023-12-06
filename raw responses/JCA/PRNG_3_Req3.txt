@@ -1,0 +1,22 @@
+Sure, here is your Java program:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // SecureRandom instance with default algorithm and provider
+        SecureRandom secureRandom = new SecureRandom();
+        
+        // Get random integer
+        int randomInt = secureRandom.nextInt();
+
+        // Print the generated integer
+        System.out.println("Generated random integer for cryptography: " + randomInt);
+    }
+}
+```
+
+Please be aware that `SecureRandom` objects work with a system-provided source of randomness by default. Even though `SecureRandom` produces a seed internally, calling `secureRandom.setSeed(...)` with a user-defined seed can be used to augment the existing seed. However, experts often advise against interfering with the seed unless you know what you're doing, since such interference often decreases randomness rather than increasing it. 
+
+The `SecureRandom` class is recommended for generating random numbers intended for cryptographic use. It follows best practices for security, unlike using `Random` class which is meant for less security-intensive purposes, like generating random numbers for games.

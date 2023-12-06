@@ -1,0 +1,79 @@
+Sure, here is a basic implementation for Google Single-Sign-On authentication using JavaScript on the backend with Google's OAuth 2.0 client:
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+
+    private static final String GOOGLE_CLIENT_ID = "YOUR_CLIENT_ID";
+
+    public static void main(String[] args) {
+        
+        String idTokenString = "TOKEN_FROM_FRONT_END";
+        
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+            // Specify the CLIENT_ID of the app that accesses the backend:
+            .setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
+            // Or, if multiple clients access the backend:
+            //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+            .build();
+
+        try {
+            GoogleIdToken idToken = verifier.verify(idTokenString);
+            if (idToken != null) {
+                Payload payload = idToken.getPayload();
+
+                // Get profile information from payload
+                String userId = payload.getSubject();
+                String email = payload.getEmail();
+                boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+                String name = (String) payload.get("name");
+                String pictureUrl = (String) payload.get("picture");
+                String locale = (String) payload.get("locale");
+
+                System.out.println("User ID: " + userId);
+                System.out.println("Email: " + email);
+                System.out.println("Email verified: " + emailVerified);
+                System.out.println("Name: " + name);
+                System.out.println("Picture Url: " + pictureUrl);
+                System.out.println("Locale: " + locale);
+
+            } else {
+                System.out.println("Invalid ID token.");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace `"YOUR_CLIENT_ID"` and `"TOKEN_FROM_FRONT_END"` with your registered Google OAuth2 Client ID and the actual Token from the Front-End respectively.
+
+Please note that into a web application, this code should be run on the server-side where you receive the 'idTokenString' from the client-side (front-end) after the user is authenticated by Google on the client-side. It will very slightly depending on the structure of your application.
+
+The dependencies required by this code are `google-api-client` and `google-oauth-client`.
+
+You can add these dependencies to your Maven `pom.xml` file:
+```xml
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.23.0</version>
+</dependency>
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client</artifactId>
+    <version>1.23.0</version>
+</dependency>
+```
+
+Don't forget to replace versions with most recent ones. 
+
+You need to handle network error and add error-handling code to manage when the token fails to be verified, in a manner that fits with your application as a whole.

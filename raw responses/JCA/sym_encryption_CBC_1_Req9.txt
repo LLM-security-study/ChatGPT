@@ -1,0 +1,64 @@
+Here is a Java program using standard Java API's to encrypt and decrypt a string using AES in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.util.Base64;
+import javax.crypto.spec.SecretKeySpec;
+
+public class Main {
+    static String algorithm = "AES/CBC/PKCS5PADDING";
+    static SecretKey key;
+    static byte[] iv;
+
+    static {
+        try {
+            KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+            keyGenerator.init(128);
+            key = keyGenerator.generateKey();
+            iv = new byte[128 / 8];
+            SecureRandom secureRandom = new SecureRandom();
+            secureRandom.nextBytes(iv);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) throws Exception {
+        String plainText = "Hello, World!";
+        System.out.println("Plain Text: " + plainText);
+
+        String cipherText = encrypt(plainText);
+        System.out.println("Encrypted Text: " + cipherText);
+
+        String decryptedText = decrypt(cipherText);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+    public static String encrypt (String plainText) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithm);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivParameterSpec);
+        byte[] cipherText = cipher.doFinal(plainText.getBytes());
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    public static String decrypt (String cipherText) throws Exception {
+        Cipher cipher = Cipher.getInstance(algorithm);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.DECRYPT_MODE, key, ivParameterSpec);
+        byte[] plainText = cipher.doFinal(Base64.getDecoder().decode(cipherText));
+        return new String(plainText);
+    }
+}
+```
+
+This program has a static block to generate the Key and IV for AES in CBC mode. KeyGenerator generates a key of 128 bits while SecureRandom generates a random IV.
+
+The `encrypt` function converts the plain text to a cipher text and the `decrypt` function converts the cipher text back to the original plain text.
+
+Note: The program uses a static key and IV. In a secure system, you must properly manage the key and IV by following the best security practices. This code is a straightforward demonstration to show how AES in CBC mode works and should not be used directly in production.

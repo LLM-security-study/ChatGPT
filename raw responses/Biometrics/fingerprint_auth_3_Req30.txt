@@ -1,0 +1,112 @@
+Recognizing that Java alone cannot directly interact with the biometric sensors or the native Android API, Kotlin or Java in conjunction with Android API should be used to develop this feature. However, I can guide you through the steps:
+
+Here is a basic scaffold in Java using FingerprintManager and FingerprintManager.AuthenticationCallback classes available in Android above the Marshmallow version (API 23+)
+
+Below is the class for fingerprint scanning. 
+
+```java
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.KeyguardManager;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+
+import java.security.KeyStore;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+@TargetApi(Build.VERSION_CODES.M)
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private CancellationSignal cancellationSignal;
+    private Context context;
+
+    public FingerprintHandler(Context mContext) {
+        context = mContext;
+    }
+
+    public void startAuth(FingerprintManager manager, FingerprintManager.CryptoObject cryptoObject) {
+
+        cancellationSignal = new CancellationSignal();
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        manager.authenticate(cryptoObject, cancellationSignal, 0, this, null);
+    }
+
+    @Override
+    public void onAuthenticationError(int errMsgId, CharSequence errString) {
+        Toast.makeText(context, "Authentication error\n" + errString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+        Toast.makeText(context, "Authentication help\n" + helpString, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationFailed() {
+        Toast.makeText(context, "Authentication failed", Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+        Toast.makeText(context, "Success!", Toast.LENGTH_LONG).show();
+    }
+}
+```
+The `startAuth` takes a `FingerprintManager` and `FingerprintManager.CryptoObject` as parameters.
+
+Here is how you would initialize the `FingerprintManager` and `FingerprintManager.CryptoObject` in your activity: 
+
+```java
+public class Main {
+    private FingerprintManager fingerprintManager;
+    private KeyguardManager keyguardManager;
+    
+    @SuppressLint("NewApi")
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+        fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+        
+        if (!keyguardManager.isKeyguardSecure()) {
+            Toast.makeText(this, "Lock screen security not enabled in Settings", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        if (!fingerprintManager.hasEnrolledFingerprints()) {
+            Toast.makeText(this, "Register at least one fingerprint in Settings", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        generateKey();
+        
+        if (cipherInit()) {
+            FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+            FingerprintHandler helper = new FingerprintHandler(this);
+            helper.startAuth(fingerprintManager, cryptoObject);
+        }
+    }
+    
+    //remaining code here
+}
+```
+
+You can handle the `KeyStore` and `Cipher` init in the "remaining code" section. That's platform-dependent and can often vary. The provided code is a primitive example of using the fingerprint scanner.

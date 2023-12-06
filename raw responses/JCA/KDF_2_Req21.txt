@@ -1,0 +1,35 @@
+Sure, here you go. The following Java program will generate a secret key from a user's password:
+
+```java
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your password: ");
+            String password = scanner.nextLine();
+
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), "salt".getBytes(), 65536, 256);
+            SecretKey secret = factory.generateSecret(spec);
+
+            System.out.println("Your secret key is created.");
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program will generate a secret key based on the user's password using the PBKDF2 standard, which is generally recommended for generating keys from passwords. Note that it uses a static "salt". In a real context, you'd want to use a unique, high-entropy salt for each user.
+
+Disclaimer: This program will display the entered password in console. It is for illustrative purposes only and not recommended for real projects where sensitive information like a password shouldn't be displayed in CONSOLE or stored in plain text.
+
+Caution: Be sure to use https (secure http) in real applications where you transmit the password from a client (like GUI, webpage etc.) to this server program, so hackers cannot sniff the network to steal the password.

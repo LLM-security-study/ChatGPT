@@ -1,0 +1,42 @@
+Sure, here is a skeleton code to get you started!
+
+In your Java program, you'll need to use the Java Secure Socket Extension (JSSE). This comes standard with the Java SE 6 and higher. Here's a basic example of a program setting up a connection via SSL:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory sslsocketfactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslsocketfactory.createSocket("Hostname", 443);
+
+            PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello Server");
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println("Received: " + inputLine);
+            }
+
+            out.close();
+            in.close();
+            sslSocket.close();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace "Hostname" with the hostname of your remote server. This program tries to establish an SSL connection to the server on port 443, which is the standard port for SSL connections. But make sure to replace it with your server's listening port if it's different. 
+
+Once connected, it sends "Hello Server" message to the server and then reads the server response. It continues reading from the server until there's no more data. When it's done, it closes all the streams and the socket.
+
+Remember that the SSL connection needs to trust the server's SSL certificate, which is often not the case for self-signed certificates. For these, you'll need to add the server's certificate to your truststore, usually located in the `jre/lib/security/cacerts` file of your Java installation directory.
+
+To add a certificate to your trusted certificates, use the `keytool -importcert` command included in your Java Development Kit.
+
+Note: This is a basic implementation. Please handle exceptions and implement error checking properly in a production environment for security reasons.

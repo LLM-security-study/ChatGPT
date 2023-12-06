@@ -1,0 +1,69 @@
+Sure, as for this mock program we will use the SSLContext API for secure communication, as it is a primary API that deals with SSL (Secure Sockets Layer) and TSL (Transport Layer Security). For certificate validation, we can use the CertPathValidator API to verify a certificate's authenticity. 
+
+This program will create a socket, set up secure communication using SSLContext, then validate the obtained certificate from the server. 
+
+Import all necessary packages at the beginning:
+
+```java
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManagerFactory;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
+import java.security.cert.PKIXParameters;
+import java.util.Collections;
+```
+
+We'll assume the server's certificate is stored in server.crt for the purpose of this example:
+
+```java
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Load the certificate
+        InputStream inStream = new FileInputStream("server.crt");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509");
+        Certificate serverCert = cf.generateCertificate(inStream);
+        inStream.close();
+
+        // Create a KeyStore containing our trusted CAs
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+        keyStore.load(null, null);
+        keyStore.setCertificateEntry("server", serverCert);
+
+        // Create a TrustManager that trusts the server in our KeyStore
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(keyStore);
+
+        // Create an SSLContext that uses our TrustManager
+        SSLContext context = SSLContext.getInstance("TLS");
+        context.init(null, tmf.getTrustManagers(), null);
+
+        // Create an SSLSocketFactory
+        SSLSocketFactory sslSocketFactory = context.getSocketFactory();
+
+        // Connect to the server
+        SSLSocket socket = (SSLSocket) sslSocketFactory.createSocket(InetAddress.getByName("server.com"), 443);
+
+        // Validate the obtained certificate against the serverCert
+        CertPathValidator cpv = CertPathValidator.getInstance(CertPathValidator.getDefaultType());
+        PKIXParameters params = new PKIXParameters(keyStore);
+        params.setRevocationEnabled(false);
+        CertPath cp = cf.generateCertPath(Collections.singletonList(serverCert));
+        cpv.validate(cp, params);
+
+        // Use the socket as usual...
+    }
+}
+```
+
+Note that in actual application, errors and exceptions should be effectively handled and the input should be sanitized. This program would connect to 'server.com' via port number 443(you can replace it with your server URL) with your certificate 'server.crt'. 
+
+Please replace filenames and URLs with actual ones. If you have a list of certificates, you can validate each one in a loop.
+
+Keep in mind this is a simplified example, you may need much more sophisticated handling based on your actual needs. In a production environment, you would need to securely manage your files and certificates.

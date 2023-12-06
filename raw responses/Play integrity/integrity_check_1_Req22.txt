@@ -1,0 +1,69 @@
+To fulfill your requirements, we will utilize the Google SafetyNet API for validating the authenticity of an Android app's APK. SafetyNet provides a set of services and APIs that help protect apps against security threats, including device tampering, bad URLs, potentially harmful apps, and fake users. 
+
+Please note that this program will not run on a typical system, you have to execute it on an Android environment.
+
+Here is the Java program:
+
+```java
+package com.example.checkapk;
+
+import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import android.os.Bundle;
+import android.util.Log;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final String TAG = "MainActivity";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        verifyAppIntegrity();
+    }
+
+    private void verifyAppIntegrity() {
+        SafetyNet.getClient(this).attest("nonce".getBytes(), "YOUR_API_KEY")
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                if (validateSafetyNetResponse(response)) {
+                                    Log.d(TAG, "SafetyNet check passed!");
+                                } else {
+                                    Log.d(TAG, "SafetyNet check failed!");
+                                }
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            Log.d(TAG, "SafetyNet Api Error: " + CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()));
+                        } else {
+                            Log.d(TAG, "Unknown SafetyNet error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    private boolean validateSafetyNetResponse(SafetyNetApi.AttestationResponse response) {
+        // Here you could use Google's online SafetyNet API to validate the response (https://developer.android.com/training/safetynet/attestation#validate-attestation-response),
+        // or parse and validate the JWT signature response locally, but this may be less secure
+        // This function is not detailed in this example for simplicity.
+    }
+}
+```
+
+This program uses the SafetyNet attestation API to ensure the authenticity of the Android app's APK. After a successful SafetyNet check, it invokes the `validateSafetyNetResponse` method, which you have to implement validation of the SafetyNet response. That could be done by calling Google's online SafetyNet API or by locally parsing and validating the JWT signature in the response. 
+
+Please replace `YOUR_API_KEY` with your actual API key in the `attest` method call.
+
+NOTE: Your app must be connected to Google Play Services to use this. Also, please note that SafetyNet attestations are billed by Google, you need to take it into account before implementing this solution.

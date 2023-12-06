@@ -1,0 +1,41 @@
+Sure, here's a basic example of a Java program performing a message integrity check using a Message Authentication Code (MAC) function. Let's use HmacSHA256 for the Message Authentication Code (MAC).
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Message and the secret key
+            String msg = "Hello, World!";
+            String key = "secretKey";
+
+            // Create a MAC instance with HmacSHA256
+            Mac mac = Mac.getInstance("HmacSHA256");
+
+            // Convert the key to bytes and then to a SecretKeySpec
+            SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+
+            // Initialize the MAC with the key
+            mac.init(secret_key);
+
+            // Compute the MAC of the message
+            byte[] macbytes = mac.doFinal(msg.getBytes(StandardCharsets.UTF_8));
+
+            // Convert macbytes to Base64 String to make it human-friendly
+            String result = Base64.getEncoder().encodeToString(macbytes);
+
+            System.out.println("MAC: " + result); 
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+}
+```
+
+This program generates a HmacSHA256 MAC (Message Authentication Code) for the String "Hello, World!" using the secret key "secretKey". The MAC is then outputted in base64 format. Obviously, in a real world example, you would get the message and key in a more realistic way. 
+
+This example is pretty basic and it's always a good idea to have better error handling in place.

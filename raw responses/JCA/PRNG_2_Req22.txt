@@ -1,0 +1,28 @@
+Sure, here is a basic implementation of such a program in Java:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        SecureRandom prng = new SecureRandom();
+        byte[] salt = new byte[16];
+
+        prng.nextBytes(salt);
+        
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+
+        System.out.println("Generated Salt: " + saltStr);
+    }
+    
+}
+```
+
+This program creates a secure pseudorandom number generator, generates a 128-bit (16-byte) salt, and then formats it as a base64 string. 
+
+We use SecureRandom instead of Random here because it's a cryptographically strong random number generator.
+
+Please replace 16 by your requirement of salt size.

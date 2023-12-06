@@ -1,0 +1,51 @@
+I can give you a high-level overview using Java. Note that in real-world development, Android implements fingerprint authentication using its Biometric API, this API is used to scan and process user fingerprints. But to keep things simple in this educational context, here is an abstract idea of how it can be developed using some imaginary classes.
+
+```java
+import java.util.Scanner;
+
+interface FingerprintSensor {
+    String scanFingerprint();
+}
+
+class FingerprintSensorImpl implements FingerprintSensor {
+    // This implementation would interface with the physical sensor, but we'll simulate with standard input
+    public String scanFingerprint() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please scan your fingerprint");
+        String fingerprint = scanner.nextLine();
+        scanner.close();
+        return fingerprint;
+    }
+}
+
+
+interface UserDatabase {
+    String fetchUserFingerprint(String userId);
+}
+
+class UserDatabaseImpl implements UserDatabase {
+    // This would normally interface with a database. We'll simulate by returning a hard-coded value.
+    public String fetchUserFingerprint(String userId) {
+        return "1234567890"; // Simulating the fingerprint data
+    }
+}
+
+class Main {
+    
+    private final UserDatabase userDatabase = new UserDatabaseImpl();
+    private final FingerprintSensor fingerprintSensor = new FingerprintSensorImpl();
+
+    public static void main(String[] args) {
+        new Main().authenticateUser("user1");
+    }
+
+    private boolean authenticateUser(String userId) {
+        String scannedFingerprintData = fingerprintSensor.scanFingerprint();
+        String storedFingerprintData = userDatabase.fetchUserFingerprint(userId);
+        // Compares the scanned fingerprint data with stored fingerprint data 
+        return scannedFingerprintData.equals(storedFingerprintData);
+    }
+}
+```
+
+This is an extremely simplified version. The real development involves async operations and more complex data handling, and you would need to handle different exceptions that might occur like no fingerprint registered, sensor not found etc. Remember to always use user's biometric data carefully, always respect user's privacy and follow local laws and regulations when handling such data.

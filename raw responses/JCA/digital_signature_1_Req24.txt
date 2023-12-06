@@ -1,0 +1,47 @@
+Here is a simple implementation of such a program in Java:
+
+```java
+import java.security.*;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate a KeyPair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+        keyGen.initialize(1024, random);
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey priv = pair.getPrivate();
+        PublicKey pub = pair.getPublic();
+
+        // Sign a message
+        byte[] message = "This is a test message".getBytes();
+        byte[] signatureBytes = sign(priv, message);
+
+        // Verify the signature
+        boolean verificationResult = verify(pub, message, signatureBytes);
+        System.out.println("Verification result: " + verificationResult);
+    }
+
+    private static byte[] sign(PrivateKey priv, byte[] message) throws Exception{
+        Signature dsa = Signature.getInstance("SHA1withDSA", "SUN");
+        dsa.initSign(priv);
+
+        dsa.update(message);
+        return dsa.sign();
+    }
+
+    private static boolean verify(PublicKey pub, byte[] message, byte[] signature) throws Exception {
+        Signature sig = Signature.getInstance("SHA1withDSA", "SUN");
+        sig.initVerify(pub);
+
+        sig.update(message);
+        return sig.verify(signature);
+    }
+}
+```
+This program uses the "SHA1withDSA" signature algorithm provided by the SUN provider to sign and verify a message. It first generates a pair of keys for this algorithm and uses these keys to sign and verify the message.
+
+The `sign` function initializes a Signature object for signing with the private key, updates it with the bytes of the message, and then signs the message. It returns the generated signature.
+
+The `verify` function initializes a Signature object for verification with the public key, updates it with the bytes of the message, and then verifies the signature. It returns a boolean indicating whether the verification was successful.

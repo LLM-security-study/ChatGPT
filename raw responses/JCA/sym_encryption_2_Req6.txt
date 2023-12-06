@@ -1,0 +1,52 @@
+Sure, here's a basic example of using the Java standard APIs to implement symmetric encryption and decryption using the Advanced Encryption Standard (AES).
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    
+    public static void main(String[] args) throws Exception {
+
+        String plainText = "Hello, World!";
+
+        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
+        keyGenerator.init(128);
+        SecretKey secretKey = keyGenerator.generateKey();
+
+        // Encryption
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        byte[] encryptedTextBytes = cipher.doFinal(plainText.getBytes("UTF-8"));
+
+        // Encode to Base64
+        String encodedEncryptedText = Base64.getEncoder().encodeToString(encryptedTextBytes);
+        System.out.println("Encrypted Text : " + encodedEncryptedText);
+        
+        // Decryption
+        // Since we are using symmetric algorithm, we use the same key for decryption
+        byte[] encryptedTextBytesDec = Base64.getDecoder().decode(encodedEncryptedText);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        byte[] decryptedTextBytes = cipher.doFinal(encryptedTextBytesDec);
+        
+        String decryptedText = new String(decryptedTextBytes);
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+}
+```
+
+Here's how it works:
+
+1. The main method begins by creating a plain-text string (`Hello, World!`) to be encrypted.
+2. A `KeyGenerator` for the AES algorithm is created and used to generate a `SecretKey`.
+3. An AES `Cipher` is created and initialized to the ENCRYPT_MODE with the generated `SecretKey`.
+4. The cipher is then used to convert the plain-text byte array to an encrypted byte array.
+5. The encrypted byte array is then converted to Base64 encoded string for readability and printed to the console.
+6. For decryption, the same symmetric AES `SecretKey` is used with the same `Cipher`.
+7. The encrypted text is first decoded from Base64 to byte array.
+8. Finally, the cipher decrypts the byte array to original plain-text string which is then printed to console. 
+
+This is a basic demonstration of symmetric encryption. In a real-world application, you'd need to securely store keys, handle exceptions much more robustly, etc. Please, do not use this code snippet for any serious cryptographic work without understanding the limits and risks.

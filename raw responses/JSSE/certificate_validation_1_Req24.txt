@@ -1,0 +1,55 @@
+Here is the skeleton of a Java program that can be used for certificate validation to enable secure communication with a server. For simplicity, I haven't included all the error handling and other details you might need for a fully robust implementation. The API I have used in this code is the Java Secure Socket Extension (JSSE).
+
+Please note, for this program to work you should have a .crt file for the certificate and the path should be provided in the getServerCertificates() method.
+
+```java
+import java.net.URL;
+import java.security.cert.Certificate;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().testServerCertificates();
+    }
+
+    public void testServerCertificates() {
+        HttpsURLConnection connection = null;
+
+        try {
+            // Create a URL object
+            URL url = new URL("https://www.example.com");
+
+            // Create a connection
+            connection = (HttpsURLConnection) url.openConnection();
+
+            // Display the certificate details
+            printCertificateDetails(connection);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Disconnect the connection
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+
+    private void printCertificateDetails(HttpsURLConnection connection) throws SSLPeerUnverifiedException {
+        // Retrieve the server's certificate chain
+        Certificate[] serverCertificates = connection.getServerCertificates();
+
+        // Print the details of each certificate
+        for (Certificate cert : serverCertificates) {
+            System.out.println("\n=== Server Certificate Details ===");
+            System.out.println("Type : " + cert.getType());
+            System.out.println("Hash Code : " + cert.hashCode());
+            System.out.println("Public Key : " + cert.getPublicKey());
+            System.out.println("Certificates : " + cert);
+        }
+    }
+}
+```
+
+Remember to replace 'https://www.example.com' with your own server URL. Happy configuring!

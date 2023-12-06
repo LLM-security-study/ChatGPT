@@ -1,0 +1,47 @@
+Sure, Here's a basic example of a Java program to decrypt data using AES in CBC mode:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+  
+  private static final String KEY = "aesEncryptionKey";
+  private static final String INIT_VECTOR = "encryptionIntVec";
+
+  public static void main(String[] args) {
+    String encryptedData = "Yi4nBe4N17nrCV3fPOYbFg==";
+    
+    try {
+      System.out.println("Decrypted Data: " + decrypt(KEY, INIT_VECTOR, encryptedData));
+    } catch (Exception e) {
+      System.out.println("Error while decrypting: " + e.toString());
+    }
+  }
+
+  public static String decrypt(String key, String initVector, String encrypted) throws Exception {
+    IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+    SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+    
+    Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+    cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+    
+    byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+    return new String(original);
+  }
+}
+```
+
+In this program, there are two main components: 
+
+- The `decrypt` method which takes as parameters a `key` (the secret key used for decryption), an `initialization vector`(which is required for CBC mode), and an `encrypted` message which has to be decrypted, it returns the decrypted string.
+  
+- The `main` method where we run the decryption. The encrypted string needs to be supplied here. We print the decrypted string to the console. 
+   
+Please note, AES keys should be of length 16, 24, or 32 bytes (for AES 128, 192, and 256 respectively), but in this example, we are using `aesEncryptionKey` which is 16 bytes. Same guideline applies for Initialization Vector as well.
+
+Remember to replace `"Yi4nBe4N17nrCV3fPOYbFg=="` with your encrypted data. Additionally, this is a simple example, actual secure implementation would be to securely store and retrieve secretKey and not hardcode it as in this example.

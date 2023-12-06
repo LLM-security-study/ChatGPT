@@ -1,0 +1,53 @@
+Sure. Here is a basic implementation of an SSL Socket using Java's Secure Socket Extension (JSSE) standard APIs.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+
+public class Main {
+    private static final String HOST = "your.remote.server"; // replace with your server address
+    private static final int PORT = 1234; // replace with your server port
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(HOST, PORT);
+
+            // Enable all the suites
+            String[] supported = socket.getSupportedCipherSuites();
+            socket.setEnabledCipherSuites(supported);
+
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            // Write to the socket
+            out.println("Hello Server!");
+
+            // Read from the socket
+            String response = in.readLine();
+            System.out.println("Server Response: " + response);
+
+            // Close the socket and its streams
+            out.close();
+            in.close();
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println("Error occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this program, the code creates an SSLSocket from the SSLSocketFactory and connects it to a specified host and port. The program then enables all cipher suites supported by the socket and opens input and output streams to the socket. A message is sent to the server via the output stream and the server's response is read from the input stream.
+
+Before running this program, ensure that Java's secure socket extension (JSSE) is properly set up for your Java Development Kit (JDK) and that the necessary certificates are installed in your Java secure socket keystore because SSL communication requires a trusted certificate for authentication purposes.
+
+Remember to replace the strings "your.remote.server" and port number 1234 with your real server address and port number. Also, ensure that your server is set up to receive SSL connections. 
+
+This program is very simplistic; in a real-world scenario, the program should handle multiple clients and include additional error checking and exception handling.

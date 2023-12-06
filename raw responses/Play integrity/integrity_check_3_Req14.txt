@@ -1,0 +1,61 @@
+In order to validate the integrity of an Android device, we would use the Google's SafetyNet Attestation API. The SafetyNet API offers services for determining whether a device running your app satisfies Android compatibility tests.
+
+As it's the Google's SafetyNet, we can assume that your project is registered on the Google Cloud Platform and the API key is accessible.
+
+Here is a simple example of how to implement it.
+
+```java
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import androidx.annotation.NonNull;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import android.util.Log;
+
+public class Main extends AppCompatActivity {
+
+  // Your API key here
+  private static final String SAFETYNET_API_KEY = "Your API Key Here";
+
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    SafetyNet.getClient(this).attest(nonce(), SAFETYNET_API_KEY)
+      .addOnCompleteListener(new OnCompleteListener<SafetyNetApi.AttestationResponse>() {
+        @Override
+        public void onComplete(@NonNull Task<SafetyNetApi.AttestationResponse> task) {
+          if (task.isSuccessful()) {
+            // The SafetyNet Attestation succeeded.
+            Log.d("SAFETYNET", "Success! The device is safe.");
+          } else {
+            // An error occurred while communicating with the service.
+            ApiException apiException = (ApiException) task.getException();
+            Log.d("SAFETYNET", "Error: " + apiException.getMessage());
+          }
+        }
+      });
+  }
+  
+  // Function creating nonce
+  public byte[] nonce() {
+    // Random 24-byte nonce.
+    byte[] nonce = new byte[24];
+    new SecureRandom().nextBytes(nonce);
+    return nonce;
+  }
+}
+```
+
+Here, `nonce()` is a method that creates a nonce that you'd send to Google's SafetyNet Attestation API. 
+
+The response from this API is a JSON Web Token (JWT) that contains a payload which provides information about the Android device's compatibility. Based on the trustworthiness of this payload, you can then determine whether to trust subsequent interactions with the device. 
+
+Please replace "Your API Key Here" with the actual API key you have. 
+
+This program only verifies the integrity of the device, it does not determine what to do in case the device is not genuine or tampered. You would decide that as per your application requirements.
+

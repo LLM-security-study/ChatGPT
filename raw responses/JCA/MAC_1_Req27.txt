@@ -1,0 +1,45 @@
+Sure. Below is a basic Java program that generates a `Message Authentication Code (MAC)` for a given message. This uses `"HmacSHA256"`:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter a message:");
+        String message = scanner.nextLine();
+
+        System.out.println("Enter a secret key:");
+        String secret = scanner.nextLine();
+        
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            mac.init(secretKey);
+
+            byte[] rawMac = mac.doFinal(message.getBytes());
+            byte[] base64EncodedMac = Base64.getEncoder().encode(rawMac);
+
+            System.out.println("MAC for given message is : "+ new String(base64EncodedMac));
+            
+        } catch (Exception e) {
+            System.out.println("Error generating MAC: " + e.getMessage());
+        }
+    }
+}
+```
+
+Steps:
+- The Java API `javax.crypto.Mac` is used to get an instance of `Mac` with the `HmacSHA256 algorithm.
+- A `SecretKeySpec` is created from the given secret key and is used to initialize the `Mac` object.
+- The `doFinal` method of the `Mac` object is called with the message bytes to obtain the raw MAC bytes.
+- The raw MAC bytes is Base64 encoded to convert it into a printable encoding, since the raw MAC bytes will be a non-printable binary sequence.
+- The MAC value is then printed to the console.
+
+You have to enter the message and the secret key for MAC generation.
+
+Please make sure that you have required permissions to perform crypto operations.

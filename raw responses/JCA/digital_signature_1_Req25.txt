@@ -1,0 +1,47 @@
+Sure, here is a simple program to sign a message and verify it using the Digital Signature Algorithm (DSA) in Java.
+
+```java
+import java.security.*;
+
+public class Main {
+
+    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA"); 
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        keyGen.initialize(1024, random); 
+        return keyGen.genKeyPair();
+    }
+
+    private static byte[] signMessage(PrivateKey privateKey, byte[] message) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        Signature signer = Signature.getInstance("SHA1withDSA"); 
+        signer.initSign(privateKey);
+        signer.update(message); 
+        return signer.sign();
+    }
+    
+    private static boolean verifyMessage(PublicKey publicKey, byte[] message, byte[] signed) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        Signature verifier = Signature.getInstance("SHA1withDSA"); 
+        verifier.initVerify(publicKey);
+        verifier.update(message);
+        return verifier.verify(signed);
+    }
+    
+    public static void main(String[] args) {
+        try {
+            KeyPair pair = generateKeyPair();
+            String message = "This is a test message";
+            byte[] signed = signMessage(pair.getPrivate(), message.getBytes());
+
+            System.out.println("Signature verification: "+verifyMessage(pair.getPublic(), message.getBytes(), signed));
+       
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This code includes a main() function which generates a KeyPair, signs a message, and then verifies the signed message as a demonstration of the signing and verification functions.
+
+The generateKeyPair() function will generate and return a public-private key pair which is the basis for the signature. The signMessage() function uses the private key from the pair to sign the provided message. The verifyMessage() function uses the public key from the pair, the original message, and the signed message to verify the signature. 
+
+In digital signature systems, the private key is kept secret by the signer, and the verification process is done using the corresponding public key. Therefore, if the message is altered or tampered with after the signature is done, the verification process will fail. This is the basis for the integrity and authenticity verification carried out by digital signature systems.

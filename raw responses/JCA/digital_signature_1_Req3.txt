@@ -1,0 +1,49 @@
+Sure, below is the simple Java program to perform the signing and verification of a provided message using Java's standard `Signature` API:
+
+```java
+import java.security.*;
+
+public class Main {
+    
+    public static void main(String[] args) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException {
+        String message = "Hello, World!";
+        
+        // Generate a key pair
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("DSA");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        kpg.initialize(1024, random);
+        KeyPair pair = kpg.generateKeyPair();
+        PrivateKey privateKey = pair.getPrivate();
+        PublicKey publicKey = pair.getPublic();
+        
+        // Sign the message
+        byte[] signatureBytes = sign(message, privateKey);
+        
+        // Verify the signature
+        boolean isVerified = verify(message, signatureBytes, publicKey);
+        System.out.println("Signature verification: " + (isVerified ? "valid" : "invalid"));
+    }
+
+    public static byte[] sign(String message, PrivateKey privateKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        Signature signature = Signature.getInstance("DSA");
+        signature.initSign(privateKey);
+        signature.update(message.getBytes());
+        return signature.sign();
+    }
+
+    public static boolean verify(String message, byte[] signatureBytes, PublicKey publicKey) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+        Signature signature = Signature.getInstance("DSA");
+        signature.initVerify(publicKey);
+        signature.update(message.getBytes());
+        return signature.verify(signatureBytes);
+    }
+}
+```
+
+Here, the function `sign()` is used to sign the message using a private key and returns a byte array which is our signature.
+The function `verify()` then uses the public key, the original message and the produced signature to verify the authenticity and integrity of the message.
+
+The main method generates a key pair using Digital Signature Algorithm ("DSA") for signing and verifying the message. It creates a message "Hello, World!", performs the signing process and then verifies the same.
+
+Please note that this is a very basic signing and verification system. In real-world applications, a higher level of security would be required, potentially including the use of a secure key store for private key handling.
+

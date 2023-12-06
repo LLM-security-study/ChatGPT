@@ -1,0 +1,44 @@
+Sure, below is a very basic setup of an SSL socket for client-side communication in Java using the SSLSocketFactory provided by the javax.net.ssl package.
+
+Make sure the server you are trying to connect to has SSL enabled. 
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket("Your_Server_Hostname", Your_Server_Port);
+
+            // Create streams to securely send and receive data to the server
+            InputStream in = sslSocket.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            OutputStream out = sslSocket.getOutputStream();
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(out));
+
+            // Write a message to the server
+            writer.println("Hello Server");
+            writer.flush();
+
+            // Read the response from the server
+            String response = reader.readLine();
+            System.out.println("Server Response: " + response);
+
+            // Close the SSL socket
+            sslSocket.close();
+        } catch (IOException ex) {
+            System.out.println("Failed to create SSL socket : " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+}
+```
+This is a very basic implementation, you might need further configurations depending on your real-life requirements, like certificate handling, hostname verification, etc. Thus, make sure you are aware of your needs from a security perspective before implementing your own SSL Socket.
+
+You also might need to add error checkings and handle edge cases based on your requirements in a production-level code.
+
+To make it work, fill in "Your_Server_Hostname" and Your_Server_Port with the hostname and port of your server respectively. This example sends a "Hello Server" message to the server and reads a line of response.
+

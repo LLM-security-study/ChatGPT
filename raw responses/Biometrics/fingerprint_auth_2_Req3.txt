@@ -1,0 +1,57 @@
+Given the intention to use Android Biometric API for the fingerprint recognition:
+
+```java
+import android.content.Context;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.CancellationSignal;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+public class Main {
+
+    private final Executor executor;
+    private final BiometricPrompt biometricPrompt;
+    private final BiometricPrompt.PromptInfo promptInfo;
+
+    public Main(Context context) {
+          executor = Executors.newSingleThreadExecutor();
+
+          biometricPrompt = new BiometricPrompt.Builder(context)
+                            .setTitle("Fingerprint Auth")
+                            .setSubtitle("Subtitle")
+                            .setDescription("Place your finger on the sensor.")
+                            .setNegativeButton("Cancel", executor, (dialogInterface, i) -> {})
+                            .build();
+
+          promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                            .setTitle("Fingerprint Auth")
+                            .setSubtitle("Subtitle")
+                            .setDescription("Description")
+                            .setNegativeButtonText("Cancel")
+                            .build();
+     }
+
+     public void authenticateUser(BiometricPrompt.AuthenticationCallback authenticationCallback) {
+       biometricPrompt.authenticate(promptInfo, new CancellationSignal(), executor, authenticationCallback);
+    }
+
+}
+```
+
+You can begin the authentication process by creating an instance of `Main` and calling `authenticateUser`.
+
+Please make sure to add the necessary permissions in the AndroidManifest.xml:
+
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+```
+
+Note: the android.hardware.biometrics.BiometricPrompt package is deprecated from API level 29 and higher recommend android.hardware.biometrics.BiometricPrompt.Builder use androidx.biometric.BiometricPrompt instead.
+
+Remember that handling biometrics data is a sensitive task and you must follow all the best practices related to the privacy and data protection. 
+
+Check the official Android Developers documentation for all the details: https://developer.android.com/training/sign-in/biometric-auth
+
+Also, the bearer must know that not all devices have hardware support for biometrics. Always implement an alternative authentication method for those cases. 
+
+Make sure to handle errors and fallback options.

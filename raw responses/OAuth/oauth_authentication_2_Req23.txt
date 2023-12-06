@@ -1,0 +1,61 @@
+Sure, here's a simple example on how to implement Google sign-on in a Java web application. In order to accomplish this, we need to utilize Google's OAuth 2.0 API. 
+
+```Java
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.util.Collections;
+
+public class Main {
+
+  public static void main(String[] args) {
+    String clientId = "Your-Client-ID";  // Replace with your client ID
+    String idTokenString = "idTokenString";  // Replace with the token obtained from the Google OAuth process
+    GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+        .setAudience(Collections.singletonList(clientId))
+        .build();
+
+    GoogleIdToken idToken = null;
+    try {
+      idToken = verifier.verify(idTokenString);
+      if (idToken != null) {
+        System.out.println("Successfully authenticated user.");
+        // Add your own code to handle the user's sign in.
+      } else {
+        System.out.println("Unable to authenticate user.");
+      }
+    } catch (Exception e) {
+      // Handle the exception as you see fit
+    }
+  }
+}
+```
+
+This simple console application assumes that the client has already redirected the user to Google's OAuth endpoint and received an `idTokenString`. You would replace that parameter with the actual token. 
+
+The verifier object checks the validity of the token. If it's a valid token, then the user is signed on successfully. If it fails, then the user is unable to authenticate.
+
+Please note that in real applications this code should reside in your server's sign-in path, not on a client device. Also, handling exceptions should be based on your application's requirement.
+
+Remember to replace clientId and idTokenString values with your actual client ID and the token received from the Google OAuth process respectively. Also, include necessary error handling depending on your specific requirement.
+
+Make sure to add Google's OAuth client library in your project's classpath. You could use Maven to include the dependency in your `pom.xml`. 
+
+You would need to add these dependencies in your `pom.xml` file.
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client -->
+<dependency>
+    <groupId>com.google.oauth-client</groupId>
+    <artifactId>google-oauth-client</artifactId>
+    <version>1.31.5</version>
+</dependency>
+<!-- https://mvnrepository.com/artifact/com.google.http-client/google-http-client-jackson2 -->
+<dependency>
+    <groupId>com.google.http-client</groupId>
+    <artifactId>google-http-client-jackson2</artifactId>
+    <version>1.39.2</version>
+</dependency>
+```

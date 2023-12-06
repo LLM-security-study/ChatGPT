@@ -1,0 +1,62 @@
+Here is a Java program for Asymmetric Encryption:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import javax.crypto.Cipher;
+import java.util.Base64;
+import java.security.PublicKey;
+import java.security.PrivateKey;
+
+public class Main {
+
+    // Size of key we want to generate
+    private static final int keySize = 2048;
+
+    public static void main(String[] args) throws Exception {
+ 
+        // Text that we want to encrypt
+        String originalText = "This is the text we want to encrypt.";
+
+        // Generate public and private keys
+        KeyPair keyPair = generateKeyPair(keySize);
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Encrypt the original text with public key
+        byte[] cipherText = encrypt(originalText, publicKey);
+        System.out.println("Encrypted Text: " + Base64.getEncoder().encodeToString(cipherText));
+
+        // Decrypt the text with private key
+        String decryptedText = decrypt(cipherText, privateKey);
+        System.out.println("Decrypted Text: " + decryptedText);
+    }
+
+    private static KeyPair generateKeyPair(int keySize) throws Exception {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+        generator.initialize(keySize);
+        return generator.generateKeyPair();
+    }
+
+    public static byte[] encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        return encryptCipher.doFinal(plainText.getBytes("UTF-8"));
+    }
+
+    public static String decrypt(byte[] cipherText, PrivateKey privateKey ) throws Exception {
+        Cipher decryptCipher = Cipher.getInstance("RSA");
+        decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(decryptCipher.doFinal(cipherText), "UTF-8");
+    }
+}
+```
+This Java program carries out the following steps:
+
+1. First, it generates a pair of public and private keys.
+2. Then it encrypts the original text using the public key.
+3. Finally, it decrypts the same text using the private key.
+
+To run this program, you'll need Java Development Kit 1.7 or later. Make sure to replace "This is the text we want to encrypt." with the text you want to encrypt.
+
+Please note: This is a very simple implementation of asymmetric encryption in Java. In a more realistic scenario, you would need to safely store the private key and not expose it in your program like we're doing here. The key pair should only be generated once and then stored securely. It should be loaded into the application for encryption and decryption operations.

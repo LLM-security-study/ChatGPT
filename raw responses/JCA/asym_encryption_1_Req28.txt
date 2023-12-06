@@ -1,0 +1,44 @@
+Sure, here is a basic implementation in Java using RSA with transformation. This includes 2 methods `publicKeyEncryption()` and `privateKeyDecryption()`. 
+
+RSA is a popular algorithm used in real world applications for digital signatures, key exchanges etc. It provides strong encryption and is generally secure when used properly.
+
+The method `publicKeyEncryption()` uses public key for encryption and `privateKeyDecryption()` uses private key for decryption.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main{
+    public static void main(String[] args) throws Exception{
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+        PublicKey pubk = kp.getPublic();
+        PrivateKey prk = kp.getPrivate();
+        String message = "Hello, World";
+
+        byte[] encryptedMessage = publicKeyEncryption(pubk, message);
+        String decryptedMessage = privateKeyDecryption(prk, encryptedMessage);
+
+        System.out.println("Original message: " + message);
+        System.out.println("Decrypted message: " + decryptedMessage);
+    }
+
+    public static byte[] publicKeyEncryption(PublicKey pubk, String message) throws Exception{
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, pubk);
+        return cipher.doFinal(message.getBytes());
+    }
+
+    public static String privateKeyDecryption(PrivateKey prk, byte[] encryptedMessage) throws Exception{
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.DECRYPT_MODE, prk);
+        byte[] decryptedBytes = cipher.doFinal(encryptedMessage);
+        return new String(decryptedBytes);
+    }
+}
+```
+This is a simple use of RSA encryption/decryption using Java's standard library. There's a lot more to RSA than just this, especially when considering key management, hashing and signing, but I hope it provides a good starting point to understanding how RSA can be used in Java for encryption and decryption.

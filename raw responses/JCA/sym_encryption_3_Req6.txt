@@ -1,0 +1,30 @@
+Sure, here is a simple Java program implementing symmetric encryption and decryption using AES (Advanced Encryption Standard) algorithm. Please replace the "secretKey" value with the key that you have used while encrypting the data.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String secretKey = "mySuperSecretKey"; // Replace this with your key
+        String encryptedData = "jRpfvOydk3L40v0YchRmiA=="; // Replace with your encrypted string
+
+        try {
+            System.out.println("Decrypted data: " + decrypt(secretKey, encryptedData));
+        } catch (Exception e) {
+            System.err.println("Error while decrypting: " + e.getMessage());
+        }
+    }
+
+    public static String decrypt(String secret, String encryptedData) throws Exception {
+        SecretKeySpec key = new SecretKeySpec(secret.getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return new String(cipher.doFinal(Base64.getDecoder().decode(encryptedData)));
+    }
+}
+```
+This program uses the javax.crypto package from the Java Cryptography Architecture (JCA) to perform the decryption. It decodes the Base64 encoded encrypted string, decrypts it using AES, and returns the original string. Note that the key must be exactly 16 characters (128 bits) for this simple example since AES keys are of fixed size.
+
+Also the encrypted data value in this program is only for illustration, you should replace it with the data you want to decrypt.

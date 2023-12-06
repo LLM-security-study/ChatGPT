@@ -1,0 +1,44 @@
+Assessing the "integrity" of a device can be a complex task, as it might mean different things in different contexts. As Google's SafetyNet Attestation API available on Android devices offers a set of services and APIs that help to protect users from threats including device tampering and harmful apps, we will use this API for our implementation. Primarily, we will be using the Attestation API which assesses whether it's running on a genuine Android device.
+
+Please ensure that you are subscribed to this service from Google Play services in the Google Cloud Platform Console and also that you have included Google Play services in your project.
+
+Please replace `"YOUR_API_KEY"` with your actual API key.
+
+```Java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+
+    public void checkDeviceIntegrity() {
+
+        String nonceData = "A nonce to prevent replay attacks";
+        byte[] nonce = nonceData.getBytes();
+
+        SafetyNet.getClient(this).attest(nonce, "YOUR_API_KEY")
+                .addOnSuccessListener(this, new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Successfully communicated with SafetyNet API.
+                        // Use response.getJwsResult() to get the result data.
+                        String jwsResult = response.getJwsResult();
+                        if(jwsResult != null){
+                            // You should verify the JWS statement signed by the API on your server-side
+                            // Using the SafetyNet Token provided by "jwsResult"
+                        } else {
+                            // Cannot confirm the device is an Android device.
+                            // Better to treat it as a potentially harmful situation and handle appropriately.
+                        }
+                    }
+                });
+    }
+}
+```
+Because the `attest()` function is asynchronous, the SafetyNet Attestation API returns a JWS message to your app in the onSuccess() method.
+
+Once we get this SafetyNet Attestation token, we have to verify the token on our server-side application. In that verification process, we check the token's signature and the data embedded within it.
+
+Make sure you are handling the `addOnFailureListener` method to take necessary action when the API is not able to communicate with Google servers or facing other technical difficulties. 
+
+Remember that this API is not 100% accurate all the time and never should it be the only measure to verify device integrity or for any security related decisions. Always use it as one of the checks in your verification process.

@@ -1,0 +1,59 @@
+Here is a simple representation of how you might use the Java Secure Socket Extension (JSSE) API to implement SSL/TLS certificate validation:
+
+```java
+import javax.net.ssl.*;
+import java.security.*;
+import java.security.cert.*;
+
+public class Main {
+    public static void main(String[] args) {
+        
+        try {
+            // Set up SSL context
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+
+            //TrustManagerFactory
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init((KeyStore) null);  // Use default keystore
+            TrustManager[] trustManagers = tmf.getTrustManagers();
+            X509TrustManager defaultTm = (X509TrustManager) trustManagers[0];
+
+            // Initialize SSLContext to work with TrustManagers
+            sslContext.init(null, new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return defaultTm.getAcceptedIssuers();
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                            defaultTm.checkServerTrusted(chain, authType);
+                        }
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                            defaultTm.checkClientTrusted(chain, authType);
+                        }
+                    }
+            }, null);
+
+            // Use this SSLContext to initialize SSLSocket
+            SSLSocketFactory factory = sslContext.getSocketFactory();
+            SSLSocket socket = (SSLSocket) factory.createSocket("www.example.com", 443);
+    
+            //Here, the TLS/SSL handshake happens
+            socket.startHandshake();
+            
+        } catch (NoSuchAlgorithmException | KeyStoreException | KeyManagementException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Make sure you replace "www.example.com" with your actual server. This example defaults to use the certificate store (TrustStore) bundled with the JVM, but you can load a custom one if you want.
+
+The TrustManagerFactory is the part of the code that is in charge of validating the certificates. It uses the default algorithm and keystore. The checkServerTrusted and checkClientTrusted methods are the ones which handle the actual certificate validation. You could override this method and create your own implementation to customize the certificate validation process.
+
+This is a simple example illustrating the core principles, you'll likely have to adjust this when using in a production environment. Always ensure your certificate validation process aligns with organizational security policies.

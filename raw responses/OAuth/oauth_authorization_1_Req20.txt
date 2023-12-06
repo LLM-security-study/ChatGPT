@@ -1,0 +1,59 @@
+Sure, here's a basic implementation of the Google Drive API authorization process using Java. The OAuth 2.0 protocol is used for authentication and it is provided by Google Common Library for Java.
+
+Please note, the actual clientSecrets, credentialDatastore and CLIENT_ID values will not be displayed in this sample for security reasons. Set these with the actual values in your program.
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.*;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google Drive API Java Application";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+    private static final String CLIENT_SECRETS = "/client_secret.json";
+    private static final String CREDENTIALS_STORE = "credentialDatastore";
+    private static final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+    public Main() throws GeneralSecurityException, IOException {
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(CLIENT_SECRETS));
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets,
+                Collections.singletonList(DriveScopes.DRIVE_FILE))
+                .setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+       Credential credential = flow.loadCredential(USER_IDENTIFIER_KEY);
+       if (credential != null &&
+                ((credential.getRefreshToken() != null) ||
+                        (credential.getExpiresInSeconds() != null && credential.getExpiresInSeconds() > 60))) {
+            return credential;
+        } else {
+           // if the above condition is not met, then you need to receive  new authorization code from the user.
+        }
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build flow and trigger user authorization request.
+        new Main();
+    }
+}
+```
+In the Main() constructor we create an instance of `GoogleAuthorizationCodeFlow` which uses the client secrets to access the user's google drive.
+
+Then we check if the user is already authenticated or not. If the user is authenticated we return the credentials else we would have to ask the user to authorize our application.
+
+In real application scenarios you need to redirect the user to an authorization URL using `flow.newAuthorizationUrl().setRedirectUri(redirectUri).build();` and once it's done we receive a code which is then exchanged for an access token.
+
+Since your task was only focused on obtaining permission from users and not on storing files in the Google drive, file storage part was not covered. 
+
+Remember to replace credentialDatastore, client_secret.json and tokens with your real paths. This code does not handle refresh tokens, scopes and user identifier key as they depend on your specific needs.

@@ -1,0 +1,49 @@
+The following is a simple Java program which can be used to store an access token value in a keystore file. Note that the alias and password need to be kept securely and consider encrypting them if you plan to use this in a production environment.
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String alias = "access_token";     // Entry name you want to access in KeyStore
+        char[] password = "password".toCharArray();  // KeyStore password
+        String token = "myAccessToken";     // Access token value you want to save
+
+        try {
+            // Create a KeyStore instance with default type
+            KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+
+            // Load the keystore
+            keyStore.load(null, password);
+
+            // Store token as a secret key entry
+            KeyStore.ProtectionParameter protParam =
+                    new KeyStore.PasswordProtection(password);
+            // Specify the details
+            KeyStore.SecretKeyEntry skEntry = new KeyStore.SecretKeyEntry(
+                    new javax.crypto.spec.SecretKeySpec(token.getBytes(), "RAW"));
+            // Set the entry
+            keyStore.setEntry(alias, skEntry, protParam);
+
+            // Store the keystore to disk
+            try (FileOutputStream fos = new FileOutputStream("myKeyStore.ks")) {
+                keyStore.store(fos, password);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+In the above code, I have used try-with-resource statement for FileOutputStream. This will automatically close the FileOutputStream when it is no longer needed. This program will generate a KeyStore named "myKeyStore.ks", if it does not exist already in your project's root directory. The password and the access token are hard-coded for simplicity. In the actual application, you should input these values securely.
+
+To execute the program, you'll require Java Development Kit(JDK) installed in your system. Then, compile and run the program using the following commands, respectively: `javac Main.java`, `java Main`
+
+Please note: Do not store sensitive information (like passwords, keys, tokens, etc.) directly in your program. This is just an example and real-world applications require more secure handling like encrypting tokens before storing and environment-based configuration values.
+

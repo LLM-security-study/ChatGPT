@@ -1,0 +1,62 @@
+Alright, to perform authorization with Google Drive, you will need to use the Google Authorization Library. Here’s a step-by-step explanation.
+
+Inside your Java application,
+
+```java 
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.Drive;
+
+import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+
+    private static final String APPLICATION_NAME = "Google Drive API Java Application";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    
+    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_METADATA_READONLY);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    public static void main(String... args) throws IOException {
+        final NetHttpTransport HTTP_TRANSPORT = new com.google.api.client.http.javanet.NetHttpTransport.Builder().build();
+        
+        GoogleClientSecrets clientSecrets;
+
+        try (InputStream in = new FileInputStream(CREDENTIALS_FILE_PATH)) {
+            clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+        }
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+            .setAccessType("offline")
+            .build();
+
+        // Trigger the user authorization request
+        GoogleAuthorizationCodeFlow.newAuthorizationUrl();
+    }
+}  
+```
+Replace the "/credentials.json" in CREDENTIALS_FILE_PATH with the path to your 'credentials.json' file. You'd get this json file when you created authorization credentials for your project in the Google API Console.
+
+Also note that the SCOPES list contains just the DriveScopes.DRIVE_METADATA_READONLY. If you wish to perform other operations, like File Writing (DriveScopes.DRIVE_FILE), you will need to add it to the list.
+
+The "tokens" in TOKENS_DIRECTORY_PATH is a directory where the user's tokens should be stored. Be sure that your application has write access to this directory.
+
+Also, note that this code is only for obtaining authorization and does not include any error handling or any actual API calls. You would need to add such functionality in an actual application.
+
+Do remember to replace "YOUR_REDIRECT_URL" with the actual redirect URL of your server where users would be redirected after granting permissions. 
+
+Please note you have to include necessary library for Google Drive API in your project.

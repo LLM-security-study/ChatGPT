@@ -1,0 +1,47 @@
+Sure, below is a simple program in Java where we sign a given message and verify its integrity and authenticity using Java's standard APIs.
+
+Here I am using DSA (Digital Signature Algorithm) for signing and verifying the messages. 
+
+```java
+import java.security.*;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Create a Key Pair Generator
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+        SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+        keyGen.initialize(1024, random);
+
+        // Generate Key Pair
+        KeyPair pair = keyGen.generateKeyPair();
+        PrivateKey priv = pair.getPrivate();
+        PublicKey pub = pair.getPublic();
+
+        // Sign the message
+        byte[] realSig = sign(priv, "message to be signed");
+        
+        // Verify the message
+        boolean isVerified = verify(pub, "message to be signed", realSig);
+        System.out.println("Signature Verified: " + isVerified);
+    }
+    
+    public static byte[] sign(PrivateKey key, String message) throws Exception {
+        Signature dsa = Signature.getInstance("SHA1withDSA"); 
+        dsa.initSign(key);
+        dsa.update(message.getBytes());
+        return dsa.sign();
+    }
+    
+    public static boolean verify(PublicKey key, String message, byte[] signature) throws Exception {
+        Signature sig = Signature.getInstance("SHA1withDSA");
+        sig.initVerify(key);
+        sig.update(message.getBytes());
+        return sig.verify(signature);
+    }
+}
+```
+
+In the above code, sign() function generates a signature for a given message using a private key and verify() function verifies a signature for a given message using a public key. 
+
+Remember that you would need to perform error handling for detecting if any incorrect key is passed to the method or any other kind of error that might happen. This code is a basic implementation and needs to be modified according to real-world scenarios.

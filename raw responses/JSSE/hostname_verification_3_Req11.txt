@@ -1,0 +1,42 @@
+Alright, we'll use Java's Secure Sockets Extension (JSSE) and Secure Sockets Layer (SSL) for this program. Here is a basic program that verifies the server hostname in an SSL/TLS communication using the APIs:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+  public static void main(String[] args) {
+    try {
+      URL url = new URL("https://yoururlhere.com");
+      HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+      
+      SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+      SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(url.getHost(), 443);
+      
+      SSLParameters sslParams = new SSLParameters();
+      sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+      sslSocket.setSSLParameters(sslParams);
+
+      sslSocket.startHandshake();
+      boolean connected = sslSocket.isConnected();
+      
+      System.out.println("Hostname verification result: " + connected); // true indicates successful verification
+      sslSocket.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+}
+```
+
+Remember to replace "https://yoururlhere.com" with the actual URL you want to verify. This program sets the endpoint identification algorithm to "HTTPS" for the SSLParameters and assigns it to the SSLSocket.
+
+In case the server certificate doesn't match the hostname, the handshake initiated by `sslSocket.startHandshake()` will throw an SSLHandshakeException.
+
+Take note that the URL must use HTTPS for SSL/TLS verification and Java's default SSL socket port is 443.
+
+The `isConnected()` function will return true if the server's hostname matches with its certificate, otherwise it will return false. If an error occurs during the process, an IOException will be thrown.

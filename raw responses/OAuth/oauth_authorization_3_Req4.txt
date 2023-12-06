@@ -1,0 +1,55 @@
+Below is the Java code with "Main" class. It focuses on Google contacts authorization using OAuth2. Please replace client_id, redirect_uri and client_secret with your actual credentials to make it functional.
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.people.v1.PeopleServiceScopes;
+
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.security.GeneralSecurityException;
+
+public class Main {
+
+    private static final String APPLICATION_NAME = "Social Networking Application";
+    private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private static final List<String> SCOPES = Arrays.asList(PeopleServiceScopes.CONTACTS_READONLY);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        
+        final net.http.HttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, 
+                                        new InputStreamReader(Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH)));
+
+        // Create authorization code flow
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+
+        // Prompt user for consent
+        Credential credential = new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+
+        System.out.println("Authorization was successful.");
+    }
+}
+```
+
+First, it creates a "GoogleAuthorizationCodeFlow" instance which uses your client ID, client Secret and scope. The "setDataStoreFactory" method call is used to persist tokens between different executions of this program.
+
+Next, it uses the "authorize" method from "AuthorizationCodeInstalledApp" to prompt user for consent. The "authorize" method will open the user's web browser and waits for the user’s response. After the user grants the permissions, the authorization process is complete and the app receives an access token from Google Authorization Servers. 
+
+Please note that the scope we have used is "PeopleServiceScopes.CONTACTS_READONLY" which means it can only read users' contact info and cannot make any changes. If your application needs to write user contacts as well, you need to include that in scopes.

@@ -1,0 +1,38 @@
+To perform a message integrity check using a MAC (Message Authentication Code), we can use the Java Cryptography Extensions (JCE). The sample below uses the HMAC-SHA256 MAC algorithm. If you want to use another algorithm, just replace "HmacSHA256" with the appropriate algorithm name.
+
+In this program, we first create a SecretKey for HMAC-SHA256, and then use it to create a Mac instance. The Mac instance is used to perform message authentication code on the text "Hello, World".
+
+```java
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+  
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate secret key for HMAC-SHA256
+        KeyGenerator keyGen = KeyGenerator.getInstance("HmacSHA256");
+        SecretKey secretKey = keyGen.generateKey();
+  
+        // Get instance of Mac object implementing HMAC-SHA256, and initialize it with the above secret key
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(secretKey);
+  
+        String message = "Hello, World";
+
+        // Compute the hmac on input data bytes
+        byte[] bytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+  
+        // bytes[] is the MAC result
+        System.out.println(Base64.getEncoder().encodeToString(bytes));
+    }
+}
+```
+The result is a Base64-encoded string representation of the HMAC of the message. 
+
+Please note to catch exceptions in a production environment. Here, for simplicity, the exceptions are thrown. 
+
+Also, never expose the secret key in a real-world environment. Always keep it a secret. It's hard-coded here for illustration purposes. 
+
+Lastly, please ensure that the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files are properly installed and configured in your JDK/JRE, if encryption error occurs due to restriction of encryption strength.

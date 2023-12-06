@@ -1,0 +1,37 @@
+Here is a Java program that does what you requested:
+
+```java
+import java.security.SecureRandom;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+public class Main {
+    
+    private static final int IV_SIZE = 16; // This is the recommended size for AES
+
+    public static void main(String[] args) {
+        try {
+            SecureRandom rnd = SecureRandom.getInstance("SHA1PRNG");
+            
+            // Generate a seed
+            byte[] seed = new byte[IV_SIZE];
+            rnd.nextBytes(seed);
+            rnd.setSeed(seed);
+            System.out.println("Seed: " + Base64.getEncoder().encodeToString(seed));
+            
+            // Generate an IV
+            byte[] iv = new byte[IV_SIZE];
+            rnd.nextBytes(iv);
+            System.out.println("Initialization Vector: " + Base64.getEncoder().encodeToString(iv));
+        } catch (NoSuchAlgorithmException e) {
+            System.err.println("PRNG not available: " + e.getMessage());
+        }
+    }
+}
+```
+
+This program uses `SecureRandom` to create a secure pseudorandom number generator, using the specified PRNG algorithm "SHA1PRNG". It then generates a seed (`byte` array) of size 16 and sets it. Then it uses the same `SecureRandom` instance to generate an initialization vector (another `byte` array) of size 16. The vectors are then printed to the console.
+
+Please note that the printed output for the Seed and Initialization Vector is encoded in Base64 for readability. This is not required for the Encryption process, they are just raw bytes. 
+
+Also, the SHA1PRNG algorithm may not be available on all platforms, hence the try-catch block. In this case, you can generally fall back on the default SecureRandom constructor.

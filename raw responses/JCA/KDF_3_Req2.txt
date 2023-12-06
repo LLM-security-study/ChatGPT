@@ -1,0 +1,43 @@
+Here is a simple example of a password-based key derivation program using the PBEKeySpec class provided by Java's standard APIs:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.util.Arrays;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
+
+public class Main {
+    private static final int ITERATIONS = 65536;
+    private static final int KEY_LENGTH = 256;
+    private static final SecureRandom RAND = new SecureRandom();
+
+    public static void main(String[] args) {
+        String password = "myPassword";
+        byte[] salt = generateSalt();
+
+        try {
+            byte[] hashedPassword = hashPassword(password.toCharArray(), salt);
+            System.out.println(Arrays.toString(hashedPassword));
+        } catch (Exception ex) {
+            System.err.println("An error occurred: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    private static byte[] generateSalt() {
+        byte[] salt = new byte[16];
+        RAND.nextBytes(salt);
+        return salt;
+    }
+
+    private static byte[] hashPassword(final char[] password, final byte[] salt) throws Exception {
+        KeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        return factory.generateSecret(spec).getEncoded();
+    }
+}
+```
+This program uses the PBKDF2WithHmacSHA256 algorithm to derive the key from the password. The `generateSalt` function generates a random salt using the `SecureRandom` class. The `hashPassword` function uses the `PBEKeySpec` class to create a key specification, and the `SecretKeyFactory` class to generate the key.
+
+Please replace "myPassword" with a proper user input mechanism for security purposes. The key should never be directly printed or logged in a non-secure environment. The code under the main function is only for demonstrative purposes.

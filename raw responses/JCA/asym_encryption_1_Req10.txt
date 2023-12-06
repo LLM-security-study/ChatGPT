@@ -1,0 +1,62 @@
+Sure, here is a simple Java program demonstrating the use of encryption and decryption using RSA key pair:
+
+```java
+import javax.crypto.Cipher;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Base64;
+
+public class Main {
+
+    private static KeyPair keyPair;
+
+    static {
+        try {
+            keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String encrypt(String plainText, PublicKey publicKey) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+
+        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes("UTF-8"));
+
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    private static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+        byte[] bytes = Base64.getDecoder().decode(cipherText);
+
+        Cipher decriptCipher = Cipher.getInstance("RSA");
+        decriptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+
+        return new String(decriptCipher.doFinal(bytes), "UTF-8");
+    }
+
+    public static void main(String[] args) throws Exception {
+        String message = "The secret message";
+
+        String encryptedMessage = encrypt(message, keyPair.getPublic());
+        System.out.println("Encrypted Message: " + encryptedMessage);
+
+        String decryptedMessage = decrypt(encryptedMessage, keyPair.getPrivate());
+        System.out.println("Decrypted Message: " + decryptedMessage);
+    }
+}
+```
+
+The static block at the start of the program generates the RSA key pair. 
+
+The `encrypt` function takes a plaintext string and a public key to return an encrypted form of the text.
+
+The `decrypt` function then takes that encrypted string and the private key to return the decrypted plaintext.
+
+Finally, the main function demonstrates the use of these with a sample secret message. 
+
+The encryption and decryption process uses the RSA encryption algorithm in the Cipher instances.
+

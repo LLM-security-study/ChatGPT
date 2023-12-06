@@ -1,0 +1,48 @@
+Sure, below is the basic implementation of a message digest using SHA-256 hash function in Java. The main class is named "Main" as per your requirement.
+
+```java
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String originalString = "Hello World!";
+        
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+            String hashedString = bytesToHex(encodedhash);
+            System.out.println(hashedString);
+            
+        } catch(NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder(2 * hash.length);
+        
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+        
+        return hexString.toString();
+    }
+}
+```
+
+In this code:
+
+1. The `main` method creates a `MessageDigest` object for the given algorithm "SHA-256".
+2. The `digest` method takes a byte array and hashes it into a new byte array, using the given algorithm.
+3. The `digest` method is called on the original string "Hello World!", producing a hash.
+4. The `bytesToHex` method is a helper method to convert these bytes into their hexadecimal representation.
+5. Finally, the program prints the hashed string to the console.
+
+Remember to handle the `NoSuchAlgorithmException`. It is a checked exception that can be thrown by the `getInstance` method if the specified algorithm is not available from the provider.
+

@@ -1,0 +1,37 @@
+Sure, here is a basic implementation of your requirements:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main
+{
+    public static void main(String[] args)
+    {
+        // Create SecureRandom instance
+        SecureRandom prng = new SecureRandom();
+
+        // Generate a long seed
+        long seed = prng.nextLong();
+        System.out.println("Generated Seed: " + seed);
+
+        // Initialize the PRNG with the generated seed
+        prng.setSeed(seed);
+
+        // Generate a salt
+        byte[] salt = new byte[16];
+        prng.nextBytes(salt);
+
+        // Encode salt to Base64 before printing
+        String encodedSalt = Base64.getEncoder().encodeToString(salt);
+        System.out.println("Generated Salt: " + encodedSalt);
+    }
+}
+```
+
+This program first generates a seed to initialize the pseudorandom number generator (PRNG). The PRNG is then used to generate a salt for password hashing. The salt is encoded to Base64 to make it easier to view and use.
+
+Please note:
+- Double check the byte size of the salt you need. Here I used 16 bytes, but it could be different in your use case.
+- SecureRandom() constructor generates a seed from a true random number generator (TRNG). So, explicitly seeding it using prng.setSeed() might not be necessary.
+- This is a basic implementation. Depending on your requirements, and the security requirements of your application, you might need to adjust this. Some other considerations might be using a time-based seed, using a hardware-based random number generator, etc.

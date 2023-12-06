@@ -1,0 +1,49 @@
+Here is a sample Java program that uses an instance of `SecretKeyFactory` and `PBKDF2WithHmacSHA1` as PBE(Password-Based Encryption) algorithm to derive a cryptographic key from the user's password. Go through the following code for the `Main` class:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            System.out.println("Enter the password from which a key will be derived");
+            Scanner input = new Scanner(System.in);
+            String password = input.nextLine();
+
+            System.out.println("Enter the salt which should be kept secret");
+            String salt = input.nextLine();
+
+            // Recommended iterations for PBKDF2
+            int iterations = 10000;
+            // Output key length
+            int outputKeyLength = 256;
+            
+            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            KeySpec passwordBasedEncryptionKeySpec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), iterations, outputKeyLength);
+            SecretKey secretKey = secretKeyFactory.generateSecret(passwordBasedEncryptionKeySpec);
+
+            System.out.println("The generated key is: "+secretKey);
+
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getEncoded(), "AES");
+            SecretKey finalKey = new SecretKeySpec(secretKeySpec.getEncoded(), "AES");
+            System.out.println("The final derived key is: " +finalKey);
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program takes a user's password and salt to create a secret key. The derived key can then be used for cryptographic operations like encryption/decryption. The key derivation involves the use of a key derivation function with a high iteration count, which can help resist against attacks.
+
+Please replace `"Enter the salt which should be kept secret"` with any random value. The salt should be kept secret for an actual use case. The salt in a PBE algorithm is used to thwart dictionary-based or pre-computation attacks including rainbow table attacks.
+
+Please note that the derived key's confidentiality, integrity, and authenticity highly depend on the strength and secrecy of the initial password. Make sure to choose a strong password and store them securely.
++ Generate a random value for the salt in an actual use case. All the cryptographic processes here use theoretical values for demonstration purposes only.

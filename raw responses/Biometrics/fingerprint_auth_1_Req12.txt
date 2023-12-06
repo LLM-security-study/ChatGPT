@@ -1,0 +1,57 @@
+Your request is quite complex as it deals with biometric data. However, I can provide a sample code to guide you with the understanding of how fingerprint authentication work in Android.
+
+Here's a basic Java code for a class using the FingerprintManager APIs for validation of the user fingerprint. For this code to work, your AndroidManifest.xml should ask for the USE_FINGERPRINT permission:
+
+```java
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.support.v4.app.ActivityCompat;
+
+public class Main {
+
+    private FingerprintManager fingerprintManager;
+    private CancellationSignal cancellationSignal;
+
+    public Main(FingerprintManager fingerprintManager){
+        this.fingerprintManager = fingerprintManager;
+    }
+
+    public void startAuth() {
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+  
+        cancellationSignal = new CancellationSignal();
+        fingerprintManager.authenticate(null, cancellationSignal, 0, new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                // called when a fatal error has occurred
+                // errorCode will have the error code and errString will be the error messsage
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                // Called when a non-fatal error has occurred
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                // Called when a fingerprint has been successfully matched to the associated user
+                // the result object will have the details of the authentication
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                // Called when the fingerprint doesn’t match with any of the fingerprints registered on the device
+            }
+        }, null);
+    }
+}
+```
+
+Please note that Android allows fingerprint authentication feature on various devices running on android 6.0 (Marshmallow) and beyond. Also, don’t forget to include checks for the availability of the fingerprint sensor on the device and whether the user has enrolled at least one fingerprint for use.
+

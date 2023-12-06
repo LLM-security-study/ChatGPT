@@ -1,0 +1,44 @@
+Below is a basic implementation of Password-based key derivation (PBKDF2) in Java using `javax.crypto.SecretKeyFactory` and `javax.crypto.spec.PBEKeySpec`.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        String password = "userpassword";
+        byte[] salt = new byte[16]; 
+
+        SecretKeyFactory factory = null;
+        byte[] hash = new byte[0];
+
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+            byte[] hash = factory.generateSecret(spec).getEncoded();
+
+            // printing the generated key
+            System.out.println(hash.toString());
+            
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program generates a derived key from a password and a salt. We use "PBKDF2WithHmacSHA1" as a standard secure algorithm and choice of salt value could be random. 
+
+Here we are using a simple salt for demonstration purposes. It is always suggested to use a securely generated random salt for improved security.
+
+Please replace `"userpassword"` with the password you want to test. 
+
+This key generation is found in password-based encryption (PBE) schemes.
+
+It should be noted that, I am assuming that you are aware of the basic security practices when dealing with password-based encryption and cryptographic applications.

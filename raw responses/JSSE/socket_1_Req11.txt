@@ -1,0 +1,51 @@
+Sure, I can provide an example of an SSL socket communication with a server in Java. We will primarily use the `SSLSocket` and `SSLSocketFactory` classes from the `javax.net.ssl` package. 
+
+```java
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+public class Main {
+
+    // specify server details
+    private static final String HOST = "localhost";
+    private static final int PORT = 1234;
+
+    public static void main(String[] args) {
+        SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+        SSLSocket sslSocket = null;
+      
+        try {
+            sslSocket = (SSLSocket) sslSocketFactory.createSocket(HOST, PORT); 
+            
+            //create input stream for reading from server
+            InputStream inputstream = sslSocket.getInputStream();
+            InputStreamReader inputstreamreader = new InputStreamReader(inputstream);
+            BufferedReader bufferedreader = new BufferedReader(inputstreamreader);
+            
+            String string = null;
+            while ((string = bufferedreader.readLine()) != null) {
+                System.out.println(string);
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (sslSocket != null) {
+                    sslSocket.close();
+                }
+            } catch (Exception e) {
+                System.out.println("Error closing socket: " + e.getMessage());
+            }
+        }
+    }
+}
+```
+This is a very simple example, and doesn't include server authentication or error handling that you would need in production code. 
+
+Also, you would need to replace "localhost" and "1234" with the actual server's IP and port number you want to communicate with.
+
+Just a note of caution, do not forget to handle the SSL handshake and certificate verification process to ensure secure communication.

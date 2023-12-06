@@ -1,0 +1,108 @@
+Sure, here is the basic structure for your java program. 
+
+In this example, we first generate a key pair for 1024-bit RSA (based on FIPS 186-3 DSA), then we sign with the private key and verify with the public key. It requires `bouncycastle` library to work correctly.
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Check if the pair of keys are present else generate those.
+        if (!areKeysPresent()) {
+            // Method generates a pair of keys using the RSA algorithm and stores it
+            // in their respective files
+            generateKey();
+        }
+        
+        String msg = "Message for signature";
+        byte[] originalSignature = signData(msg.getBytes(), getPrivate());
+        boolean verify = verifySignature(msg.getBytes(), originalSignature, getPublic());
+        System.out.println("Signature verifies: " + verify);
+    }
+    
+    /**
+     * Sign the data using the private key.
+     *
+     * @param data Data to be signed.
+     * @param key  The private key.
+     * @return The signed data.
+     * @throws Exception
+     */
+    public static byte[] signData(byte[] data, PrivateKey key) throws Exception {
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initSign(key);
+        signer.update(data);
+        return (signer.sign());
+    }
+
+    /**
+     * Verify the signature of the data.
+     *
+     * @param data    The data to be verified.
+     * @param signature The signature of the data.
+     * @param key     The public key.
+     * @return If the signature is verified.
+     * @throws Exception
+     */
+    public static boolean verifySignature(byte[] data, byte[] signature, PublicKey key) throws Exception {
+        Signature signer = Signature.getInstance("SHA256withRSA");
+        signer.initVerify(key);
+        signer.update(data);
+        return (signer.verify(signature));
+    }
+
+    /**
+     * Get the private key.
+     *
+     * @return The private key.
+     * @throws Exception
+     */
+    private static PrivateKey getPrivate() throws Exception {
+        // Get your private key from a secured source.
+        // Ideally get the key from KeyStore.
+        // Here we are simply generating one for the sake of the example.
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
+        return keyGen.generateKeyPair().getPrivate();
+    }
+
+    /**
+     * Get the public key.
+     *
+     * @return The public key.
+     * @throws Exception
+     */
+    private static PublicKey getPublic() throws Exception {
+        // Get your public key from a secured source
+        // Here we are simply generating one for the sake of the example.
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
+        return keyGen.generateKeyPair().getPublic();
+    }
+    
+    /**
+     * The function checks if the pair of public and private keys are present
+     * 
+     * @return flag indicating if the pair of keys are present.
+     */
+    public static boolean areKeysPresent() {
+        // Check if the pair of keys are present else generate those
+        // This is not implemented here. For your implementation, you can replace it 
+        // with code that checks the keys in a file or database or wherever you intend 
+        // to store the keys.
+        return false;
+    }
+    
+    /**
+    * The function generates a pair of keys using the RSA algorithm and stores it
+    * in their respective files
+    */
+    public static void generateKey() {
+        // Generate the public and private keys
+        // You would usually store these keys in a file or database
+        // This is not implemented here. You can replace it with your own code.
+    }
+}
+```
+
+In a real-world scenario, you'd usually have the keys stored securely in a KeyStore, file, or database. This code presents a simplified example to show how to sign and verify using the keys. Please ensure to replace the "getPrivate" and "getPublic" methods to retrieve the keys from a secure and proper source. Also, replace "areKeysPresent" and "generateKey" methods as per your requirements.

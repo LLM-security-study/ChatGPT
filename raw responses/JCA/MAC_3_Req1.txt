@@ -1,0 +1,47 @@
+Sure, here is a basic example of a Java program that calculates the Message Authentication Code (MAC) of a given message using HMAC SHA256 scheme. 
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    private static final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
+
+    public static String computeMac(String data, String key) {
+        try {
+            SecretKeySpec signingKey = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), HMAC_SHA256_ALGORITHM);
+            Mac mac = Mac.getInstance(HMAC_SHA256_ALGORITHM);
+            mac.init(signingKey);
+
+            byte[] rawMac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hmacBuilder = new StringBuilder();
+            for (byte aRawMac : rawMac) {
+                String hex = Integer.toHexString(0xFF & aRawMac);
+
+                if (hex.length() == 1) {
+                    hmacBuilder.append('0');
+                }
+                hmacBuilder.append(hex);
+            }
+
+            return hmacBuilder.toString();
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to compute mac", e);
+        }
+    }
+
+    public static void main(String[] args) {
+        String msg = "Hello World!";
+        String secretKey = "SecretKey";
+        String mac = computeMac(msg, secretKey);
+
+        System.out.println("MAC of the message is: " + mac);
+    }
+}
+```
+
+This program includes a function (computeMac) that computes the MAC from a given message and key. It uses the standard encoding (UTF-8) to convert the data into bytes required for the cryptographic operations. In the main method, a message and a key are declared. The computeMac function is invoked with these parameters. The computed MAC is displayed on the standard output.
+
+Please ensure to handle the exceptions appropriately as per your specific use-case. Also, please replace "SecretKey" and "Hello World!" with appropriate key and message.

@@ -1,0 +1,47 @@
+To verify a server's hostname in an SSL/TLS communication, we'll use the 'HttpURLConnection' API in Java. This is because 'HttpURLConnection' provides methods to establish a connection to the server, retrieve the server's SSL certificates, and compare the server's hostname to the hostnames listed in the server's SSL certificates.
+
+Follow the instructions below to create 'Main' class that verifies the server hostname:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Connect to the HTTPS server
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Get server's SSL session
+            SSLSession sslSession = conn.getSSLSocketFactory().createSocket(url.getHost(), 443).getSession();
+
+            if (sslSession.isValid()) {
+                System.out.println("SSL session is valid. Server's host name is: " + sslSession.getPeerHost());
+
+                // Verify the server's hostname
+                if (sslSession.getPeerHost().equalsIgnoreCase(url.getHost())) {
+                    System.out.println("Server hostname verification passed.");
+                } else {
+                    System.out.println("Server hostname verification failed.");
+                }
+            } else {
+                System.out.println("SSL session is not valid.");
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program first attempts to establish a HTTPS connection to the server at 'www.example.com'. Then, it retrieves the server's SSL session and checks if the session is valid. If the session is valid, it retrieves the server's hostname from the SSL session and compares it to the hostname in the URL. If they match, it prints 'Server hostname verification passed', otherwise it prints 'Server hostname verification failed'.
+
+You can replace 'www.example.com' with the URL of the server you want to verify.
+
+Please note that the above program does not handle all the potential exceptions and edge cases that can occur in a real-world application. For production code, you should add error handling code to handle all potential exceptions and edge cases.

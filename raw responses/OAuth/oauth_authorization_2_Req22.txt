@@ -1,0 +1,57 @@
+To connect with Google Calendar API, there are a few steps you need to take care of. The following skeleton class should suffice for steps involving authorization:
+
+The main class "Main" would look like this:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+
+public class Main {
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    private static Credential getCredentials(final NetHttpTransport transport) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(GoogleNetHttpTransport.newTrustedTransport(), new InputStreamReader(in));
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                transport, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
+                .setAccessType("offline")
+                .build();
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credential = getCredentials(httpTransport);
+        // Here you can use the credential object for further operations
+    }
+}
+```
+
+Please do the following:
+1. Replace "credentials.json" with your JSON file which should include your Client ID and Client Secret.
+2. You should also create a "tokens" directory in your project working directory.
+
+The "getCredentials" method above sets up the OAuth2 login flow, which involves redirecting the user to a URL where they would grant your app permissions on their behalf.
+
+Please note that, Google's OAuth2 client library will automatically navigate the user to the Google Account sign-in page and request they authorize your app, after which they are redirected back to your app with an authorization code. This code is then exchanged for a refresh and access token. The client library handles all of this for you.
+
+Please ensure to add the required Google client libraries in your project. You can find these libraries and their setup guide here https://developers.google.com/api-client-library/java/google-api-java-client/oauth2

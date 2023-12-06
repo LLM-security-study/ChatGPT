@@ -1,0 +1,55 @@
+Here is a simple Java program that uses the AES (Advanced Encryption Standard) algorithm for encryption and decryption of a string. Please note that this is a basic demonstration and may not be secure enough for a production-grade application.
+
+```java
+import java.security.Key;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+    private static final String ALGORITHM = "AES";
+    private static final byte[] KEY = new byte[]{'T', 'h', 'i', 's', 'I', 's', 'A', 'S', 'y', 'm', 'm', 'e', 't', 'r', 'i', 'c'};
+
+    public static void main(String[] args) throws Exception {
+        String text = "Hello World";
+
+        String encryptedText = encrypt(text);
+        String decryptedText = decrypt(encryptedText);
+
+        System.out.println("Original Text  : " + text);
+        System.out.println("Encrypted Text : " + encryptedText);
+        System.out.println("Decrypted Text : " + decryptedText);
+    }
+
+    public static String encrypt(String valueToEnc) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGORITHM);
+        c.init(Cipher.ENCRYPT_MODE, key);
+
+        byte[] encValue = c.doFinal(valueToEnc.getBytes());
+        String encryptedValue = Base64.getEncoder().encodeToString(encValue);
+        return encryptedValue;
+    }
+
+    public static String decrypt(String encryptedValue) throws Exception {
+        Key key = generateKey();
+        Cipher c = Cipher.getInstance(ALGORITHM);
+        c.init(Cipher.DECRYPT_MODE, key);
+
+        byte[] decodedValue = Base64.getDecoder().decode(encryptedValue);
+        byte[] decValue = c.doFinal(decodedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+    }
+
+    private static Key generateKey() throws Exception {
+        Key key = new SecretKeySpec(KEY, ALGORITHM);
+        return key;
+    }
+}
+```
+This program has a symmetric key defined as "ThisIsASymmetric". The "encrypt" function takes a string as an argument, encrypts it using AES algorithm and returns the encrypted text. Similarly, the "decrypt" function takes an encrypted string as an argument, decrypts it using the same AES algorithm and returns the original string.
+
+To use a different symmetric key, simply change the value of the KEY array. The key size must be 16 characters long for AES.
+
+Keep in mind that the SecretKeySpec class is a simple way to provide a key, but in a real-world application, you should use a more secure way to generate and handle keys, such as a keystore or a secure vault service. Also, remember to handle exceptions properly in your production code.

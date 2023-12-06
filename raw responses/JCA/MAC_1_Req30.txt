@@ -1,0 +1,39 @@
+Here is a simple Java program that takes a message as input and generates a Message Authentication Code (MAC) using the HmacSHA256 algorithm.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter a message: ");
+        String message = scanner.nextLine();
+        String keyString = "secret";
+
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(keyString.getBytes(), "HmacSHA256");
+            mac.init(secretKeySpec);
+            byte[] macBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            StringBuilder sb = new StringBuilder();
+            for (byte b : macBytes) {
+                sb.append(String.format("%02x", b & 0xff));
+            }
+            System.out.println("MAC: " + sb.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Instructions:
+1. When you run the program, enter a message at the prompt.
+2. The program will use this message and a secret key (in this example hard-coded as "secret") to generate a Message Authentication Code (MAC).
+3. The MAC is displayed as a string of hexadecimal digits (two digits per byte).
+4. Any unhandled exceptions are caught and their stack traces are printed. 
+
+Please note: MAC is used to check the integrity of information transmitted over or stored in an unreliable medium, based on a secret key. This example uses the HmacSHA256 algorithm, but there are various other valid HMAC algorithms like HmacSHA1, HmacMD5, etc according to your requirement. Also, the hard-coded secret key "secret" is used, it's advisable to use strong secret key from some secure source or some configuration file. Also, the Management of these keys is important for the security of the MAC.

@@ -1,0 +1,69 @@
+The code below gives an example of RSA encryption and decryption in Java. The class "RSAKeyPairGenerator" generates a public and private key pair which can be used for encrypting and decrypting the data.
+
+Here is the RSAKeyPairGenerator class:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+
+public class RSAKeyPairGenerator {
+    private KeyPairGenerator keyGen;
+    private KeyPair pair;
+    
+    public RSAKeyPairGenerator() throws NoSuchAlgorithmException {
+        this.keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024, new SecureRandom());
+        this.pair = keyGen.generateKeyPair();
+    }
+
+    public KeyPair getPair() {
+        return pair;
+    }
+}
+```
+And here is the Main class to demonstrate the encryption and decryption process:
+
+```java
+import javax.crypto.Cipher;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static PublicKey publicKey;
+    public static PrivateKey privateKey;
+
+    public static void main(String[] args) throws Exception {
+        RSAKeyPairGenerator keyPairGenerator = new RSAKeyPairGenerator();
+        publicKey = keyPairGenerator.getPair().getPublic();
+        privateKey = keyPairGenerator.getPair().getPrivate();
+        
+        String originalMessage = "Hello World!";
+
+        String encryptedMessage = encrypt(originalMessage, publicKey);
+        String decryptedMessage = decrypt(encryptedMessage, privateKey);
+
+        System.out.println("Original Message: " + originalMessage);
+        System.out.println("Encrypted Message: " + encryptedMessage);
+        System.out.println("Decrypted Message: " + decryptedMessage);
+    }
+
+    public static String encrypt(String plainText, PublicKey publicKey ) throws Exception {
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] cipherText = encryptCipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(cipherText);
+    }
+
+    public static String decrypt(String cipherText, PrivateKey privateKey) throws Exception {
+        byte[] bytes = Base64.getDecoder().decode(cipherText);
+        Cipher decriptCipher = Cipher.getInstance("RSA");
+        decriptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        return new String(decriptCipher.doFinal(bytes), StandardCharsets.UTF_8);
+    }
+}
+```
+
+This simplistic sample uses RSA encryption for a string in which the public key is used to encrypt the message and private key is used to decrypt it. Make sure you safely store and manage the generated keys for actual usage.

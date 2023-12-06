@@ -1,0 +1,68 @@
+Java provides APIs that you can use to carry out this task. The SSLContext class, for instance, can help you establish SSL/TLS connections and give you access to key stores and trust stores where certificates can be checked.
+
+Here's a simple implementation of such functionality in a self-contained program.
+
+Please note that this is a simple implementation. Real-world scenarios would require more handling, such as dealing with different reasons for errors and some other things.
+
+```java
+import javax.net.ssl.*;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.channels.SocketChannel;
+import java.security.KeyStore;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    private static final int HTTPS_PORT = 443;
+    private static final String TRUSTSTORE_PASSWORD = "password";
+
+    public static void main(String[] args) throws Exception {
+        String hostname = "www.google.com";
+        String truststorePath = "/path/to/your/truststore";
+
+        SSLSocketFactory factory = getSSLSocketFactory(truststorePath, TRUSTSTORE_PASSWORD);
+
+        try (SocketChannel socketChannel = SocketChannel.open()) {
+            socketChannel.connect(new InetSocketAddress(hostname, HTTPS_PORT));
+            SSLSocket socket = (SSLSocket) factory.createSocket(socketChannel.socket(),
+                    socketChannel.socket().getInetAddress().getHostAddress(), socketChannel.socket().getPort(), true);
+
+            // Initiates the TLS handshake
+            socket.startHandshake();
+
+            System.out.println("Certificate is valid");
+        } catch (IOException e) {
+            System.err.println("Exception occurred: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private static SSLSocketFactory getSSLSocketFactory(String truststorePath, String truststorePassword) throws Exception {
+        // Load the trust store, the default Truststore type is "pkcs12", the alternative is "jks"
+        KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
+        truststore.load(Main.class.getResourceAsStream(truststorePath), truststorePassword.toCharArray());
+
+        // Get the singleton instance of the TrustManagerFactory
+        TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+
+        // Itit the TrustManagerFactory using the truststore object
+        trustManagerFactory.init(truststore);
+
+        // Set up SSL context
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        sslContext.init(null, trustManagerFactory.getTrustManagers(), null);
+
+        // Get socket factory
+        SSLSocketFactory socketFactory = sslContext.getSocketFactory();
+       
+        return socketFactory;
+    }
+}
+```
+
+This program reads the truststore file (`truststorePath`), then uses a `TrustManagerFactory` and an `SSLContext` to generate a secure `SSLSocketFactory`. This factory is used to establish a secure connection to a target host (`hostname`). The `startHandshake()` method will throw an `SSLHandshakeException` if any problems with certificates or security occur. Replace `/path/to/your/truststore` with the actual path to your truststore file. 
+
+This is just an example. You would need to handle exceptions depending on your needs like the password for the truststore, or the location of the truststore itself, etc. The truststore can include the certificate that you want to validate.
+
+Please ensure you have the proper permissions to access the truststore and it contains valid certificates. If your system doesn't trust the certificate from the server, the connection will fail in the handshake phase and a SSLHandshakeException will be thrown.

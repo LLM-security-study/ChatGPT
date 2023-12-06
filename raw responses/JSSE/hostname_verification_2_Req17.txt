@@ -1,0 +1,48 @@
+Sure, the main class is `Main` and the main API used for the implementation is `javax.net.ssl.HostnameVerifier`.
+
+The HostnameVerifier is used in creating SSL connections via HttpsURLConnection. An HTTPS connection to a remote host might be established successfully, but the server's certificate chain might not match the hostname. Such a certificate verifies that the IP address of the server matches the one in its certificate. 
+
+Here's a sample implementation:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.HostnameVerifier;
+import java.net.URL;
+import java.io.IOException;
+
+public class Main {
+    public static void main(string[] args) throws IOException {
+        // The URL of the server.
+        String urlString = "https://example.com";
+        URL url = new URL(urlString);
+
+        // Create an HttpsURLConnection.
+        HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+
+        // Create a HostnameVerifier.
+        // The verify method of HostnameVerifier interface is called 
+        // during the SSL handshake to verify the hostname.
+        HostnameVerifier hostnameVerifier = new HostnameVerifier(){
+             @Override
+             public boolean verify(String hostname, SSLSession session) {
+                // Check if the hostname matches "example.com".
+                // If it does, return true. Otherwise, return false.
+                // Note: You may want to improve this for production use.
+                return "example.com".equals(hostname);
+             }
+        };
+
+        // Set the hostnameVerifier into the HttpsURLConnection.
+        urlConnection.setHostnameVerifier(hostnameVerifier);
+
+        // Connect to the server and perform any other operations you need.    
+        urlConnection.connect();
+        
+        // handle I/O or connection problems
+        // ...
+    }
+}
+```
+
+Please be aware that the HostnameVerifier in the example simply checks if the hostname is equal to "example.com". In an actual production environment, you should replace this with an appropriately robust HostnameVerifier.

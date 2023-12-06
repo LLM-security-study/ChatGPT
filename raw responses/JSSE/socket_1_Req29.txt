@@ -1,0 +1,47 @@
+Sure, you can implement an SSL Socket for secure communication with a server in Java. Here's a simple program to demonstrate how to achieve it with `javax.net.ssl` package.
+
+Main.java:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            SSLSocketFactory factory =
+                    (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket("server_url", 1234);
+
+            sslSocket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello Server");
+            out.flush();
+
+            System.out.println("Message from server: " + in.readLine());
+
+            in.close();
+            out.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            System.err.println("Exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+The above program addresses the following:
+
+1. We obtain an `SSLSocketFactory` and create an `SSLSocket` to connect to the server at a specified address and port.
+2. `startHandshake` method is used to start SSL handshake explicitly.
+3. We prepare to send a message to the server through the `PrintWriter`.
+4. We prepare to receive a message from the server through the `BufferedReader`.
+5. We print the message from the server and close the connection.
+
+Note: Replace `"server_url"` and `1234` with your server's url and SSL port. Also, exceptions are simply shown with a print stack trace, better exception handling should be implemented as required.

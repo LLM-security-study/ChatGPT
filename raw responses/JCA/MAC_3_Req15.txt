@@ -1,0 +1,43 @@
+Sure, Here is the Java program that implements a Message Authentication Code (MAC) using the HMAC-SHA256 algorithm.
+
+```Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        String secret = "secret-key";
+        String message = "message";
+
+        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+        SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+        sha256_HMAC.init(secret_key);
+
+        String hash = Base64.getEncoder().encodeToString(sha256_HMAC.doFinal(message.getBytes()));
+
+        System.out.println("MAC: " + hash);
+    }
+}
+```
+
+This program calculates the MAC of the message using HMAC-SHA256 algorithm.
+
+Let's explain the program:
+
+-   First, we define the String variables "secret" and "message". The "secret" is the secret key used in the HMAC algorithm and "message" is the message which we need to calculate the MAC.
+
+-   We use the getInstance method of Mac class to get a Mac instance. We pass in "HmacSHA256" as a parameter to this method to specify that we want to get an instance of MAC with HMAC-SHA256 algorithm.
+
+-   We then construct the secret key using SecretKeySpec class. The constructor of this class requires secret key bytes and algorithm name.
+
+-   After constructing the secret key, we initialize the Mac instance using the init method and passing in the secret key.
+
+-   We then calculate the HMAC of the message using the doFinal method of Mac instance.
+
+-   The doFinal method returns the calculated HMAC of the message as an array of bytes. We then encode this byte array into a Base64 string using Base64.getEncoder().encodeToString method.
+
+-   Finally, we print the calculated MAC on the console.

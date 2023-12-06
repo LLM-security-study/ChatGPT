@@ -1,0 +1,67 @@
+Sure, here's a basic setup for a Java program using Google OAuth2.0
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+class Main {
+
+    private static final String CALLBACK_URI = "<put-your-callback-url-here>";
+    private static final HttpTransport TRANSPORT = new NetHttpTransport();
+    private static final JsonFactory JSON_FACTORY = new JacksonFactory();
+    private static GoogleAuthorizationCodeFlow flow = null;
+
+    static {
+        InputStreamReader reader = new InputStreamReader(Main.class.getResourceAsStream("/client_secrets.json"));
+        GoogleClientSecrets clientSecrets;
+        try {
+            clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, reader);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not load client_secrets.json", e);
+        }
+
+        flow = new GoogleAuthorizationCodeFlow.Builder(
+                TRANSPORT, JSON_FACTORY, clientSecrets,
+                // Set the scopes you will need to access. For accessing google contacts use "https://www.googleapis.com/auth/contacts.readonly"
+                Collections.singleton("https://www.googleapis.com/auth/contacts.readonly"))
+                .setAccessType("online") 
+                .setApprovalPrompt("auto").build();
+    }
+
+    static void authorization() throws IOException {
+        // Generate the URL to which we will direct users
+        String url = flow.newAuthorizationUrl().setRedirectUri(CALLBACK_URI).build();
+
+        // Now direct the user to the authorization URL to grant access
+        // Save this token for future use in your application
+        // For example purposes, we'll just print the token to the console
+        System.out.println("Go to the following link in your browser:");
+        System.out.println(url);
+    }
+
+    public static void main(String[] args) throws IOException {
+        authorization();
+    }
+}
+```
+
+This program will print the authorization URL to the console. You need to open this URL in a web browser, grant permissions to the app and then you will be redirected to the callback URL, which should capture and store the authorization token/code.
+
+Please replace `<put-your-callback-url-here>` with your actual callback URL. Also you need to put the `client_secrets.json` file (downloaded from Google API Console) under your classpath.
+
+This setup assumes that you have `google-oauth-client`, `google-http-client-jackson2`,and `google-http-client` dependencies in your classpath.
+  
+Remember, this is a console application. For a web application, the flow will be slightly different, especially how you handle redirect URLs and capture the authorization code.
+  
+Make sure you have the necessary permissions in your Google API Console for the scope ('https://www.googleapis.com/auth/contacts.readonly') which is used in this sample code.

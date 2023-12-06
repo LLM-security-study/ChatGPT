@@ -1,0 +1,61 @@
+Sure, I will provide some basic steps and a simple Java code for an Android app implementing fingerprint-based authentication. Please note that this functionality requires Android 6.0 (Marshmallow) or above and a supported device. 
+
+Hence, you need to include checking the sensor availability and the necessary permissions as follows:
+
+```
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
+
+public class Main {
+
+    private CancellationSignal cancellationSignal;
+    private FingerprintManager fingerprintManager;
+
+    private void startAuth() {
+        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+
+        cancellationSignal = new CancellationSignal();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fingerprintManager.authenticate(cryptoObject, cancellationSignal, 0, new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                notifyUser("Authentication Error\n" + errString);
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpCode, CharSequence helpString) {
+                notifyUser("Authentication Help\n" + helpString);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                notifyUser("Authentication Failed.");
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                notifyUser("Authentication Succeeded.");
+            }
+        }, null);
+    }
+
+    private void notifyUser(String message) {
+        Toast.makeText(Main.this, message, Toast.LENGTH_LONG).show();
+    }
+}
+```
+In the above code, the `startAuth()` method initiates the authentication process with the use of a cancellation signal and a callback for the authentication events. The `notifyUser()` method is for demonstrational purposes, here simply showing a toast message upon each event. 
+
+Remember that this doesn't handle actually unlocking or passing authentication in your app, but it's the basic foundation for starting to add in fingerprint support. Also, you must handle the Android permissions your app needs for accessing fingerprint hardware plus few other checks which includes checking for Android version.
+
+Lastly, ensure that you have the necessary Fingerprint permission in your app's `AndroidManifest.xml` file as follows: 
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT" />
+```

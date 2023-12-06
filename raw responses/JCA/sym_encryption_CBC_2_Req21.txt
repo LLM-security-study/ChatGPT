@@ -1,0 +1,44 @@
+Here is a simple Java program to encrypt data using the AES algorithm in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String key = "aesEncryptionKey";
+    private static final String initVector = "encryptionIntVec";
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String originalString = "This is the original text";
+        System.out.println("Original String to encrypt - " + originalString);
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted String - " + encryptedString);
+    }
+}
+```
+
+Before running this code, remember to replace "aesEncryptionKey" and "encryptionIntVec" with your secret key and initialization vector respectively. The secret key in AES encryption has to be 16 characters long.
+
+This program takes an input string, encrypts it using AES with CBC mode, and then prints out the encrypted result. This code uses Base64 encoding for the byte[] output from the encryption to convert it to a string.
+
+Please remember that hard-coding secrets in code is a bad practice, I've used it in this example for simplicity's sake. For production code, consider getting such secrets from a secure source like a vault.

@@ -1,0 +1,47 @@
+Sure, here is a basic example of a Java program that signs a message using Java standard APIs. This program uses 'SHA256withDSA' as the Signature algorithm and the DSA key pair is generated for signing and verification.
+
+```Java
+import java.security.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Generate a KeyPair
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+            keyGen.initialize(1024, random);
+            KeyPair pair = keyGen.generateKeyPair();
+            PrivateKey priv = pair.getPrivate();
+            PublicKey pub = pair.getPublic();
+
+            // Get a Signature object and sign the plaintext with the private key
+            Signature dsa = Signature.getInstance("SHA256withDSA");
+            dsa.initSign(priv);
+            String message = "This is a test message";
+            System.out.println("Original message: " + message);
+            byte[] buffer = message.getBytes();
+            dsa.update(buffer, 0, buffer.length);
+
+            // Now that all the data to be signed has been read in
+            byte[] realSig = dsa.sign();
+
+            System.out.println("Signature: " + new BigInteger(1, realSig).toString(16));
+
+            // Verify the signature
+            dsa.initVerify(pub);
+            dsa.update(buffer, 0, buffer.length);
+
+            boolean verifies = dsa.verify(realSig);
+            System.out.println("Signature verifies: " + verifies);
+
+        } catch (Exception e) {
+            System.err.println("Caught exception " + e.toString());
+        }
+    }
+}
+```
+
+This program first generates a public/private key pair. It then creates a Signature object, initializes it with the private key, updates it with a string of bytes to be signed. Next, it signs the bytes and the signature is saved. At last, for verification, it initializes another Signature object with the public key, updates the Signature object with the bytes to be signed, and then verifies them with the signature that was just generated.
+
+Please replace `"This is a test message"` with your own message.

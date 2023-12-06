@@ -1,0 +1,90 @@
+Here is an example of how you might implement a fingerprint recognition system using Java on an Android device. 
+
+This solution uses the FingerprintManager API, which becomes deprecated from API level 28, so we use BiometricPrompt for newer versions of Android.
+
+Please note that this example does not include actual UI code, it just showcases how the fingerprint recognition functionality might work.
+
+```java
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.CancellationSignal;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyPermanentlyInvalidatedException;
+import android.security.keystore.KeyProperties;
+
+import java.security.KeyStore;
+
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+
+public class Main {
+
+    private static final String KEY_NAME = "app_finger";
+    private Cipher cipher;
+    private KeyStore keyStore;
+
+    @TargetApi(28)
+    private void stepUpBiometricPrompt() {
+        //TODO - Setup biometricPrompt for API>=28 (You will also need to define Authentication callback here)
+    }
+
+    private void setupFingerPrint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            KeyGenerator keyGenerator = null;
+            try {
+                keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, "AndroidKeyStore");
+                keyStore.load(null);
+                keyGenerator.init(new
+                        KeyGenParameterSpec.Builder(KEY_NAME,
+                        KeyProperties.PURPOSE_ENCRYPT |
+                        KeyProperties.PURPOSE_DECRYPT)
+                        .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
+                        .setUserAuthenticationRequired(true)
+                        .setEncryptionPaddings(
+                                KeyProperties.ENCRYPTION_PADDING_PKCS7)
+                        .build());
+                keyGenerator.generateKey();
+
+            } catch (Exception e) {
+               //TODO - handle error
+            }
+        }
+    }
+
+    @TargetApi(28)
+    public void authenticateFingerPrint() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(Context.FINGERPRINT_SERVICE);
+            if (fingerprintManager.isHardwareDetected() && fingerprintManager.hasEnrolledFingerprints()) {
+                setupFingerPrint();
+            }
+        }
+        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && checkSelfPermission(Manifest.permission.USE_BIOMETRIC) == PackageManager.PERMISSION_GRANTED) {
+            stepUpBiometricPrompt();
+        }
+    }
+}
+```
+
+Please fill TODOs with your real use case scenario. Also, due to security reasons the keys should be fetched from the server or remote config.
+
+Please remember to request `USE_FINGERPRINT` permission from the Android Manifest file:
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+```
+
+If you want to use BiometricPrompt, you also need to add this to your Android Manifest:
+
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+```
+
+Please note that all the process of generating keys, initializing cipher, setting up and prompt fingerprint recognition/biometric scanning should be done in the right places like onCreate etc. and quite possibly in separate classes, it all depends on the complexity of the app. The provided snippet is very simplified.

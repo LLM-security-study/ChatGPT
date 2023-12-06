@@ -1,0 +1,39 @@
+In order to verify hostname in an SSL/TLS connection in Java, we use the HttpsURLConnection class provided by Java. 
+
+Here is a simple implementation: 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            conn.setHostnameVerifier((hostname, session) -> hostname.equals("www.example.com"));
+
+            conn.connect();
+
+            if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                System.out.println("Connection established successfully.");
+            } else {
+                System.out.println("Failed to establish connection.");
+            }
+
+        } catch (SSLPeerUnverifiedException e) {
+            System.err.println("Hostname verification failed: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("IO Error: " + e.getMessage());
+        }
+    }
+}
+```
+Here, we are opening a connection to the provided URL with an authenticated SSL/TLS handshake. If the hostname doesn't match the one provided in the setHostnameVerifier method, the connection will not be opened due to `SSLPeerUnverifiedException`.
+
+Please replace "www.example.com" with the actual hostname you want to verify.
+
+Always remember, this is a basic example where we are hardcoding hostname and not validating SSL certificates thoroughly. You should have a more robust strategy for hostname verification and SSL certificate validation in production-grade code, like verifying that the certificate's Subject Alternative Name (SAN) matches the server's hostname.

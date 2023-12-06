@@ -1,0 +1,47 @@
+Sure, here is a basic Java program that creates a keystore and stores a cryptographic key in it. 
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.KeyStore.PasswordProtection;
+import java.security.KeyStore.SecretKeyEntry;
+import java.security.SecureRandom;
+
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // create a key
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256, new SecureRandom());
+        SecretKey secretKey = keyGen.generateKey();
+
+        // save the key in a keystore
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        keyStore.load(null, null);
+        PasswordProtection keyPassword = 
+               new PasswordProtection("keyPassword".toCharArray());
+        SecretKeyEntry secretKeyEntry = new SecretKeyEntry(secretKey);
+        keyStore.setEntry("secretKeyAlias", secretKeyEntry, keyPassword);
+        
+        try (FileOutputStream fos = new FileOutputStream("keystore.ks")) {
+            keyStore.store(fos, "keystorePassword".toCharArray());
+        }
+        System.out.println("The secret key was successfully stored in the keystore file.");
+    }
+}
+```
+
+In the above program,
+
+1. An AES key of size 256 is generated.
+2. A JCEKS key store is created, and the AES key is stored under the alias named "secretKeyAlias" with a password "keyPassword".
+3. The key store is saved as "keystore.ks" file.
+
+Please replace `"keyPassword"` and `"keystorePassword"` with your own secure passwords.
+
+Be careful with these sensitive details such as secret keys, key aliases, and passwords as misuse of them can lead to security vulnerabilities. 
+
+You need to have "Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files" installed in your JRE library to run this code, as dealing with AES 256 requires it.

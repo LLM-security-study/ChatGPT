@@ -1,0 +1,29 @@
+Sure, here's a simple example of a program that generates a seed for a PRNG and then creates a salt for password hashing using that PRNG:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        SecureRandom prng = new SecureRandom();
+        
+        byte[] randomBytes = new byte[64];
+        prng.nextBytes(randomBytes);
+        
+        String seed = Base64.getEncoder().encodeToString(randomBytes);
+        System.out.println("PRNG Seed: " + seed);
+
+        byte[] salt = new byte[16];
+        prng.nextBytes(salt);
+        String encodedSalt = Base64.getEncoder().encodeToString(salt);
+        System.out.println("Generated Salt: " + encodedSalt);
+    }
+}
+```
+In this program, we first created a `SecureRandom` object (which is a PRNG). We then used this object to generate 64 random bytes, encoded this to a base64 string (as bytes aren't easily printable), and printed this out as the seed. 
+
+After this, we use the same `SecureRandom` object to generate 16 more random bytes, encode these to base64, and print them out as the salt. 
+
+Just something to note, `SecureRandom` is itself a pretty good PRNG, and theoretically, you wouldn't need a seed for it as it should be suitably random for generating salts. But you asked for a seed, so this implementation included it. In practical applications though, you'd likely just use `SecureRandom` directly.

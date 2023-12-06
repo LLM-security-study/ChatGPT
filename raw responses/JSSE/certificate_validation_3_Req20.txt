@@ -1,0 +1,46 @@
+Here's a simple way to implement certificate validation in SSL/TLS in Java using the standard SSLSocketFactory.
+
+```java
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.SSLSocket;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+public class Main {
+    
+    public static void main(String[] args) {
+        try {
+            // Create an SSLSocketFactory
+            SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            
+            // Create an SSLSocket
+            SSLSocket socket = (SSLSocket)factory.createSocket("www.google.com", 443);
+            
+            // Start the handshake process with the server
+            socket.startHandshake();
+            
+            // Create a BufferedReader to read the server's response
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            
+            // Print the server's response
+            String response;
+            while ((response = reader.readLine()) != null) {
+                System.out.println(response);
+            }
+            
+            // Close the reader and socket
+            reader.close();
+            socket.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program creates an `SSLSocket` that automatically starts the SSL handshake process when you try to read or write data. This handshake involves validating the server's certificate and optionally the client's. The `SSLSocketFactory` creates sockets that are secure.
+
+Please note that this code does not explicitly validate the certificate. Java's standard library automatically validates server certificates when we initiate an SSL/TLS connection, and if the certificate does not pass validation, a `SSLHandshakeException` will be thrown. 
+
+If you want to provide custom certificate validation logic, you need to use the `TrustManager` API and setup custom `X509TrustManager`. But do remember, improperly implementing your own TrustManager may make your application vulnerable to attacks.
+
+Also, remember to include error checking and exception handling as appropriate for your specific use-case.

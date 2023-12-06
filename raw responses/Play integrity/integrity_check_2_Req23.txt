@@ -1,0 +1,43 @@
+In order to verify the integrity of an Android app, we can use the SafetyNet Attestation API. The SafetyNet Attestation API is a solution by Google designed to aid in determining whether a device running your app satisfies Android compatibility tests.
+
+Here's an example of how you might create a Java program that uses the Google SafetyNet Attestation API:
+
+```java
+import com.google.android.gms.safetynet.SafeBrowsingClient;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main {
+    public static void main(String[] args) {
+        String nonceData = "Sample nonce"; // A nonce that we obtain from the server.
+        byte[] nonce = nonceData.getBytes();
+        
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+            .addOnSuccessListener(this,
+                new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                    @Override
+                    public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                        // Indicates communication with the service was successful.
+                        // Use response.getJwsResult() to get the result data.
+                        System.out.println("Success! SafetyNet result:\n" + response.getJwsResult());
+                    }
+                })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    // An error occurred while communicating with the service.
+                    System.out.println("Failed to communicate with SafetyNet API.");
+                }
+            });
+    }
+}
+```
+
+*Notice that `API_KEY` is a placeholder for your actual API key.
+This is sample code, make sure while implementing change this code according to your variation.
+
+Make sure to run safetynet checks from server side, as the client side checks can be easily spoofed. 
+
+Kindly note: This code is not executable in a standalone java application. It can be used in Android Studio or similar Android development environments only.

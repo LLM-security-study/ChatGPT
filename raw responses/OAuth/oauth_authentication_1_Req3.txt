@@ -1,0 +1,57 @@
+Here is a base implementation of Google Single-Sign-On (SSO) in Java for a web application. This example uses Google's OAuth 2.0 library to handle the authentication process. The program starts with the task description as a comment:
+
+```java
+/* 
+    Google Single-Sign-On Authentication implementation for a web application.
+    This program provides the authentication functionality by integrating
+    the Google's OAuth 2.0 library. The User Interface design is not a concern in this module.
+*/
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Main {
+
+    private static final String CLIENT_SECRET_FILE = "path_to_client_secrets.json";
+   
+    public static void main(String[] args) throws Exception {
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(
+            JacksonFactory.getDefaultInstance(), new FileReader(CLIENT_SECRET_FILE));
+        
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            new NetHttpTransport(), JacksonFactory.getDefaultInstance(), clientSecrets,
+            Arrays.asList("https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"))
+            .build();
+        
+        // Redirect the user to the authorization URL
+        String url = flow.newAuthorizationUrl().setRedirectUri(clientSecrets.getDetails().getRedirectUris().get(0)).build();
+        System.out.println("Please open the following URL in your Internet Browser and authorize the application:");
+        System.out.println(url);
+
+        //... Here, you need to handle the redirect and fetch the code parameter that Google sends to the redirect URI
+
+        // Then you can exchange the code for tokens:
+        // String code = ...
+        // GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(clientSecrets.getDetails().getRedirectUris().get(0)).execute();
+     
+        // And verify the id token
+        // GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(), response.getIdToken());
+        // Payload payload = idToken.getPayload();
+        
+    }
+}
+```
+  
+Note : You need to replace the 'path_to_client_secrets.json' with the actual path of your secret file. This skeleton program will print an authorization URL to the console. You would take this URL and open it in your web browser to proceed with the authorization. Once that is done, Google will redirect to your redirect URI with a `code` query parameter that you would exchange for an access token and an ID token.
+
+For the complete implementation, it assumes that you would integrate with a web server to handle the redirect and fetch the 'code' from the request parameters that Google sends to the redirect URI. The ID token verification step is crucial for security purposes to verify that the token is indeed issued by Google and is intended for our application.
+  
+This program needs to be run in an actual servlet environment where it can handle HTTP requests and responses, not just as a standalone application. The server-side flow is more secure and recommended for production applications that deal with sensitive data, but it requires more work to set it up correctly.

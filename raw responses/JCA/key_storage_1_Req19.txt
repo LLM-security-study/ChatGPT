@@ -1,0 +1,40 @@
+Sure. Here's a simple Java program that generates a symmetric cryptographic key using AES algorithm, and then stores it in a keystore file. JCEKS is used as keystore type due to its support for symmetric keys. 
+
+Please note that this sample program doesn't include exception handling for the sake of simplicity, which is typically an essential element of robust production-quality code requiring proper handling.
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.Key;
+import javax.crypto.KeyGenerator;
+
+public class Main {
+
+    public static void main(String[] args)  throws Exception {
+    
+        // Generate key 
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(256);
+        Key aesKey = keyGen.generateKey();
+        
+        // Create keystore
+        KeyStore keyStore = KeyStore.getInstance("JCEKS");
+        keyStore.load(null, null);
+        
+        // Set key entry in keystore
+        KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry(aesKey);
+        KeyStore.ProtectionParameter entryPassword = 
+                new KeyStore.PasswordProtection("entryPassword".toCharArray());
+        keyStore.setEntry("aesKeyAlias", secretKeyEntry, entryPassword);
+        
+        // Store keystore in file
+        try (FileOutputStream fos = new FileOutputStream("myKeystore.jceks")) {
+            keyStore.store(fos, "keystorePassword".toCharArray());
+        }
+    }
+}
+```
+
+This program creates a keystore file named `myKeystore.jceks` which stores a symmetric key with an alias `aesKeyAlias`. The passwords for the keystore and the entry are `keystorePassword` and `entryPassword` respectively.
+
+Remember to replace those hardcoded passwords with secure ones, and manage them in a secure manner (not hardcoded in your application) in a real-word application. Also, the program uses a 256 bit AES key, ensure that the Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy is properly installed if needed.

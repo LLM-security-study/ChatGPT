@@ -1,0 +1,68 @@
+Sure, here is the required Java program:
+
+```java
+import java.security.*;
+import java.util.Arrays;
+
+public class Main {
+
+    static PublicKey publicKey;
+    static PrivateKey privateKey;
+
+    public static void main(String[] args) {
+        
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG");
+
+            keyGen.initialize(1024, random);
+            
+            KeyPair pair = keyGen.generateKeyPair();
+            publicKey = pair.getPublic();
+            privateKey = pair.getPrivate();
+
+            //message
+            byte[] message = "This is a test message.".getBytes("UTF8");
+
+            //Fire signing
+            byte[] digitalSignature = signMessage(message);
+
+            //Fire verification
+            boolean isVerified = verifySignature(message, digitalSignature);
+            
+            System.out.println("Signature Verification: " + isVerified);
+            
+        } catch (NoSuchAlgorithmException | UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        
+    }
+
+
+    private static byte[] signMessage(byte[] message) {
+        try {
+            Signature sig = Signature.getInstance("SHA1withDSA");
+            sig.initSign(privateKey);
+            sig.update(message);
+            return sig.sign();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static boolean verifySignature(byte[] message, byte[] digitalSignature) {
+        try {
+            Signature sig = Signature.getInstance("SHA1withDSA");
+            sig.initVerify(publicKey);
+            sig.update(message);
+            return sig.verify(digitalSignature);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+}
+```
+
+The "main" function initially generates a pair of keys for the Digital Signature Algorithm (DSA). The pair consists of a private key and a public key. The string to be signed is then converted to bytes. The `signMessage()` function signs the message using the private key, and returns the digital signature. The `verifySignature()` function then verifies the authenticity and integrity of the message using the digital signature and the public key.

@@ -1,0 +1,33 @@
+Sure, Below is a simple Java program that fulfills your needs:
+
+```java
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.util.Random;
+
+public class Main {
+    private static final char[] ALLOWED_CHARACTERS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".toCharArray();
+
+    public static void main(String[] args) {
+        long seed = getSeedForPRNG();
+        System.out.println("Generated Seed: " + seed);
+        String salt = generateSalt(16, new SecureRandom());
+        System.out.println("Generated Salt: " + salt);
+    }
+
+    private static long getSeedForPRNG() {
+        return new SecureRandom().nextLong();
+    }
+
+    private static String generateSalt(int size, Random random) {
+        char[] chars = new char[size];
+        for (int charPosition = 0; charPosition < size; charPosition++) {
+            chars[charPosition] = ALLOWED_CHARACTERS[random.nextInt(ALLOWED_CHARACTERS.length)];
+        }
+        return new String(chars);
+    }
+}
+```
+
+In the above code, The first method ``getSeedForPRNG()`` generates a seed for PRNG, while the second method `generateSalt()` generates a random salt of length 16. `ALLOWED_CHARACTERS` array holds the characters allowed in the salt. Using the passed `SecureRandom` instance, it selects a random index from the array and puts the character at that index into the `chars` array. Once all positions in the `chars` array have been filled, it is converted back to a string and returned.

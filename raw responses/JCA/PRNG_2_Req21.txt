@@ -1,0 +1,28 @@
+To achieve results as per your request, you can follow SecureRandom class from Java's standard library. Below is a sample implementation:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        // Initialize PRNG and create seed
+        SecureRandom secureRandom = new SecureRandom();
+        byte[] values = new byte[20];
+        secureRandom.nextBytes(values);
+
+        // Generate salt for password hashing
+        byte[] salt = new byte[16];
+        secureRandom.nextBytes(salt);
+
+        // Convert salt to string for storage
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+
+        // Print generated salt
+        System.out.println("PRNG Seed: " + Base64.getEncoder().encodeToString(values));
+        System.out.println("Generated Salt: " + saltStr);
+    }
+}
+```
+
+This program first generates a seed for SecureRandom, then uses it to generate a 16 bytes long random salt. The salt is then encoded into a base64 string for easy storage and handling. You will see the PRNG Seed and Generated Salt printed in console when you run the program. Please remember that in real-world application the seeds and salts should be kept securely and not be exposed.

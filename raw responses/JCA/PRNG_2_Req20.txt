@@ -1,0 +1,36 @@
+Sure, here's a basic Java program that generates a secure random seed for a PRNG and then generates a byte array that can be used as a salt for password hashing.
+
+```Java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a SecureRandom instance
+        SecureRandom prng = new SecureRandom();
+
+        // Generate a seed for the PRNG
+        byte[] seed = new byte[64];
+        prng.nextBytes(seed);
+
+        // Initialize the PRNG with the generated seed
+        prng.setSeed(seed);
+
+        // Generate a salt for password hashing
+        byte[] salt = new byte[16];
+        prng.nextBytes(salt);
+
+        System.out.println("Generated salt: " + bytesToHex(salt));
+    }
+
+    // Function to convert byte array to hexadecimal
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02X", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+Note: The generated salt is printed in hexadecimal form. The seed is generated to ensure the pseudorandom number generator starts from a truly random point, and we then generate the salt from this. 'SecureRandom' is a more secure version of Java's 'Random' class. It should be used when generating random data for use in cryptography.

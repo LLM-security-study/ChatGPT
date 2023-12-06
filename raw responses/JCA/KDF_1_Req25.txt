@@ -1,0 +1,51 @@
+Below is a simple implementation for a password-based key derivation function using PBKDF2 (Password-Based Key Derivation Function 2).
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Base64;
+
+public class Main {
+
+    private static final int ITERATION_COUNT = 65536;
+    private static final int KEY_LENGTH = 256;
+
+    public static void main(String[] args) {
+        String password = "YourPassword";
+        String salt = "YourSalt"; // Should be saved with the password, DO NOT LOSE
+        char[] passwordChars = password.toCharArray();
+        byte[] saltBytes = salt.getBytes();
+
+        byte[] hashedBytes = hashPassword(passwordChars, saltBytes, ITERATION_COUNT, KEY_LENGTH);
+        String hashedPassword = Base64.getEncoder().encodeToString(hashedBytes);
+
+        System.out.println(hashedPassword);
+    }
+
+    private static byte[] hashPassword(final char[] password, final byte[] salt, final int iterations, final int keyLength) {
+
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+            PBEKeySpec spec = new PBEKeySpec(password, salt, iterations, keyLength);
+            return skf.generateSecret(spec).getEncoded();
+        } catch(NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+}
+```
+
+Note: 
+
+1. ITERATION_COUNT and KEY_LENGTH have been set arbitrary. You may decide other numbers according to your requirements.
+
+2. 'salt' is some random value that should be unique for each user. It's added to make it difficult to use precomputed hash (rainbow table) attacks.
+
+The SecretKeyFactory API is used to derive keys from a password and salt.
+
+PBKDF2/HmacSHA512 is selected as the algorithm because it is currently considered the most secure.

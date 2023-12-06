@@ -1,0 +1,49 @@
+Sure, here's a basic example of how you could implement encryption and decryption using a symmetric key in Java. I will use "AES" algorithm here for simplicity.
+
+Please note that you need to replace `"SecretKeyToChange"` with your secret key. The secret key must be 16 characters long. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String ALGORITHM = "AES";
+    private static final byte[] KEY = "SecretKeyToChange".getBytes();
+
+    public static void main(String[] args) throws Exception {
+        String toBeEncrypted = "Hello, World!";
+        String encrypted = encrypt(toBeEncrypted);
+        String decrypted = decrypt(encrypted);
+
+        System.out.println("Original string: " + toBeEncrypted);
+        System.out.println("Encrypted string: " + encrypted);
+        System.out.println("Decrypted string: " + decrypted);
+    }
+
+    public static String encrypt(String value) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(KEY, ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+
+        byte[] encryptedValue = cipher.doFinal(value.getBytes());
+        
+        // Use Base64 Encoder to get a readable string form of the encrypted bytes
+        return Base64.getEncoder().encodeToString(encryptedValue);
+    }
+
+    public static String decrypt(String value) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(KEY, ALGORITHM);
+        Cipher cipher = Cipher.getInstance(ALGORITHM);
+        cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+
+        byte[] decryptedValue = cipher.doFinal(Base64.getDecoder().decode(value));
+
+        return new String(decryptedValue);
+    }
+}
+```
+This program encrypts the string "Hello, World!", then decrypts it and prints the original, encrypted, and decrypted strings.
+
+Please note that this is a very simple implementation and may not be suitable for real-world applications. In a real-world application, you'd likely want to use a more secure method for managing keys. Encryption is a complex topic and should be implemented with care to ensure data is properly protected.

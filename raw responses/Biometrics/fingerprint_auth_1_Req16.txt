@@ -1,0 +1,101 @@
+Here's a basic Java program that's compatible with Android development illustrating fingerprint-based authentication.
+
+```java
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.hardware.biometrics.BiometricPrompt;
+import android.os.Bundle;
+import android.os.CancellationSignal;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+public class Main extends AppCompatActivity {
+
+    private CancellationSignal cancellationSignal;
+    private Executor executor;
+
+    @SuppressLint("NewApi")
+    private BiometricPrompt.AuthenticationCallback authenticationCallback = new BiometricPrompt.AuthenticationCallback() {
+        @Override
+        public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {
+            super.onAuthenticationError(errorCode, errString);
+            notifyUser("Authenticate error - error code: " + errorCode);
+        }
+
+        @Override
+        public void onAuthenticationSucceeded(@NonNull BiometricPrompt.AuthenticationResult result) {
+            super.onAuthenticationSucceeded(result);
+            notifyUser("Authenticate successful");
+        }
+    };
+
+    @SuppressLint("NewApi")
+    private BiometricPrompt getBiometricPrompt(){
+        return new BiometricPrompt.Builder(this)
+                .setTitle("Fingerprint Authentication")
+                .setSubtitle("Subtitle")
+                .setDescription("This app uses fingerprint protection to keep your data secure.")
+                .setNegativeButton("Cancel", executor, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        notifyUser("Authentication was cancelled by the user.");
+                    }
+                })
+                .build();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        executor = Executors.newSingleThreadExecutor(); 
+        checkBiometricSupport();
+
+        if(ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_BIOMETRIC) != PackageManager.PERMISSION_GRANTED) {
+            notifyUser("Fingerprint authentication permission not enabled");
+        } else {
+            getBiometricPrompt().authenticate(getCancellationSignal(), executor, authenticationCallback);
+        }
+    }
+
+    private boolean checkBiometricSupport() {
+        PackageManager packageManager = this.getPackageManager();
+        if(!packageManager.hasSystemFeature(PackageManager.FEATURE_FINGERPRINT)) {
+            notifyUser("Fingerprint sensor not supported in device");
+            return false;
+        }
+        return true;
+    }
+
+    private void notifyUser(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+    }
+
+    private CancellationSignal getCancellationSignal() {
+        cancellationSignal = new CancellationSignal();
+        cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+            @Override
+            public void onCancel() {
+                notifyUser("Authentication was cancelled by the user");
+            }
+        });
+
+        return cancellationSignal;
+    }
+}
+```
+
+Please be aware that Android's Biometric API, which includes fingerprint authentication, has changed since Android 9.0 (Pie). FingerprintManager was deprecated in API level 28 and replaced with BiometricPrompt. The above example uses the newer BiometricPrompt API.
+
+Before running the code, make sure you have placed the necessary permission in your AndroidManifest.xml file.
+```xml
+<uses-permission android:name="android.permission.USE_BIOMETRIC" />
+```

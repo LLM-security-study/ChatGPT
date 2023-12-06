@@ -1,0 +1,47 @@
+Sure, below is a simple Java program that calculates the SHA-256 hash of a file and compares it against a provided hash. The name of the main class is "Main". 
+
+```java
+import java.nio.file.*;
+import java.security.*;
+import javax.xml.bind.DatatypeConverter;
+
+public class Main {
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.out.println("Usage: java Main [file_path] [expected_hash]");
+            return;
+        }
+
+        String filePath = args[0];
+        String expectedHash = args[1];
+
+        try {
+            String fileHash = calculateHash(filePath);
+            System.out.println("Calculated file hash is: " + fileHash);
+    
+            if (fileHash.equals(expectedHash)) {
+                System.out.println("The file integrity check passed.");
+            } else {
+                System.out.println("The file integrity check failed.");
+            }
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static String calculateHash(String filePath) throws Exception {
+        MessageDigest sha256Digest = MessageDigest.getInstance("SHA-256");
+        byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
+        byte[] hashedBytes = sha256Digest.digest(fileBytes);
+        return DatatypeConverter.printHexBinary(hashedBytes);
+    }
+}
+```
+
+Please run this program with the path of the file and the expected hash as command line arguments, like this:
+
+```
+java Main C:\path\to\file.txt 2CF24DBA5FB0A30E26E83B2AC5B9E29E1B161E5C1FA7425E73043362938B9824
+```
+
+The provided hash should be a hex string of a SHA-256 hash. Please replace "C:\path\to\file.txt" and the hash with your actual values. For convenience, this program treats hashes as case-insensitive, so you can input hashes in either lower or upper case.

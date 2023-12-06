@@ -1,0 +1,45 @@
+In Java, you can use the PBKDF2WithHmacSHA1 algorithm under `SecretKeyFactory` for password-based key derivation. The following is a simple Java program that performs password-based key derivation.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) {
+        String password = "password";
+        String salt = "salty"; 
+        int iterationCount = 65536;  
+        int keyLength = 256;   
+        
+        SecretKeyFactory factory = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), iterationCount, keyLength);
+        SecretKey secret = null;
+        try {
+            secret = factory.generateSecret(spec);
+        } catch (InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+
+        SecretKey secretKey = new SecretKeySpec(secret.getEncoded(), "AES");
+        System.out.println(Arrays.toString(secretKey.getEncoded()));
+    }
+}
+```
+This program first gets an instance of the `SecretKeyFactory` for the `PBKDF2WithHmacSHA1` algorithm. It generates the `KeySpec` using a password, salt, iteration count, and key length, then generates the secret key from the spec. The secret key is transformed into a `SecretKeySpec` for AES encryption, and the key data is printed to the console.
+
+Please note: 
+
+1. The secret key that you're creating is based on hard-coded strings for the password and salt. In a real-world situation, those would need to be replaced with more secure, randomly generated values.
+2. Error handling in this example is pretty basic. It only prints stack traces of exceptions. It's recommended to have a robust error handling mechanism in place for production grade software.
+3. It's strongly advised to securely manage and stow your encryption keys and salts for security purposes. They should not be exposed in source code. 
+   

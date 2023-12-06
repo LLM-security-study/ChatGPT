@@ -1,0 +1,40 @@
+Below is a basic example of how to generate a MAC (Message Authentication Code) using Java's standard APIs. Make sure to import the required packages before beginning:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter message: ");
+        String message = scanner.nextLine();
+
+        String secret = "secretKey"; // your secret key
+
+        try {
+            Mac sha256Hmac = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+            sha256Hmac.init(secretKeySpec);
+            byte[] macData = sha256Hmac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+            String result = Base64.getEncoder().encodeToString(macData);
+            System.out.println("MAC: " + result);
+        } catch (Exception e) {
+            System.out.println("Error generating MAC: " + e.getMessage());
+        }
+    }
+}
+```
+
+This code:
+1. Takes a message input from the user.
+2. Initializes a MAC with the HmacSHA256 algorithm.
+3. Uses a secret key to initialize the MAC.
+4. Computes the MAC of the input message.
+5. Converts the MAC to a Base64 String.
+6. Prints the resulting MAC.
+   
+This is a very simple example and doesn't handle important aspects like securely storing the key, adding salts, or handling unicode correctly. Be sure to consider these and other factors when you build a real-world security application.

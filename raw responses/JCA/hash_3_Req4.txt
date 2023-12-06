@@ -1,0 +1,33 @@
+Sure, here is a basic Java program that implements a message digest using the SHA-256 hash function:
+
+```java
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+
+    public static void main(String[] args) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        String original = "This is the test string for message digest";
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(original.getBytes("UTF-8"));
+        printHash(hash);
+    }
+
+    public static void printHash(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) {
+                hexString.append('0');
+            }
+            hexString.append(hex);
+        }
+
+        System.out.println(hexString.toString());
+    }
+}
+```
+
+In this program, `getInstance("SHA-256")` sets the hash function to SHA-256, and `digest.digest(original.getBytes("UTF-8"))` creates the message digest of the input string. The method `printHash(hash)` is then used to convert the byte array into a readable hexadecimal hash and print it.

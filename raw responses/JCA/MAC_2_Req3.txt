@@ -1,0 +1,50 @@
+Here's a basic example of such a program that uses HMAC with SHA256 for the MAC function:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // The message 
+            String message = "This is a confidential message";
+
+            // The shared secret
+            String secret = "secret-key";
+
+            System.out.println("Original Message: " + message);
+            String macValue = computeMac(message, secret);
+            System.out.println("MAC Value: " + macValue);
+
+        } catch (Exception e) {
+            System.out.println("Error occurred while computing HMAC: " + e);
+        }
+    }
+
+    private static String computeMac(String message, String secret) throws Exception {
+        // Get an algorithm instance
+        Mac mac = Mac.getInstance("HmacSHA256");
+
+        // Create secret key spec
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+
+        // Initialize the MAC object
+        mac.init(secretKeySpec);
+
+        // Compute the MAC value
+        byte[] macValue = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+        // Convert to base64 string for better readability
+        return Base64.getEncoder().encodeToString(macValue);
+    }
+}
+```
+
+This program computes a MAC value for a given message with the shared secret key. Please make sure to replace `"This is a confidential message"` and `"secret-key"` with the actual message and the shared secret key, respectively.
+
+The `computeMac` method takes a message and a secret as input, and it computes the MAC value. First, it creates an instance of the `Mac` class with `"HmacSHA256"` algorithm. Then it creates secret key specification using the given secret with the same algorithm. After initializing the MAC object with the secret key specification, the MAC value is computed with the given message. Finally, the computed MAC value is encoded in base64 format and returned as a String.
+
+**Important:** This code is just a basic example, and should be tuned according to application-specific requirements. For example, the method to get the secret key in a secure way should be implemented because a hard-coded secret key could create a security vulnerability. The shared secret key should be kept in a safe place and should be protected. Also, handling exceptions should be done properly.

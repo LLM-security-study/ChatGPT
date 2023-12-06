@@ -1,0 +1,51 @@
+Sure, Here's an example of a Java code that imports an SSL certificate obtained from a web server into a local JAVA keystore. You will need to substitute the host, port, and keystore information with your own.
+
+```java
+import java.io.*;
+import java.security.*;
+import java.security.cert.*;
+import javax.net.ssl.*;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            char[] password = "storepassword".toCharArray();  // Use your own keystore password
+            String host = "your_host";  // Specify your host
+            int port = 443;  // Default HTTPS port
+
+            // Create a new SSL context 
+            SSLContext context = SSLContext.getInstance("TLS");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            ks.load(null, password);
+            kmf.init(ks, password);
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init((KeyStore) null);
+            context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
+            SSLSocketFactory factory = context.getSocketFactory();
+
+            // Connect to the host and get the certificate
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+            socket.startHandshake();
+            SSLSession session = socket.getSession();
+            Certificate[] peerCerts = session.getPeerCertificates();
+
+            // Load the keystore and add the certificate
+            ks.setCertificateEntry("alias-of-cert", peerCerts[0]);  // Choose your own alias for the certificate
+            FileOutputStream fos = new FileOutputStream("keystore.jks");  // Specify your keystore file name
+            ks.store(fos, password);
+            fos.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This program assumes the existence of a secure SSL/TLS connection. If you are self-signing your SSL certificate or do not trust your CA (For example: self-signed), then it might need extra steps to set up a custom TrustManager. 
+
+You may want to modify the error handling to be more robust for use in production code. Make sure to have the necessary Java security providers to handle the cryptographic algorithms. 
+
+_Issues regarding SSL communication, like deciding between the use of certain versions of SSL/TLS and which cipher suites to make available, are a bigger and more complex question and are outside the scope of this code snippet._
+

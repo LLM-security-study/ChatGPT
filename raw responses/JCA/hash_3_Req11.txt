@@ -1,0 +1,34 @@
+Sure, here's a simple Java program that creates a SHA-256 hash of a string and outputs the hash as a hexadecimal number.
+
+```java
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String originalString = "Hello, World!";
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+            String hashedString = bytesToHex(encodedhash);
+            System.out.println("Hashed String: " + hashedString);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+This program first creates a `MessageDigest` instance for the SHA-256 algorithm. It then converts the original string into bytes, computes the hash, and finally converts the byte array hash into a hexadecimal string. Note that the conversion from bytes to hex is necessary because the hash is typically not a printable string. 
+
+Make sure to handle the `NoSuchAlgorithmException` which is a checked exception and needs to be handled in a `try-catch` block. It is thrown by `getInstance` if the SHA-256 algorithm is not available in your Java environment. However, SHA-256 is a standard algorithm that should be available on all Java platforms.

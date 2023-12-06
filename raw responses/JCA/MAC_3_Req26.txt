@@ -1,0 +1,36 @@
+Sure, Here is a simple implementation in Java that calculates the MAC using HMAC SHA256.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        String secret = "secret-key";
+        String message = "Hello, World!";
+        try {
+            Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+            SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            sha256_HMAC.init(secret_key);
+
+            String hash = Base64.getEncoder().encodeToString(sha256_HMAC.doFinal(message.getBytes(StandardCharsets.UTF_8)));
+            System.out.println(hash);
+        }
+        catch (Exception e){
+            System.out.println("Error");
+        }
+    }
+}
+```
+
+This code will print the MAC code for "Hello, World!" with HMAC SHA256 hash function. 
+
+In the program, we have instantiated the Mac class with the algorithm HmacSHA256. The secret key is also set as the algorithm using SecretKeySpec object. The SHA256_HMAC object is then initialized using the secret key. 
+
+"doFinal()" method call performs the Mac operation on the given data "message". Since the resulted Mac bytes can be non printable characters, they are then base64-encoded to make them printable.
+
+Please make sure you have imported javax.crypto.Mac and javax.crypto.spec.SecretKeySpec Java class in your code (already included in code provided). Once the program is executed, MAC will be printed on console.
+
+Remember, in a real application you would need to safely store and access the secret key.

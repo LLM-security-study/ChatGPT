@@ -1,0 +1,50 @@
+To implement this solution, we will use the HTTPSURLConnection class from Java. This class contains a method named "setHostnameVerifier" which will allow us to establish conditions to verify the hostname during SSL/TLS connections.
+
+Also, javax.net.ssl.HostnameVerifier is an interface provided by Java which provides strategy to decide whether a connection with URL's hostname should be allowed.
+
+Here is a simple Java program which uses these APIs:
+
+```Java
+import java.net.URL;
+import java.net.HttpsURLConnection;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+
+public class Main {
+
+    public static void main(String[] args) {
+        
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection urlConn = URLConnection.openConnection();
+
+            urlConn.setHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    if (hostname.equals("www.example.com")) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+
+            System.out.println("Response Code: " + urlConn.getResponseCode());
+            System.out.println("SSL Session : " + urlConn.getSSLSession());
+        }
+        
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this code:
+1. We first establish a connection to "www.example.com"
+2. Then, we create an anonymous class which implements the HostnameVerifier interface. 
+3. Inside the verify method, we simply check if the hostname being connected to is "www.example.com", and return true if it matches, false otherwise.
+4. Then we get the HTTP response code and SSL session details to confirm that the connection was successfully established.
+
+Please modify the url and verification condition to match your requirements. 
+
+WARNING: This is a basic example, and it should not be used as it is in a production environment as it would allow any certificate whose hostname is "www.example.com", even if it's not trusted. Use it as a reference and adapt it according to the security policies that must be applied in your situation, including certificate validation.

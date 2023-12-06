@@ -1,0 +1,48 @@
+The standard Java APIs that you would use to validate the certificate in an SSL/TLS connection are the `javax.net.ssl` packages which provide the classes to build secure network connections via SSL/TLS protocols.
+
+Here is a sample code to get the certificate from an SSL/TLS connection and to validate it:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+        String httpsUrl = "https://www.example.com";
+        
+        try {
+            URL url = new URL(httpsUrl); 
+            HttpsURLConnection conn = (HttpsURLConnection)url.openConnection(); 
+
+            conn.connect();
+
+            Certificate[] certs = conn.getServerCertificates();
+            for(Certificate cert : certs){ 
+                if(cert instanceof X509Certificate){
+                    X509Certificate x = (X509Certificate) cert;
+                    try{
+                        x.checkValidity(); 
+                        System.out.println(x.getSubjectDN()); 
+                    } catch (CertificateException e) { 
+                        e.printStackTrace();
+                    }
+                }
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This Java program implements a main method that opens a secure connection to a specified HTTPS URL and then retrieves and validates the server's certificates.
+
+To use this code, you will have to handle exceptions for certificate validity, SSLPeerUnverifiedException and IOException.

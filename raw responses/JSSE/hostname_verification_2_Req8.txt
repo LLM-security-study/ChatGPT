@@ -1,0 +1,46 @@
+Alright, in Java we can utilize the HttpsURLConnection class to establish an HTTPS connection, and we can take advantage of javax.net.ssl.HostnameVerifier to perform the hostname verification.
+
+Below is a sample code for hostname verification in an SSL/TLS connection.
+
+``` Java
+import java.net.HttpsURLConnection;
+import java.net.URL;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Create a URL object
+            URL url = new URL("https://www.example.com");
+            
+            // Open connection
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            // Initiate hostname verification
+            connection.setHostnameVerifier(new HostnameVerifier() {
+                public boolean verify(String hostname, SSLSession session) {
+                    // Hostname verification logic
+                    if (hostname.equals("www.example.com")) {
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            
+            connection.connect();
+
+            System.out.println("Successfully connected to the server.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Here, we're implementing our HostnameVerifier interface. `verify(String hostname, SSLSession session)` is the method in HostnameVerifier interface that we need to implement which verifies the hostname with the specified SSLSession. In this sample code, we are simply checking if the hostname is equal to "www.example.com".
+
+You can replace "www.example.com" with your preferred domain name. And remember, this is just a basic example, you might need to implement a more complex logic to check the hostname depends on your specific needs.
+
+Also, consider that the hostname verification process is essential to ensure that the SSL/TLS connection is truly secure. If an attacker can trick a client into connecting to his server (via DNS cache poisoning, for instance), without hostname verification the client will happily establish a trusted connection, ensuring all data sent will go to the attacker in a readable format.

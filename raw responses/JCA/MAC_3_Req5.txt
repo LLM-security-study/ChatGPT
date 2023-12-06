@@ -1,0 +1,47 @@
+Here's a basic Java program that computes a MAC using the HMAC-MD5 algorithm. In this program, I used the javax.crypto package, which provides APIs for cryptographic operations.
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        String key = "secret";
+        String macValue = calculateMAC(message, key);
+        System.out.println("The MAC value is: " + macValue);
+    }
+
+    public static String calculateMAC(String message, String secret) {
+        try {
+            // create a MAC object using HMAC-MD5 algorithm
+            Mac mac = Mac.getInstance("HmacMD5");
+
+            // create a secret key
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), "HmacMD5");
+
+            // initialize the MAC object with the secret key
+            mac.init(secretKey);
+
+            // compute the MAC of the message
+            byte[] bytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+            // convert the bytes to hexadecimal
+            StringBuilder sb = new StringBuilder();
+            for(byte b : bytes) {
+                sb.append(String.format("%02x", b));
+            }
+
+            return sb.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+Please replace the message and the secret key with the message you want to verify and the key you should use. This program will print the MAC value in hexadecimal form.
+
+This program assumes that the message and the key are both text strings. If you need to handle data that is not text, you may have to modify the code for obtaining the bytes of the message and the key.
+
+Remember to handle exceptions appropriately. This code just rethrows any exception as a RuntimeException, which is not good practice for a real production system. Make sure to handle exceptions properly in production, according to your organization's coding standards.

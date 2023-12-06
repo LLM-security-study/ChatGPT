@@ -1,0 +1,73 @@
+To implement Google's Single-Sign-On (SSO) with Java, we'll use the Google APIs Client Library. This functionality is often deployed in combination with Spring Boot or other frameworks, or must be integrated with specific back-end or front-end workflows. Below is a simple demonstration of how it would be theoretically done.
+Be aware this is not a fully functional program per se; integrating SSO is more involved and requires organizing these components into a larger system (usually using microservices or some kind of MVC architecture).
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+/*
+ * This java program will demonstrate the authentication
+ * functionality of Single-Sign-On (SSO) using Google accounts
+ * for a web application.
+ */
+public class Main {
+    private static final String CLIENT_ID = "<Enter your client ID>";
+    
+    // Receives the ID Token from client
+    public void authenticate(String idTokenString) throws GeneralSecurityException, IOException {
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new JacksonFactory())
+            // Specify the CLIENT_ID of the app that accesses the backend:
+  	        .setAudience(Collections.singletonList(CLIENT_ID))
+            // Or, if multiple clients access the backend:
+            //.setAudience(Arrays.asList(CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3))
+            .build();
+
+        // Verify the idToken
+        GoogleIdToken idToken = verifier.verify(idTokenString);
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+            String userId = payload.getSubject();
+            System.out.println("User ID: " + userId);
+            // You can also access the user's email
+            String email = payload.getEmail();
+            System.out.println("User email: " + email);
+            boolean emailVerified = Boolean.valueOf(payload.getEmailVerified());
+            if (emailVerified) { 
+                System.out.println("Email verified: " + emailVerified);
+            }
+        } else {
+            System.out.println("Invalid ID token.");
+        }
+    }
+
+    public static void main(String []args) throws GeneralSecurityException, IOException{
+        Main googleSSO=new Main();
+        // Replace this string with the actual token passed from client
+        String realToken="<Enter the real token>";
+        googleSSO.authenticate(realToken);
+    }
+}
+```
+
+Don't forget to replace "<Enter your client ID>" with your actual Google Client ID, and "<Enter the real token>" with the actual token obtained from the client-side (browser).
+
+Dependencies Required:
+```xml
+<dependency>
+    <groupId>com.google.api-client</groupId>
+    <artifactId>google-api-client</artifactId>
+    <version>1.23.0</version>
+</dependency>
+<dependency>
+    <groupId>com.google.http-client</groupId>
+    <artifactId>google-http-client-jackson2</artifactId>
+    <version>1.23.0</version>
+</dependency>
+```

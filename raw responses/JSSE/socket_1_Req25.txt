@@ -1,0 +1,51 @@
+To enable secure communication with a server in Java, we will use the Java Secure Socket Extension (JSSE) APIs provided by Java. 
+
+Below is an example of a very basic SSL socket implementation:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "localhost";
+        int port = 8443;
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket) factory.createSocket(hostname, port);
+
+            socket.startHandshake();
+
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())));
+            out.println("GET / HTTP/1.0");
+            out.println();
+            out.flush();
+
+            if (out.checkError())
+                System.out.println("SSL: error in SSL socket write.");
+
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+
+            String inputLine;
+            while ((inputLine = in.readLine()) != null)
+                System.out.println(inputLine);
+
+            in.close();
+            out.close();
+            socket.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this program, "localhost" is the host name and 8443 is the secure port. 
+
+The `SSLSocketFactory` is used to create `SSLSockets`. When the socket is created, it's initially in a mode where it can only handle plaintext data. After the server's identity is verified with `startHandshake()`, it can start handling encrypted SSL traffic.
+
+The program then sends an HTTP GET request, reads the response and prints it. After finished with the socket, it is closed.
+
+Keep in mind, this is a basic implementation without any error handling or certificate verification. You would need to extend this by defining your own SSLContext and TrustManager for a production-ready application.

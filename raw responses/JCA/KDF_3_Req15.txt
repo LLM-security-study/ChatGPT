@@ -1,0 +1,31 @@
+Sure, here is an example of how you could implement Password-Based key derivation with Java standard APIs using PBKDF2withHmacSHA1:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+    
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String password = "MySecretPassword"; // this could be user input
+        byte[] salt = new byte[16]; // generate this randomly and store this with the password_hash
+        
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+        SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        
+        byte[] hash = f.generateSecret(spec).getEncoded();
+        
+        System.out.println("Password hash: "+Arrays.toString(hash));
+    }
+}
+```
+Please note:
+1. Store the "salt" securely, it is as crucial as the password hash for password verification.
+2. You would want to encode the byte arrays into a safe string format (like base64) for storage and comparison.
+3. You should use a secure random function to generate your salt.
+4. You generally want to use as high an iteration count as you can without causing unacceptable login delays. Experiment with higher numbers than 65536 to see what's acceptable for your systems. Higher the iteration count, more the time it'll take for an attacker to iterate over the entire password space.
+5. The derived key length (128 in the example) can be adjusted as needed. It does not need to match your hmac length. Adjust it based on what you need. But, note that if you ask for more bits than the native algorithm generates, some hash algorithms will just zero fill. Thus, trying to get a 128 bit key out of a 96 bit hash algorithm does not give you increased security!

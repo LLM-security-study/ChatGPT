@@ -1,0 +1,54 @@
+Here's a minimal Java program implementation for obtaining user's permission to access their Google Drive files. The main class is named "Main".
+
+```java
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.*;
+import java.security.GeneralSecurityException;
+
+public class Main {
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private static GoogleAuthorizationCodeFlow getAuthorizationFlow(final NetHttpTransport httpTransport) throws IOException {
+        // Load client secrets.
+        InputStream in = Main.class.getResourceAsStream("/credentials.json");
+
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        // Build flow and trigger user authorization request.
+        return new GoogleAuthorizationCodeFlow.Builder(
+                httpTransport, JSON_FACTORY, clientSecrets, Collections.singletonList("https://www.googleapis.com/auth/drive.file"))
+                .setDataStoreFactory(new FileDataStoreFactory(new File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+    }
+
+    private static Credential getCredentials(final NetHttpTransport httpTransport) throws IOException {
+        GoogleAuthorizationCodeFlow flow = getAuthorizationFlow(httpTransport);
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new HTTP Transport
+        final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+
+        // Get Credentials
+        getCredentials(httpTransport);
+    }
+}
+```
+
+Make sure you have the necessary libraries imported and a "credentials.json" file in the correct path. 
+
+In this case, `authorize("user")` will open the default web browser and ask user permission to access Google Drive files. After a successful authentication, the application will save the tokens in a directory named "tokens". If the tokens are present and not expired, it won't open the browser on subsequent runs.
+
+Remember that execution of code that requires access to user's Google Drive will require these tokens to be present. A more elaborate version of code may include explicit mechanisms for token expiration handling, error handling, etc.

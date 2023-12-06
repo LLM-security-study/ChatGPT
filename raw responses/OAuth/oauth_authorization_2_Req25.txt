@@ -1,0 +1,55 @@
+The Google Calendar API uses OAuth 2.0 for authorization and therefore, in order to authorize our application, we are going to use Google Authorization Library. This library can be installed via Maven or Gradle. 
+
+Here is a code to authenticate a request with a service account in a command-line tool using Java:
+
+```java
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.calendar.CalendarScopes;
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.auth.oauth2.ServiceAccountCredentials;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    private static final String CREDENTIALS_FILE_PATH = "<your service account key JSON file path>"; //place service account key JSON file here
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final List<String> SCOPES = Collections.singletonList(CalendarScopes.CALENDAR_READONLY);
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    private static GoogleCredentials getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+        }
+        GoogleCredentials credentials = ServiceAccountCredentials.fromStream(in)
+                .createScoped(SCOPES);
+        return credentials;
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        GoogleCredentials credentials = getCredentials(HTTP_TRANSPORT);
+    }
+}
+```
+
+In this code, we are reading credentials of our application from `CREDENTIALS_FILE_PATH`, a JSON file, that we get after creating a service account. 
+
+We create an instance of `NetHttpTransport` and `JsonFactory` which will be required to create an instance of `Calendar` in the next steps, which will be used to interact with the Google Calendar API.
+
+The `GoogleCredentials` object scopes that we need for our application. Please replace `CALENDAR_READONLY` with the appropriate scope based on your needs. 
+
+Please note that you will need to adapt this code into your existing system and handle, store, and use tokens appropriately. This code does not handle refresh tokens and revoke tokens, which are essential for production-level apps. 
+
+NOTE - Google's API Client and Auth libraries for Java have implemented the OAuth 2.0 and OpenID Connect specifications. This makes it easy to use the Google API's.
+

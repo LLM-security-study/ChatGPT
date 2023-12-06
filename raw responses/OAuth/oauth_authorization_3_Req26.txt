@@ -1,0 +1,59 @@
+To access Google Contacts from your Java application, you'll need to use the Google People API. This requires OAuth authorization. Here's an outline of the class that implements this:
+
+First, you need to import the necessary classes and packages:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Arrays;
+import java.util.List;
+```
+
+Then, create the main "Main" class:
+
+```java
+public class Main {
+    private static final String APPLICATION_NAME = "Social Networking Application";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/contacts.readonly");
+
+    private static final String CLIENT_SECRET_FILE = "/path/to/your/client_secret.json";
+    
+    public static void main(String[] args) throws IOException, GeneralSecurityException { 
+        // Build flow and trigger user authorization request
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new FileReader(CLIENT_SECRET_FILE));
+        GoogleAuthorizationCodeFlow flow =
+            new GoogleAuthorizationCodeFlow.Builder(
+                    GoogleNetHttpTransport.newTrustedTransport(),
+                    JSON_FACTORY,
+                    clientSecrets,
+                    SCOPES)
+            .setDataStoreFactory(new FileDataStoreFactory(new java.io.File("tokens")))
+            .setAccessType("offline")
+            .build();
+            
+        // After this point, you would redirect the user to the authorization URL and handle the authorization code response.
+        // Once authorization is complete, a token will be stored in the "tokens" directory for future use without needing user intervention
+    }
+}
+```
+
+This is the basic setup where user needs to authenticate only once as the token will be stored locally in the 'tokens' directory specified in your project. The SCOPES indicates the permissions your app needs - this particular scope is for read-only access to the user's contacts. As always, ensure that your secret file is stored securely and not exposed publicly.
+
+In this example, you have to replace `/path/to/your/client_secret.json` with the path to your application's Client Secret JSON file that was provided by Google API console. 
+
+Also remember to replace `APPLICATION_NAME` with the name of your application, and `SCOPES` with the specific scopes you need for your application. 
+
+Note: This is a console-based app setup. In practical applications, this code may vary depending upon the application such as web, mobile etc.
+
+Another important factor to note is, this code does not do the part of redirecting the user to authorization URL and handling the authorization response, that part would be dependent on your application (probably a web server). This section of code is mainly shown to provide an insight on building an authorization flow with Google services.

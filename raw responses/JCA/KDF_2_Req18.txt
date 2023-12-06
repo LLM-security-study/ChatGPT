@@ -1,0 +1,48 @@
+Sure, here is a simple Java program that uses the `SecretKeyFactory` and `PBKDF2WithHmacSHA256` algorithm to generate a SecretKey from a user's password:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter password: ");
+        String password = sc.next();
+        
+        byte[] salt = new byte[16]; // preferably, this should be stored securely
+
+        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+        SecretKeyFactory factory = null;
+        try {
+            factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKey key = factory.generateSecret(spec);
+            SecretKeySpec secretKey = new SecretKeySpec(key.getEncoded(), "AES");
+            
+            System.out.println("Secret Key: " + bytesToHex(secretKey.getEncoded()));
+            
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder result = new StringBuilder();
+        for (byte aByte : bytes) {
+            result.append(Integer.toString((aByte & 0xff) + 0x100, 16).substring(1));
+        }
+        return result.toString();
+    }
+}
+```
+This program asks for a password from the user and generates a SecretKey. The SecretKey is further transformed using a `SecretKeySpec` with AES algorithm.
+
+`PBKDF2WithHmacSHA256` is a key derivation function that is part of NIST's PKCS#5 v2.0. This is a password-based encryption specification that also includes a whole family of random number generation techniques.
+
+Note: Security best practices recommends using different salts for different users and each time a password is changed.
+
+Please replace the salt value in the code above with the one stored securely or use a proper mechanism to generate a random salt value.

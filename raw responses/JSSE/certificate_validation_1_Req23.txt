@@ -1,0 +1,56 @@
+Sure, here is a basic Java program using SSLContext and TrustManager from Java standard networking package to validate server certificates.
+
+```Java
+import java.net.URL;
+import java.net.HttpsURLConnection;
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String urlString = "<Your_URL>";
+
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[]{
+            new X509TrustManager() {
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+                public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                }
+                public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                }
+            }
+        };
+
+        // Install the all-trusting trust manager
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+        // Open connection and read
+        URL url = new URL(urlString);
+        HttpsURLConnection urlConnection = (HttpsURLConnection)url.openConnection();
+        urlConnection.connect();
+        int code = urlConnection.getResponseCode(); 
+        System.out.println("Response Code: " + code);
+
+        urlConnection.disconnect();
+    }
+}
+```
+
+This program will disable all the SSL certificate validation for all future connections after running this code, So please be careful using this code in production. 
+
+If you want to enable secure communication, a valid certificate, issued by a trusted Certificate Authority (CA), needs to be installed on the server side.
+
+In a more advanced scenario, you could replace the 'trustAllCerts' with a Trust Manager that has access to a stored/keyed list of certificates that your application trusts.
+
+Please replace `<Your_URL>` with your server URL. The program will open a HTTPS connection to the server, fetch the response code and print it on the console.
+
+This program does not have any error handling, so any network errors or file access errors will result in an exception being thrown.

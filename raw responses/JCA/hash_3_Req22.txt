@@ -1,0 +1,42 @@
+Here's a simple example program that creates a message digest for the string "Hello World" using the SHA-256 hash function in Java.
+
+```java
+import java.security.MessageDigest;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String originalString = "Hello World";
+        
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+            
+            String hashedString = bytesToHex(encodedhash);
+            System.out.println(hashedString);
+        } catch(NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This program will output a hexadecimal SHA-256 hash of "Hello World". 
+
+Please note: 
+* `MessageDigest.getInstance("SHA-256")` initializes a message digest that uses the SHA-256 hash function. 
+* `digest.digest()` generates the hash. 
+* `Integer.toHexString()` converts the hash bytes to a hexadecimal string.
+
+In a real-world situation, you'd want to handle the `NoSuchAlgorithmException` in a manner appropriate to your application.

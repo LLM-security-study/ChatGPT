@@ -1,0 +1,46 @@
+Here is a basic Java program using RSA (an asymmetric encryption standard) for data encryption and decryption.
+
+```java
+import java.security.*;
+import javax.crypto.*;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        // Generating RSA keys with key size 1024
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Input data to be encrypted
+        String inputData = "Hello World!";
+
+        // Encrypting data
+        Cipher encryptCipher = Cipher.getInstance("RSA");
+        encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedData = encryptCipher.doFinal(inputData.getBytes());
+
+        // Converting encrypted data bytes to hexadecimal string for displaying
+        StringBuffer hexadecimalEncData = new StringBuffer();
+        for (int i = 0; i < encryptedData.length; i++) {
+            hexadecimalEncData.append(Integer.toString((encryptedData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        System.out.println("Encrypted Data: " + hexadecimalEncData.toString());
+
+        // Decrypting data
+        Cipher decryptCipher = Cipher.getInstance("RSA");
+        decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedData = decryptCipher.doFinal(encryptedData);
+
+        System.out.println("Decrypted Data: " + new String(decryptedData));
+    }
+}
+```
+
+Please note that this is a simple example and may not meet all security considerations for a production environment. This example uses RSA and Java's built-in PublicKey and PrivateKey classes for key pair generation, Cipher class for encryption and decryption, and standard Java APIs such as String and StringBuffer. 
+
+For displaying the encrypted data, we convert the encrypted byte array to a hexadecimal String, because printing out raw encrypted bytes would likely result in an unreadable mess of ASCII symbols. We then use the private key to decrypt the encrypted data.

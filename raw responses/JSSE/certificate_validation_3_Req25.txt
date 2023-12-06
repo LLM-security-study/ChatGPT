@@ -1,0 +1,61 @@
+Java provides the Java Secure Socket Extension (JSSE) as a part of its Java standard APIs which enables secure internet communications. It provides a framework and an implementation for a Java version of the SSL and TLS protocols and includes functionality for data encryption, server authentication, message integrity, and optional client authentication.
+
+Here is a simple Java program that demonstrates the usage of JSSE to connect to a web server using SSL.
+
+```java
+import java.net.URL;
+import java.security.cert.Certificate;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class Main {
+
+    public static void main(String[] args) {
+        new Main().testIt();
+    }
+
+    private void testIt() {
+
+        String urlString = "https://www.google.com";
+
+        try {
+
+            URL url = new URL(urlString);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // get all headers
+            System.out.println("\nResponse Header:");
+            conn.getHeaderFields().forEach((k, v) -> System.out.println(k + ":" + v));
+
+            // get the status code
+            int statusCode = conn.getResponseCode();
+            System.out.println("\nHTTP Status Code : " + statusCode);
+
+            // get the certificate, if the connection is HTTPS
+            if (conn instanceof HttpsURLConnection) {
+                printServerCertificate(conn);
+            }
+
+            conn.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void printServerCertificate(HttpsURLConnection conn) {
+        try {
+            System.out.println("\nServer certificate:");
+            for (Certificate cert : conn.getServerCertificates()) {
+                System.out.println("Certificate is: " + cert.toString());
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this program, we're making a secure connection to a url using HttpsURLConnection. If the connection is successful, the program will print out response headers and the HTTP status code, alongside the server certificate for the connection.
+
+Disclaimer: This code example only shows the basic usage of JSSE and does not include proper error handling or security measures such as certificate validation, which should always be done in a production environment.

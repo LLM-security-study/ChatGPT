@@ -1,0 +1,34 @@
+Sure, here is a simple Java program that uses SecureRandom to generate a seed for pseudorandom number generator:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom sr = new SecureRandom();
+        
+        // Generate a random seed
+        byte[] seed = new byte[512];
+        sr.nextBytes(seed);
+      
+        // Initialize SecureRandom with the generated seed
+        SecureRandom secureRandom = new SecureRandom(seed);
+      
+        // Generate a random integer
+        int randomInt = secureRandom.nextInt();
+      
+        System.out.println("Random Integer: " + randomInt);
+    }
+}
+```
+In the first line we are creating an instance ("sr") of SecureRandom which will use a default seeding strategy.
+
+In the second line, we generate a random seed using the "nextBytes()" method.
+
+In the fourth line, we initialize another SecureRandom instance ("secureRandom") with the generated seed using the SecureRandom(byte[]) constructor.
+
+In the seventh line, we generate a random integer with the "nextInt()" method.
+
+The program then prints this random value. 
+
+Please note, SecureRandom produces high-entropy output suitable for cryptographic applications. It's initialized automatically with system-provided seed data.

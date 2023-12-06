@@ -1,0 +1,46 @@
+Sure, here is a simple Java program demonstrating encryption using the AES algorithm in CBC mode.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String KEY = "aesEncryptionKey";
+    private static final String INIT_VECTOR = "encryptionIntVec";
+
+    public static void main(String[] args) {
+        String originalString = "Text to be encrypted";
+        System.out.println("Original String to encrypt - " + originalString);
+        String encryptedString = encrypt(originalString);
+        System.out.println("Encrypted String - " + encryptedString);
+    }
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(KEY.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+}
+```
+
+This program:
+
+1. Defines a main() method that contains a string to be encrypted. It then prints out the original string and the encrypted string. 
+2. Defines an encrypt() method which creates an IvParameterSpec and a SecretKeySpec from the INIT_VECTOR and KEY values. This method then initializes a Cipher for AES/CBC/PKCS5PADDING, and encrypts the input value using the Cipher's `doFinal()` method. The encrypted byte array is then Base64-encoded into a string and returned.
+3. The used encryption key and initialization vector are hardcoded for the simplicity of the example. In a real-world situation, you would want to generate and securely store these values.
+
+Please note that you need to handle the exceptions appropriately based on your specific needs. This code only prints the stack trace of the exception. But in a real scenario, you probably want to do more than just printing the stack trace.

@@ -1,0 +1,40 @@
+Here's a basic example on how we could create such a program in Java:
+
+```java
+import java.security.SecureRandom;
+import javax.crypto.spec.IvParameterSpec;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom sr = new SecureRandom();
+        byte[] seed = new byte[20];
+        sr.nextBytes(seed); // Generate a seed for PRNG
+
+        SecureRandom prng = new SecureRandom(seed); // Using seed to create PRNG
+
+        byte[] iv = new byte[16]; // This is the standard size for AES block
+        prng.nextBytes(iv); // Generate an IV
+
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        System.out.println("Seed for PRNG: " + bytesToHex(seed));
+        System.out.println("Generated IV: " + bytesToHex(iv));
+    }
+    
+    private static String bytesToHex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (byte b: bytes) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
+```
+
+The program creates a `SecureRandom` instance (which is a cryptographically strong random number generator) and generates a random seed. This seed is then used to initialize another `SecureRandom` instance (the PRNG).
+
+We then generate a random Initialization Vector (IV) using this PRNG. An IV is basically a random number that can ensure distinct ciphertexts are produced even for identical plaintexts encrypted with the same key. This characteristic is especially important in cryptography.
+
+The generated seed and IV are then printed out. Note that the seed and the IV are printed in hexadecimal.
+
+The IV is encapsulated in an `IvParameterSpec` object. This object can be used to initialize a cipher for encryption. Here we merely generate and print the IV for demonstration. If you need to perform actual encryption, you will need to initialize a `Cipher` instance with this `IvParameterSpec`.

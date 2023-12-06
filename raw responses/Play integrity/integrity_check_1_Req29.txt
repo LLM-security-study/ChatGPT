@@ -1,0 +1,54 @@
+To achieve what you're asking for, we would need to use Google's SafetyNet Attestation API. An app with the SafetyNet Attestation API can query Google's servers for information about the status of the running device and use that information to assess whether it interacts with its legitimate binary.
+
+Here's a basic mocked-up version of how a Java program might look like:
+
+```java
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import android.os.Bundle;
+import android.util.Log;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
+public class Main extends AppCompatActivity {
+
+    private static final String TAG = "SafetyNetSample";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        performSafetyNetCheck();
+    }
+
+    private void performSafetyNetCheck() {
+        SafetyNet.getClient(this).attest("nonce".getBytes(), "<YourAPIKey>")
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Parse response and check the device's compatibility.
+                                String result = response.getJwsResult();
+                                Log.d(TAG, "Success! SafetyNet result:\n" + result);
+                                // TODO: Verify the JWS token and parse the payload JSON to check binary integrity.
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e(TAG,"Failed to communicate with SafetyNet API");
+                        e.printStackTrace();
+                    }
+                });
+    }
+}
+```
+
+Please note, this is a simple implementation. This example just prints out the result. You should verify the response signature using the SafetyNet Attestation API guide to ensure it comes from SafetyNet service then parse and analyze the payload of the response to determine the APK's status.
+
+Remember to replace `<YourAPIKey>` with your actual API key. 
+
+Also, please note that this approach works for `Android API Level 14 (4.0, IceCreamSandwich) and higher`.

@@ -1,0 +1,53 @@
+Sure, we can use Java's standard API for SSL/TLS connection which is "javax.net.ssl".I'll illustrate a simple Java program that attempts to connect to a given URL and validates the certificate.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        String https_url = "https://www.google.com/";
+        URL url;
+        try {
+            url = new URL(https_url);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            print_https_cert(conn);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void print_https_cert(HttpsURLConnection con) {
+        if (con != null) {
+            try {
+                System.out.println("Response Code: " + con.getResponseCode());
+                System.out.println("Cipher Suite: " + con.getCipherSuite());
+                System.out.println("\n");
+
+                SSLSession session = con.getSession();
+                java.security.cert.Certificate[] certs = session.getPeerCertificates();
+                for (java.security.cert.Certificate cert : certs) {
+                    System.out.println("Certificates: " + cert.toString());
+                }
+            } catch (SSLPeerUnverifiedException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+Every time this application runs, it tries to connect to the specified HTTPS url. After a successful SSL/TLS handshake the application starts the process of certificate validation, if the certificate validation is unsuccessful SSLPeerUnverifiedException will be thrown and the error will be printed to standard error (stack trace).
+
+Please note that this is a simple example of how to validate the certificate from an SSL/TLS connection. In a real-world scenario, you may have to handle other things like handling certificate revocation, importing your own trust store amongst others.

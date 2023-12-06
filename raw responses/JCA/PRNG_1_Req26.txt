@@ -1,0 +1,34 @@
+Sure, here is a simple Java program that accomplishes this:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        SecureRandom random = new SecureRandom();
+        
+        // generate the seed
+        byte[] seed = new byte[20];
+        random.nextBytes(seed);
+        System.out.println("Generated Seed: " + Base64.getEncoder().encodeToString(seed));
+
+        random.setSeed(seed);
+
+        // generate the IV
+        byte[] iv = new byte[16]; // we're assuming AES therefore the IV should be 16 bytes
+        random.nextBytes(iv);
+        System.out.println("Generated IV: " + Base64.getEncoder().encodeToString(iv));
+    }
+}
+```
+
+This program first initializes a SecureRandom instance which implements a cryptographically strong pseudorandom number generator (PRNG). It then generates a 20-byte seed using this PRNG and prints it. The seed is then used to reinitialize the PRNG.
+
+The program then generates a 16-byte Initialization Vector (IV) using the seeded PRNG. It's assuming AES (Advanced Encryption Standard) use, so the IV should be 16 bytes for AES.
+
+Note: Initialization Vectors are typically used in cipher block chaining (CBC) mode to prevent the same block of text from generating the same block of ciphertext when encrypted with the same key. This makes the ciphertext more difficult to crack. It's crucial that the IV is random and not predictable.
+
+Lastly, the program prints the encoded IV. Both the seed and IV are Base64 encoded for legibility.
+
+Please note that you should handle potential exceptions in a production environment.

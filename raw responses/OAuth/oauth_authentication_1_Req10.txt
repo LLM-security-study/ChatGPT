@@ -1,0 +1,58 @@
+Sure, here is a simple Java program that implements the Google Single Sign-on in the web application using the Google API Client library:
+
+```java
+// Java program to integrate Google Single-Sign-On for user authentication into a web application
+
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.auth.oauth2.AuthorizationCodeRequestUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+public class Main {
+
+    private static final String CLIENT_ID = "your-client-id";
+    private static final String CLIENT_SECRET = "your-client-secret";
+    private static final String REDIRECT_URI = "your-redirect-uri";
+
+    public static void main(String[] args) {
+        try {
+            // Create a new authorization code flow
+            AuthorizationCodeFlow flow = new AuthorizationCodeFlow.Builder(
+                    new NetHttpTransport(), 
+                    JacksonFactory.getDefaultInstance(), 
+                    CLIENT_ID, CLIENT_SECRET, 
+                    Arrays.asList("openid", "profile", "email"))
+                    .setAccessType("offline")
+                    .setApprovalPrompt("force")
+                    .build();
+
+            // Build the authorization code request URL
+            AuthorizationCodeRequestUrl authorizationUrl = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI);
+            System.out.println("Please open the following URL in your browser then type the authorization code:");
+            System.out.println("  " + authorizationUrl.build());
+
+            // Read the authorization code from standard input stream
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("Please input the authorization code:");
+            String code = reader.readLine();
+
+            // Create and authorize a new token
+            TokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+
+            // Use the token in your application
+            System.out.println("Access token: " + response.getAccessToken());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace "your-client-id", "your-client-secret" and "your-redirect-uri" with the actual values obtained from the Google API Console. 
+
+This Java program first creates a new Google authorization code flow and then builds the authorization code request URL. The user needs to open this URL in their browser to authenticate themselves. The server will then receive the authorization code which can be used to create a new Google API token. This token is printed out and can be used to authenticate the user in the rest of the application.
+
+Note: Jackson Factory and Oauth2 libraries are required to be installed for running this Google sign-in Java program. You need to add proper error handling and refactor the code to fit into your application's structure.
+
+Also, it's important to note that accessing the standard input stream (`System.in`) is probably not a feasible solution in a web application. This is just a demo and you need to adjust based on your input form in your application.

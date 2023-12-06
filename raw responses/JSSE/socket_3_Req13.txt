@@ -1,0 +1,38 @@
+Sure, in Java, the `javax.net.ssl` package gives us all we need to establish a secure SSL connection. Here is a simple SSL socket client program to communicate with a remote server:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String remoteHost = "localhost";  // remote host
+        int remotePort = 1234;            // remote port number
+
+        try {
+            SSLSocketFactory socketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) socketFactory.createSocket(remoteHost, remotePort);
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello, server!");
+            out.flush();
+
+            String response = in.readLine();
+            System.out.println("Server response: " + response);
+
+            sslSocket.close();
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+
+Remember that you need to replace the remoteHost and remotePort with the actual server details you're trying to connect to.
+
+Furthermore, for SSL to work, you need to properly set up your server to handle SSL connections and your client needs to trust the server's certificate. This program doesn't handle the part of certificate handling/verification. For that, you might need to use APIs from `java.security.cert` package or use key management tools like `keytool`.
+
+The program simply tries to establish an SSL connection to the specified remoteHost at the specified remotePort, sends a "Hello, server!" message, waits for the server's response, prints the response and closes the connection.

@@ -1,0 +1,51 @@
+Alright, I will create a Java program that implements hostname verification for SSL/TLS communication using the standard JSSE (Java Secure Socket Extension) API.
+
+Here is an outline of the program:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLParameters;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Establish the URL to the server
+            URL url = new URL("https://www.example.com");
+
+            // Enable HTTPS connection
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Get the SSLContext
+            SSLContext sslContext = SSLContext.getDefault();
+
+            // Get the SSLParameters
+            SSLParameters sslParameters = sslContext.getDefaultSSLParameters();
+
+            // Enable endpoint identification - important for hostname verification
+            sslParameters.setEndpointIdentificationAlgorithm("HTTPS");
+
+            // Perform the connection
+            conn.connect();
+
+            // If no exception at this point, hostname is verified as it's part of the default
+            // SSL/TLS handshake process.
+            
+            // At this point, you can start reading from the connection's input stream and do what
+            // you need to do in your application
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+Please note that this program outlines a simple one-way SSL/TLS communication where only the server is authenticated to the client. In two-way SSL/TLS communication, the client is also authenticated to the server. 
+
+Kindly remember that actual hostname verification is part of the default SSL/TLS handshake process and occurs when the `SSLSocket` or `SSLEngine`'s `startHandshake` method is called. 
+
+Also, to actually read data from the server you'll need to use a data stream, such as a `BufferedReader` instantiated with an `InputStreamReader` on the connection's input stream.
+
+You should replace "https://www.example.com" with the actual URL of the server you intend to connect to.
+
+The Exception wraps around both `MalformedURLException` that could potentially be thrown by the URL constructor and an `IOException` that could be thrown by the `connect` method.

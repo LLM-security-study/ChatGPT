@@ -1,0 +1,48 @@
+Sure, you can use Java's Signature class to sign messages and verify their integrity. The process involves generating a Key Pair (Private and Public Key). The Private Key is used to sign the message and the Public Key is used to verify that the message was indeed signed by the correspondent private key.
+
+```java
+import java.security.*;
+
+public class Main {
+  
+    // Create a new KeyPairGenerator object and generate a new KeyPair
+    private static final KeyPair keyPair = initializeKeyPair();
+  
+    private static KeyPair initializeKeyPair() {
+        try {
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("DSA", "SUN");
+            SecureRandom random = SecureRandom.getInstance("SHA1PRNG", "SUN");
+            keyGen.initialize(1024, random);
+            return keyGen.generateKeyPair();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+  
+    // Method for signing a message
+    public static byte[] sign(String message) throws Exception {
+        Signature signer = Signature.getInstance("SHA1withDSA", "SUN");
+        signer.initSign(keyPair.getPrivate());
+        signer.update(message.getBytes());
+        return (signer.sign());
+    }
+  
+    // Method for verifying a signed message
+    public static boolean verify(String message, byte[] signature) throws Exception {
+        Signature verifier = Signature.getInstance("SHA1withDSA", "SUN");
+        verifier.initVerify(keyPair.getPublic());
+        verifier.update(message.getBytes());
+        return (verifier.verify(signature));
+    }
+  
+    public static void main(String[] args) throws Exception {
+        String message = "Hello, World!";
+        byte[] signature = sign(message);
+      
+        boolean isAuthentic = verify(message, signature);
+        System.out.println("The message is authentic: " + isAuthentic);
+    }
+}
+```
+Please be aware that normally the private and the public keys must be kept in secure ways and transferred securely. This program only generates and uses these keys in a very simple simplistic way for the sake of illustrating how signing and verification works in Java. Note that the algorithm "SHA1withDSA" is used for both signing and verifying the data. It utilizes the SHA-1 cryptographic hash function and the DSA (Digital Signature Algorithm). This is a just a simple example and in a real-world application, you would also need to handle a lot more things such as what to do when verification fails and dealing with potentially large amounts of data.

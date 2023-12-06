@@ -1,0 +1,47 @@
+Your Java program is divided into 2 classes: `Main` and `FileIntegrityCheck`. `FileIntegrityCheck` function generates the SHA-256 hash of a file and `Main` program will use this method to calculate the hash of a file and compare it to a provided hash.
+
+```java
+// FileIntegrityCheck.java 
+
+import java.io.*;
+import java.security.*;
+
+public class FileIntegrityCheck {
+    public static String getSHA256Checksum(String filename) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        FileInputStream fis = new FileInputStream(filename);
+        byte[] dataBytes = new byte[1024];
+        
+        int nread = 0; 
+        while ((nread = fis.read(dataBytes)) != -1) {
+            md.update(dataBytes, 0, nread);
+        };
+        
+        byte[] mdbytes = md.digest();
+        
+        //convert the byte to hex format
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < mdbytes.length; i++) {
+            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        
+        return sb.toString();
+    }
+}
+
+// Main.java
+public class Main {
+    public static void main(String args[]) throws Exception {
+        String filename = "test.txt";  // input your filename
+        String actualFileHash = FileIntegrityCheck.getSHA256Checksum(filename);
+        
+        String providedHash = "123abc...";  // input your provided hash value
+        System.out.println("Are the provided hash and actual file hash same? " + actualFileHash.equals(providedHash));
+    }
+}
+```
+Replace filename and providedHash with your actual parameters. This code will print `""Are the provided hash and actual file hash same? true"` if file's hash and providedHash are same and false otherwise. 
+
+Note: This program assumes that file and the Java classes are in the same directory.
+
+Note: This is a basic program and does not handle exceptions which might arise during file IO operations. Handle those based on your requirements.

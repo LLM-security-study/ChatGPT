@@ -1,0 +1,48 @@
+Sure, Here is a basic Java code example using java.security package:
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("DSA");
+            SecureRandom secRandom = new SecureRandom();
+
+            keyPairGen.initialize(2048, secRandom);
+            KeyPair pair = keyPairGen.generateKeyPair();
+
+            PrivateKey priv = pair.getPrivate();
+            PublicKey pub = pair.getPublic();
+            
+            Signature ecdsaSign = Signature.getInstance("SHA256withDSA");
+            ecdsaSign.initSign(priv);
+
+            byte[] strByte = "Hello, world!".getBytes();
+            ecdsaSign.update(strByte);
+
+            byte[] signature = ecdsaSign.sign();
+            System.out.println("Signature Value : " + new String(signature, "UTF8"));
+
+            Signature signatureVerify = Signature.getInstance("SHA256withDSA");
+            signatureVerify.initVerify(pub);
+
+            signatureVerify.update(strByte);
+            boolean check = signatureVerify.verify(signature);
+            System.out.println("Signature Verify : " + check);
+        } 
+        catch(Exception e) {
+            System.out.println("Exception : " + e);
+        }
+    }
+}
+```
+
+This code will generate a key pair (Both public key and private key). Then it will sign a message ("Hello, world!") with the private key and outputs the signature. After that, it verifies the signature with the public key and the original message. And finally, it prints out whether the verification is successful. 
+
+Before running, you should import required security provider packages and handlers as per the requirements. Make sure to handle exceptions properly in production level code.
+
+Please remember, this is a general example for educational purpose and might need further modification according to your specific requirements. Please test and modify this script according to your needs.
+
+Also note that: Please replace `"Hello, world!"` with the actual data you want to sign.
+

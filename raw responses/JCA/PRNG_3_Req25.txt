@@ -1,0 +1,30 @@
+Sure, below is the code for generating a seed to initialize the internal state of a pseudorandom number generator, and use it to produce a random integer intended for cryptographic use:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Initialize SecureRandom
+        // This is a lengthy operation, to be done only upon
+        // initialization of the application
+        SecureRandom secureRandom = new SecureRandom();
+
+        // Generate a seed
+        byte[] seed = new byte[20];
+        secureRandom.nextBytes(seed);
+
+        // Initialize SecureRandom with the generated seed
+        SecureRandom random = new SecureRandom(seed);
+
+        // Generate a random number intended for cryptographic use
+        int randomNumber = random.nextInt();
+
+        System.out.println("The generated random number is " + randomNumber);
+    }
+}
+```
+
+In this program, `SecureRandom` class of `java.security` package is used, which provides a cryptographically strong random number generator. The generated seed is used to initialize another `SecureRandom` instance which is used to generate the random number. The method `nextInt()` of `SecureRandom` class provides a random integer. 
+
+Please substitute the right number of bytes for the seed (in this example, it's 20 bytes) based on your requirements and the specifications of the SecureRandom implementation you're going to use.

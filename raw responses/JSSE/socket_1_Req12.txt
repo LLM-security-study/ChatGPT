@@ -1,0 +1,42 @@
+To develop an SSL Socket for secure communication with a server in Java, we could use the javax.net.ssl.SSLSocket and javax.net.ssl.SSLSocketFactory classes.
+
+The below code represents a client which tries to establish a secure connection:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+   public static void main(String[] args) {
+       try {
+           SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+           SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket("localhost", 9999);
+
+           PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), true);
+           BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+           // Send request to the server
+           String request = "Hello Server";
+           out.println(request);
+
+           // Get response from the server
+           String response = in.readLine();
+           System.out.println("Server response: " + response);
+
+           // Close IO streams then socket
+           out.close();
+           in.close();
+           sslSocket.close();
+       } catch (IOException e) {
+           e.printStackTrace();
+       }
+   }
+}
+```
+
+This code will only work if the server has SSL Socket setup. The program helps in implementing a client which needs to establish a secure SSL connection with the server. In production-grade code, implementing error handling is advisable. 
+
+Remember that for SSL communication you will need a certificate or keystore file and you might need to specify them while building the application e.g `System.setProperty("javax.net.ssl.trustStore", path_to_keystore_file);`. If your keystore password is something other than the default you will also need to set the `javax.net.ssl.trustStorePassword` system property.
+
+Replace 'localhost' and '9999' with the server's domain/IP address and the port number reopened for SSL/TLS connections.

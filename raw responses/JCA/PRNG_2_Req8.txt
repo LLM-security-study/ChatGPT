@@ -1,0 +1,34 @@
+Sure, below is a simple implementation of the requirement. This program will initialize a `SecureRandom` instance using a seed and then generate a salt.
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        // Generate a seed for the PRNG
+        SecureRandom secureSeedRandom = new SecureRandom();
+        byte[] seed = new byte[16];
+        secureSeedRandom.nextBytes(seed);
+
+        // Use the seed to initialize another SecureRandom instance
+        SecureRandom secureRandom = new SecureRandom(seed);
+
+        // Create byte array for the salt
+        byte[] salt = new byte[16];
+
+        // Generate a random salt
+        secureRandom.nextBytes(salt);
+
+        // Base64 encode the salt
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+
+        System.out.println("Generated Salt: " + saltStr);
+    }
+}
+```
+This program will generate a salt of 16 bytes (128 bits). The salt is then Base64 encoded for easier storage and use.
+
+Please note, this generated salt is designed to be used as part of a password hashing function such as PBKDF2 or bcrypt. The salt should be stored along with the hashed password. When checking a password, the same salt should be used to hash the incoming password for comparison.

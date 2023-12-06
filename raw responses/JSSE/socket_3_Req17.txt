@@ -1,0 +1,35 @@
+Sure, Here's a simple Java SSL socket program:
+
+```java
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+
+public class Main {
+    private static final String SERVER = "your.server.com";
+    private static final int PORT = 1234; 
+
+    public static void main(String[] args) throws Exception {
+        SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+        SSLSocket sslSocket = (SSLSocket)factory.createSocket(SERVER, PORT);
+
+        PrintWriter out = new PrintWriter(sslSocket.getOutputStream(), false);
+        BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+        String message = "Hello server!";
+        out.println(message);
+        out.flush(); 
+
+        System.out.println("Server said: " + in.readLine());
+
+        out.close();
+        in.close();
+        sslSocket.close();
+    }
+}
+```
+For this program to work, replace "your.server.com" with your server's IP address or domain name, and "1234" with the correct port number. This program opens an SSL socket to the server, sends a string, receives a string from the server, and then closes the connection.
+
+Please note that for a real-world secure application, you would need to handle certificates and possibly server/client authentication, which this simple example doesn't cover. This code also doesn't handle any errors for brevity, but you'd want to add proper error handling in a real-world application.

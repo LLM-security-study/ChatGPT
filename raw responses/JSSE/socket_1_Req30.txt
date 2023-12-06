@@ -1,0 +1,47 @@
+Sure, here's a simple Java program that uses the standard Java `javax.net.ssl.SSLSocketFactory` API to get an SSL socket and connect it to a server. In this example, the server's IP is "localhost" and the port number is 1234. 
+
+You may have to tweak this code and fill up some gaps yourself depending on the exact use-case scenario.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String serverIP = "localhost";
+        int portNum = 1234;
+
+        try {
+            // Create SSLSocketFactory
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+
+            // Create SSLSocket
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(serverIP, portNum);
+
+            // Initialize streams for communication
+            DataOutputStream out = new DataOutputStream(sslSocket.getOutputStream());
+            DataInputStream in = new DataInputStream(sslSocket.getInputStream());
+
+            // Read/write data to/from server
+
+            //...
+
+            // Close connections
+            out.close();
+            in.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Make sure that your Java environment is set up correctly for SSL communication and that you have the server's SSL certificate in your Java keystore. Java SSL communication usually requires trusting the server's certificate by adding it to your Java keystore.
+
+For sending and receiving messages from the server, you need to replace the `//...` part with your own code. Here, you can use `out.writeUTF(message);` to send a `String` message to the server, and `String response = in.readUTF();` to read a `String` response from the server.
+
+Note: Importing the server's certificate into your Java keystore and every other setup procedure is beyond the scope of this question and highly depends on your specific circumstances and system configuration. Please refer to the official JDK documentation or server documentation for details on how to import the server's certificate into your Java keystore.

@@ -1,0 +1,40 @@
+Sure. Here is a simple Java program that will calculate the SHA-256 hash value of a provided string. The 'MessageDigest' class from java.security package is used in this case:
+
+```Java
+import java.security.MessageDigest;
+import java.util.Scanner;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String args[]) {
+
+        Scanner in = new Scanner(System.in);
+        System.out.println("Enter a string:");
+        String input = in.nextLine();
+
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+            byte[] messageDigest = md.digest(input.getBytes());
+
+            // Convert byte array into signum representation  
+            StringBuilder hexString = new StringBuilder();
+            for (int i = 0; i < messageDigest.length; i++) {
+                String hex=Integer.toHexString(0xff & messageDigest[i]);
+              
+                if(hex.length()==1) hexString.append('0');
+              
+                hexString.append(hex);
+            }
+            
+            // Output
+            System.out.println("Hashcode Generated : " + hexString.toString());
+
+        } 
+        catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+In the program, you first create an instance of `MessageDigest`, specifying 'SHA-256' as the algorithm. Then, the `digest()` method of `MessageDigest` is used to calculate the hash value of the input string. Finally, the hash value is converted to hexadecimal notation for user-friendly output.

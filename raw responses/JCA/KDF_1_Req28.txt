@@ -1,0 +1,33 @@
+Sure, here is a simple Java program that uses the PBKDF2WithHmacSHA1 algorithm from the javax.crypto library to derive cryptographic keys from a user's password. 
+
+```Java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+  public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException {
+    char[] password = "password".toCharArray();
+    byte[] salt = new byte[16];
+
+    SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+    KeySpec spec = new PBEKeySpec(password, salt, 65536, 256);
+    byte[] hash = factory.generateSecret(spec).getEncoded();
+
+    System.out.println(Arrays.toString(hash));
+  }
+}
+```
+
+Please replace with your own secret password (currently is "password").
+
+Please note that serious cryptographic applications usually use random salt. This program uses constant salt for simplicity.
+
+The derived cryptographic key is output in byte type in the form of an array.
+
+This code requires careful handling due to security implications. The character array containing the password should be erased from memory as soon as it is no longer needed (ideally as soon as the SecretKeyFactory has produced the desired hash), and the user should be strongly encouraged not to use a dictionary word or other common string as their password. 
+
+Also note that this code does not include any exception handling.

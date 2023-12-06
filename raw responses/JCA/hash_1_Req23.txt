@@ -1,0 +1,38 @@
+Sure, the following is a simple Java program that calculates the hash value of a given string input. This program uses 'MessageDigest' class from Java standard APIs for generating the hash.
+
+```Java
+import java.security.MessageDigest; 
+import java.security.NoSuchAlgorithmException; 
+import java.util.Scanner; 
+  
+public class Main { 
+  
+    private static String calculateHash(String input) { 
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256"); 
+            byte[] messageDigest = md.digest(input.getBytes()); 
+
+            StringBuilder hash = new StringBuilder();
+            for (byte b : messageDigest) {
+                hash.append(String.format("%02x", b));
+            }
+            return hash.toString();
+        }
+
+        catch (NoSuchAlgorithmException e) { 
+            throw new RuntimeException(e); 
+        } 
+    } 
+  
+    public static void main(String args[]) throws NoSuchAlgorithmException { 
+        System.out.println("Enter the string: "); 
+        Scanner sc = new Scanner(System.in); 
+
+        String s = sc.nextLine(); 
+        System.out.println("The hash value of " + s + " is : " + calculateHash(s)); 
+    } 
+}
+```
+
+This program will first ask for a user input string, and then calculate the SHA-256 hash of the string entered by the user. The hash code in hexadecimal format will be displayed on the console.
+Please note this program uses "SHA-256" as hash algorithm, you can choose other algorithms according to your needs.

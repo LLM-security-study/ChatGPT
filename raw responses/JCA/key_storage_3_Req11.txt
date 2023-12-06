@@ -1,0 +1,53 @@
+Here's a basic Java code to store SSL certificate in a keystore file:
+
+```java
+import java.security.cert.Certificate;
+import java.security.KeyStore;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            // Load the JDK's key store
+            String keystoreFilename = "./mykeystore";
+            char[] password = "password".toCharArray();
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            try (InputStream in = new FileInputStream(keystoreFilename)) {
+                keystore.load(in, password);
+            }
+ 
+            // Load the certificate
+            String alias = "alias";
+            Certificate cert = null;
+            try (InputStream in = new FileInputStream(keystoreFilename)) {
+                cert = CertificateFactory.getInstance("X.509").generateCertificate(in);
+            }
+ 
+            // Add the certificate
+            keystore.setCertificateEntry(alias, cert);
+ 
+            // Save the new key store contents
+            try (OutputStream out = new FileOutputStream(keystoreFilename)) {
+                keystore.store(out, password);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Please replace `password`, `alias`, `keystoreFilename` and `cert` values with your actual ones. 
+
+NOTE:
+
+1. Do NOT hardcode passwords in real-world applications. Always use more secure ways to handle passwords.
+2. You should handle exceptions in a suitable way according to your project requirements. This example simply prints the stack trace, which might not be suitable for real-world applications.
+3. Always treat your keystore file as secret. Do not expose the keystore file, like in public repository or less secured file locations.
+4. Make sure your certificate is in "X.509" format to use this code as it is, else you would have to modify the certificate factory instance as per your certificate type.
+5. Make sure the files you are trying to open (the keystore and the certificate) exist and are accessible.
+6. Make sure the password that you are using to load the keystore and save the keystore are the same. The passwords in real case scenario should be stored and handled securely.

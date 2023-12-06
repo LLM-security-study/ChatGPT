@@ -1,0 +1,44 @@
+Sure, here's a basic example of how you can establish an SSL socket to facilitate communication with a remote server in Java:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+
+    private static final String HOST = "Your host";
+    private static final int PORT = 1234; //Your port number
+
+    public static void main(String [] args) {
+        try {
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(HOST, PORT);
+
+            PrintWriter out = new PrintWriter(new OutputStreamWriter(sslSocket.getOutputStream()));
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslSocket.getInputStream()));
+
+            out.println("Hello Server");
+            out.flush();
+
+            String responseLine;
+            while ((responseLine = in.readLine()) != null) {
+                System.out.println(responseLine);
+            }
+
+            out.close();
+            in.close();
+            sslSocket.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates an SSL socket using the default `SSLSocketFactory`, connects it to a specified host and port, sends a simple message ("Hello Server"), reads the responses, and finally closes the socket.
+
+Remember to replace "Your host" and "Your port number" with your specific details. In real-world scenarios, you would also need to set up SSL certificates and handle them properly.
+
+NOTE: We used `javax.net.ssl.SSLSocketFactory` to create SSL sockets. This is one of the main APIs provided by Java for dealing with SSL sockets.

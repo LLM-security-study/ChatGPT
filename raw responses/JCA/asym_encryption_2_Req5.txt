@@ -1,0 +1,42 @@
+Please find below a simple example of a program in Java to implement an asymmetric cryptography algorithm using RSA.
+
+The Java Cryptography Architecture (JCA) API in the Java Development Kit (JDK) provides the functionality for data encryption and decryption.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+
+    // Generate key pair
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+    keyPairGenerator.initialize(2048);
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+    PublicKey publicKey = keyPair.getPublic();
+    PrivateKey privateKey = keyPair.getPrivate();
+
+    // Input data
+    String originalData = "Hello, world!";
+
+    // Encryption
+    Cipher encryptCipher = Cipher.getInstance("RSA");
+    encryptCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+    byte[] encryptedData = encryptCipher.doFinal(originalData.getBytes());
+
+    // Decryption
+    Cipher decryptCipher = Cipher.getInstance("RSA");
+    decryptCipher.init(Cipher.DECRYPT_MODE, privateKey);
+    byte[] decryptedData = decryptCipher.doFinal(encryptedData);
+
+    System.out.println("Original data: " + originalData);
+    System.out.println("Encrypted data: " + new String(encryptedData));
+    System.out.println("Decrypted data: " + new String(decryptedData));
+  }
+}
+```
+
+In this example, we first generate a pair of RSA keys (public and private). Then, we initialize the Cipher object with ENCRYPT_MODE and the public key, encrypt the data with the doFinal method. Similarly, we initialize the Cipher object with DECRYPT_MODE and the private key then decrypt the encrypted data with the doFinal method. The original data gets printed, as does the encrypted data (as a string, which might look like gibberish), and the decrypted data, which should match the original data.

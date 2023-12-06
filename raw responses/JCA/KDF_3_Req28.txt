@@ -1,0 +1,45 @@
+To generate a key from a password we will use the built-in Password-Based Key Derivation Function 2 (PBKDF2) provided by Java. Given a password and salt, the PBKDF2 algorithm generates a cryptographic key.
+
+Please see the simple program below:
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Base64;
+
+public class Main {
+    private static final int ITERATIONS = 10000;
+    private static final int KEY_LENGTH = 256;
+
+    public static void main(String[] args) {
+        String password = "password";
+        String salt = "salt";
+
+        String encodedKey = getPBKDF2Key(password, salt);
+        System.out.println("PBKDF2 key: " + encodedKey);
+    }
+
+    public static String getPBKDF2Key(String password, String salt) {
+        char[] passwordChars = password.toCharArray();
+        byte[] saltBytes = salt.getBytes();
+
+        PBEKeySpec spec = new PBEKeySpec(passwordChars, saltBytes, ITERATIONS, KEY_LENGTH);
+
+        try {
+            SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+            byte[] hash = skf.generateSecret(spec).getEncoded();
+            return Base64.getEncoder().encodeToString(hash);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+This program generates a 256-bit cryptographic key by applying the PBKDF2 algorithm to the given password and salt, iterating 10000 times. The generated key is Base64 encoded before it is printed to the console. 
+
+Please replace "password" and "salt" strings with your own password and salt.
+
+Note: PBKDF2 purposefully makes password cracking computationally expensive, to reduce the chances of successful brute-force attacks.

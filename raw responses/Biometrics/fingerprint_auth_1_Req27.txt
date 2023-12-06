@@ -1,0 +1,76 @@
+Here is a simplified version of a Java program for fingerprint-based authentication for Android app:
+
+```java
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.security.keystore.KeyGenParameterSpec;
+import android.security.keystore.KeyProperties;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.KeyStore;
+
+public class Main extends AppCompatActivity {
+
+    private KeyStore keyStore;
+    private static final String KEY_NAME = "example_key";
+    private Cipher cipher;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Get an instance of Keyguard Manager and Fingerprint Manager//
+            KeyguardManager keyguardManager = (KeyguardManager) getSystemService(KEYGUARD_SERVICE);
+            FingerprintManager fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+
+            // Check whether the device has a fingerprint sensor//
+            if (!fingerprintManager.isHardwareDetected()) {
+                Toast.makeText(this, "Your device doesn't support fingerprint authentication", 
+                    Toast.LENGTH_LONG).show();
+            }
+
+            else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) 
+                != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Please enable the fingerprint permission", Toast.LENGTH_LONG).show();
+            }
+
+            else if (!keyguardManager.isKeyguardSecure()) {
+                Toast.makeText(this, "Please enable lockscreen security in your device's Settings", 
+                    Toast.LENGTH_LONG).show();
+            } 
+            else {
+                try {
+                    generateKey();
+                } catch (FingerprintException e) {
+                    e.printStackTrace();
+                }
+
+                if (initCipher()) {
+                    // If the cipher is initialized successfully, then create a CryptoObject instance//
+                    FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(cipher);
+
+                    // Here, I’m initiating the FingerprintHandler class and starting the authentication process.//
+                    FingerprintHandler helper = new FingerprintHandler(this);
+                    helper.startAuth(fingerprintManager, cryptoObject);
+                }
+            }
+        }
+    }
+```  
+In this program, there're initialization of both KeyguardManager and FingerprintManager. The Keyguard Manager is an Android system service that manages the keyguard, while the Fingerprint Manager controls the fingerprint hardware. 
+
+The program also goes ahead to check if the device supports fingerprints and if the permission for the fingerprint has been granted.
+
+The real fingerprint authentication starts after all the prerequisites has been checked. The following methods are invoked: generateKey() and initCipher(). 
+
+For the complete fingerprint authentication application, there will be additional classes to handle fingerprint scanning and to generate cryptographic keys.
+
+Note: Prior to Android P (API Level 28), developers can use the FingerprintManager class to request fingerprint authentication. From Android P forward, however, developers are expected to transition to using the BiometricPrompt class, which allows you to support Face and Iris capabilities, which are now homogenized under the Biometric API.

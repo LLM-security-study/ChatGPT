@@ -1,0 +1,93 @@
+Here is a sample Java code for a simple Google Drive API call to request the user for authorization to interact with their Google Drive. It's important to note that this program uses the Google Authorization Library and Google Drive API v3.
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.util.store.FileDataStoreFactory;
+import com.google.api.services.drive.DriveScopes;
+
+import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+import java.util.List;
+
+public class Main {
+    private static final String APPLICATION_NAME = "Google Drive API Java Quickstart";
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+
+    // This method will load the Client ID and Client Secret from the credentials.json file.
+    private static final List<String> SCOPES = Collections.singletonList(DriveScopes.DRIVE_METADATA_READONLY);
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        GoogleClientSecrets clientSecrets;
+        try {
+            clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH)));
+        } catch (FileNotFoundException e) {
+            System.out.println("Could not find file " + CREDENTIALS_FILE_PATH);
+            return null;
+        }
+
+        // Build flow and trigger user authorization request.
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+
+        return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        Credential credential = getCredentials(HTTP_TRANSPORT);
+        if (credential != null) {
+            System.out.println("Authorization was successfully received!");
+        } else {
+            System.out.println("Authorization was not received.");
+        }
+    }
+}
+```
+
+This code will request for permission from users to read the metadata of their Google Drive files (provided by: DriveScopes.DRIVE_METADATA_READONLY). The path where your "credentials.json" (containing the registered application's Client ID and Client Secret) is located must be passed to CREDENTIALS_FILE_PATH.
+
+The `getCredentials` method takes care of the necessary steps to authorize the user, including popping up a browser window for the user to grant access to the application. If the user has previously granted access, it re-uses the stored authorization information in the "tokens" folder.
+
+Compile and run this program. A browser window should open and prompt the user to give the application access to their Google Drive. Once access is granted, the program will simply print "Authorization was successfully received!" and exit. If you need to request different permissions or perform additional actions after authorization, modify the scopes and add suitable code after this. 
+
+Make sure you've activated the Google Drive API in your Google Cloud Console and you have your 'credentials.json' file in the mentioned directory. You also need to have the relevant Google libraries (.jar files) included in your classpath. 
+For Maven, add these dependencies to your `pom.xml`:
+```xml
+<dependencies>
+        <!-- https://mvnrepository.com/artifact/com.google.api-client/google-api-client -->
+        <dependency>
+            <groupId>com.google.api-client</groupId>
+            <artifactId>google-api-client</artifactId>
+            <version>1.31.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.oauth-client/google-oauth-client-jetty -->
+        <dependency>
+            <groupId>com.google.oauth-client</groupId>
+            <artifactId>google-oauth-client-jetty</artifactId>
+            <version>1.31.5</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.apis/google-api-services-drive -->
+        <dependency>
+            <groupId>com.google.apis</groupId>
+            <artifactId>google-api-services-drive</artifactId>
+            <version>v3-rev110-1.25.0</version>
+        </dependency>
+</dependencies>
+```
+Also, note that you should replace the DriveScopes with the suitable one according to your real case, since here in the sample it's 'DriveScopes.DRIVE_METADATA_READONLY' just for the demonstration purpose(refers only to see and create metadata of files in google drive). Follow this link to check all available options https://developers.google.com/drive/api/v3/about-auth. Last but not least, the access type we set here is 'offline', which means user data may be accessible while the user is not present at the browser. 

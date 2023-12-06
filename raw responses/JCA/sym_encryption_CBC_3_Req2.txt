@@ -1,0 +1,40 @@
+Below is an example of a simple Java program that decrypts data using the AES algorithm in CBC mode.
+
+Please replace `"SECRET_KEY"`  with the secret key you want to use,  `"IV_KEY"` with the initialization vector key, and `"ENCRYPTED_VALUE"` with the encrypted value for decryption.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String []args) {
+        try {
+            String secretKey = "SECRET_KEY";
+            String ivKey = "IV_KEY";
+            String encryptedValue = "ENCRYPTED_VALUE";
+            
+            IvParameterSpec iv = new IvParameterSpec(ivKey.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(secretKey.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+            
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encryptedValue));
+
+            System.out.println("Decrypted value : " + new String(original));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+This program will decrypt the encrypted value using AES/CBC encryption and print the decrypted value.
+
+Please ensure to change the `SECRET_KEY`, `IV_KEY`, and `ENCRYPTED_VALUE` with actual values for correct decryption.
+
+Also, make sure the SECRET_KEY and IV_KEY length satisfies the requirements of the AES algorithm you're using.
+
+This is a very basic example and not suitable for production. In a real-world application, you will need to manage keys and IV in a secure way.

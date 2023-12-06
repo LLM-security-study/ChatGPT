@@ -1,0 +1,57 @@
+Sure, your program can be implemented via the Java Secure Socket Extension (JSSE) API which provides secure network communication capabilities and allows customization of trust validation.
+
+Below is a skeleton of your program:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import javax.net.ssl.SSLSession;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class Main {
+        
+    public static void main(String[] args) {
+        try {
+            String urlString = "https://example.com"; // The URL to be verified
+            URL url = new URL(urlString);
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+            verifyHostname(connection, urlString);
+            connection.disconnect();
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void verifyHostname(HttpsURLConnection connection, String url) {
+        try {
+            SSLSession session = connection.getSSLSession();
+            if(session == null) {
+                // No SSL session available
+                System.out.println("SSL session not established. Cannot verify hostname for: " + url);
+            } else {
+                String hostname = session.getPeerHost(); // The name of the remote entity
+                if(!url.contains(hostname)) {
+                    System.out.println("Hostname verification failed. Expected: " + url + " but found: " + hostname);
+                } else {
+                    System.out.println("Hostname successfully verified: " + hostname);
+                }
+            }
+        } catch (SSLPeerUnverifiedException e) {
+            System.out.println("Hostname verification failed: Peer not verified." +  e.getMessage());
+        }
+    }
+}
+```
+
+This program tries to establish a connection with the given URL, then checks if the hostname matches the intended server hostname.
+
+Make sure you replace 'https://example.com' with the URL that you actually intend to verify. If the SSL session doesn't establish or the hostname doesn't match, it prints an error message. Otherwise, it indicates that the hostname was verified successfully.
+
+Also, keep in mind that this is a simple approach and not suitable for a production environment where you would need a more robust solution, perhaps using a custom hostname verifier or a certificate pinning process.
+
+Always remember to properly handle exceptions and clean-up network resources after usage in a real application.

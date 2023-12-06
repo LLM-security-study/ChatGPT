@@ -1,0 +1,33 @@
+Below is the implementation of a Java program that verifies the server hostname in an SSL/TLS communication:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        String urlStr = "https://your-server.com";  // Replace with your server's URL
+
+        try {
+            URL url = new URL(urlStr);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            conn.setHostnameVerifier((hostname, session) -> hostname.equals(session.getPeerHost()));
+
+            conn.connect();
+
+            System.out.println("Successfully verified the hostname");
+
+        } catch (SSLPeerUnverifiedException e) {
+            System.err.println("Hostname cannot be verified.");
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+This program essentially opens an HTTPS connection to the URL specified, and prints "Successfully verified the hostname" if the hostname can be verified (i.e., the hostname equals the peer host in the `SSLSession`), thus ensuring the server's identity. If the hostname can't be verified, it prints an error message. Note that this method of hostname verification is simplistic, and in a real-world application, a more secure method would likely be needed.
+
+The main API that we are using for this implementation is Java's `javax.net.ssl` package, which provides functionalities for secure network communications using SSL/TLS protocols. We're specifically using `HttpsURLConnection` class along with its `setHostnameVerifier` method to conduct the SSL/TLS communication and verify the server hostname.

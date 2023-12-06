@@ -1,0 +1,50 @@
+Asymmetric encryption means that a message can be encrypted and decrypted using a pair of public and private keys. It's called asymmetric because you need one key (the public key) for encryption and another key (the private key) for decryption.
+
+Here is a simple implementation in Java using the RSA algorithm:
+
+```java
+import javax.crypto.Cipher;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // Generate public and private keys
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Original message
+        String originalMessage = "This is the original message";
+
+        // Encrypt message
+        Cipher enCipher = Cipher.getInstance("RSA");
+        enCipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedMessage = enCipher.doFinal(originalMessage.getBytes());
+
+        // Print encrypted message
+        System.out.println("Encrypted message: " + new String(Base64.getEncoder().encode(encryptedMessage), StandardCharsets.UTF_8));
+
+        // Decrypt message
+        Cipher deCipher = Cipher.getInstance("RSA");
+        deCipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decryptedMessage = deCipher.doFinal(encryptedMessage);
+
+        // Print decrypted message
+        System.out.println("Decrypted message: " + new String(decryptedMessage, StandardCharsets.UTF_8));
+    }
+}
+``` 
+
+This will print the encrypted version of the specified message and then, using the private key, it will decrypt the message and print the original version of it. 
+
+This program generates a new key pair on every run, which means that messages encrypted using these keys can only be decrypted by the same private key in the same run.
+
+Running the code in a live environment is subjected to the policy files of Java Cryptography Extension (JCE). If you get Java Cryptography errors, then you probably have to install proper policy files for your Java version.

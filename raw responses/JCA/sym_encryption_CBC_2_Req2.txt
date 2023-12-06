@@ -1,0 +1,70 @@
+Sure. Here is a simple program:
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    public static final String ALGORITHM = "AES/CBC/PKCS5PADDING";
+
+    public static void main(String[] args) {
+
+        //Initial Vector and Key should be 16 bytes
+        String initialVector = "abcdefg123456789"; //16 bytes
+        String key = "abcdefg123456789"; //16 bytes
+        String plainText = "This is a test string.";
+
+        String encrypted = encrypt(plainText, key, initialVector);
+        System.out.println("Encrypted : "+encrypted);
+
+        String decrypted = decrypt(encrypted, key, initialVector);
+        System.out.println("Decrypted : "+decrypted);
+    }
+
+    public static String encrypt(String data, String key, String initialVector) {
+        try {
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+            IvParameterSpec iv = new IvParameterSpec(initialVector.getBytes(StandardCharsets.UTF_8));
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(data.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static String decrypt(String encrypted, String key, String initialVector) {
+        try {
+            Cipher cipher = Cipher.getInstance(ALGORITHM);
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+            IvParameterSpec iv = new IvParameterSpec(initialVector.getBytes(StandardCharsets.UTF_8));
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+
+Please replace the `"abcdefg123456789"` strings with a valid 16-byte initialisation vector and a 16-byte key for AES. "This is a test string." is the string that will be encrypted and then decrypted. The key and initial vector must be safely stored and should not be exposed.
+
+Please also make sure to handle the exceptions appropriately as per your application requirements. Exception handling has been kept minimal for the sake of simplicity in the example above. 
+
+This program utilizes Java's builtin classes for encryption-decryption like `Cipher`, `SecretKeySpec`, `IvParameterSpec` etc, and encrypts using AES/CBC/PKCS5Padding encryption algorithm.
+
+Reach out if you have further questions or need more assistance.

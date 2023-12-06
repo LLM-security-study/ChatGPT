@@ -1,0 +1,41 @@
+Sure, here's a basic example of how you might derive a cryptographic key from a user's password using Java's SecretKeyFactory and PBEKeySpec classes. Do note that this is a simplified example and actual cryptography involves many more considerations like using a secure random salt and securely storing said salt:
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your password:");
+        String password = scanner.nextLine();
+
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            // Here salt is hard-coded for the sake of simplicity. Do use a secure random salt for actual use
+            byte[] salt = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
+            PBEKeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 256);
+            SecretKey secretKey = factory.generateSecret(spec);
+            byte[] key = secretKey.getEncoded();
+
+            System.out.println("The generated key from your password is: ");
+            for (byte b : key) {
+                System.out.printf("%02X", b);
+            }
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+In this code:
+* The PBKDF2WithHmacSHA256 algorithm is used, which is a password-based key derivation function.
+* A salt is used to prevent dictionary attacks.
+* The iteration count of 65536 and the key length of 256 bits are arbitrary and can be chosen based on your security requirements. More iterations increase the brute-forcing time, and longer keys provide more possible combinations.
+* The password entered by the user is turned into a char array, and then "spec" is declared to be a PBEKeySpec with the given password, salt, iteration count, and key length.
+* Finally, a SecretKey is generated using "factory"'s generateSecret method and spec, and getKey is called on the SecretKey to get the key in the form of a byte array, which is printed out in hexadecimal format.

@@ -1,0 +1,68 @@
+Here is a simple Java program for AES encryption in CBC mode. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String key = "aesEncryptionKey"; // 16-character key
+        String initVector = "encryptionIntVec"; // 16-character initialization vector
+        String originalString = "This is the text that needs to be encrypted";
+
+        System.out.println("Original String: " + originalString);
+
+        String encryptedString = encrypt(key, initVector, originalString);
+        System.out.println("Encrypted String: " + encryptedString);
+
+        String decryptedString = decrypt(key, initVector, encryptedString);
+        System.out.println("Decrypted String: " + decryptedString);
+    }
+
+    public static String encrypt(String key, String initVector, String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String decrypt(String key, String initVector, String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(initVector.getBytes(StandardCharsets.UTF_8));
+            SecretKeySpec skeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+}
+```
+Please keep in mind:
+
+1. You need to provide a 16-character string for both the AES key and the initialization vector to maintain AES's 128 bit key size.
+2. In a secure application, you should never use hard-coded keys or initialization vectors. Insecure data encryption methods can lead to information leaks or other security problems.
+3. The output of this program might vary each time because it uses CBC mode, which is a block cipher mode means every time block cipher encryption of a block of plaintext is dependent on the previous ciphertext block.
+4. For more security, you might want to use a secure way to store these two key components (AES key and IV), an environment variable might be a good method.
+5. Always handle exceptions correctly in your production code. Do not just printStackTrace() and ignore them. Exception handlers can be used to notify your code when something isn't working properly.
+6. PKCS5PADDING is a type of padding for encryption. It's required for when the text isn't a multiple of 16 bytes, as is mandatory for AES.

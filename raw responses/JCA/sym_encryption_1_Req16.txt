@@ -1,0 +1,65 @@
+Sure. Here is a simple implementation of symmetric encryption & decryption in Java using AES:
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String SECRET_KEY = "mySecretKey";  // 128 bit key
+
+    public static void main(String[] args) throws Exception {
+
+        String originalString = "hello world";
+
+        String encryptedString = encrypt(originalString);
+        System.out.println(encryptedString);
+        
+        String decryptedString = decrypt(encryptedString);
+        System.out.println(decryptedString);
+
+    }
+
+    public static String encrypt(String strToEncrypt)   {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            
+            byte[] utf8 = strToEncrypt.getBytes(StandardCharsets.UTF_8);
+            byte[] enc = cipher.doFinal(utf8);
+            
+            return Base64.getEncoder().encodeToString(enc);
+            
+        } catch (Exception e) {
+            System.out.println("Error while encrypting: " + e.toString());
+        }
+        return null;
+    }
+
+    public static String decrypt(String strToDecrypt)   {
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+            SecretKeySpec secretKey = new SecretKeySpec(SECRET_KEY.getBytes(), "AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            
+            byte[] dec = Base64.getDecoder().decode(strToDecrypt);
+            byte[] utf8 = cipher.doFinal(dec);
+            
+            return new String(utf8, StandardCharsets.UTF_8);
+            
+        } catch (Exception e) {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+}
+```
+In this code, we are using AES (Advanced Encryption Standard) for encryption and decryption. The SecretKeySpec class is used to create a secret (symmetric) key from given bytes, which in our case is a "mySecretKey".
+
+Then we initialize the Cipher object with our secret key in either ENCRYPT_MODE or DECRYPT_MODE, after that we perform encryption and decryption on the input string.
+
+Note: This is a basic implementation, in actual use you wouldn't want to hardcode in your secret key. You also generally want to avoid using ECB mode in most cases as it does not provide serious message confidentiality, this is used for simplicity.
+
+Also 'mySecretKey' length should be multiples of 16 if you want to increase key length. This is because AES is a block cipher with a block size of 128 bits.

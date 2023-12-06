@@ -1,0 +1,43 @@
+Below is a simple example of an asymmetric cryptography using RSA algorithm in Java. This program generates a pair of public and private keys, uses the private key to encrypt a message, and uses the public key to decrypt it back:
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+  public static void main(String[] args) throws Exception {
+    // Generate KeyPair.
+    KeyPair keyPair = generateKey();
+    PrivateKey privateKey = keyPair.getPrivate();
+    PublicKey publicKey = keyPair.getPublic();
+    
+    String plainText = "Hello, World!";
+
+    // Encryption.
+    Cipher cipher = Cipher.getInstance("RSA");
+    cipher.init(Cipher.ENCRYPT_MODE, privateKey);
+    byte[] encryptedBytes = cipher.doFinal(plainText.getBytes());
+    System.out.println("Encrypted text: "+new String(encryptedBytes));
+
+    // Decryption.
+    cipher.init(Cipher.DECRYPT_MODE, publicKey);
+    byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+    String decryptedText = new String(decryptedBytes);
+    System.out.println("Decrypted text: "+decryptedText);
+
+  }
+  
+  public static KeyPair generateKey() throws NoSuchAlgorithmException {
+    KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+    keyGen.initialize(2048); // You can use different sizes such as 2048, 4096
+    KeyPair pair = keyGen.generateKeyPair();
+    return pair;
+  }
+}
+```
+
+Note: Traditionally, private key is used for decryption and public key is used for encryption. But technically you can use them other way around as shown in the above code. Also, RSA is not meant to encrypt large amounts of text. This is just a demonstration.

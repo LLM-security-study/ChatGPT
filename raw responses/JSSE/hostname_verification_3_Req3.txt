@@ -1,0 +1,44 @@
+Sure! Here's how you might write the Java program:
+
+```Java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        String hostname = "www.example.com";
+        try {
+            URL url = new URL("https://" + hostname);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+            conn.setHostnameVerifier((hostname1, session) -> {
+                if (hostname1.equals("www.example.com")) {
+                    try {
+                        String verifiedHostname = session.getPeerPrincipal().getName();
+                        return verifiedHostname.contains("CN=" + hostname1);
+                    } catch (SSLPeerUnverifiedException e) {
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            });
+
+            if (conn.getResponseCode() == HttpsURLConnection.HTTP_OK) {
+                System.out.println("Verified");
+            } else {
+                System.out.println("Not Verified");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This is just a basic example. Be aware that proper hostname verification must account for a variety of conditions as defined by the HTTP/1.1 protocol. Hostname verification should generally not be done manually as in this example, because there're already APIs provided by Java that handle this properly.
+
+The Java API used in above code is `javax.net.ssl.HttpsURLConnection` that provides HostnameVerifier interface to verify the hostname by providing your own implementation.
+
+Please replace `'www.example.com'` with your actual server hostname.

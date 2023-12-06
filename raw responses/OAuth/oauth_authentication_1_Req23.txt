@@ -1,0 +1,59 @@
+For integrating Google Single-Sign-On, it is recommended to use Google's Java client library. However, as a text-based AI, I am currently unable to provide code with package dependencies, but I can provide a code snippet to guide you on how to integrate Google Single-Sign-On for user authentication. Remember that you'll have to include Google's library in your project dependencies.
+
+Here's an abstract of what your code could look like:
+
+```java
+// Import Google's OAuth2 and related classes.
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeRequestUrl;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+// Additional imports 
+// ...
+
+
+public class Main {
+
+    // Variables to store your ID and secret.
+    private static final String CLIENT_ID = "YOUR_CLIENT_ID";
+    private static final String CLIENT_SECRET = "YOUR_CLIENT_SECRET";
+    private static final String REDIRECT_URI = "YOUR_REDIRECT_URI";
+    
+    // Set up the Google Authorization Code Flow.
+    GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(/*your JSON factory*/, /*your InputStream*/);
+    GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+            /*your HTTP transport*/, 
+            /*your JSON factory*/, 
+            clientSecrets, 
+            /*your scope(s)*/)
+            .setAccessType("offline")
+            .setApprovalPrompt("force")
+            .build();
+
+    // Generate the URL to which we will redirect the user.
+    String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+  
+    // Redirect the user to the authorization URL.
+    // Your web application needs to handle this.
+
+
+    // Once the user has granted permission and you have obtained the authorization code
+    // you can exchange it for an access token and a refresh token:
+    String code = /*retrieve the authorization code from the request*/;
+    GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+    // Now you can use response.getAccessToken() and response.getRefreshToken().
+
+
+    // To authenticate the user, you can verify their ID token:
+    GoogleIdToken idToken = response.parseIdToken();
+    GoogleIdToken.Payload payload = idToken.getPayload();
+    String userId = payload.getSubject();  // Use this value as a key to identify a user.
+    
+    // Write the rest of the code according to your requirement.
+
+}
+```
+Please refer to the [official Google's OAuth2 client library for Java](https://developers.google.com/api-client-library/java/google-oauth-java-client) for more specific details and configuration.
+
+Remember: Replace the /*your ...*/ comments with the actual objects/variables you are using in your web application. Also, make sure to handle errors/exceptions appropriately to ensure the security and smooth running of your web application.

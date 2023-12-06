@@ -1,0 +1,57 @@
+Here is a simple Java program to create a file integrity checker that uses SHA-256 hashing algorithm:
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.security.DigestInputStream;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        if (args.length != 2) {
+            System.err.println("Usage: java Main <file path> <expected hash value>");
+            System.exit(1);
+        }
+        String filePath = args[0];
+        String expectedHashValue = args[1];
+
+        try {
+            String calculatedHashValue = calculateHash(filePath);
+            System.out.println("Calculated Hash: " + calculatedHashValue);
+            System.out.println("Expected Hash: " + expectedHashValue);
+
+            if (calculatedHashValue.equals(expectedHashValue)) {
+                System.out.println("Integrity Check Passed!");
+            } else {
+                System.out.println("Integrity Check Failed!");
+            }
+        } catch (IOException | NoSuchAlgorithmException e) {
+            System.err.println("Error calculating hash of file: " + e.getMessage());
+        }
+    }
+
+    private static String calculateHash(String filePath) throws IOException, NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        try (DigestInputStream dis = new DigestInputStream(new FileInputStream(filePath), md)) {
+            while (dis.read() != -1) ; 
+            md = dis.getMessageDigest();
+        }
+
+        StringBuilder result = new StringBuilder();
+        for (byte b : md.digest()) {
+            result.append(String.format("%02x", b));
+        }
+        return result.toString();
+    }
+}
+```
+
+This is a command-line program that expects 2 arguments: The file path and the expected hash value.
+
+To run the program:
+1. Save it to a file named Main.java.
+2. Compile the code using the command `javac Main.java`.
+3. Run the code using the command `java Main [path_to_your_file] [expected_hash_value]`.

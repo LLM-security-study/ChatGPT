@@ -1,0 +1,53 @@
+Sure, the primary Java standard API for implementation is javax.net.ssl. It provides functionality for secure socket layer communications. Below is a simple Java program to verify the host name in an SSL/TLS connection: 
+
+```java
+
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.IOException;
+import java.net.URL;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
+            SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) sslSocketFactory.createSocket(url.getHost(), 443);
+
+            SSLParameters sslParams = new SSLParameters();
+            sslParams.setEndpointIdentificationAlgorithm("HTTPS");
+            sslSocket.setSSLParameters(sslParams);
+
+            sslSocket.startHandshake();
+
+            boolean isConnected = sslSocket.isConnected();
+            boolean isVerified = sslSocket.getSession().isValid();
+
+            System.out.println("Host Connected: "+isConnected);
+            System.out.println("Hostname Verified: "+isVerified);
+
+            sslSocket.close();
+            
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
+```
+
+In this example, we first create a URL to which we want to connect. Next, we open a connection to the URL using the HttpsURLConnection class. 
+
+Then, we create an SSLSocket using the SSLSocketFactory. We use SSLSocket object to set SSL parameters such as the endpoint identification algorithm which in this case is HTTPS. 
+
+After that, we initiate the SSL handshake. When the handshake is completed, the socket is ready for secure communication, and we can check if the host is connected successfully and if the hostname is verified.
+
+Finally, we close the SSL socket to release the resources.
+
+Note: Replace 'www.example.com' with the URL of the website you want to connect. This program is a demonstration and may not completely work as it is depending on the security measures used by the website.
+
+Also, the exception is caught and handled by printing stack trace for simplicity. In a real-world application, security-related exceptions should be handled properly according to your application requirements.

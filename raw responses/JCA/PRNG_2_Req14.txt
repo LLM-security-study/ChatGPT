@@ -1,0 +1,37 @@
+Sure, here's a simple java program:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        // Initialize SecureRandom
+        SecureRandom random = new SecureRandom();
+
+        // Generate a seed
+        byte[] seed = random.generateSeed(20);
+        random.setSeed(seed);
+
+        // Generate Salt for Password Hashing
+        byte[] salt = new byte[16];
+        random.nextBytes(salt);
+
+        // Print Salt as Base64 for easy storage and readability
+        String saltStr = Base64.getEncoder().encodeToString(salt);
+        
+        System.out.println("Generated Salt: " + saltStr);
+
+    }
+}
+```
+
+This program creates a new `SecureRandom` instance, generates a seed to initialize it, then generates a 16-byte salt for password hashing. It then converts this salt into a string using Base64 encoding. 
+
+The size of the generated seed or salt can be adjusted depending on the security requirements of your application, but generally, a 16-byte (128-bit) salt is considered secure for most applications.
+
+This program uses SecureRandom instead of Random because SecureRandom is more secure and produces a cryptographically strong sequence. 
+
+Remember to securely store this salt somewhere, as you'll need it when verifying passwords.
+
+Please remember, follow your organization's security standards, or seek advice from a security expert when handling password and security-related operations.

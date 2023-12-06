@@ -1,0 +1,37 @@
+Here's an example of a program performing a message integrity check using a `Mac` instance from the Java Cryptography Extension (JCE):
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
+        // Initialize a secret key. In practice this should be securely exchanged between parties
+        byte[] secretKey = "some secret".getBytes();
+
+        // The message we want to check the integrity of
+        byte[] message = "Hello, World!".getBytes();
+
+        // Create a Mac instance using HMAC-SHA256
+        Mac mac = Mac.getInstance("HmacSHA256");
+
+        // Initialize the Mac with the secret key
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey, "HmacSHA256");
+        mac.init(secretKeySpec);
+
+        // Perform the integrity check
+        byte[] macData = mac.doFinal(message);
+
+        System.out.println(Arrays.toString(macData));
+    }
+}
+```
+
+This program will output a [MAC](https://en.wikipedia.org/wiki/Message_authentication_code) (Message Authentication Code), that can be used to verify the integrity and authenticity of a message. The secret key used here is a shared secret between the sender and receiver of the message. Please be aware that this example only demonstrates the generation of a MAC, and not its proper use in a secure communication protocol. 
+
+Remember, the shared secret key(must be exchanged in a secure way), hashing algorithm, and message play a crucial role in the generation of MAC, any change in these will lead to different MAC which may lead integrity check failure causing security vulnerabilities. 
+
+Also note this example uses HMAC-SHA256 as the MAC function and it's considered relatively secure as of now, but depending on the level of security you need, you might need to use a different function.

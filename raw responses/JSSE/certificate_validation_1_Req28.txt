@@ -1,0 +1,57 @@
+Sure! Below is a basic example of validating a HTTPS certificate in Java, which uses Java's standard APIs like `java.net` and `javax.net.ssl`.
+
+```java
+import java.net.URL;
+import javax.net.ssl.HttpsURLConnection;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().checkCertificate();
+    }
+
+    public void checkCertificate() {
+        String httpsURL = "https://www.google.com"; // Specify your URL
+        TrustManager[] trustAllCerts = new TrustManager[] {
+           new X509TrustManager() {
+              public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+              }
+              public void checkClientTrusted(X509Certificate[] certs, String authType) {  }
+              public void checkServerTrusted(X509Certificate[] certs, String authType) {  }
+           }
+        };
+
+        try {
+            URL url = new URL(httpsURL);
+            HttpsURLConnection conn = (HttpsURLConnection)url.openConnection();
+
+            // Create all-trusting SSL context
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            conn.connect();
+
+            Certificate[] certs = conn.getServerCertificates();
+            for(Certificate cert : certs){
+                System.out.println("Certificate is: " + cert);
+            }
+
+            conn.disconnect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program connects to the specified HTTPS URL using a secured SSL context, retrieves the server certificates and prints them out. You might need to add some error handling depending on your specific requirements.
+
+NOTE: It's important to remind that, the purpose of SSL Certificates is to safeguard and encrypt the transmitted data. By using `X509TrustManager` that trust all certificates without any validation, can make a potential vulnerability. The presented example is for learning and testing purposes only. In production, you should validate server certificates to make sure that you are communicating with the correct server.

@@ -1,0 +1,55 @@
+Below is a basic example of a Java program to create a keystore and store a cryptographic key in it. To do this, Java provides KeyStore API under the java.security package.
+
+This program first represents the cryptographic keys by creating a KeyPair (PrivateKey and PublicKey). Then it uses KeyStore API to create a keystore and store the cryptographic key in a keystore file.
+
+```java
+import java.io.FileOutputStream;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStore.PasswordProtection;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+
+        try {
+            // generating a key pair
+            KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+            keyPairGen.initialize(2048, new SecureRandom());
+            KeyPair pair = keyPairGen.generateKeyPair(); 
+
+            // contains private key
+            PrivateKey privKey = pair.getPrivate();
+            
+            // contains public key
+            PublicKey publicKey = pair.getPublic(); 
+            
+            // Create a keystore of type JKS
+            KeyStore keyStore = KeyStore.getInstance("JKS");
+            keyStore.load(null, null);
+            
+            // define the password protection for the keystore
+            PasswordProtection password = new PasswordProtection("keystorePassword".toCharArray());
+            
+            // Set the keyed alias entry
+            KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry(privKey, new java.security.cert.Certificate[]{});
+            keyStore.setEntry("myKey", privateKeyEntry, password);
+            
+            // Store away the keystore in a file
+            try (FileOutputStream fos = new FileOutputStream("keystore.jks")) {
+                keyStore.store(fos, "keystorePassword".toCharArray());
+            }
+        } catch (Exception e) {
+            System.out.println("Exception occured: " + e.toString());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program will create a keystore file named 'keystore.jks' under the current working directory. The password of the keystore is 'keystorePassword'. It also adds a private key entry into the keystore under the alias 'myKey'.
+
+Please note that you should replace the values of 'keystorePassword' and 'myKey' in this program with the actual password and key alias that are intended to be used. Be sure, too, that you use an appropriate certificate instead of an empty one as in this example. Also this example uses RSA algorithm to generate a key pair, you can use a different algorithm depending on your requirements.

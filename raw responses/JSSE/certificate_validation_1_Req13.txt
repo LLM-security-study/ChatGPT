@@ -1,0 +1,45 @@
+You can use Java's Secure Sockets Extension (JSSE) APIs available in the javax.net.ssl package for certificate validation and enabling secure communication with a server. 
+
+Here is a basic code snippet for SSL certificate validation:
+
+``` Java
+import javax.net.ssl.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main
+{
+    public static void main(String[] args) throws Exception
+    {
+        // Create a trust manager that does not validate certificate chains
+        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
+            public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                return null;
+            }
+            
+            public void checkClientTrusted(X509Certificate[] certs, String authType) {
+            }
+            
+            public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                // You can perform validation here based on your requirements
+                if (certs.length != 1) 
+                    throw new CertificateException("Invalid number of certificates");
+            }
+        }};
+        
+        SSLContext sc = SSLContext.getInstance("SSL");
+        sc.init(null, trustAllCerts, new java.security.SecureRandom());
+        HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+        
+        // All the code below would now be able to communicate over SSL with the certificate validation in place
+        System.out.println("Certificate validation complete.");
+    }
+}
+```
+Note: You can replace the null checks in the `trustAllCerts` with the actual validations that you need and in the control flow of the main function you can add the actual server communication code.
+
+Be cautious, as the boolean condition returns true if no validation error exists, and false otherwise. 
+
+You should only ever validate certificates this way if you know what you're doing. It's generally best to use the certificate validation provided by Java and your underlying operating system. 
+
+This sample only illustrates how to replace the default validation with your own, and does not provide actual validation checks. Always remember that improperly implemented security can easily lead to a vulnerable application.

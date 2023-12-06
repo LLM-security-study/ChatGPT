@@ -1,0 +1,33 @@
+Sure, provided below is a simple Java program that uses the MessageDigest class from the java.security package to calculate the Message Authentication Code (MAC) of a message:
+
+```java
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        System.out.println("Original Message: " + message);
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256"); // Using SHA-256 hash algorithm
+            byte[] messageHash = md.digest(message.getBytes());
+            BigInteger no = new BigInteger(1, messageHash);
+            // Convert message digest into hex value
+            String hashtext = no.toString(16);
+            while (hashtext.length() < 32) {
+                hashtext = "0" + hashtext;
+            }
+            System.out.println("Message Authentication Code (MAC): " + hashtext);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+This program will create a Message Authentication Code for a given message using the SHA-256 hashing algorithm. The `digest` function is used to compute the hash of the input data (message). The hash (message digest) is then converted into a positive BigInteger and then converted into a hex string.
+
+Please note that in a real-world system, you should also have a securely shared secret key between sender and receiver. The key is then used in the hash function to ensure that the MAC can't be recreated without possessing that key. This example is a highly simplified version and won't be secure in a real-world scenario. 
+
+Also, there could be different ways to implement MAC in java, one can use HMAC with a shared secret key for more secure message transmission, which is not covered in this simple example for the sake of simplicity.

@@ -1,0 +1,30 @@
+Sure, here's a basic Java program that uses `SecureRandom` to generate cryptographic-safe pseudorandom numbers.
+
+```Java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+                // You can use the no-argument constructor to create a SecureRandom object
+                SecureRandom secureRandom = new SecureRandom();
+
+                 // Generate a seed for the secure random number generator.
+                byte[] seed = new byte[20];
+                secureRandom.nextBytes(seed);
+
+                // Alternatively, you may regenerate the same secure random number by providing the seed.
+                SecureRandom secureRandomWithSeed = new SecureRandom(seed);
+
+                // Then, you can use the SecureRandom object to generate random integers.
+                int randomInt = secureRandomWithSeed.nextInt();
+                System.out.println("Generated Secure Random Integer: " + randomInt);
+    }
+}
+```
+Please note: 
+
+1. The `SecureRandom` class provides a cryptographically strong random number generator. This is preferred for generating random numbers in cryptographic applications.
+
+2. The `nextBytes(byte[])` method is used to generate random bytes and place them into a user-supplied byte array. The number of random bytes produced is equal to the length of the byte array. 
+
+3. The `nextInt()` method is used to generate a random integer. By default, the range is all valid int values (whole range of the int type).

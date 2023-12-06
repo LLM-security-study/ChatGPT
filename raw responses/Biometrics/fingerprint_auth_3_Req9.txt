@@ -1,0 +1,47 @@
+Since the fingerprint recognition involves interacting with hardware, the Java standard library alone will not suffice. However, starting from Android Marshmallow (API level 23), Android provided native support for fingerprint recognition with their FingerprintManager API. From Android P (API level 28) forward, this is depreciated and BiometricPrompt API is used instead.
+
+For simplicity, we will demonstrate a use of FingerprintManager. Here is a simple example of how you would set up the FingerprintManager:
+
+```java
+import android.Manifest;
+import android.app.KeyguardManager;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Toast;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+            if(!fingerprintManager.isHardwareDetected()){
+                Toast.makeText(this, "Fingerprint scanner not detected", Toast.LENGTH_SHORT).show();
+            } else if (ActivityCompat.checkSelfPermission(this, 
+                        Manifest.permission.USE_FINGERPRINT) != 
+                        PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_SHORT).show();
+            } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                Toast.makeText(this, "Register at least one fingerprint in Settings", Toast.LENGTH_SHORT).show();
+            } else {
+                // Here, you can start listening for a fingerprint scan and respond accordingly
+            }
+        }
+    }
+}
+```
+In the code above, we are checking if the device is running on at least Marshmallow, as older versions do not support this API. We also check if a fingerprint scanner is present, if the user has granted us permission to use the fingerprint scanner, and if the user has at least one fingerprint saved for use.
+
+Building fully working fingerprint application would require additional classes that handle specific tasks such as `FingerprintHandler` to handle fingerprint authentication events and `FingerprintManager.AuthenticationCallback` to receive fingerprint authentication events.
+
+It should also note that working with fingerprint or biometric data is sensitive subject and it should always be considered how this data will be handled and that we are following all local and global privacy laws.

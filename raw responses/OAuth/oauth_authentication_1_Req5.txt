@@ -1,0 +1,46 @@
+Sure! Due to the nature of web applications, this type of functionality often involves a server backend and is usually split across multiple files for good programming practice. However, simplified code snippets in Java are provided below.
+
+**Main.java**
+
+```java
+/*
+Program: Google Single-Sign-On Authentication for Web Application
+Description: This program integrates Google Single-Sign-On for user authentication into a web application.
+*/
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.jackson2.JacksonFactory;
+import java.io.FileReader;
+
+public class Main {
+    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+
+    // replace these with your values
+    private static final String CLIENT_SECRET_FILE = "path/to/client_secret.json";
+    private static final String REDIRECT_URI = "your redirect URI here";
+    private static final String SCOPE = "https://www.googleapis.com/auth/userinfo.profile";
+
+    public static void main(String[] args) throws Exception {
+        // Load client secrets
+        GoogleClientSecrets clientSecrets =
+              GoogleClientSecrets.load(JSON_FACTORY, new FileReader(CLIENT_SECRET_FILE));
+
+        // Build flow and trigger user authorization request
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(), JSON_FACTORY, clientSecrets, Collections.singleton(SCOPE))
+                .setRedirectUri(REDIRECT_URI)
+                .build();
+
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        System.out.println("Please open the following URL in your browser and authorize the app:");
+        System.out.println("  " + url);
+    }
+}
+```
+
+This code does not handle the authorization code callback. After the user authorizes the app, Google will redirect the user to your Redirect URI containing an authorization code. You would need to create another Servlet to handle this callback, exchange the authorization code for an access token, and then you could use that access token to authenticate user operations.
+
+Please note that this code makes use of Google APIs Client Library for Java which you will need to include in your project dependencies.

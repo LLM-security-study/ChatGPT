@@ -1,0 +1,36 @@
+Sure, below is the basic implementation of a Java program using Standard APIs. This will create a cryptographic key based on a user's password and a given salt. 
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter your password");
+        String password = scanner.nextLine();
+        System.out.println("Enter a salt value");
+        String salt = scanner.nextLine(); 
+
+        try {
+            byte[] saltBytes = salt.getBytes();
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), saltBytes, 65536, 256);
+            byte[] hash = factory.generateSecret(spec).getEncoded();
+            System.out.println("Derived cryptographic key from user's password is: " + Arrays.toString(hash));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            System.out.println("An error occurred during deriving cryptographic key");
+            e.printStackTrace();
+        }
+    }
+}
+```
+Be sure to substitute your own values where appropriate. The `NoSuchAlgorithmException` and `InvalidKeySpecException` Exceptions are thrown by the `SecretKeyFactory.getInstance()` and `factory.generateSecret(spec)` methods respectively, if there is an error with the algorithm name or invalid key specifications are given.
+
+Please note that this is a basic representation and in actual case sensitive data should be handled more securely, salt should be unique and random for each user password, hard-coded salt is just for the demo purpose. And the algorithm used, number of iterations should be chosen based on the security requirements.

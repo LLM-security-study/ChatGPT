@@ -1,0 +1,57 @@
+To set up Google Single Sign-On (SSO) authentication, your web application needs to redirect the client to the Google accounts page. A typical way to accomplish this in Java is using servlets. Here is a simple abstract code where the main class is "Main".
+
+The code below presents a possible method to perform this task through a Servlet:
+
+```java
+// This Java program is used to establish a Single-Sign-On (SSO) service for a web application 
+// It uses Google accounts for user authentication.
+// The application has been already registered with the Google service provider 
+// and the necessary information (e.g., redirect URI, client ID, client secret) has been obtained.
+
+import java.io.IOException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public class Main extends HttpServlet {
+    // Client ID
+    private static final String CLIENT_ID = "Replace this with your client id";
+    
+    // Client Secret
+    private static final String CLIENT_SECRET = "Replace this with your client secret";
+
+    // Redirect URI
+    private static final String REDIRECT_URI = "Replace this with your redirect URI";
+
+    // Access scope
+    private static final String SCOPE = "email profile openid";
+
+    // Authorization Endpoint
+    private static final String AUTHORIZATION_ENDPOINT =
+            "https://accounts.google.com/o/oauth2/v2/auth";
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+	    String authUrl = AUTHORIZATION_ENDPOINT 
+    						+ "?client_id=" + CLIENT_ID 
+    						+ "&response_type=code"
+    						+ "&scope=" + SCOPE
+							+ "&redirect_uri=" + REDIRECT_URI
+							+ "&state=thiscanbeanything";
+
+        resp.sendRedirect(authUrl);
+    }
+}
+```
+Please replace the placeholders with your actual Client ID, Client Secret and Redirect URI.
+
+You'll need to configure this servlet in a Java web application, and map a URL to it. When a client visits that URL, he will be redirected to the Google OAuth2.0 authentication consent page.
+
+Once the user is authenticated by Google, it will redirect the user to your redirect URI along with a code. 
+You can exchange this code for the access token by making a POST request to https://oauth2.googleapis.com/token from your server.
+
+Please note that you must utilize a library such as Google OAuth Client Library for Java for managing the OAuth 2.0 flow and token lifecycle.
+
+Also note, Google recommends a more secure flow which includes a verification step to prevent Cross Site Request Forgery. Please follow Google's guide on 'Using OAuth 2.0 for Web Server Applications' for production ready code.

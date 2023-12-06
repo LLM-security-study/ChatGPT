@@ -1,0 +1,42 @@
+Sure, here's a basic outline of a certificate validation program in Java. In this program, we'll make use of the `javax.net.ssl` standard API. 
+
+```java
+import javax.net.ssl.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            TrustManager[] trustAllCertificates = new TrustManager[] {
+                new X509TrustManager() {
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return null;
+                    }
+
+                    public void checkClientTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                        // we would normally validate the client cert here.
+                    }
+
+                    public void checkServerTrusted(X509Certificate[] certs, String authType) throws CertificateException {
+                        // we would normally validate the server cert here.
+                    }
+                }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCertificates, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+            
+            //HttpsURLConnection connection = (HttpsURLConnection) new URL("https://your-url-here").openConnection();
+            // Perform networking operations with 'connection' here.
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+NOTE: The code above will allow all certificates to be trusted because we are not validating the certificate in our custom `X509TrustManager`. Normally, you would validate the certificate against a list of trusted certificates stored in a keystore.
+
+In a production environment, you should use the default `TrustManager` provided by the Java platform: `TrustManagerFactory.getDefaultAlgorithm()`. This will trust certificates that are signed by a Certificate Authority that is in the Java platform's default keystore. You can replace the default keystore by specifying the System Property: `javax.net.ssl.trustStore` and `javax.net.ssl.trustStorePassword`.

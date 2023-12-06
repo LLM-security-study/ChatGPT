@@ -1,0 +1,46 @@
+To develop a Java program for certificate validation, we can make use of the `java.net.ssl.HttpsURLConnection` class from the Java standard API, which enables secure communication over the HTTP protocol.
+
+Here's a basic implementation:
+
+```java
+import java.net.URL;
+import java.security.cert.Certificate;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLPeerUnverifiedException;
+
+public class Main {
+    public static void main(String[] args) {
+        new Main().testCertificate();
+    }
+
+    private void testCertificate() {
+        HttpsURLConnection connection = null;
+        try {
+            URL url = new URL("https://www.example.com");
+            connection = (HttpsURLConnection) url.openConnection();
+            connection.connect();
+
+            Certificate[] certificates = connection.getServerCertificates();
+            for (Certificate cert : certificates) {
+                System.out.println("Certificate is: " + cert);
+                System.out.println("Certificate public key: " + cert.getPublicKey());
+                System.out.println("\n\n");
+            }
+
+        } catch (Exception e) {
+            System.out.println("Failed to verify the certificate!");
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+        }
+    }
+}
+```
+
+In this program, we create a connection via the URL class to the target server. We then get the server's SSL certificates using `getServerCertificates()`. For each certificate, we print its details and the public key.
+
+If an invalid certificate is detected, `SSLPeerUnverifiedException` is thrown and we print an error message.
+
+Please note that actual SSL certificate validation involves much more complexity than shown here. You need to verify the certificate's chain of trust, its validity dates and the details of its issuer(s). You might want to use proper libraries such as BouncyCastle or Java's built-in classes for X.509 certificate parsing and validation.

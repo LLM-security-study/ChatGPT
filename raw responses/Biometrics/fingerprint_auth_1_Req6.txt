@@ -1,0 +1,102 @@
+To use fingerprint-based authentication with your Android app, we have to use the FingerprintManager class found in Android APIs above version 23. So let's create the code:
+
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Toast;
+
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+
+            if (!fingerprintManager.isHardwareDetected()) {
+                Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show();
+            } else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Allow fingerprint permission in settings", Toast.LENGTH_LONG).show();
+            } else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                Toast.makeText(this, "At least one fingerprint is necessary to run fingerprint authentication", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Fingerprint authentication is set up.", Toast.LENGTH_LONG).show();
+                FingerprintHandler fingerprintHandler = new FingerprintHandler(this);
+                fingerprintHandler.startAuthentication();
+            }
+        }
+    }
+}
+```
+
+You will also need a helper class (FingerprintHandler) that will handle the authentication process:
+
+```java
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.CancellationSignal;
+import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
+
+public class FingerprintHandler extends FingerprintManager.AuthenticationCallback {
+
+    private Context context;
+
+    public FingerprintHandler(Context context){
+        this.context = context;
+    }
+
+    public void startAuthentication(){
+        FingerprintManager.CryptoObject cryptoObject = new FingerprintManager.CryptoObject(new Cipher());
+
+        FingerprintManager.AuthenticationCallback authenticationCallback = new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errMsgId, CharSequence errString) {
+                this.update("Fingerprint Authentication error\n" + errString, false);
+            }
+
+            @Override
+            public void onAuthenticationHelp(int helpMsgId, CharSequence helpString) {
+                this.update("Fingerprint Authentication help\n" + helpString, false);
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                this.update("Fingerprint Authentication failed.", false);
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                this.update("Fingerprint Authentication succeeded.", true);
+            }
+
+            public void update(String s, boolean b) {
+                Toast.makeText(context, s, Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        FingerprintManager fingerprintManager = (FingerprintManager) context.getSystemService(Context.FINGERPRINT_SERVICE);
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fingerprintManager.authenticate(cryptoObject, new CancellationSignal(), 0, authenticationCallback, null);
+    }
+}
+```
+
+Please note that the above code is just a simple way of using fingerprint authentication, more additional checks and better methods of storing the data would be needed for a production-ready application.

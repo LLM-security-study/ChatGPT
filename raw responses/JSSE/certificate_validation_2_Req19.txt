@@ -1,0 +1,41 @@
+Here's a simple example how you could achieve this in Java. This program uses the javax.net.ssl.HttpsURLConnection to establish an SSL/TLS connection and get the server's certificate chains, we then loop through them to validate.
+
+```java
+
+import java.io.IOException;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+import javax.net.ssl.HttpsURLConnection;
+
+public class Main {
+
+    //The Java entry point
+    public static void main(String[] args) {
+
+        String urlString = "https://www.google.com"; // your desired https URL
+        try {
+            URL url = new URL(urlString);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Get the server's certificate chain
+            Certificate[] certs = conn.getServerCertificates();
+
+            System.out.println("Number of certificates: " + certs.length);
+            for (Certificate cert : certs) {
+                System.out.println("\tCertificate is: " + cert);
+                //You can perform further validation of each certificate in this loop such as 
+                //checking the issuer, validity, etc.
+
+            }
+           
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+In this code, we are establishing a connection with a particular url and retrieving its certification chain. However, please note that javax.net.ssl throws an SSLHandshakeException if the certificate is not trusted. 
+
+You may need to integrate this code in a server that provides a PKI (Public Key Infrastructure) or consider other libraries to fully verify certificates, such as the BouncyCastle library, if you need a deeper level of verification.

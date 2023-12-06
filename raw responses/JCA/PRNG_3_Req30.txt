@@ -1,0 +1,31 @@
+Here's a simple Java program that accomplishes this task:
+
+```java
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a secure random number generator using the "SHA1PRNG" algorithm
+        SecureRandom secureRandom = new SecureRandom();
+        
+        // Generate a seed byte array of 20 bytes
+        byte[] seed = new byte[20];
+        secureRandom.nextBytes(seed);
+        
+        // Re-initialize the secure random number generator with the new seed
+        secureRandom.setSeed(seed);
+        
+        // Generate a random integer 
+        int randomNum = secureRandom.nextInt();
+
+        // Print the random number
+        System.out.println("Random Number: " + randomNum);
+    }
+}
+```
+
+This program uses `SecureRandom`, which provides a cryptographically strong random number generator (RNG). It first generates a random seed for the RNG, then re-initializes the RNG with the new seed, and then generates a random number. Note that we use the `nextBytes` method to generate the seed and `setSeed` method to set it. As `SecureRandom` is secure by default, in some cases, this may not be necessary unless you want to add an additional layer of security.
+
+Remember, for cryptographic purposes, it's very important to use a Cryptographically Secure Pseudo-Random Number Generator (CSPRNG), like `SecureRandom`, rather than `java.util.Random` or `Math.random()`, which are significantly less secure.
+
+Run this code multiple times. Each time, the generated number will be different, demonstrating that it is random. The number will also be cryptographically secure, meaning it's suitable for use in cryptographic applications.

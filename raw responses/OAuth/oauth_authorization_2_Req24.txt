@@ -1,0 +1,64 @@
+Here's a Java program that implements a basic authentication functionality, using the Google OAuth2 library to get access to the Google Calendar API:
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.InputStreamReader;
+import java.io.IOException;
+import java.util.Arrays;
+
+public class Main {
+
+    // TODO: Replace these with your own client ID and client secret
+    private static final String CLIENT_ID = "your-client-id";
+    private static final String CLIENT_SECRET = "your-client-secret";
+
+    private static final String REDIRECT_URI = "urn:ietf:wg:oauth:2.0:oob";
+
+    public static void main(String[] args) {
+        GoogleClientSecrets clientSecrets = new GoogleClientSecrets()
+                .setInstalled(new GoogleClientSecrets.Details()
+                        .setClientId(CLIENT_ID)
+                        .setClientSecret(CLIENT_SECRET));
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                JacksonFactory.getDefaultInstance(),
+                clientSecrets,
+                Arrays.asList("https://www.googleapis.com/auth/calendar"))
+                .setAccessType("offline")
+                .setApprovalPrompt("force")
+                .build();
+
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        System.out.println("Please open the following URL in your browser and authorize the app:");
+        System.out.println("  " + url);
+
+        try {
+            System.out.print("Enter the authorization code: ");
+            String code = new BufferedReader(new InputStreamReader(System.in)).readLine();
+
+            GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
+            System.out.println("Access Token: " + response.getAccessToken());
+
+            // TODO: Store the access token and use it to access the Google Calendar API
+            // Note: If the access token expires, you can use the refresh token to get a new one
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+Above java code is for authenticating a user for Google services, in this case, the Calendar API. 
+
+In the `main` method, a new `GoogleClientSecrets` object is created using the provided client ID and client secret. This object then is used to build a `GoogleAuthorizationCodeFlow` object, specifying the Calendar API scopes. 
+
+Note: It's essential to replace `your-client-id` and `your-client-secret` placeholders with your actual client id and client secret.
+
+The code will output a URL the user has to open in a browser for granting the application permission to manage the calendar. The Google OAuth2 service will then return an authorization code. The user needs to copy this code, paste it into the console, and the application will use it to get an access token, which can be used to authorize API calls on behalf of the user.
+
+Note: The actual sending of the request, as well as processing of the response from the Google Calendar API, is not implemented in the code above because this was not required by your task.

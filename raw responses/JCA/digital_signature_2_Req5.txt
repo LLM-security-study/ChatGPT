@@ -1,0 +1,48 @@
+Here is a simple implementation of a digital signature with RSA key pair.
+
+```java
+import java.security.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate key pair
+        KeyPair keyPair = generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Original message
+        String originalMessage = "This is the message to be signed and verified.";
+
+        // Perform digital signature
+        byte[] digitalSignature = signDigitalSignature(originalMessage, privateKey);
+
+        // Verification of the digital signature
+        boolean isCorrect = verifyDigitalSignature(originalMessage, digitalSignature, publicKey);
+        System.out.println("Digital Signature Verification : " + (isCorrect ? "Verified" : "Not Verified"));
+    }
+
+    private static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024);
+        return keyGen.genKeyPair();
+    }
+
+    private static byte[] signDigitalSignature(String data, PrivateKey privateKey) throws Exception {
+        Signature rsa = Signature.getInstance("SHA256withRSA");
+        rsa.initSign(privateKey);
+        rsa.update(data.getBytes());
+        return rsa.sign();
+    }
+
+    private static boolean verifyDigitalSignature(String data, byte[] digitalSignature, PublicKey publicKey) throws Exception {
+        Signature sign = Signature.getInstance("SHA256withRSA");
+        sign.initVerify(publicKey);
+        sign.update(data.getBytes());
+        return sign.verify(digitalSignature);
+    }
+}
+```
+
+This program generates a digital signature by using the private key from an RSA key pair. The verification is done using the public key from the same key pair to simulate a real world scenario where the sender and the receiver have access to both the keys. The signature is generated and verified by using the SHA-256 digest algorithm and the RSA encryption/decryption algorithm.
+
+Note: You should replace "This is the message to be signed and verified." with your own real message.

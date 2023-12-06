@@ -1,0 +1,54 @@
+To implement certificate validation in SSL/TLS in Java, we will need to use the Java Secure Socket Extension (JSSE) API provided by Java. We'll perform the certificate validation manually by using the `X509TrustManager` interface in the JSSE API. This interface contains methods that are used by `SSLSocket` and `SSLEngine` to handle certificate validation.
+
+Here's a simplified way to open an SSL socket of a Host and validate the certificate, this program doesn't do actual data communication. Note that use this code with caution as this may impact indeed SSL security.
+
+```java
+import javax.net.ssl.*;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+        validateCert("yourHost", 443);
+    }
+    
+    public static void validateCert(String host, int port) throws Exception {
+        SSLContext context = SSLContext.getInstance("TLS");
+        TrustManager[] trustManagers = new TrustManager[] {
+            new X509TrustManager() {
+                @Override
+                public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                    // Throw an exception if the client certificate is invalid.
+                }
+
+                @Override
+                public void checkServerTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
+                    // Here, you can validate the server's certificate.
+                    // Throw an exception if it's invalid.
+                }
+
+                @Override
+                public X509Certificate[] getAcceptedIssuers() {
+                    // Based on your requirement, you may return a list of trusted 
+                    // certificate issuers. 
+                    return null;
+                }
+            }
+        };
+
+        context.init(null, trustManagers, null);
+
+        SSLSocketFactory factory = context.getSocketFactory();
+        SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+
+        // After this line executes, an SSL handshake is performed.
+        // If the certificate is invalid, an exception will be thrown
+        socket.startHandshake();
+
+        System.out.println("Successfully validated the certificate for: " + host);
+    }
+}
+```
+This stub code assumes that you are going to implement your certificate check logic under the `checkServerTrusted` and `checkClientTrusted` methods of `X509TrustManager`. You might need to consult with a Certificate Authority (CA) to determine how you should correctly validate a certificate by using its `X509Certificate` object. Further, you might want to construct and return a list of pre-approved certificate issuers in the `getAcceptedIssuers` method.
+However, This example doesn't provide an established connection with validation. To have TLS termination and build trusting connection, it is preferred to use well known and robust libraries (e.g. Netty etc.).

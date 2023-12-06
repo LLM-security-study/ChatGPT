@@ -1,0 +1,75 @@
+Sure, here's a simple version of a Java program that implements fingerprint-based authentication in an Android app, using the FingerprintManager class. It assumes there is already a UserManager class for handling users and fetching saved fingerprint data, and a FingerprintService class interfaces with the hardware:
+
+```Java
+
+import android.Manifest;
+import android.app.KeyguardManager;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+
+public class Main {
+
+    private FingerprintManager fingerprintManager;
+    private KeyguardManager keyguardManager;
+
+    public Main() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager = getApplicationContext().getSystemService(FingerprintManager.class);
+            keyguardManager = getApplicationContext().getSystemService(KeyguardManager.class);
+
+            checkFingerprintCapabilities();
+        }
+    }
+
+    private void checkFingerprintCapabilities() {
+        // Require at least Android 6.0 (M)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // Check if the device has a fingerprint sensor
+            if (!fingerprintManager.isHardwareDetected()) {
+                // This device doesn't support fingerprint authentication.
+                return;
+            }
+
+            // Check if the user has granted your app the USE_FINGERPRINT permission
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                // The user hasn't granted the USE_FINGERPRINT permission
+                return;
+            }
+
+            // Check if the user has registered at least one fingerprint
+            if (!fingerprintManager.hasEnrolledFingerprints()) {
+                // The user hasn't any fingerprint registered
+                return;
+            }
+
+            // The user can use fingerprint to authenticate
+            authenticateUser();
+        }
+    }
+
+    private void authenticateUser() {
+        FingerprintManager.AuthenticationCallback authenticationCallback = new FingerprintManager.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode, CharSequence errString) {
+                // Authentication error, errString to log the error.
+            }
+
+            @Override
+            public void onAuthenticationSucceeded(FingerprintManager.AuthenticationResult result) {
+                // Authentication success
+            }
+
+            @Override
+            public void onAuthenticationFailed() {
+                // Authentication failed
+            }
+        };
+
+        fingerprintManager.authenticate(null, null, 0, authenticationCallback, null);
+    }
+}
+```
+
+This is just a basic implementation. In a real application, you'd want to handle the results of the authentication attempt and provide more complex interaction with the FingerprintManager, probably through a login or authentication activity. Likewise, an actual app will need to request the necessary permissions. It should also take into account that the FingerprintManager class is deprecated as of API 28. The BiometricPrompt.Builder class can be used for the same purpose beginning with that API level. The code above also does not check the availability of secure lock screens, which might be necessary depending on the details of your implementation.

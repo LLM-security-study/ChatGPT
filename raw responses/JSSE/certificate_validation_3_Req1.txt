@@ -1,0 +1,48 @@
+Sure, to implement certificate validation in SSL/TLS we are going to use Java Secure Socket Extension (JSSE). JSSE is a part of Java Standard APIs which provides functionalities for security, encryption and server certificate validation.
+
+Here is a basic structure for the Certificate Validation Program.
+
+```java
+import javax.net.ssl.*;
+import java.io.*;
+import java.net.Socket;
+import java.net.URL;
+import java.security.cert.Certificate;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        System.setProperty("javax.net.debug", "all"); // Optional: use for debugging ssl
+
+        URL url = new URL("https://yourURL.com"); 
+
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+        conn.connect();
+
+        Certificate[] certs = conn.getServerCertificates();
+        System.out.println("Number of certs: " + certs.length);
+        for(Certificate cert : certs){
+            System.out.println(cert.toString());
+        }
+
+        Socket socket = (SSLSocket) SSLSocketFactory.getDefault().createSocket("localhost", 443);
+        
+        socket.startHandshake();
+        SSLSession session = socket.getSession();
+        java.security.cert.Certificate[] servercerts = session.getPeerCertificates();
+
+        for (int i = 0; i < servercerts.length; i++) {
+            System.out.println("Certificate " + (i+1));
+            System.out.println(servercerts[i]);
+        }
+    }
+}
+```
+This program does the following:
+
+1. It makes an SSL connection to "yourURL.com" and gets the server certificates.
+2. It outputs all the certificates.
+3. It opens a SSL connection to "localhost" on port 443 and starts the SSL handshake. After the handshake is complete, it gets the peer certificates from the session and prints them.
+
+These steps provide the certificate validation. Please replace "yourURL.com" and "localhost" with the actual hosts you are interested in. Also, handle exceptions appropriately in your actual code. This is just a simple demonstration.
+
+Note: If you want to verify the certificate manually, you will have to get the public key from the certificate and verify its signature.

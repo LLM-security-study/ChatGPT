@@ -1,0 +1,36 @@
+Here is a basic Java program to calculate the Message Authentication Code (MAC) using the HMAC-SHA256 algorithm provided by the Java standard APIs.
+
+```Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+import java.nio.charset.StandardCharsets;
+
+public class Main {
+    private static final String SECRET_KEY = "secretKey";
+
+    public static void main(String[] args) {
+        String message = "Hello, World!";
+        String mac = calculateHMAC(message, SECRET_KEY);
+        System.out.println("MAC: " + mac);
+    }
+
+    public static String calculateHMAC(String data, String key) {
+        String result = null;
+        try {
+            SecretKeySpec secret_key = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(secret_key);
+            byte[] rawMac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+            result = Base64.getEncoder().encodeToString(rawMac);
+        } catch (Exception e) {
+            System.out.println("Error calculating HMAC: " + e.getMessage());
+        }
+        return result;
+    }
+}
+```
+In this program, we have a main class named "Main". At first, we initialize the secret key, which in our case is "secretKey" which would be actually a secret value in a secure implementation. In our main method, we define a message "Hello, World!" and calculate its MAC using `calculateHMAC()` method and print it. 
+
+In the `calculateHMAC()` method, we are using the standard "HmacSHA256" algorithm provided by Java to calculate the MAC of our message. We initialize our `SecretKeySpec` with our secret key and the same algorithm. Then, we instantiate our Mac object with the same algorithm and initialize it using our `SecretKeySpec`. Next, we calculate our MAC by calling the `doFinal()` method on our Mac object with the bytes of our message. Afterwards, we convert it into a readable form using base64 encoding and return it. If we encounter an exception, we print the exception message and return null. Note that in a real-world system, we'd want to handle exceptions more carefully.
+

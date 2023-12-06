@@ -1,0 +1,49 @@
+Here is a simple Java program using Java Standard APIs for Digital Signing. This program uses the SHA-256 algorithm for the hash and RSA for the signing algorithm. 
+
+Please note that in a real world scenario, you need to securely protect your private key and you wouldn't hard-code it in a program like this.
+
+```java
+
+import java.security.*;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        // Generate a new key pair for signing
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048);
+        KeyPair pair = keyPairGen.generateKeyPair();
+        PrivateKey privKey = pair.getPrivate();
+        PublicKey pubKey = pair.getPublic();
+
+        // The message to sign
+        String msg = "The quick brown fox jumps over the lazy dog";
+
+        // Sign the message
+        Signature sign = Signature.getInstance("SHA256withRSA");
+        sign.initSign(privKey);
+        sign.update(msg.getBytes());
+
+        byte[] signature = sign.sign();
+
+        // Print the signature
+        System.out.println("Digital Signature for the message: " + msg);
+        System.out.println(Base64.getEncoder().encodeToString(signature));
+
+        // Verifying the signature
+        sign.initVerify(pubKey);
+        sign.update(msg.getBytes());
+        boolean isVerified = sign.verify(signature);
+
+        if(isVerified) {
+            System.out.println("The signature has been verified and is valid.");
+        } else {
+            System.out.println("The signature is not valid.");
+        }
+    }
+}
+```
+
+This program generates a private-public key pair, signs a message with the private key, then verifies the signature with the public key. This is a very basic implementation, in a production environment you need to consider many more things, but this should give you an idea of the Java APIs available.
+
+The output of the program will be a Base64 encoded digital signature and the result of verifying the signature.

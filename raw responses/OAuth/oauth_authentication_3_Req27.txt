@@ -1,0 +1,63 @@
+Implementing Single Sign-On (SSO) using Google accounts involves interacting with Google's OAuth 2.0 system. It includes multiple steps including, getting authorization from the user, exchanging authorization code for access token and obtaining user info using the access token.
+
+Here is a simplified Java program demonstrating Google SSO incorporating Google OAuth2 Client Library for Java (https://github.com/googleapis/google-oauth-java-client).
+
+```java
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Collections;
+
+// The program enables Single-Sign-On (SSO) using Google accounts for a web application.
+public class Main { 
+    private static final String REDIRECT_URI = "<INSERT_REDIRECT_URI>";
+    private static final String CLIENT_ID = "<INSERT_CLIENT_ID>";
+    private static final String CLIENT_SECRET = "<INSERT_CLIENT_SECRET>";
+    
+    public static void main(String[] args) throws Exception {
+        GoogleClientSecrets secrets = GoogleClientSecrets.load(
+                JacksonFactory.getDefaultInstance(), new FileReader("client_secrets.json"));
+    
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(), 
+                JacksonFactory.getDefaultInstance(), 
+                secrets, 
+                Collections.singleton("openid profile email"))
+                .setAccessType("offline").build();
+           
+        // generate the authorization URL
+        String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
+        System.out.println("Please open the following URL in your browser then type " +
+                         "the authorization code:");
+        System.out.println("  " + url);
+        
+        // Wait for the authorization code
+        System.out.println("Enter authorization code:");
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        String code = br.readLine();
+     
+        // exchange the authorization code for an access token
+        GoogleAuthorizationCodeTokenRequest tokenRequest = flow.newTokenRequest(code);  
+        tokenRequest.setRedirectUri(REDIRECT_URI); 
+        GoogleTokenResponse tokenResponse = tokenRequest.execute();
+        
+        // now you can use the tokenResponse to get more info about the user, or as credentials
+        // to authenticate further API calls.
+    } 
+}
+```
+In this program:
+
+- The `client_secrets.json` file is a configuration file that contains your client ID, client secret, and other information that is required to run the program.
+- Replace `<INSERT_REDIRECT_URI>`, `<INSERT_CLIENT_ID>`, `<INSERT_CLIENT_SECRET>` with your own Redirect URI, Client ID, and Client Secret.
+- "openid profile email" is the scope for the OAuth2 request. "openid" is for authentication, "email" and "profile" are for accessing user's email and basic profile info.
+- The Access Type is set to "offline" to get a refresh token that can be used to refresh the access token when the access token expires.
+- The authorization code is read from the console.
+
+Note: The above code does not handle the part of getting user info using the access token. You need to use the library corresponding to the Google service you want to access (like Google+ Client Library if you want to fetch user's Google+ info, or Google People API if you want to fetch other user info).

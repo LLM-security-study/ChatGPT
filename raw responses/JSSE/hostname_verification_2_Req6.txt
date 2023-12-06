@@ -1,0 +1,41 @@
+Sure, The SSL/TLS host name verification in Java usually involves the use of standard APIs like HttpsURLConnection and SSLContext. To give a simple illustration, I will write a very basic program which connects to an https URL and performs host name verification. 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            URL url = new URL("https://www.example.com");
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Create the SSL context for the connection
+            SSLContext sslContext = SSLContext.getDefault();
+            conn.setSSLSocketFactory(sslContext.getSocketFactory());
+
+            // Initiates the SSL handshake
+            conn.connect();
+
+            System.out.println("Host name verification successful.");
+        } catch (SSLHandshakeException e) {
+            System.err.println("Host name verification failed: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+Here's what the program is doing:
+
+1. It is opening a connection to an SSL/TLS protected site using HttpsURLConnection.
+
+2. It's establishing the default SSLContext. For real use cases, you would want to use a custom context using SSLContext.getInstance("TLS") and initialize it with the appropriate TrustManager[] and KeyManager[] (and possibly SecureRandom), which would be configured with the necessary certification path and private key(s).
+
+3. It is initiating the SSL handshake with conn.connect(). The handshake will, among other things, make sure that the server presents a certificate which corresponds to the server's host name.
+
+Please note that this is just demonstrating the basics. In real-world applications, you'd have more advanced requirements for which you would want to use HttpsClient or libraries like OkHttp or Apache HttpClient.

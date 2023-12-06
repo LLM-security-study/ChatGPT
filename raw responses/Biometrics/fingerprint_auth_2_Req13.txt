@@ -1,0 +1,53 @@
+Sure, here's a basic example of how you could implement a fingerprint authentication mechanism in Android (starting from Android 6.0 - Marshmallow). Remember, in order to access special features like fingerprint scanner of an Android device, we need to request the user for permission.
+
+In AndroidManifest.xml, add:
+
+```xml
+<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
+```
+
+Here is the main java class "Main":
+
+**Please note that this is a simplified version of the code. In actual application development, more advanced error checking and handling should be done.**
+```java
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.hardware.fingerprint.FingerprintManager;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
+
+public class Main extends AppCompatActivity {
+
+    private FingerprintManager fingerprintManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            fingerprintManager = (FingerprintManager) getSystemService(FINGERPRINT_SERVICE);
+            if(!fingerprintManager.isHardwareDetected()) {
+                Toast.makeText(this, "Fingerprint authentication not supported", Toast.LENGTH_LONG).show();
+            }
+            else if (ActivityCompat.checkSelfPermission(this, Manifest.permission.USE_FINGERPRINT) != PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(this, "Fingerprint authentication permission not enabled", Toast.LENGTH_LONG).show();
+            }
+            else if (!fingerprintManager.hasEnrolledFingerprints()) {
+                Toast.makeText(this, "Register at least one fingerprint in Settings", Toast.LENGTH_LONG).show();
+            }
+            else {
+                Toast.makeText(this, "Place your finger on the scanner to access the app.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+}
+```
+This code will initially check the Android version, if the device has a hardware fingerprint scanner, if the app has appropriate permissions, and finally it checks that at least one fingerprint is registered on the device. If these conditions are met, it prompts the user to place their finger on the scanner.
+
+For actual fingerprint scanning and matching, you'll need to create and use a `FingerprintManager.AuthenticationCallback` object, and handle the callback methods like onAuthenticationSucceeded, onAuthenticationFailed etc. This will require additional permissions and checks as well as a securely configured KeyStore for your app.
+
+Fingerprint authentication involves encryption and decryption, and it's recommended that this be performed using a strong key that's been stored securely. Android provides the KeyStore for this purpose. Complex apps involving networking or hardware communication should use dedicated security libraries or software development kits (SDKs) that are designed for these purposes.

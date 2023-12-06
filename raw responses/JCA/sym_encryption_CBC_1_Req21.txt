@@ -1,0 +1,64 @@
+Here's a simple Java program using the AES algorithm in CBC mode. 
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+
+    private static final String KEY = "aesEncryptionKey";
+    private static final String INIT_VECTOR = "encryptionIntVec";
+
+    public static String encrypt(String value) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(KEY.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.ENCRYPT_MODE, skeySpec, iv);
+
+            byte[] encrypted = cipher.doFinal(value.getBytes());
+            return Base64.getEncoder().encodeToString(encrypted);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String decrypt(String encrypted) {
+        try {
+            IvParameterSpec iv = new IvParameterSpec(INIT_VECTOR.getBytes("UTF-8"));
+            SecretKeySpec skeySpec = new SecretKeySpec(KEY.getBytes("UTF-8"), "AES");
+
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING");
+            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+
+            byte[] original = cipher.doFinal(Base64.getDecoder().decode(encrypted));
+
+            return new String(original);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        String str = "Hello World!";
+        String encryptedString = encrypt(str);
+        System.out.println("encrypted string:" + encryptedString);
+        String decryptedString = decrypt(encryptedString);
+        System.out.println("decrypted string:" + decryptedString);
+    }
+}
+```
+This program encrypts and decrypts a string using AES in CBC mode. Note that AES requires a symmetric key (aesEncryptionKey in this example) and an initialization vector (encryptionInitVec in this example). These should be kept secure in a real-world implementation.
+
+The "encrypt" function encrypts a string and the "decrypt" function decrypts an encrypted string. The main function demonstrates use of these functions on a string defined in the code.
+
+Please replace ‘aesEncryptionKey’ and ‘encryptionInitVec’ with your own 16-character secret key and initial vector. Be sure to keep your encryption key and initial vector confidential.
+
+Note: This example uses Java's built-in Base64 library, which is only available in Java 8 or later.

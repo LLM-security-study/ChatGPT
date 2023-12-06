@@ -1,0 +1,41 @@
+Sure, below is a simple Java code to calculate the hash value of a string input.
+
+```Java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String originalString = "YourStringHere"; //replace with your string
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(
+                    originalString.getBytes(StandardCharsets.UTF_8));
+            
+            String hex = bytesToHex(encodedhash);
+            System.out.println("The hash value is: " + hex);
+
+        } catch (NoSuchAlgorithmException ex) {
+            System.out.println("Error generating hash: " + ex.getMessage());
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if(hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+Please replace "YourStringHere" with the string of which you want to calculate the hash. The program will output the calculated hash value to the console.
+
+Note: This code uses SHA-256 to calculate the hash, which is a commonly used cryptographic hash function that produces a 256-bit (32-byte) hash value.
+
+To check the integrity of a file, you would calculate the hash value of the file when it is known to be good (e.g., when it is first created) and then later calculate the hash value again to see if it has changed. If the hash value is the same, then you know the file has not been modified.

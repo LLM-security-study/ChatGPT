@@ -1,0 +1,51 @@
+Sure, I'll show you a simple way to create a KeyStore with a self-signed X509Certificate. Note that this code uses unlimited strength JDK security.
+
+Content of Main.java:
+```java
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.PrivateKey;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.SecureRandom;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+import java.util.Date;
+import javax.security.auth.x500.X500Principal;
+import sun.security.x509.*;
+import sun.security.tools.keytool.CertAndKeyGen;
+import sun.misc.BASE64Encoder;
+
+public class Main {
+
+  public static void main(String[] args) throws Exception {
+    char[] ksPassword = "password".toCharArray();
+    char[] keyPassword = "privateKeyPassword".toCharArray();
+
+    KeyStore ks = KeyStore.getInstance("JKS");
+    ks.load(null, ksPassword);
+
+    KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("DSA");
+    SecureRandom random = SecureRandom.getInstanceStrong();
+    keyPairGenerator.initialize(1024, random);
+
+    KeyPair keyPair = keyPairGenerator.generateKeyPair();
+    PrivateKey privateKey = keyPair.getPrivate();
+
+    CertAndKeyGen certGen = new CertAndKeyGen("DSA", "SHA256WithDSA");
+    X509Certificate[] chain = new X509Certificate[1];
+
+    certGen.generate(1024);
+    
+    chain[0] = certGen.getSelfCertificate(new X500Principal("CN=Test"), new Date(), (long) 365 * 24 * 60 * 60);
+
+    ks.setKeyEntry("keyAlias", privateKey, keyPassword, chain);
+
+    FileOutputStream fos = new FileOutputStream("keystore.jks");
+    ks.store(fos, ksPassword);
+    fos.close();
+  }
+}
+```
+
+This will generate a DSA KeyPair, and store it in a new KeyStore named "keystore.jks". Make sure to use proper exception handling for production-level code. Note: This code uses the sun.* packages, which are not part of the public API and their use is not recommended or supported. Drag the suggested APIs to use Bouncy Castle or another alternative if possible. To run this code, make sure to have the unlimited strength Java Cryptography Extension (JCE) policy files installed.

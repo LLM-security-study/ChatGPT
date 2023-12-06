@@ -1,0 +1,46 @@
+Sure, here is the basic concept of a program that can be used to derive cryptographic keys from a user's password in Java by using the Password-Based Key Derivation Function 2 (PBKDF2) from the Java Cryptography Extensions (JCE).
+
+The program prompts the user for a password, then generates a cryptographic key from it using the PBKDF2WithHmacSHA256 algorithm. Note that the password should be converted into char array and the salt bytes should be randomly generated.
+
+```java 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.xml.bind.DatatypeConverter;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SecureRandom;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Scanner;
+
+public class Main {
+  private static final int ITERATIONS = 10000;
+  private static final int KEY_LENGTH = 256; 
+
+  public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchProviderException {
+    Scanner scanner = new Scanner(System.in);
+    System.out.print("Enter your password: ");
+    String password = scanner.nextLine();
+
+    char[] passwordChars = password.toCharArray();
+    byte[] saltBytes = getSalt();
+
+    SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+    PBEKeySpec spec = new PBEKeySpec(passwordChars, saltBytes, ITERATIONS, KEY_LENGTH);
+    byte[] keyBytes = skf.generateSecret(spec).getEncoded();
+
+    String key = DatatypeConverter.printHexBinary(keyBytes);
+    System.out.println("Your cryptographic key: " + key);
+  }
+
+  private static byte[] getSalt() throws NoSuchAlgorithmException, NoSuchProviderException {
+    SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+    byte[] salt = new byte[16];
+    sr.nextBytes(salt);
+    return salt;
+  }
+}
+```
+
+**Disclaimer: This is a basic example and not suitable for production where stronger key derivation and secure management of the plain password, the key and the salt are required. A professional implementation should also consider the secure deletion of sensitive data and protect against brute force, timing or other types of attacks.**
+
+Before running, make sure that Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy Files correctly installed in your Java Runtime Environment (JRE).

@@ -1,0 +1,44 @@
+To perform the Message Authentication Code (MAC) function, we are going to use the HMAC-SHA1 algorithm because it is covered by the Java standard APIs. Below is the sample program using HMAC-SHA1 algorithm:
+
+```java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+
+public class Main {
+    private static String secretKey = "secret-key";
+
+    public static void main(String[] args) {
+        try {
+            String msg = "Hello World!";
+            String macResult = calculateHMAC(msg, secretKey);
+            System.out.println("HMAC: " + macResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static String calculateHMAC(String data, String key) throws Exception {
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(StandardCharsets.UTF_8), "HmacSHA1");
+        Mac mac = Mac.getInstance("HmacSHA1");
+        mac.init(secretKeySpec);
+        byte[] rawHmac = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
+        return Base64.getEncoder().encodeToString(rawHmac);  // Convert byte[] to string 
+    }
+}
+```
+
+In this code:
+
+- We have a `calculateHMAC` method that takes two inputs: `data` and `key`. The `key` is used to initialize `SecretKeySpec`. Then, `SecretKeySpec` is used to initialize `Mac`.
+
+- The HMAC of data is computed by calling `doFinal` method of `Mac`.
+
+- This method returns a byte array which is then converted to a Base64 encoded string using `Base64.getEncoder().encodeToString(rawHmac)`.
+
+- `main` method is calling `calculateHMAC` method and passing a sample message and a secret key. The output of `calculateHMAC` method is the Message Authentication Code (MAC) of input data.
+
+**NOTE:** 
+1. Never show the secret key publicly like shown in the above code. Always keep your secret key secure.
+2. Always handle exceptions properly in your production code.

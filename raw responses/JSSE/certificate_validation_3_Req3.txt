@@ -1,0 +1,49 @@
+Certainly, I can provide the skeletal version of a Java program that you can use to implement certificate validation in SSL/TLS. The main class will be named "Main" and our main Java standard API for the implementation will be JSSE (Java Secure Socket Extension), which comes standard with Java.
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // URL of the Host
+            String host = "https://example.com";
+
+            URL url = new URL(host);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Get Server Certificate chain
+            Certificate[] certs = conn.getServerCertificates();
+
+            System.out.println("Number of certificates in the Chain : " + certs.length);
+            for (Certificate cert: certs) {
+                X509Certificate x = (X509Certificate) cert;
+                System.out.println("Certificate : " + x.toString());
+
+                // Validate the certificate
+                x.checkValidity();
+
+                System.out.println("Certificate is valid from " + x.getNotBefore() + " to " + x.getNotAfter());
+                System.out.println("Certificate Public Key : " + x.getPublicKey());
+                System.out.println("Certificate Issuer:  " + x.getIssuerDN());
+                System.out.println("Certificate Version:  " + x.getVersion());
+                System.out.println("\n");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program opens an HTTPS connection to a specified host, retrieves the server's certificate chain, and prints out information about each certificate in the chain. It validates the certificate for its validity period based on the system's current date and time. Please replace the "https://example.com" with the host you want to verify the SSL/TLS certificate for.
+
+Please note that additional calibration and error handling may be necessary based on your use case. 
+
+Secure coding practices also require that you never print any sensitive information to console in a production environment. This is for illustrative purposes and to help get you started. Always ensure that sensitive information remains as secure as possible in any implementation you devise.
+
+Also, this program doesn't handle SSL handshakes, so you may need to appropriately handle them in your production code if required. Make sure to handle all the relevant SSL exceptions, and test comprehensively to ensure security and functionality.

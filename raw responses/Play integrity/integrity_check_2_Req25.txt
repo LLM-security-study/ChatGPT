@@ -1,0 +1,51 @@
+The core API that we'll use for this is Android's PackageManager and PackageInfo for accessing verification-related information of an installed app.
+
+Below is a simple Java program that verifies the integrity of an Android app.
+
+```Java
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
+import android.util.Base64;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    private PackageManager packageManager;
+
+    public Main(PackageManager packageManager) {
+        this.packageManager = packageManager;
+    }
+
+    public boolean verifyAppIntegrity(String packageName) {
+        try {
+            PackageInfo packageInfo = packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES);
+            
+            // Assuming the app should be signed with only one signature
+            Signature signature = packageInfo.signatures[0];
+            MessageDigest messageDigest;
+            messageDigest = MessageDigest.getInstance("SHA");
+            messageDigest.update(signature.toByteArray());
+            String currentSignature = Base64.encodeToString(messageDigest.digest(), Base64.DEFAULT);
+            
+            return currentSignature.equals(getExpectedSignature());
+        } catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Fetch expected signature from your secure server or an encrypted source.
+    // Not implemented in this example.
+    public String getExpectedSignature() {
+        return "";
+    }
+}
+```
+
+This program fetches the Signature instances related to the provided packageName, calculate its SHA-1 and compare it with the expected one. 
+
+Note: This is a simple code, in real-life applications the expectedSignature is fetched from a secure server or extracted from an encrypted source, thus making it harder for hackers to spoof.
+
+Also, this class needs to be initialized with the PackageManager instance of the host (the android app running this code) so it has access to other apps information.

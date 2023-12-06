@@ -1,0 +1,49 @@
+Sure. Here is a simple Java program that takes a message as input and generates its MAC:
+
+```Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Enter the secret message:");
+        String message = scanner.nextLine();
+
+        System.out.println("Enter the secret key:");
+        String secretKey = scanner.nextLine();
+
+        SecretKeySpec keySpec = new SecretKeySpec(
+                secretKey.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(keySpec);
+        byte[] macBytes = mac.doFinal(message.getBytes(StandardCharsets.UTF_8));
+
+        System.out.println("MAC: " + bytesToHex(macBytes));
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hash) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+
+This program reads a message and a secret key from the console, uses HMAC (Hash-based Message Authentication Code) with the SHA-256 hash function to generate the MAC, and then prints the MAC in hexadecimal form.
+
+Please note that using a secure and random secret key is very important in a real application. You should never use a user-provided secret key as in this example. Also, keep your secret keys secret! Anyone who knows the secret key can generate (and validate) MACs for messages.
+
+Also, beware that MACs are submitted to the same attacks as any simple MD5 or SHA-1 generation. You want to make MACs be time-constant comparisons to prevent timing attacks.
+
+Keep in mind that generating MACs is only one part of the security you need to provide. It is also important to securely transfer this MAC to the other party, and neglecting this part can lead to MITM (Man In The Middle) attacks.

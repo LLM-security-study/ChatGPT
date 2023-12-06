@@ -1,0 +1,41 @@
+Here is a simple Java program that generates a SecretKey from a user's password using java's standard APIs.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.SecretKey;
+import java.util.Scanner;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Obtain password from user
+            System.out.println("Enter your password: ");
+            Scanner scanner = new Scanner(System.in);
+            String password = scanner.nextLine();
+            scanner.close();
+            
+            // Define salt and iteration count for the SecretKey generation
+            byte[] salt = new byte[16]; // Normally you should use a securely randomly generated salt
+            int iterationCount = 65536;
+            int keyLength = 256;
+
+            // Generate SecretKey
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            SecretKey secretKey = factory.generateSecret(spec);
+
+            System.out.println("Secret Key has been generated");
+            System.out.println("Secret Key in base 64 encoding: " + Base64.getEncoder().encodeToString(secretKey.getEncoded()));
+        } catch (Exception e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    }
+}
+```
+
+This program will take a password from user and then generate secret key for that password using PBKDF2WithHmacSHA256 algorithm provided by Java. I have defined a static salt, but typically, it should be a securely randomly generated salt. After generating the secret key, it is printed in base64 encoding format.
+
+Do understand, this is a simple example and for real use cases, it is important to handle exceptions properly and use secure coding practices.

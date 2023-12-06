@@ -1,0 +1,45 @@
+Below is a sample Java program implementing digital signatures.
+
+Kindly note: The below program creates and uses a public-private key pair using the RSA algorithm for the digital signature. For a real-world use case, you would typically load existing keys from KeyStore.
+
+```java
+import java.security.*;
+import java.util.Arrays;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        // Generate a key pair
+        KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(1024); // you can increase the key size for stronger security
+        KeyPair keyPair = keyGen.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+        PublicKey publicKey = keyPair.getPublic();
+
+        // Original data
+        String originalData = "Hello, World!";
+
+        // Sign the data
+        Signature rsaSig = Signature.getInstance("SHA256withRSA");
+        rsaSig.initSign(privateKey);
+        rsaSig.update(originalData.getBytes());
+        byte[] signature = rsaSig.sign();
+
+        System.out.println("Signature: " + Arrays.toString(signature));
+
+        // To verify a signature
+        Signature publicSignature = Signature.getInstance("SHA256withRSA");
+        publicSignature.initVerify(publicKey);
+        publicSignature.update(originalData.getBytes());
+
+        if (publicSignature.verify(signature)) {
+            System.out.println("Signature verified");
+        } else {
+            System.out.println("Signature verification failed");
+        }
+    }
+}
+```
+This program creates a digital signature for any string input. The main class is named "Main" here. It prints the generated signature as well as the result of the signature verification upon execution.
+
+Please make sure that you have the proper exception handling mechanisms in place for your production code as the above code doesn't include robust exception handling for brevity.

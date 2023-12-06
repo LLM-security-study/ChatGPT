@@ -1,0 +1,39 @@
+Here is a basic example of a cryptographic keys derived from password using SecretKeyFactory and PBEKeySpec as outlined in Java Cryptography Architecture (JCA) of standard Java APIs:
+
+```Java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.spec.KeySpec;
+import java.util.Base64;
+import java.security.SecureRandom;
+
+public class Main {
+    public static void main(String[] args) {
+
+        try {
+            // Password entered by the user
+            String password = "user_password";
+
+            // Generate Salt
+            byte[] salt = new byte[16];
+            SecureRandom.getInstance("SHA1PRNG").nextBytes(salt);
+
+            // Derive the key
+            KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+            SecretKeyFactory f = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+
+            byte[] hash = f.generateSecret(spec).getEncoded();
+
+            // Print the key
+            System.out.println(Base64.getEncoder().encodeToString(hash));
+        } 
+        catch (Exception e) {
+            System.err.println("Error occurred: " + e.getMessage());
+        }
+    }
+}
+```
+
+In this example, a key is derived from the user's password using PBKDF2 with HmacSHA1. The salt is randomly generated for each password which will make it harder to crack the key even with the same password. We use a higher iteration count (65536) and key length (128) for added security. The derived key is encoded to Base64 for print.
+
+Please note, this is a simple example for learning purposes and further hardening should be considered in a production environment. Also, the Java Cryptography Extension (JCE) unlimited strength jurisdiction policy files must be installed to support a key length greater than 128.

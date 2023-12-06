@@ -1,0 +1,36 @@
+Sure, here is a simple Java program that can be used to generate a seed and then generate a salt for password hashing:
+
+```java
+import java.security.SecureRandom;
+import java.util.Base64;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create SecureRandom instance
+        SecureRandom sr = new SecureRandom();
+        
+        // Create byte array
+        byte[] seed = new byte[16];
+        
+        // Get random seed
+        sr.nextBytes(seed);
+        
+        // Initialize SecureRandom with the generated seed
+        sr.setSeed(seed);
+        
+        // Generate salt
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        
+        // Print salt in base64 format
+        System.out.println("Generated Salt: " + Base64.getEncoder().encodeToString(salt));
+    }
+}
+```
+
+In this code:
+
+- SecureRandom is a class that provides a cryptographically strong random number generator (RNG). When you create a new instance of this class, it is virtually impossible to predict the sequence of numbers that will be produced by subsequent calls to nextBytes() for any given seed.
+- setSeed() is used to initialize the SecureRandom instance with the generated seed.
+- nextBytes() is then called to generate the salt.
+- The resulted salt is a byte array and can be converted to a readable format such as base64 for storage or comparison.

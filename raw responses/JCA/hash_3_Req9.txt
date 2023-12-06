@@ -1,0 +1,33 @@
+Sure. Here's a simple Java program that uses the MessageDigest class from Java's standard APIs to generate a hash value.
+
+```java
+import java.security.MessageDigest;
+import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        System.out.println("Enter a string:");
+        Scanner scanner = new Scanner(System.in);
+        String input = scanner.nextLine();
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedHash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+            System.out.println("Hash:");
+            for (byte b : encodedHash) {
+                System.out.format("%02x", b);
+            }
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("Error generating hash: " + e.getMessage());
+        }
+    }
+}
+```
+
+This program will create a SHA-256 hash of an input string. After running the program, enter a string when prompted. The program will then display the hash of that string.
+
+Keep in mind that SHA-256 is a commonly used, secure hash function, but there are many alternatives available, some of which may be more suitable for your needs.
+
+You should also note that hash functions are 'one-way' functions, in the sense that you can generate a hash from an input, but you cannot retrieve the original input from the hash.

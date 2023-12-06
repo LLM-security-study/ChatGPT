@@ -1,0 +1,53 @@
+Sure. The primary Java API that would be used for implementing an SSL socket-based communication with a remote server is Java Secure Socket Extension (JSSE) API.
+
+Here's an example of how you might set up an SSL connection to a remote server:
+
+```java
+import java.io.*;
+import javax.net.ssl.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String host = "yourremotehost.com";
+        int port = 1234; //Default SSL Port
+        
+        try {
+            // Create SSLSocketFactory instance
+            SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            
+            // Create SSLSocket instance
+            SSLSocket socket = (SSLSocket) factory.createSocket(host, port);
+            
+            // Initialize the socket's output stream 
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            
+            // Write a message to the server
+            output.println("Hello Server!");
+            output.flush();
+            
+            // Initialize the socket's input stream 
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            
+            // Read response from the server
+            String response = input.readLine(); 
+            System.out.println("Server response: " + response);
+            
+            // Close the streams and the socket
+            output.close();
+            input.close();
+            socket.close();
+            
+        } catch(IOException e) {
+            System.out.println("An error occurred : " + e.getMessage());
+        }  
+    }
+}
+```
+
+Please note: 
+
+1. Replace `"yourremotehost.com"` with the actual hostname of your remote server.
+2. The port number `1234` is just a placeholder. You should replace it with the actual port used by your remote server for SSL communications.
+3. This example assumes that default SSL settings are appropriate. For a production environment, you'd likely need to further configure the `SSLSocketFactory` to establish a secure and trusted SSL connection.
+4. This program does not handle server validation. In real-world scenarios, you should also implement server validation to authenticate the server before sending any sensitive data.
+5. For real-world applications, it's very important to provide correct error handling logic. This simple example only prints the message of any `IOException` that may be thrown.

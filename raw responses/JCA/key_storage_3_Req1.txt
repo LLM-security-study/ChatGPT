@@ -1,0 +1,48 @@
+Sure, here is a sample java program which reads an SSL Certificate from a file and then stores in a java keystore. You'll need to replace "CERTIFICATE_FILE_PATH", "KEYSTORE_FILE_PATH", and "KEYSTORE_PASSWORD" with your actual values.
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.KeyStore;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Load the certificate
+            CertificateFactory cf = CertificateFactory.getInstance("X.509");
+            FileInputStream certInStream = new FileInputStream("CERTIFICATE_FILE_PATH");
+            Certificate cert = cf.generateCertificate(certInStream);
+
+            // Load or create a new Keystore
+            KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
+            FileInputStream ksInStream = null;
+            try {
+                ksInStream = new FileInputStream("KEYSTORE_FILE_PATH");
+                ks.load(ksInStream, "KEYSTORE_PASSWORD".toCharArray());
+            } catch (Exception e) {
+                System.out.println("Exception while loading keystore. Creating a new one.");
+                ks.load(null, "KEYSTORE_PASSWORD".toCharArray());
+            }
+
+            // Add the certificate to the Keystore
+            ks.setCertificateEntry("alias", cert);
+
+            // Save the new Keystore contents
+            FileOutputStream fos = new FileOutputStream("KEYSTORE_FILE_PATH");
+            ks.store(fos, "KEYSTORE_PASSWORD".toCharArray());
+            fos.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program consists of a single class "Main" with a single "main" method, which can be executed from the command line. The program assumes that both the certificate and the keystore files are present at the specified file paths. 
+
+It is important to recognize though, that in a real life project, you would ideally want to handle this in a more robust manner, perhaps using a logging framework for your logging needs and a configuration file or command line arguments for your file paths. It's also recommended to handle sensitive values, like the keystore password, in a more secure manner, probably using environment variables or command line arguments. 
+
+Finally, don't forget to handle your IO resources in a try-with-resources statement or close them in finally blocks, otherwise you might leak resources. In this example I've omitted it for brevity, but it's a very important best practice to follow.

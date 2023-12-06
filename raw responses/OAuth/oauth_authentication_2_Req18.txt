@@ -1,0 +1,88 @@
+Here is how to implement a Single-Sign-On (SSO) service for a web application by using Google accounts for user authentication in Java:
+
+Create Your servlet (GoogleOauthServlet.java)
+
+```java
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.extensions.servlet.auth.oauth2.AbstractAuthorizationCodeServlet;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+
+public class GoogleOauthServlet extends AbstractAuthorizationCodeServlet {
+
+    @Override
+    protected void initializeFlow() throws IOException {
+        return new AuthorizationCodeFlow.Builder(BearerToken.authorizationHeaderAccessMethod(),
+                new NetHttpTransport(),
+                new JacksonFactory(),
+                new GenericUrl("https://www.googleapis.com/oauth2/v1/token"), // token server URL
+                new ClientParametersAuthentication("<Your client id>", "<Your client secret>"), // clientId and clientSecret 
+                "<Your client id>",
+                "https://www.googleapis.com/oauth2/auth") // authorization server URL
+            .setScopes(Arrays.asList("https://www.googleapis.com/auth/userinfo.profile",
+                         "https://www.googleapis.com/auth/userinfo#email"))
+            .build();
+    }
+
+    @Override
+    protected String getRedirectUri(HttpServletRequest req) throws ServletException, IOException {
+        GenericUrl url = new GenericUrl(req.getRequestURL().toString());
+        url.setRawPath("/oauth2callback");
+        return url.build();
+    }
+
+    @Override
+    protected String getUserId(HttpServletRequest req) throws ServletException, IOException {
+        // TODO: return user ID
+        return "";
+    }
+}
+```
+
+Create another servlet (CallbackServlet.java) for handling OAuth callback:
+
+```java
+import com.google.api.client.auth.oauth2.AuthorizationCodeFlow;
+import com.google.api.client.extensions.servlet.auth.oauth2.AbstractAuthorizationCodeCallbackServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+public class CallbackServlet extends AbstractAuthorizationCodeCallbackServlet {
+
+    @Override
+    protected void initializeFlow() {
+        return new GoogleAuthorizationCodeFlow.Builder(
+                new NetHttpTransport(),
+                new JacksonFactory(),
+                "<Your client id>", "<Your client secret>",
+                Arrays.asList("https://www.googleapis.com/auth/userinfo.profile",
+                              "https://www.googleapis.com/auth/userinfo#email"))
+            .setAccessType("offline").build();
+    }
+
+    @Override
+    protected String getRedirectUri(HttpServletRequest req) throws ServletException, IOException {
+        GenericUrl url = new GenericUrl(req.getRequestURL().toString());
+        url.setRawPath("/oauth2callback");
+        return url.build();
+    }
+
+    @Override
+    protected String getUserId(HttpServletRequest req) throws ServletException, IOException {
+        // TODO: return user ID
+        return "";
+    }
+}
+```
+
+You will need to replace "<Your client id>", "<Your client secret>" with your own client id and client secret.
+
+This isn't a complete java application, but it outlines the main sequence of operations needed to implement Google account SSO authentication using a servlet. Maintainance of user state, extraction of user details from JWT, additional API calls to Google for user information, error handling, etc. is still necessary for a complete application.
+
+Note: Don't forget to add servlet mappings to your web.xml for the servlets. Plus, remember to handle error case(s) effectively.
+

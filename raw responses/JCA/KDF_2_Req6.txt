@@ -1,0 +1,48 @@
+Sure, here's a simple Java program that turns a user's password into a secret key using AES (Advanced Encryption Standard):
+
+```java
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.MessageDigest;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Enter a password to create a secret key:");
+
+        String password = scanner.nextLine();
+
+        MessageDigest sha = MessageDigest.getInstance("SHA-256");
+        byte[] key = password.getBytes("UTF-8");
+        key = sha.digest(key);
+        SecretKey secretKey = new SecretKeySpec(key, "AES");
+
+        System.out.println("The secret key is:");
+        System.out.println(convertToHex(secretKey.getEncoded()));
+    }
+
+    public static String convertToHex(byte[] data) {
+        StringBuilder buf = new StringBuilder();
+        for (byte b : data) {
+            int halfbyte = (b >>> 4) & 0x0F;
+            int two_halfs = 0;
+            do {
+                buf.append((0 <= halfbyte) && (halfbyte <= 9) ? (char) ('0' + halfbyte) : (char) ('a' + (halfbyte - 10)));
+                halfbyte = b & 0x0F;
+            } while (two_halfs++ < 1);
+        }
+        return buf.toString();
+    }
+}
+```
+In this program, you're asked to input a password. An instance of `MessageDigest` is created to apply the SHA-256 hash function to the password, which is then truncated to use as a key for AES cipher. The `convertToHex` function is used to output the resulting binary secret key in a readable hexadecimal format.
+
+This program uses the following Java standard APIs:
+- `javax.crypto.SecretKey`: A secret key is used in creating a Cipher.
+- `javax.crypto.spec.SecretKeySpec`: This class specifies a secret key in a provider-independent fashion.
+- `java.security.MessageDigest`: This class provides applications the functionality of a message digest algorithm.
+- `java.util.Scanner`: This class is used to get input from the user.
+Please note that this code is a simple illustration and not recommended for actual use where secure key generation is important. Java's standard libraries also provide `SecretKeyFactory` and `PBKDF2WithHmacSHA256` for creating cryptographically secure keys from passwords.
+

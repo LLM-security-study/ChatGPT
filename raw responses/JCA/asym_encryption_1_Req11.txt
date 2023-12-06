@@ -1,0 +1,45 @@
+Here is a simple example of encryption and decryption using RSA algorithm in Java. 
+
+```java
+import java.security.*;
+import javax.crypto.Cipher;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            final String originalMessage = "This is a secret message";
+
+            KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+            keyGen.initialize(512);
+            KeyPair pair = keyGen.generateKeyPair();
+            PublicKey pubKey = pair.getPublic();
+            PrivateKey privateKey = pair.getPrivate();
+
+            String encryptedMessage = encrypt(originalMessage, pubKey);
+            System.out.println("Original Message: " + originalMessage);
+            System.out.println("Encrypted Message: " + encryptedMessage);
+
+            String decryptedMessage = decrypt(encryptedMessage, privateKey);
+            System.out.println("Decrypted Message: " + decryptedMessage);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    //function to encrypt a string
+    public static String encrypt(String msg, PublicKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        return new String(cipher.doFinal(msg.getBytes()));
+    }
+    //function to decrypt a string
+    public static String decrypt(String msg, PrivateKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        return new String(cipher.doFinal(msg.getBytes()));
+    }
+}
+```
+Please note, this is a simple demonstration of RSA encryption/decryption and may not be suitable for real-world secure encryption.
+
+Also since RSA algorithm is not well-suited for operating on strings of bytes, an exception may be thrown when encountering invalid character conversions while decrypting. This can be addressed by encoding and decoding bytes to and from Base64 while encryption and decryption respectively. However, this introduces complexities that go beyond the scope of a simple example.

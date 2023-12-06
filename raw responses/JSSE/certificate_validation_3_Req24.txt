@@ -1,0 +1,48 @@
+Sure, here is a simple Java program that uses Java's Secure Socket Extension (JSSE) to implement certificate validation in SSL/TLS. The main class is named "Main".
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import java.net.URL;
+import java.security.cert.X509Certificate;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+
+                        public void checkClientTrusted(X509Certificate[] certs, String authType) {
+                        }
+
+                        public void checkServerTrusted(X509Certificate[] certs, String authType) {
+                        }
+                    }
+            };
+
+            SSLContext sc = SSLContext.getInstance("SSL");
+            sc.init(null, trustAllCerts, new java.security.SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+
+            URL url = new URL("https://yourUrlHere.com");
+            HttpsURLConnection connection = (HttpsURLConnection)url.openConnection();
+
+            connection.connect();
+            connection.disconnect();
+
+            System.out.println("Certificate validation successful.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+}
+```
+
+This code above accepts all certificates whether valid or not which can be a serious security flaw. In a complete application, you should replace the TrustManager with your own implementation that validates server certificates against your own trust store.

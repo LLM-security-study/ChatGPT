@@ -1,0 +1,48 @@
+Sure, below is a simple example of a Java program that uses the Password-Based Key Derivation Function 2 (PBKDF2) from Java's standard API, specifically the `SecretKeyFactory` class. This generates a SecretKey to be used in the cryptographic operations from a user-input password. Also, the program uses SHA256 hashing function.
+
+Please note that a truly secure system should not use static salts. This program is an oversimplified demonstration.
+
+```java
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.security.*;
+import java.security.spec.*;
+import java.util.Scanner;
+
+public class Main {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        
+        System.out.println("Please enter password: ");
+        String password = scanner.nextLine();
+
+        Key key = deriveKey(password);
+
+        System.out.println("Derived key: " + key.toString());
+    }
+
+    public static SecretKey deriveKey(String password) {
+        try {
+            // Generate a static salt. In a real-world scenario, it should be a random salt.
+            byte[] salt = new byte[16];
+            Arrays.fill(salt, (byte) 5);
+            
+            int iterationCount = 10000;
+            int keyLength = 256;  // SHA-256 outputs 256-bit hashes.
+
+            KeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt, iterationCount, keyLength);
+            SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            
+            byte[] keyBytes = keyFactory.generateSecret(keySpec).getEncoded();
+            return new SecretKeySpec(keyBytes, "AES");  // Use AES as the symmetric encryption algorithm.
+            
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException("Error deriving key", e);
+        }
+    }
+}
+```
+This implementation asks the user to enter the password, and then it uses the entered password together with a static salt to derive an AES key, which can be used for symmetric encryption or decryption. 
+
+It's important to take other security measures in a real production environment, such as securely storing and hashing passwords, generating non-static salts, and using a secure number of iterations.

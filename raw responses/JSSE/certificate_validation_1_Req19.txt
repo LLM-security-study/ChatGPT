@@ -1,0 +1,41 @@
+Below is the simple Java program that validates the SSL Certificate of a server before establishing a secure communication. 
+
+The program makes use of Java's built-in API javax.net.ssl to interact with the SSL (Secure Socket Layer) to achieve the secure communication. Here's the base of a simple program:
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import java.net.URL;
+
+public class Main {
+
+    public static void main(String[] args) {
+        try {
+            String urlString = "https://your-secured-website.com";
+            
+            URL url = new URL(urlString);
+            HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
+
+            // Get the SSL Certificate details
+            java.security.cert.Certificate[] certificates = conn.getServerCertificates();
+
+            for (java.security.cert.Certificate certificate : certificates) {
+                System.out.println("Certificate is: " + certificate);
+                if(certificate instanceof java.security.cert.X509Certificate) {
+                    System.out.println("Certificate subject: " + ((java.security.cert.X509Certificate) certificate).getSubjectDN());
+                    System.out.println("Certificate issuer: " + ((java.security.cert.X509Certificate) certificate).getIssuerDN());
+                    System.out.println("Certificate serial number: " + ((java.security.cert.X509Certificate) certificate).getSerialNumber());
+                }
+            }
+
+            conn.connect();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This code will fetch the SSL Certificate details of a given server. Please replace "https://your-secured-website.com" with the actual server URL that you want to connect to. This is a simple program which does not handle all the error cases, and does not completely validates the certificate. In a real-world application, features like validating the certificate's issuer, serial number, and expiration date may also be done according to your needs. 
+
+Once again, this is just a simple implementation and real-world SSL Certificate validation might be more complex than this based on the requirements. Always ensure to properly handle the exceptions and errors for ensuring robustness of your application.

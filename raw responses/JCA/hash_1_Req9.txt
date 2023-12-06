@@ -1,0 +1,44 @@
+You can use the Java's `MessageDigest` API to get the hash value of a given string (i.e., "abc"). Here is the Java program below:
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+
+        Scanner input = new Scanner(System.in);
+        System.out.println("Enter the string:");
+        String originalString = input.nextLine();
+
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(originalString.getBytes(StandardCharsets.UTF_8));
+            String hash = bytesToHex(encodedhash);
+            System.out.println("The hash value of input string is: " + hash);
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("No such algorithm exception");
+        }
+    }
+
+    private static String bytesToHex(byte[] hash) {
+        StringBuffer hexString = new StringBuffer();
+        for (int i = 0; i < hash.length; i++) {
+            String hex = Integer.toHexString(0xff & hash[i]);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+        return hexString.toString();
+    }
+}
+```
+In this code, the main function takes user input (a string in plain text) and then calculates SHA-256 hash using `MessageDigest.getInstance("SHA-256")`.
+
+Then the bytes obtained from digest is converted to hex format through `bytesToHex()` method which is more human-readable.
+
+In `bytesToHex()` method, It iterates over each byte in the hash, converting each byte to a hexadecimal string (using the built-in `Integer.toHexString` method), and then appending it to the `hexString` string buffer.
+
+If any error occurs while getting the instance a message will be printed indicating "No such algorithm exception".
+

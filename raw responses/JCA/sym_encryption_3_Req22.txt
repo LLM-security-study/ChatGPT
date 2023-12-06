@@ -1,0 +1,46 @@
+Sure, Here is a simple example of how to implement symmetric cryptography using Java's Cipher class with "AES" encryption for data decryption.
+
+This specific program does not have a GUI and runs from the console.
+
+I'm assuming you have an encrypted string beforehand. Also, make sure to replace "myKey" with your own secret key string.
+
+```java
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class Main {
+
+    private static String decrypt(String strToDecrypt, String secret) {
+        try {
+            SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), "AES");
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+            return new String(cipher.doFinal(Base64.getDecoder().decode(strToDecrypt)));
+        } catch (Exception e) {
+            System.out.println("Error while decrypting: " + e.toString());
+        }
+        return null;
+    }
+
+   public static void main(String args[]) {
+       final String secretKey = "myKey";
+       String originalString = "qwrtyuioasdfghjklzxcvbnm123456";
+       String encryptedString = Base64.getEncoder().encodeToString(originalString.getBytes());
+       String decryptedString = decrypt(encryptedString, secretKey) ;
+
+       System.out.println("Original String: " + originalString);
+       System.out.println("Encrypted String: " + encryptedString);
+       System.out.println("Decrypted String: " + decryptedString);
+   }
+}
+ ```
+
+Please be aware:
+- I've chosen AES (Advanced Encryption Standard) as the encryption algorithm. AES operates on bytes and so the raw inputs are converted to bytes before being encrypted or decrypted.
+- We used Base64 as the encoding to make sure the encrypted data is safe for use and does not get corrupted.
+- Note that using a hard-coded password in your source code is not good for security. In usual scenarios, you should hide this password or generate it within your program somehow.
+- For encryption and decryption to work they need to use the same SecretKeySpec and Cipher instance. This is why we transformed the string message to bytes and back.
+- This code does not cover a lot of best practices for encryption (for example, using SecureRandom as Initialization Vector (IV), etc.).
+  
+Please modify the code as per your requirement.

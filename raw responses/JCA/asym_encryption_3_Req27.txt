@@ -1,0 +1,52 @@
+Sure, below is an implementation of a program in Java which encrypts and decrypts a text message using RSA, which is an asymmetric encryption algorithm.
+
+```java
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import javax.crypto.Cipher;
+
+public class Main {
+
+    static final String text = "Hello, World!";
+
+    public static void main(String[] args) throws Exception {
+        // Generate key pair
+        KeyPair keyPair = buildKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Encrypt the message
+        byte[] encrypted = encrypt(privateKey, text);
+        System.out.println("Encrypted text: " + new String(encrypted));
+
+        // Decrypt the message
+        byte[] decrypted = decrypt(publicKey, encrypted);                                 
+        System.out.println("Decrypted text: " + new String(decrypted));
+    }
+
+    public static KeyPair buildKeyPair() throws Exception {
+        final int keySize = 2048;
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(keySize);      
+        return keyPairGenerator.genKeyPair();
+    }
+
+    public static byte[] encrypt(PrivateKey privateKey, String message) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.ENCRYPT_MODE, privateKey);  
+
+        return cipher.doFinal(message.getBytes());  
+    }
+
+    public static byte[] decrypt(PublicKey publicKey, byte [] encrypted) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");  
+        cipher.init(Cipher.DECRYPT_MODE, publicKey);
+        
+        return cipher.doFinal(encrypted);
+    }
+}
+```
+
+In this program, the `buildKeyPair` function generates a pair of public and private keys. The `encrypt` function encrypts a message using the private key and the `decrypt` function decrypts it using the public key. The steps to do these operations include getting an instance of `Cipher` for RSA and initializing it for either encryption or decryption with the appropriate key. Then the `doFinal` method is used on the cipher to encrypt or decrypt the input.

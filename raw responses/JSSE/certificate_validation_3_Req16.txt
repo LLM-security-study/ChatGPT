@@ -1,0 +1,54 @@
+In Java, you can utilize the SSLSocketFactory for creating SSL sockets and further validate the server's certificate.
+
+The Secure Socket Layer (SSL) and Transport Layer Security (TLS) are used for providing secure communications in Java. Note that for TLS/SSL connection you need a server running with SSL certificate. 
+
+A bare-bones example could be something like: 
+
+```java
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+import javax.security.cert.X509Certificate;
+import java.io.InputStream;
+import java.net.URL;
+import java.security.KeyStore;
+
+public class Main {
+    public static void main(String[] args) {
+        try {
+            // Load the JDK's cacerts keystore file
+            String filename = System.getProperty("java.home") + "/lib/security/cacerts".replace('/', File.separatorChar);
+            FileInputStream is = new FileInputStream(filename);
+            KeyStore keystore = KeyStore.getInstance(KeyStore.getDefaultType());
+            String password = "changeit"; // password for cacerts keystore
+            keystore.load(is, password.toCharArray());
+
+            // Create a TrustManager that trusts the CAs in our KeyStore
+            TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init(keystore);
+            X509TrustManager defaultTrustManager = (X509TrustManager)tmf.getTrustManagers()[0];
+
+            // Establish a SSL/TLS connection with the server
+            URL url = new URL("https://your-server.com");
+            HttpsURLConnection urlConnection = (HttpsURLConnection) url.openConnection();
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new TrustManager[]{ defaultTrustManager }, null);
+            urlConnection.setSSLSocketFactory(context.getSocketFactory());
+
+            // confirm the server's certificate chain is validated
+            InputStream in = urlConnection.getInputStream();
+            System.out.println("Server's certificate chain is validated!");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This code attempts to establish a TLS connection with the specified server and validate its SSL certificate. If the certificate validation is successful, it will print "Server's certificate chain is validated!".
+
+Please replace `"https://your-server.com"` with your actual server URL. Please make sure your server is running with an SSL certificate.
+
+Also, OpenSSL(`openssl` utility) can be used to generate certificates if you need one for testing(this might need a server side programming).

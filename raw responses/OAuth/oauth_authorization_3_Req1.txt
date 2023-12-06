@@ -1,0 +1,57 @@
+Here is a simple Java Program that uses Google People API to access the Google contacts with the help of Oauth2.0 authorisation:
+
+```java
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
+import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeFlow;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
+
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Arrays;
+import java.util.List;
+
+public class Main {
+
+    private static final String APPLICATION_NAME = "Google Contacts";
+    private static final JacksonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final String TOKENS_DIRECTORY_PATH = "tokens";
+    private static final List<String> SCOPES = Arrays.asList("https://www.googleapis.com/auth/contacts.readonly");
+    private static final String CREDENTIALS_FILE_PATH = "/credentials.json";
+
+
+    private static Credential getCredentials(final NetHttpTransport HTTP_TRANSPORT) throws IOException {
+        InputStream in = Main.class.getResourceAsStream(CREDENTIALS_FILE_PATH);
+        if (in == null) {
+            throw new FileNotFoundException("Resource not found: " + CREDENTIALS_FILE_PATH);
+        }
+        GoogleClientSecrets clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
+
+        GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(HTTP_TRANSPORT, JSON_FACTORY, clientSecrets, SCOPES)
+                .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
+                .setAccessType("offline")
+                .build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(8888).build();
+        return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
+    }
+
+    public static void main(String... args) throws IOException, GeneralSecurityException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        var credential = getCredentials(HTTP_TRANSPORT);
+
+        System.out.println("Google Contacts are authorized successfully");
+    }
+}
+```
+This code uses OAuth2.0 authorization flow to authorize the user and get the access token. The `getCredentials()` method loads the client secrets from a JSON credential file. The scopes defined are for readonly access to Google contacts. When you run the application, it redirects you to a Google sign-in page. After successful sign-in, it gives a code that you will paste into your program and then the contacts will get authorized.
+
+Please replace "/credentials.json" with the path to your credentials file in your project and the SCOPES based on your requirement.
+
+You need to include various libraries for the Google People API and OAuth2.0 client, such as `google-api-client`, `google-oauth-client-jetty`, and `google-api-services-people` so make sure to import these libraries in your project.
+
+Also, note that the application assumes you have a 'tokens' directory in your working directory. This is where the access token and refresh token will be stored once the user authorizes the application. The tokens are then used for authorization in all the subsequent API calls.
+
+To get contacts information, you need to use the PeopleService class, make sure it's covered in other parts of your project as it is not the focus of this task.

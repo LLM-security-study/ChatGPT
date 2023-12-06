@@ -1,0 +1,43 @@
+Here's a simple implementation using Java's standard SSL infrastructure, specifically, the SSLSocketFactory, SSLSocket, and HTTPS_URL classes.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.net.*;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        String hostname = "www.example.com"; // replace with your host
+        int port = 443; // replace with your port
+
+        SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+        SSLSocket socket = (SSLSocket) factory.createSocket(hostname, port);
+
+        // initiate the SSL handshake
+        socket.startHandshake();
+
+        // verify the server's certificate
+        SSLSession session = socket.getSession();
+        java.security.cert.Certificate[] servercerts = session.getPeerCertificates();
+
+        // get the hostname of the server certificate 
+        String serverCertHostName = ((X509Certificate)servercerts[0]).getSubjectX500Principal().getName();
+
+        System.out.println("Host Name: " + serverCertHostName);
+ 
+        // verify the hostname
+        if(!hostname.equals(serverCertHostName)) {
+             throw new SSLHandshakeException("Expected " + hostname + ", got " + serverCertHostName);
+        }
+    }
+}
+```
+The above code does the following:
+
+1. Establishes a standard SSL socket to the server with the specified hostname
+2. Initiates the SSL handshake, during which the server's certificate (which includes the hostname) is retrieved
+3. Retrieves the hostname from the certificate
+4. Compares the expected hostname (given when the socket is created) with the one retrieved from the certificate. If there's a mismatch, it throws an exception.
+
+**Please note:** This is a basic implementation which may not cover all the cases related to hostname verification in SSL/TLS communication, particularly those involving wildcards and subdomains. It is highly recommended to use specialized libraries or the SSL parameters offered by Java (from version 7 onwards) for more comprehensive hostname verification.

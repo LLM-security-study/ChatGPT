@@ -1,0 +1,60 @@
+Sure, Here is your Java code implementing RSA encryption and decryption. 
+
+```java
+import javax.crypto.Cipher;
+import java.security.*;
+
+public class Main {
+    private static final String ALGORITHM = "RSA";
+    
+    // Function to encrypt string
+    public byte[] encrypt(String text, PublicKey key) {
+        byte[] cipherText = null;
+        try {
+            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.ENCRYPT_MODE, key);
+            cipherText = cipher.doFinal(text.getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return cipherText;
+    }
+    
+    // Function to decrypt string
+    public String decrypt(byte[] text, PrivateKey key) {
+        byte[] dectyptedText = null;
+        try {
+            final Cipher cipher = Cipher.getInstance(ALGORITHM);
+            cipher.init(Cipher.DECRYPT_MODE, key);
+            dectyptedText = cipher.doFinal(text);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new String(dectyptedText);
+    }
+
+    public static void main(String[] args) {
+        try {
+            final KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ALGORITHM);
+            keyGen.initialize(2048);
+            final KeyPair keyPair = keyGen.generateKeyPair();
+            Main mainobj = new Main();
+
+            String text = "This is a secret message";
+            byte[] cipherText = mainobj.encrypt(text, keyPair.getPublic());
+            String decryptedText = mainobj.decrypt(cipherText, keyPair.getPrivate());
+
+            System.out.println("Original Text: " + text);
+            System.out.println("Encrypted Text: " + new String(cipherText));
+            System.out.println("Decrypted Text: " + decryptedText);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates a KeyPair for RSA algorithm, then uses that key pair for encryption & decryption of a string. The encryption & decryption is handled by the `encrypt()` and `decrypt()` functions respectively.
+
+Keep in mind, RSA encryption is a costly operation in terms of computation. It's mostly used to encrypt small amounts of data like a key or hash, but not a whole document or a large string. For larger data, a symmetric key algorithm like AES is commonly used. RSA or similar asymmetric key algorithms, are used to encrypt/decrypt the symmetric key, which is then used for the actual data encryption/decryption.

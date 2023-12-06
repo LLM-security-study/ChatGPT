@@ -1,0 +1,43 @@
+Sure, here is a simple example of a program that uses Password-Based Key Derivation Function (PBKDF2) in a Java program. The Java Cryptography Extension (JCE) provides a PBKDF2 implementation that you can use.
+
+```java
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.util.Arrays;
+
+public class Main {
+
+    public static void main(String[] args) {
+        char[] password = "password".toCharArray();
+        byte[] salt = new byte[16];
+
+        int iterationCount = 65536;
+        int keyLength = 128;
+
+        KeySpec spec = new PBEKeySpec(password, salt, iterationCount, keyLength);
+
+        try {
+            SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            byte[] hash = factory.generateSecret(spec).getEncoded();
+
+            System.out.println(Arrays.toString(hash));
+
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            e.printStackTrace();
+        }  
+    }
+}
+```
+
+This program creates a key derived via password-based key derivation function 2 (PBKDF2) with HmacSHA256 as the pseudorandom function (PRF). 
+
+The salt value is a byte array of size 16. Actually a salt should be random and should be stored for future reference. Here we are just creating constant one for simplicity.
+
+Then we create a `SecretKeyFactory` from the `PBKDF2WithHmacSHA256` algorithm and generate secret based on the KeySpec.
+
+It's important to handle the `NoSuchAlgorithmException` and `InvalidKeySpecException` because they can be thrown when the algorithm is not available or if the keyspec is not valid.
+
+Please replace the "password" and config your own salt, iteration count, and key length according to your security requirements.

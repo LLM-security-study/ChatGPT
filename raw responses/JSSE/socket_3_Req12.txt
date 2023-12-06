@@ -1,0 +1,52 @@
+Here is a base version of the program you asked for. Before you proceed, make sure you have the appropriate SSL certificate installed and configured correctly.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String host = "your.server.com";
+        int port = 443; // Replace with your port
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslSocket = (SSLSocket) factory.createSocket(host, port);
+
+            // Enable all the suites
+            String[] supported = sslSocket.getSupportedCipherSuites();
+            sslSocket.setEnabledCipherSuites(supported);
+
+            Writer out = new OutputStreamWriter(sslSocket.getOutputStream());
+            // Write data to the socket
+            out.write("Hello Server");
+            out.flush();
+
+            // Reading response from the server
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sslSocket.getInputStream())); 
+            String line = null;
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println("Server response: " + line);
+            }
+
+            // Make sure to close the socket
+            sslSocket.close();
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+```
+
+This is a simple example of using Java's `javax.net.ssl.SSLSocket` for secure socket communication with a remote server.
+
+Please replace the `host` and `port` with the appropriate values. This example assumes that the server is set up to accept SSL connections. Make necessary modifications based on your server setup and/ or requirements.
+
+This program writes a string "Hello Server" to the server and then reads the server response line by line until nothing is left and then closes the connection.
+
+Please note that real-world usage would likely involve more robust error checking and handling.
+
+## NOTE:
+For SSL to work, a trust relationship has to be established between the client (your Java program) and the server. This is typically done through the exchange of SSL certificates. Once the server's certificate is imported into your Java keystore, it automatically becomes a trusted entity. Ensure you have server's public key certificate in your JVM's truststore. Please refer to Java's keytool documentation or contact your System Administrator for further instructions.

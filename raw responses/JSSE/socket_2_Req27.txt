@@ -1,0 +1,39 @@
+Here is a basic Java program to show how to establish an SSL socket with a remote server:
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) {
+        String remoteServer = "www.example.com";
+        int port = 443; // Default port for SSL
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+            SSLSocket socket = (SSLSocket)factory.createSocket(remoteServer, port);
+
+            PrintWriter output = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+            output.println("Hello Server!");
+
+            BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("Response from server: " + input.readLine());
+
+            output.close();
+            input.close();
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println("Failed to create socket: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program connects to a server using the default SSL port of 443. Make sure to replace "www.example.com" with the address of the actual server you want to connect to.
+
+The "javax.net.ssl.SSLSocket" and "javax.net.ssl.SSLSocketFactory" classes from Java standard APIs are used for the SSL socket connection.
+
+Please note that real-life usage would involve more complexity, including error handling, dealing with certificates, and securing sensitive data.

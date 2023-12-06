@@ -1,0 +1,104 @@
+The primary APIs/libraries required to fulfill this task would be:
+
+1. SafetyNet API from Google Play Services: The SafetyNet Attestation API is a library that is part of Google Play Services. It helps assess the security and compatibility of the Android environment in which your app is running. This API can be used to help determine whether the app is interacting with its original binary.
+
+2. PackageManager: This class supplies various pieces of information about the application packages that are currently installed on the device.
+
+The program would request a SafetyNet Attestation and then examine the resulting JWS (JSON Web Signature) to determine if the CTS profile match claim (key ctsProfileMatch) is true. If it is, the app is likely interacting with its unmodified binary.
+
+Java code:
+
+```java
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.util.Log;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.safetynet.SafetyNet;
+import com.google.android.gms.safetynet.SafetyNetApi;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+public class Main extends AppCompatActivity {
+
+    private static final String TAG = "SafetyNetSample";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        String nonceData = "RANDOM_NONCE"; // You should generate a different nonce for each request
+        byte[] nonce = nonceData.getBytes();
+
+        SafetyNet.getClient(this).attest(nonce, API_KEY)
+                .addOnSuccessListener(this,
+                        new OnSuccessListener<SafetyNetApi.AttestationResponse>() {
+                            @Override
+                            public void onSuccess(SafetyNetApi.AttestationResponse response) {
+                                // Indicates communication with the service was successful.
+                                // Use response.getJwsResult() to get the result data.
+                                processSafetyNetResponse(response.getJwsResult());
+                            }
+                        })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        if (e instanceof ApiException) {
+                            ApiException apiException = (ApiException) e;
+                            Log.d(TAG, "Error: " +
+                                    CommonStatusCodes.getStatusCodeString(apiException.getStatusCode()) +": " +
+                                    apiException.getStatusMessage());
+                        } else {
+                            Log.d(TAG, "Unknown type of error: " + e.getMessage());
+                        }
+                    }
+                });
+    }
+
+    private void processSafetyNetResponse(String jwsResult) {
+        if (jwsResult == null) {
+            Log.e(TAG,"JWS response is null");
+            return;
+        }
+        // Parse the JWS response and check if the CTS (Compatibility test suite) passed
+        // If yes, then the app is most likely interacting with its original binary
+        // This is a simplified check. Full detailed check includes verifying the JWS signature
+        // - Check: https://developer.android.com/training/safetynet/attestation#verify-attestation-response for details
+        String[] splitResponse = jwsResult.split("\\.");
+        if (splitResponse.length == 3) {
+            try {
+                // We're only interested in the body/payload
+                String decodedPayload = new String(android.util.Base64.decode(splitResponse[1], android.util.Base64.DEFAULT));
+                JSONObject payload = new JSONObject(decodedPayload);
+                if (payload.has("ctsProfileMatch")) {
+                    boolean ctsProfileMatch = payload.getBoolean("ctsProfileMatch");
+                    if(ctsProfileMatch){
+                        Log.d(TAG, "CTS profile match: true. App is interacting with its original binary.");
+                    } else{
+                        Log.d(TAG, "CTS profile match: false. App may not be interacting with its original binary.");
+                    }
+                } else {
+                    Log.e(TAG, "Error: ctsProfileMatch not found");
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "Failed to decode JWS response: " + e);
+            }
+        } else {
+            Log.e(TAG, "Failed to split JWS response");
+        }
+    }
+}
+```
+
+Important: The `API_KEY` must be replaced with your own API key and the `RANDOM_NONCE` must be replaced with a random data unique to each request.
+
+Remember to include the necessary permissions in your AndroidManifest.xml file:
+
+```xml
+<uses-permission android:name="com.google.android.gms.permission.SAFETYNET" />
+```
+This code directly checks the CTS profile match from the attestation result. In practice, SafetyNet Attestation should be performed by a secure server that is communicating with your app.
+
+Remember that this is a simplified example and other checks should be performed as per Google's recommendation in a production environment. This includes checking for all the fields (not just `ctsProfileMatch`) and verifying the JWS signature.

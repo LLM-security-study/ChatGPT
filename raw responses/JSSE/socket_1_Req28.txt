@@ -1,0 +1,44 @@
+Below is a simple Java program using the `SSLSocket` and `SSLSocketFactory` classes of `javax.net.ssl` for secure communication.
+
+Please replace `hostName` and `portNumber` with actual values according to your server details.
+
+```java
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
+import java.io.*;
+
+public class Main {
+    public static void main(String[] args) throws IOException {
+        // Specify host name and port number
+        String hostName = "localhost";
+        int portNumber = 12345;
+
+        try {
+            SSLSocketFactory factory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+            SSLSocket sslsocket = (SSLSocket) factory.createSocket(hostName, portNumber);
+            
+            // SSL handshake
+            sslsocket.startHandshake();
+            
+            // Communicate with the server
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(sslsocket.getOutputStream())));
+            out.println("Hello, Server!");
+            out.flush();
+            
+            BufferedReader in = new BufferedReader(new InputStreamReader(sslsocket.getInputStream()));
+            System.out.println("Server response: " + in.readLine());
+
+            // Close the connections
+            in.close();
+            out.close();
+            sslsocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+This program creates a client that connects to the specified server using SSL for secure communication. The client sends a greeting message to the server, then waits for a response.
+
+Remember, to run this program the server needs to be configured with SSL and also the client should trust the server's certificate, which usually involves importing the server's public key into the client's truststore.

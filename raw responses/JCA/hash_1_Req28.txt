@@ -1,0 +1,32 @@
+Sure, here is a simple Java program that calculates the hash value using SHA-256 hashing algorithm available in Java standard API.
+
+```java
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class Main {
+    public static void main(String[] args) {
+        String originalString = "Hello World!";
+        System.out.println("Hash for "+originalString+" is: "+getSHA256Hash(originalString));
+    }
+
+    public static String getSHA256Hash(String input) {
+        StringBuilder hash = new StringBuilder();
+
+        try { 
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+    
+            for (byte b : encodedhash) {
+                hash.append(String.format("%02x", b));
+            }
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+
+        return hash.toString();
+    }
+}
+```
+Importantly, keep in mind that while this program does hash a given string, it does not provide any sort of data integrity checks. A hash function will always produce the same output for the same input, and it's useful for verifying that a piece of data hasn't been altered, but actually checking for data integrity would also involve re-calculating the hash on the received data and comparing it to the original hash, which this program doesn't do.

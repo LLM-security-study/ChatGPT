@@ -1,4 +1,4 @@
-# Trustworthiness Evaluation: Large Language Models in Secure Security API Code Generation
+# Evaluating the Trustworthiness of Large Language Models in Generating Secure Security API Code
 
 This repository contains materials related to the study: "Evaluating the Trustworthiness of Large Language Models in Generating Secure Security API Code."
 
